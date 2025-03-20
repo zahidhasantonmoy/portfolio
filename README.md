@@ -43,3 +43,17 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - Implemented responsive design
 - Added development server configuration
 - Updated documentation with latest changes
+
+### Version 2.1.0 (March 20, 2024)
+- Added Framer Motion for smooth animations
+- Implemented animated section transitions
+- Added hover effects on interactive elements
+- Added scroll reveal animations
+- Enhanced user experience with motion feedback
+
+### Version 2.2.0 (March 20, 2024)
+- Added AnimatedHeader component for dynamic page headers
+- Implemented AnimatedButton with hover and click effects
+- Added LoadingSpinner for better loading states
+- Enhanced component reusability
+- Improved user interaction feedback
