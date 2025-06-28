@@ -46,9 +46,7 @@ const AchievementSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <GradientText className="text-4xl font-bold mb-4">
-            My Achievements
-          </GradientText>
+          <GradientText text="My Achievements" className="text-4xl font-bold mb-4" />
           <p className="text-gray-600 dark:text-gray-300 text-lg">
             Milestones in my journey
           </p>

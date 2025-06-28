@@ -47,9 +47,7 @@ const ContactFormSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <GradientText className="text-4xl font-bold mb-4">
-            Get in Touch
-          </GradientText>
+          <GradientText text="Get in Touch" className="text-4xl font-bold mb-4" />
           <p className="text-gray-600 dark:text-gray-300 text-lg">
             Send me a message and I'll get back to you as soon as possible
           </p>

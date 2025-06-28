@@ -1,112 +1,84 @@
-'use client';
 
+"use client";
+import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 const projects = [
   {
-    title: 'OffenseOrbit',
-    description: 'A comprehensive platform for managing and tracking offenses. Features include user authentication, offense reporting, tracking system, and admin dashboard for efficient management. Built with modern web technologies and a focus on user experience. The system allows users to report offenses, track their status, and administrators to manage cases effectively.',
+    title: 'OffenseOrbit: AI-Powered Threat Intelligence Platform',
+    description: 'A platform for real-time offensive security monitoring and threat intelligence. This project involved designing scalable data pipelines, implementing anomaly detection algorithms, and visualizing complex security data to provide actionable insights for cybersecurity professionals.',
     image: '/images/project image/offenseorbit.png',
-    link: 'https://offenseorbit.free.nf',
-    technologies: ['React', 'Node.js', 'MongoDB', 'Express.js', 'Tailwind CSS', 'JWT Authentication'],
-    features: [
-      'User Authentication & Authorization',
-      'Offense Reporting System',
-      'Real-time Status Tracking',
-      'Admin Dashboard',
-      'Case Management System',
-      'User Profile Management',
-      'Search & Filter Functionality',
-      'Responsive Design'
-    ]
+    liveLink: '#',
+    sourceLink: 'https://github.com/zahidhasantonmoy/OffenseOrbit',
   },
   {
-    title: 'Halarnati',
-    description: 'A platform dedicated to managing and tracking halal food items. Includes features for product listing, halal certification verification, and user reviews. Focuses on providing accurate information about halal products. The system helps users find and verify halal products while allowing businesses to showcase their certified products.',
+    title: 'Halal Nati: E-commerce with AI-Driven Recommendations',
+    description: 'An e-commerce platform for halal products, featuring a custom-built recommendation engine that personalizes user experience and boosts sales. The project focused on seamless user journeys, secure payment integrations, and data-driven product suggestions to enhance customer satisfaction and retention.',
     image: '/images/project image/halarnati.png',
-    link: 'https://halarnati.free.nf',
-    technologies: ['React', 'Node.js', 'MongoDB', 'Express.js', 'Tailwind CSS', 'Image Upload'],
-    features: [
-      'Product Listing & Management',
-      'Halal Certification Verification',
-      'User Reviews & Ratings',
-      'Advanced Search Functionality',
-      'Admin Panel',
-      'Product Categories',
-      'Business Profiles',
-      'Mobile Responsive Design'
-    ]
-  }
+    liveLink: '#',
+    sourceLink: 'https://github.com/zahidhasantonmoy/Halal-Nati',
+  },
+  {
+    title: 'Gold Price Predictor: Machine Learning Application',
+    description: 'Developed a machine learning application to predict gold prices. This project involved data collection, feature engineering, model training (using algorithms like Linear Regression, Random Forest), and evaluation to provide accurate price forecasts.',
+    image: '/images/project image/default-project.png', // Placeholder image
+    liveLink: '#',
+    sourceLink: 'https://github.com/zahidhasantonmoy/Gold-Price-Predictor-Machine-Learning-app',
+  },
+  {
+    title: 'Snake Detection: Computer Vision Project',
+    description: 'A computer vision project focused on detecting snakes in images or video streams. This involved training a deep learning model (e.g., using TensorFlow or PyTorch) on a custom dataset, and implementing image processing techniques for accurate detection.',
+    image: '/images/project image/default-project.png', // Placeholder image
+    liveLink: '#',
+    sourceLink: 'https://github.com/zahidhasantonmoy/snakedetection',
+  },
+  {
+    title: 'Flexpath: Flutter-based Android App',
+    description: 'Developed a mobile application using Flutter for Android. This project showcases cross-platform mobile development skills, focusing on UI/UX design, state management, and integration with backend services.',
+    image: '/images/project image/default-project.png', // Placeholder image
+    liveLink: '#',
+    sourceLink: 'https://github.com/zahidhasantonmoy/Flexpath',
+  },
 ];
 
-export default function Projects() {
+const Projects = () => {
   return (
-    <section id="projects" className="py-20 bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+    <section id="projects" className="py-20 bg-white dark:bg-gray-900">
+      <div className="container mx-auto px-6">
+        <motion.h2
+          className="text-4xl font-bold text-center mb-12"
+          initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.7 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
         >
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">My Projects</h2>
-          <div className="w-24 h-1 bg-blue-600 mx-auto"></div>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          My Projects
+        </motion.h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project, index) => (
             <motion.div
-              key={project.title}
-              initial={{ opacity: 0, y: 20 }}
+              key={index}
+              className="bg-gray-800 rounded-lg overflow-hidden shadow-lg"
+              initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.5, delay: index * 0.2 }}
               viewport={{ once: true }}
-              className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 transform hover:-translate-y-1"
             >
-              <div className="relative h-48">
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
-              <div className="p-8">
-                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                  {project.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  {project.description}
-                </p>
-                <div className="mb-6">
-                  <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Key Features</h4>
-                  <ul className="list-disc list-inside space-y-1 text-gray-600 dark:text-gray-300">
-                    {project.features.map((feature) => (
-                      <li key={feature}>{feature}</li>
-                    ))}
-                  </ul>
+              <Image
+                src={project.image}
+                alt={project.title}
+                width={500}
+                height={300}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-6">
+                <h3 className="text-2xl font-bold mb-2 text-white">{project.title}</h3>
+                <p className="text-gray-400 mb-4">{project.description}</p>
+                <div className="flex justify-between">
+                  <a href={project.liveLink} target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:underline">Live Demo</a>
+                  <a href={project.sourceLink} target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:underline">Source Code</a>
                 </div>
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {project.technologies.map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-full text-sm"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-                <a
-                  href={project.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-                >
-                  View Project
-                </a>
               </div>
             </motion.div>
           ))}
@@ -114,4 +86,6 @@ export default function Projects() {
       </div>
     </section>
   );
-}
+};
+
+export default Projects;

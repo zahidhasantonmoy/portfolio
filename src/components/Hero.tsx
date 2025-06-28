@@ -1,135 +1,236 @@
-'use client';
-
-import { motion } from 'framer-motion';
+"use client";
+import React from 'react';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
+import { FaGithub, FaLinkedin, FaFacebook, FaTwitter, FaBrain, FaDatabase, FaChartLine } from 'react-icons/fa';
+import GradientText from './GradientText';
 
-export default function Hero() {
+const Hero = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 10,
+      },
+    },
+  };
+
+  const iconVariants = {
+    hidden: { scale: 0, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 200,
+        damping: 15,
+      },
+    },
+    hover: {
+      scale: 1.2,
+      color: "#6EE7B7", // Tailwind teal-400
+      transition: {
+        duration: 0.2,
+      },
+    },
+  };
+
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center md:text-left"
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="relative w-48 h-48 mx-auto md:mx-0 mb-8"
-            >
-              <Image
-                src="/images/profile.jpg"
-                alt="MD ZAHID HASAN"
-                fill
-                className="rounded-full object-cover shadow-2xl"
-                priority
-              />
-            </motion.div>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6"
-            >
-              MD ZAHID HASAN
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-xl text-gray-600 dark:text-gray-300 mb-8"
-            >
-              Web Developer & AI Researcher
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="flex flex-wrap gap-4 justify-center md:justify-start mb-8"
-            >
-              <a
-                href="#projects"
-                className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-              >
-                View My Work
-              </a>
-              <a
-                href="#contact"
-                className="bg-white dark:bg-gray-700 text-gray-900 dark:text-white px-8 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors shadow-lg hover:shadow-xl"
-              >
-                Contact Me
-              </a>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="flex justify-center md:justify-start space-x-6"
-            >
-              <a
-                href="https://www.facebook.com/zahidhasantonmoybd"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              >
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
-                </svg>
-              </a>
-              <a
-                href="mailto:zahidhasantonmoy360@gmail.com"
-                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </a>
-              <a
-                href="tel:+8801724348000"
-                className="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-              </a>
-            </motion.div>
-          </motion.div>
+    <section id="home" className="relative h-screen flex items-center justify-center text-center overflow-hidden bg-gradient-to-br from-gray-950 via-purple-950 to-blue-950">
+      {/* Dynamic Background Elements */}
+      <div className="absolute inset-0 z-0">
+        {/* Animated Grid/Pattern */}
+        <motion.div
+          className="absolute inset-0 bg-grid-pattern opacity-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.1 }}
+          transition={{ duration: 3, ease: "easeInOut" }}
+        ></motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="hidden md:block"
-          >
-            <div className="relative h-96">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-3xl transform rotate-6"></div>
-              <div className="absolute inset-0 bg-white dark:bg-gray-800 rounded-3xl transform -rotate-3 shadow-2xl p-8">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">About Me</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  I am a passionate web developer and AI researcher currently pursuing my BSc in Computer Science and Engineering at Bangladesh University of Business and Technology.
-                </p>
-                <div className="space-y-2">
-                  <p className="text-gray-600 dark:text-gray-300">
-                    <span className="font-semibold">Skills:</span> HTML, CSS, JavaScript, React.js, Next.js
-                  </p>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    <span className="font-semibold">AI Expertise:</span> Data Preprocessing, Model Training
-                  </p>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    <span className="font-semibold">Contact:</span> 01724 348000
-                  </p>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    <span className="font-semibold">Email:</span> zahidhasantonmoy360@gmail.com
-                  </p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+        {/* Abstract Data Flow / Neural Network Lines */}
+        <motion.div
+          className="absolute top-0 left-0 w-full h-full"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.3 }}
+          transition={{ duration: 2, delay: 0.5 }}
+        >
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <motion.path
+              d="M0,10 Q50,0 100,10 T0,20 Q50,30 100,40 T0,50 Q50,60 100,70 T0,80 Q50,90 100,100"
+              stroke="url(#gradient1)"
+              strokeWidth="0.5"
+              fill="none"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+            />
+            <motion.path
+              d="M100,0 Q50,10 0,20 T100,30 Q50,40 0,50 T100,60 Q50,70 0,80 T100,90 Q50,100 0,100"
+              stroke="url(#gradient2)"
+              strokeWidth="0.5"
+              fill="none"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 12, repeat: Infinity, ease: "linear", delay: 1 }}
+            />
+            <defs>
+              <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#8B5CF6" /> {/* Purple-500 */}
+                <stop offset="100%" stopColor="#3B82F6" /> {/* Blue-500 */}
+              </linearGradient>
+              <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#EC4899" /> {/* Pink-500 */}
+                <stop offset="100%" stopColor="#10B981" /> {/* Emerald-500 */}
+              </linearGradient>
+            </defs>
+          </svg>
+        </motion.div>
+
+        {/* Iconic Overlays */}
+        <motion.div
+          className="absolute top-1/4 left-1/4 text-white/5"
+          initial={{ scale: 0, rotate: 0 }}
+          animate={{ scale: 1, rotate: 360 }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        >
+          <FaBrain size={150} />
+        </motion.div>
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 text-white/5"
+          initial={{ scale: 0, rotate: 0 }}
+          animate={{ scale: 1, rotate: -360 }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+        >
+          <FaDatabase size={150} />
+        </motion.div>
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/5"
+          initial={{ scale: 0, rotate: 0 }}
+          animate={{ scale: 1, rotate: 180 }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        >
+          <FaChartLine size={150} />
+        </motion.div>
       </div>
+
+      <motion.div
+        className="relative z-10 flex flex-col items-center text-white p-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={itemVariants} className="mb-6 relative w-52 h-52 rounded-full overflow-hidden">
+          <Image
+            src="/images/profile.jpg"
+            alt="Zahid Hasan Tonmoy"
+            layout="fill"
+            objectFit="cover"
+            className="transform hover:scale-105 transition-transform duration-300 ease-in-out"
+          />
+          {/* Modern Glow Effect */}
+          <motion.div
+            className="absolute inset-0 rounded-full border-4 border-transparent"
+            animate={{
+              boxShadow: ["0 0 15px rgba(59,130,246,0.8)", "0 0 25px rgba(139,92,246,0.8)", "0 0 15px rgba(59,130,246,0.8)"],
+            }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          ></motion.div>
+        </motion.div>
+        <motion.h1
+          className="text-6xl md:text-8xl font-extrabold mb-2 drop-shadow-lg"
+          variants={itemVariants}
+        >
+          <GradientText text="Zahid Hasan Tonmoy" />
+        </motion.h1>
+        <motion.p
+          className="text-2xl md:text-4xl font-light max-w-4xl leading-relaxed mb-8 text-gray-300"
+          variants={itemVariants}
+        >
+          Data Analyst | AI Agent Developer | Digital Marketer
+        </motion.p>
+
+        <motion.div
+          className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 mb-8"
+          variants={containerVariants}
+        >
+          <motion.a
+            href="#projects"
+            className="px-8 py-4 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-300"
+            variants={itemVariants}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            View My Work
+          </motion.a>
+          <motion.a
+            href="#contact"
+            className="px-8 py-4 border-2 border-gray-400 text-gray-300 font-bold rounded-lg shadow-lg hover:bg-gray-700 hover:border-gray-700 transition-colors duration-300"
+            variants={itemVariants}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Contact Me
+          </motion.a>
+        </motion.div>
+
+        <motion.div
+          className="flex space-x-6"
+          variants={containerVariants}
+        >
+          <motion.a
+            href="https://github.com/zahidhasantonmoy" target="_blank" rel="noopener noreferrer"
+            className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
+            variants={iconVariants}
+            whileHover="hover"
+            whileTap={{ scale: 0.9 }}
+          >
+            <FaGithub size={30} />
+          </motion.a>
+          <motion.a
+            href="https://www.linkedin.com/in/zahidhasantonmoy/" target="_blank" rel="noopener noreferrer"
+            className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
+            variants={iconVariants}
+            whileHover="hover"
+            whileTap={{ scale: 0.9 }}
+          >
+            <FaLinkedin size={30} />
+          </motion.a>
+          <motion.a
+            href="https://www.facebook.com/zahidhasantonmoybd" target="_blank" rel="noopener noreferrer"
+            className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
+            variants={iconVariants}
+            whileHover="hover"
+            whileTap={{ scale: 0.9 }}
+          >
+            <FaFacebook size={30} />
+          </motion.a>
+          <motion.a
+            href="https://twitter.com/zahidhasantonmoy" target="_blank" rel="noopener noreferrer"
+            className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
+            variants={iconVariants}
+            whileHover="hover"
+            whileTap={{ scale: 0.9 }}
+          >
+            <FaTwitter size={30} />
+          </motion.a>
+        </motion.div>
+      </motion.div>
     </section>
   );
-}
+};
+
+export default Hero;

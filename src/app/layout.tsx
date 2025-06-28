@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "আমার পোর্টফোলিও",
-  description: "আমার ব্যক্তিগত পোর্টফোলিও ওয়েবসাইট",
+  title: "Zahid Hasan Tonmoy | Data Analyst, AI Agent Developer & Digital Marketer",
+  description: "A portfolio showcasing expertise in Data Analysis, AI Agent Development, and Digital Marketing.",
 };
 
 export default function RootLayout({

@@ -53,9 +53,7 @@ const ResumeSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <GradientText className="text-4xl font-bold mb-4">
-            My Resume
-          </GradientText>
+          <GradientText text="My Resume" className="text-4xl font-bold mb-4" />
           <p className="text-gray-600 dark:text-gray-300 text-lg">
             Professional experience and education
           </p>

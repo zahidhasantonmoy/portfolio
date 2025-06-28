@@ -1,124 +1,148 @@
 "use client";
-
+import React from 'react';
 import { motion } from 'framer-motion';
-import GradientText from './GradientText';
+import { FaGraduationCap, FaBriefcase, FaAward, FaLightbulb, FaCode, FaChartBar } from 'react-icons/fa';
 
-interface TimelineEvent {
-  date: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  category: string;
-}
-
-const timelineEvents: TimelineEvent[] = [
+const timelineEvents = [
   {
-    date: "2024",
-    title: "Senior Frontend Developer",
-    description: "Leading frontend development team and implementing modern web technologies.",
-    category: "Work",
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    )
+    date: '2021 - Present',
+    title: 'B.Sc in Computer Science & Engineering',
+    institution: 'Daffodil International University',
+    description: 'Pursuing my undergraduate degree with a focus on AI, Machine Learning, and Software Development. Actively involved in research and various coding competitions.',
+    icon: <FaGraduationCap />,
+    type: 'education',
+    color: 'blue',
   },
   {
-    date: "2023",
-    title: "Full Stack Development Certification",
-    description: "Completed advanced certification in full stack web development.",
-    category: "Education",
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15M9 11l3 3m0 0l3-3m-3 3V8" />
-      </svg>
-    )
+    date: '2018 - 2020',
+    title: 'Higher Secondary Certificate (HSC)',
+    institution: 'Milestone College',
+    description: 'Completed my higher secondary education with a focus on science and mathematics, laying a strong foundation for my engineering studies.',
+    icon: <FaGraduationCap />,
+    type: 'education',
+    color: 'blue',
   },
   {
-    date: "2022",
-    title: "Frontend Developer",
-    description: "Developed responsive web applications using modern frameworks.",
-    category: "Work",
-    icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-      </svg>
-    )
-  }
+    date: '2016 - 2018',
+    title: 'Secondary School Certificate (SSC)',
+    institution: 'Faizur Rahman Ideal Institute',
+    description: 'Completed my secondary education, where I first discovered my passion for technology and problem-solving.',
+    icon: <FaGraduationCap />,
+    type: 'education',
+    color: 'blue',
+  },
+  {
+    date: '2024',
+    title: 'Software Development Competition Winner',
+    institution: 'Dhaka, Bangladesh',
+    description: 'Awarded for outstanding performance in a regional software development competition, showcasing problem-solving and coding skills.',
+    icon: <FaAward />,
+    type: 'achievement',
+    color: 'purple',
+  },
+  {
+    date: '2023',
+    title: 'AI Agent Development Project',
+    institution: 'Personal Project',
+    description: 'Developed an intelligent AI agent for data analysis and automated reporting, utilizing advanced machine learning algorithms.',
+    icon: <FaLightbulb />,
+    type: 'project',
+    color: 'green',
+  },
+  {
+    date: '2022',
+    title: 'Data Analysis Internship',
+    institution: 'Tech Solutions Ltd.',
+    description: 'Gained hands-on experience in data cleaning, analysis, and visualization, contributing to key business insights.',
+    icon: <FaChartBar />,
+    type: 'experience',
+    color: 'pink',
+  },
 ];
 
+const colorMap = {
+  blue: { bg: 'bg-blue-600', text: 'text-blue-400', border: 'border-blue-500' },
+  purple: { bg: 'bg-purple-600', text: 'text-purple-400', border: 'border-purple-500' },
+  green: { bg: 'bg-emerald-600', text: 'text-emerald-400', border: 'border-emerald-500' },
+  pink: { bg: 'bg-pink-600', text: 'text-pink-400', border: 'border-pink-500' },
+};
+
 const TimelineSection = () => {
+  const cardVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
+  };
+
+  const iconCircleVariants = {
+    hidden: { scale: 0, opacity: 0 },
+    visible: { scale: 1, opacity: 1, transition: { type: "spring", stiffness: 200, damping: 10 } },
+    hover: { scale: 1.2, transition: { duration: 0.2 } },
+  };
+
   return (
-    <section className="py-20 bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+    <section id="timeline" className="py-20 pb-40 bg-gray-900 text-white">
+      <div className="container mx-auto px-6">
+        <motion.h2
+          className="text-4xl font-bold text-center mb-16 text-white"
+          initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.7 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
         >
-          <GradientText className="text-4xl font-bold mb-4">
-            My Journey
-          </GradientText>
-          <p className="text-gray-600 dark:text-gray-300 text-lg">
-            Key milestones in my career path
-          </p>
-        </motion.div>
+          My Journey
+        </motion.h2>
 
-        <div className="relative">
-          {/* Timeline line */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gray-200 dark:bg-gray-700" />
+        <div className="relative flex flex-col items-center">
+          {/* Central Connecting Line - More Abstract */}
+          <motion.div
+            className="absolute h-full w-1 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 rounded-full"
+            initial={{ scaleY: 0 }}
+            whileInView={{ scaleY: 1 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            viewport={{ once: true, amount: 0.5 }}
+          ></motion.div>
 
-          <div className="space-y-12">
-            {timelineEvents.map((event, index) => (
+          {timelineEvents.map((event, index) => {
+            const colors = colorMap[event.color as keyof typeof colorMap];
+            return (
               <motion.div
-                key={event.date}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
-                viewport={{ once: true }}
-                className={`relative flex items-center justify-between ${
-                  index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'
-                }`}
+                key={index}
+                className={`relative flex items-center w-full mb-16 ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}
+                variants={cardVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
               >
-                {/* Content */}
-                <div className="w-5/12">
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
-                    <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-sm mb-4">
-                      {event.category}
-                    </span>
-                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                      {event.title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      {event.description}
-                    </p>
-                  </div>
-                </div>
+                {/* Event Card */}
+                <motion.div
+                  className={`w-full md:w-5/12 p-8 rounded-xl shadow-xl border ${colors.border} bg-gray-800 hover:${colors.border} transition-colors duration-300`}
+                  whileHover={{ translateY: -5 }}
+                >
+                  <p className={`text-sm ${colors.text} mb-2 font-semibold`}>{event.date}</p>
+                  <h3 className="text-2xl font-bold text-white mb-2">{event.title}</h3>
+                  <h4 className="text-lg font-semibold text-gray-300 mb-3">{event.institution}</h4>
+                  <p className="text-gray-400 leading-relaxed">{event.description}</p>
+                </motion.div>
 
-                {/* Icon */}
-                <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center w-12 h-12 bg-blue-500 dark:bg-blue-600 rounded-full">
-                  <div className="text-white">
-                    {event.icon}
-                  </div>
-                </div>
-
-                {/* Date */}
-                <div className="w-5/12 flex items-center">
-                  <div className={`text-xl font-bold text-gray-500 dark:text-gray-400 ${
-                    index % 2 === 0 ? 'text-right' : 'text-left'
-                  }`}>
-                    {event.date}
-                  </div>
-                </div>
+                {/* Icon Circle */}
+                <motion.div
+                  className={`absolute flex items-center justify-center w-20 h-20 rounded-full ${colors.bg} text-white text-3xl shadow-lg z-10`}
+                  variants={iconCircleVariants}
+                  initial="hidden"
+                  whileInView="visible"
+                  whileHover="hover"
+                  viewport={{ once: true, amount: 0.5 }}
+                  style={{ left: '50%', transform: 'translateX(-50%)' }}
+                >
+                  {event.icon}
+                </motion.div>
               </motion.div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
     </section>
   );
 };
 
-export default TimelineSection; 
+export default TimelineSection;

@@ -19,9 +19,7 @@ const HeroSection = () => {
           transition={{ duration: 0.8 }}
           className="mb-8"
         >
-          <GradientText className="text-5xl md:text-7xl font-bold mb-4">
-            Welcome to My Portfolio
-          </GradientText>
+          <GradientText text="Welcome to My Portfolio" className="text-5xl md:text-7xl font-bold mb-4" />
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300">
             I create beautiful and functional web experiences
           </p>

@@ -179,9 +179,7 @@ const SkillTreeSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <GradientText className="text-4xl font-bold mb-4">
-            My Skill Tree
-          </GradientText>
+          <GradientText text="My Skill Tree" className="text-4xl font-bold mb-4" />
           <p className="text-gray-600 dark:text-gray-300 text-lg">
             An interactive visualization of my technical skills
           </p>

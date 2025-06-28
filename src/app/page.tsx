@@ -1,12 +1,15 @@
+"use client";
+
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
 import Projects from '@/components/Projects';
 import Contact from '@/components/Contact';
 import Achievements from '@/components/Achievements';
-import SkillTreeSection from '@/components/SkillTreeSection';
+import SkillTree from '@/components/SkillTree';
 import GitHubSection from '@/components/GitHubSection';
 import TimelineSection from '@/components/TimelineSection';
+import Footer from '@/components/Footer';
 
 export default function Home() {
   return (
@@ -14,12 +17,13 @@ export default function Home() {
       <Navbar />
       <Hero />
       <About />
-      <SkillTreeSection />
+      <SkillTree />
       <Projects />
       <GitHubSection />
       <TimelineSection />
       <Achievements />
       <Contact />
+      <Footer />
     </main>
   );
 }

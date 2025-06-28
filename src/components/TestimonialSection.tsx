@@ -11,25 +11,25 @@ interface Testimonial {
 
 const testimonials: Testimonial[] = [
   {
-    name: "John Doe",
-    role: "CEO",
-    company: "Tech Solutions Inc.",
-    image: "/testimonials/john.jpg",
-    text: "Working with this developer was an absolute pleasure. The attention to detail and technical expertise is outstanding."
+    name: "Dr. Anya Sharma",
+    role: "Head of AI Research",
+    company: "Innovate AI Labs",
+    image: "/images/profile.jpg", // Placeholder image
+    text: "Zahid's expertise in AI agent development is truly remarkable. His solutions are innovative, efficient, and have significantly boosted our project capabilities."
   },
   {
-    name: "Jane Smith",
-    role: "Product Manager",
-    company: "Innovation Labs",
-    image: "/testimonials/jane.jpg",
-    text: "The quality of work and professionalism exceeded our expectations. Highly recommended!"
+    name: "Mr. David Chen",
+    role: "Chief Marketing Officer",
+    company: "Global Digital Solutions",
+    image: "/images/profile.jpg", // Placeholder image
+    text: "As a digital marketer, Zahid has an exceptional grasp of data analytics and WordPress. His strategies have consistently delivered outstanding ROI for our campaigns."
   },
   {
-    name: "Mike Johnson",
-    role: "CTO",
-    company: "Digital Ventures",
-    image: "/testimonials/mike.jpg",
-    text: "A talented developer who delivered beyond our requirements. The code quality is exceptional."
+    name: "Ms. Emily White",
+    role: "Lead Data Scientist",
+    company: "Quantify Insights",
+    image: "/images/profile.jpg", // Placeholder image
+    text: "Zahid's analytical rigor and ability to extract actionable insights from complex datasets are invaluable. He's a true asset to any data-driven team."
   }
 ];
 
@@ -44,9 +44,7 @@ const TestimonialSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <GradientText className="text-4xl font-bold mb-4">
-            Client Testimonials
-          </GradientText>
+          <GradientText text="Client Testimonials" className="text-4xl font-bold mb-4" />
           <p className="text-gray-600 dark:text-gray-300 text-lg">
             What people say about my work
           </p>

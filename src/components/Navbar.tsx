@@ -4,13 +4,11 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
-const navItems = [
-  { name: 'Home', href: '#home' },
+const navigation = [
+  { name: 'Home', href: '/' },
   { name: 'About', href: '#about' },
   { name: 'Projects', href: '#projects' },
-  { name: 'Achievements', href: '#achievements' },
-  { name: 'Skills', href: '#skills' },
-  { name: 'Contact', href: '#contact' },
+  { name: 'Contact', href: '#contact' }
 ];
 
 export default function Navbar() {
@@ -41,14 +39,14 @@ export default function Navbar() {
             className="flex-shrink-0"
           >
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
-              Portfolio
+              Zahid Hasan Tonmoy
             </span>
           </motion.div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              {navItems.map((item) => (
+              {navigation.map((item) => (
                 <motion.a
                   key={item.name}
                   href={item.href}
@@ -99,7 +97,7 @@ export default function Navbar() {
         transition={{ duration: 0.3 }}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-900">
-          {navItems.map((item) => (
+          {navigation.map((item) => (
             <motion.a
               key={item.name}
               href={item.href}
