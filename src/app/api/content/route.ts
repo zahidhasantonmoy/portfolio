@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { promises as fs } from "fs";
 import path from "path";
 
-const dataFilePath = path.join(process.cwd(), "public", "data.json");
+const dataFilePath = path.join(process.cwd(), "data.json");
 
 export async function GET(req: NextRequest) {
   try {
