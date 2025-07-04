@@ -59,26 +59,32 @@ export default function RootLayout({
   return (
     <html lang="bn" className="scroll-smooth">
       <body className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-white`}>
-        <script type="application/ld+json">
-          {
-            "@context": "https://schema.org",
-            "@type": "Person",
-            "name": "Zahid Hasan Tonmoy",
-            "jobTitle": "Data Analyst, AI Agent Developer & Digital Marketer",
-            "url": "https://zahidhasantonmoy.vercel.app",
-            "sameAs": [
-              "https://github.com/zahidhasantonmoy"
-            ]
-          }
-        </script>
-        <script type="application/ld+json">
-          {
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "Zahid Hasan Tonmoy's Portfolio",
-            "url": "https://zahidhasantonmoy.vercel.app"
-          }
-        </script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              "name": "Zahid Hasan Tonmoy",
+              "jobTitle": "Data Analyst, AI Agent Developer & Digital Marketer",
+              "url": "https://zahidhasantonmoy.vercel.app",
+              "sameAs": [
+                "https://github.com/zahidhasantonmoy"
+              ]
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "Zahid Hasan Tonmoy's Portfolio",
+              "url": "https://zahidhasantonmoy.vercel.app"
+            })
+          }}
+        />
         <Providers>{children}</Providers>
       </body>
     </html>
