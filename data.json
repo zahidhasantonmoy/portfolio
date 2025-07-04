@@ -1,0 +1,129 @@
+{
+  "name": "Zahid Hasan Tonmoy",
+  "title": "Data Analyst | AI Agent Developer | Digital Marketer",
+  "aboutMe": "Hello! I'm Zahid Hasan Tonmoy, a passionate Data Analyst, AI Agent Developer, and Digital Marketer. I specialize in transforming complex data into actionable insights, building intelligent AI solutions, and crafting effective digital strategies to drive growth and engagement. My journey in technology and marketing has equipped me with a unique blend of analytical prowess, creative problem-solving, and a deep understanding of digital landscapes.",
+  "skills": [
+    {
+      "category": "Web Development",
+      "items": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "PHP",
+        "SQL",
+        "WordPress"
+      ]
+    },
+    {
+      "category": "Programming & Frameworks",
+      "items": [
+        "Python",
+        "Java",
+        "C++",
+        "Next.js",
+        "React",
+        "Node.js"
+      ]
+    },
+    {
+      "category": "Data Science & AI",
+      "items": [
+        "NumPy",
+        "Pandas",
+        "TensorFlow",
+        "Keras",
+        "Scikit-learn",
+        "PyTorch",
+        "Matplotlib"
+      ]
+    },
+    {
+      "category": "Digital Marketing",
+      "items": [
+        "SEO",
+        "SEM",
+        "Social Media Marketing",
+        "Content Marketing",
+        "Google Analytics"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "1",
+      "title": "Flexpath",
+      "description": "lexPath is a mobile-first gig economy platform designed specifically for Bangladesh. It helps connect job seekers (like students, freelancers) with employers (such as small businesses or households) who need temporary, flexible workers for short-term tasks.\n\nDeveloped using Flutter (frontend) and Supabase (backend), FlexPath provides a localized, secure, and user-friendly job matching experience. The app ensures trust and authenticity through NID (National ID) verification, real-time messaging, and role-based dashboards for different user types.\n⚙️ Core Functionalities:\n👤 User Roles & Access\n\n    Job Seeker Panel: Register, upload NID, browse/apply to jobs, chat with employers.\n\n    Employer Panel: Post jobs, review applicants, hire workers, message seekers.\n\n    Admin Panel: Approve NID submissions, manage users, resolve disputes.\n\n🔐 Authentication & Verification\n\n    Secure email/password & social logins\n\n    NID verification with admin approval\n\n    Role-based access control\n\n📲 Job System\n\n    Dynamic job feed with search & filters\n\n    Job posting with details like title, description, budget\n\n    Job application & status tracking\n\n    Ratings & reviews after job completion\n\n💬 Real-Time Chat\n\n    In-app messaging system using Supabase Realtime\n\n    Instant communication between seekers and employers\n\n🛡️ Admin Features\n\n    Dashboard with user/job stats\n\n    NID approval panel\n\n    User and job management\n\n    Manual dispute resolution tools\n\n💼 Technology Stack\n\n    Frontend: Flutter 3.x\n\n    Backend: Supabase (PostgreSQL, Auth, Storage, Realtime)\n\n    Dev Tools: VS Code, Android Studio, GitHub, Figma\n\n",
+      "images": [
+        "/images/project image/Flexpath/Screenshot_20250703_215143.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215159.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215205.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215213.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215235.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215244.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215254.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215301.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215307.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215314.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215331.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215341.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215356.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215402.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215406.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215420.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215425.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215434.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215457.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215507.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215515.jpg",
+        "/images/project image/Flexpath/Screenshot_20250703_215530.jpg"
+      ],
+      "githubUrl": "https://github.com/zahidhasantonmoy/Flexpath",
+      "liveUrl": ""
+    },
+    {
+      "id": "2",
+      "title": "Gold Price Predictor",
+      "description": "This project focuses on predicting the daily closing price of gold using various machine learning regression algorithms. Based on historical financial data like Open, High, Low, and Volume, the study aims to determine the most accurate model for gold price forecasting.\n\nThe project also includes a web application that allows users to input data and receive real-time price predictions using the trained models. The goal is to provide a practical tool for investors, students, and researchers to make informed predictions using machine learning.\n⚙️ Core Functionalities:\n📥 Data Preprocessing\n\n    Load and clean historical gold price dataset\n\n    Convert date formats, handle missing values (none found)\n\n    Apply feature scaling (StandardScaler)\n\n📊 Exploratory Data Analysis (EDA)\n\n    Correlation heatmaps and pairplots\n\n    Time series visualizations of price trends\n\n    Feature relationship analysis (Price vs. Open, High, Low, Volume)\n\n🔧 Model Training & Evaluation\n\n    15+ regression models tested:\n\n        Linear Regression, Ridge, Lasso, Random Forest, Gradient Boosting, Huber Regressor, etc.\n\n    Metrics used: R², MSE, RMSE, MAE\n\n    Best model: Huber Regressor with R² ≈ 0.9999\n\n🤖 Prediction System\n\n    Predict prices using new input values (Open, High, Low, Volume)\n\n    Save results to CSV\n\n🌐 Web Application\n\n    Built to let users interactively input data\n\n    Select preferred algorithm from dropdown\n\n    View predicted gold price instantly\n\n📈 Performance Insights\n\n    Extremely high accuracy using price-related features\n\n    Demonstrated suitability for \"nowcasting\" daily prices",
+      "images": [
+        "/images/project image/Gold-Price-Predictor-Machine-Learning-app/website_app.png"
+      ],
+      "githubUrl": "https://github.com/zahidhasantonmoy/Gold-Price-Predictor-Machine-Learning-app",
+      "liveUrl": "https://gold-price-predictor-2f1h.onrender.com/"
+    },
+    {
+      "id": "3",
+      "title": "Halarnati",
+      "description": "Halarnati is a lightweight web-based file and text sharing platform designed with a playful, user-friendly interface. Created by Zahid Hasan, it allows users to upload files, write descriptions, and share content securely or publicly. The interface is styled with modern UI elements and includes casual Bangla-English mixed language to make it more relatable, especially for Bangladeshi users.\n\nFunctionalities:\n\n    Upload files with a title and text description\n\n    Optionally add a password to lock entries\n\n    Search for uploaded entries\n\n    View and download uploaded files\n\n    Copy shared links and content to clipboard\n\n    Paginate through multiple entries\n\n    Password-protected content unlocking feature",
+      "images": [
+        "/images/project image/halarnati/halarnati.png"
+      ],
+      "githubUrl": "https://github.com/zahidhasantonmoy/halarnati",
+      "liveUrl": "https://halarnati.free.nf/"
+    },
+    {
+      "id": "4",
+      "title": "OffenseOrbit",
+      "description": "OffenseOrbit is an advanced crime management platform designed to make communication between citizens and law enforcement seamless. By harnessing technology, OffenseOrbit helps streamline processes and ensure public safety. ",
+      "images": [
+        "/images/project image/OffenseOrbit/offenseorbit.png"
+      ],
+      "githubUrl": "https://github.com/zahidhasantonmoy/OffenseOrbit",
+      "liveUrl": "http://offenseorbit.free.nf/"
+    },
+    {
+      "id": "5",
+      "title": "Smart Drainage System",
+      "description": "Smart Drainage Monitor Project Description\n\nThe Smart Drainage Monitor is an innovative IoT-based system designed to prevent urban flooding by monitoring drainage chambers, detecting blockages, and automating clearance. This project addresses the critical issue of clogged drains, which often lead to waterlogging in cities, causing damage and disruption. By combining advanced hardware, cloud technology, and a user-friendly Android app, the system ensures real-time monitoring and efficient management of drainage systems.\n\nProject Overview\n\nThe Smart Drainage Monitor uses an ESP32-S3 microcontroller to collect data from multiple sensors, including water level, sonar (HC-SR04), gas (MQ8), temperature (LM35), IR, flame, and GPS modules. These sensors act as the system’s “eyes,” detecting water levels, potential blockages, and environmental conditions. The data is sent to Firebase Realtime Database, a cloud-based “notebook” that stores and updates sensor readings instantly. The Android app, developed as the primary user interface, displays this data, alerts users to blockages, and allows manual or automatic control of a servo motor to clear drains.\n\nKey Features\n\n\n\n\n\nReal-Time Monitoring: The app shows water levels for three drainage chambers, updated every 2 seconds, using a modern interface with a purple-blue gradient and bold “Smart Drainage Monitor” title.\n\n\n\nBlockage Detection: If two chambers are full and one is empty (e.g., [1, 1, 0]), the empty chamber is flagged as blocked, turning its display red with a “Blockage Detected” alert.\n\n\n\nSensor Insights: Displays data from sonar (proximity < 5 cm triggers a “Proximity Alert”), gas, temperature, and GPS, with default coordinates (23.812121, 90.357929) if GPS is unavailable.\n\n\n\nUser Controls: Includes a map button to view the drain’s location on Google Maps, a refresh button for manual data updates, and servo switches for manual or auto mode (10-second activation, 10-minute cooldown).\n\n\n\nAlerts: Clear red alerts for blockages or proximity issues, ensuring users are informed of critical conditions.\n\nTechnical Components\n\n\n\n\n\nHardware: ESP32-S3 with sensors (e.g., HC-SR04 on GPIO 12/13, servo on GPIO 15) running MicroPython to collect and send data to Firebase.\n\n\n\nSoftware: Android app (Java, minSdk 26) with Firebase integration (firebase-database:20.3.0) and a sleek UI using CardView and ProgressBar.\n\n\n\nCloud: Firebase Realtime Database stores sensor data (sensor_data) and servo control settings (servo_control).\n\nChallenges and Solutions\n\nChallenges included unreliable sensor data display and incorrect temperature readings (e.g., 330°C). These were addressed by implementing robust Firebase listeners, a manual refresh button, and suggesting hardware calibration for the LM35 sensor. The app reliably displays data and alerts, ensuring a seamless user experience.\n\nImpact and Future Work\n\nThe Smart Drainage Monitor enhances urban infrastructure by providing a proactive solution to flooding. The Android app, with its intuitive design and real-time alerts, empowers users to monitor and manage drainage systems effectively. Future enhancements could include push notifications for instant alerts and support for additional chambers to scale the system.\n\nThis project, with the Android app as my key contribution, demonstrates how technology can solve real-world problems, making cities safer and more resilient.",
+      "images": [
+        "/images/project image/smartdrainagesystem/IMG-20250705-WA0001.jpg",
+        "/images/project image/smartdrainagesystem/IMG-20250705-WA0003.jpg",
+        "/images/project image/smartdrainagesystem/IMG-20250705-WA0009.jpg",
+        "/images/project image/smartdrainagesystem/IMG-20250705-WA0013.jpg",
+        "/images/project image/smartdrainagesystem/Screenshot_20250705_023158_SmartDrainageApp.jpg",
+        "/images/project image/smartdrainagesystem/Screenshot_20250705_023210_SmartDrainageApp.jpg"
+      ],
+      "githubUrl": "https://github.com/zahidhasantonmoy/smartdrainagesystem",
+      "liveUrl": ""
+    }
+  ]
+}

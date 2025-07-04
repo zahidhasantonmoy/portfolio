@@ -55,7 +55,7 @@ const Contact = () => {
             <h3 className="text-2xl font-bold text-white mb-6">Contact Information</h3>
             <div className="space-y-4 text-gray-300">
               <p className="flex items-center"><FaEnvelope className="mr-3 text-teal-400" /> zahidhasantonmoy360@gmail.com</p>
-              <p className="flex items-center"><FaPhone className="mr-3 text-teal-400" /> +880 1724 348000</p>
+              <a href="tel:+8801724348000" className="flex items-center hover:underline"><FaPhone className="mr-3 text-teal-400" /> +880 1724 348000</a>
               <p className="flex items-center"><FaMapMarkerAlt className="mr-3 text-teal-400" /> Dhaka, Bangladesh</p>
             </div>
           </motion.div>

@@ -1,24 +1,25 @@
-"use client";
+'use client';
 
 import { useEffect, useRef } from 'react';
 import TagCloud from 'TagCloud';
 import { motion } from 'framer-motion';
 
-const SkillsSphere = () => {
+interface SkillCategory {
+  category: string;
+  items: string[];
+}
+
+interface SkillsSphereProps {
+  skills: SkillCategory[];
+}
+
+const SkillsSphere = ({ skills }: SkillsSphereProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     const container = '.tagcloud';
-    const texts = [
-      'HTML5', 'CSS3', 'JavaScript',
-      'React', 'Next.js', 'TypeScript',
-      'Node.js', 'Express', 'MongoDB',
-      'Git', 'REST API', 'GraphQL',
-      'Tailwind', 'Firebase', 'AWS',
-      'Docker', 'Redux', 'PostgreSQL',
-      'Python', 'Java', 'Spring Boot',
-      'CI/CD', 'Jest', 'WebSockets'
-    ];
+    const allSkills = skills.flatMap(category => category.items);
+    const texts = allSkills.length > 0 ? allSkills : ['No Skills Available'];
 
     const options = {
       radius: 300,
@@ -35,7 +36,7 @@ const SkillsSphere = () => {
     return () => {
       tagCloud.destroy();
     };
-  }, []);
+  }, [skills]);
 
   return (
     <motion.div
@@ -56,4 +57,4 @@ const SkillsSphere = () => {
   );
 };
 
-export default SkillsSphere; 
+export default SkillsSphere;

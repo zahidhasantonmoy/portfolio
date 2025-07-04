@@ -49,6 +49,8 @@ export const metadata: Metadata = {
   },
 };
 
+import Providers from "./providers";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -57,7 +59,7 @@ export default function RootLayout({
   return (
     <html lang="bn" className="scroll-smooth">
       <body className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-white`}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

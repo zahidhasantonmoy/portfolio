@@ -5,7 +5,12 @@ import { motion } from 'framer-motion';
 import { FaGithub, FaLinkedin, FaFacebook, FaTwitter, FaBrain, FaDatabase, FaChartLine } from 'react-icons/fa';
 import GradientText from './GradientText';
 
-const Hero = () => {
+interface HeroProps {
+  name: string;
+  title: string;
+}
+
+const Hero = ({ name, title }: HeroProps) => {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -154,13 +159,13 @@ const Hero = () => {
           className="text-6xl md:text-8xl font-extrabold mb-2 drop-shadow-lg"
           variants={itemVariants}
         >
-          <GradientText text="Zahid Hasan Tonmoy" />
+          <GradientText text={name} />
         </motion.h1>
         <motion.p
           className="text-2xl md:text-4xl font-light max-w-4xl leading-relaxed mb-8 text-gray-300"
           variants={itemVariants}
         >
-          Data Analyst | AI Agent Developer | Digital Marketer
+          {title}
         </motion.p>
 
         <motion.div
