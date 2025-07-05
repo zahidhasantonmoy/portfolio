@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import data from "../../../data/data.json"; // Directly import data.json
-import { promises as fs } from "fs";
-import path from "path";
-
-const dataFilePath = path.join(process.cwd(), "src", "data", "data.json");
 
 export async function GET(req: NextRequest) {
   try {
