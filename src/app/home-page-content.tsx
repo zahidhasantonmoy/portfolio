@@ -8,52 +8,10 @@ import SkillSection from '@/components/SkillSection';
 import GitHubSection from '@/components/GitHubSection';
 import TimelineSection from '@/components/TimelineSection';
 import Footer from '@/components/Footer';
+import data from '@/data/data.json';
 
 export default async function HomePageContent() {
-  let data = {
-    name: "Loading...",
-    title: "Loading...",
-    aboutMe: "Loading...",
-    skills: [],
-    projects: []
-  }; // Default empty data to prevent errors during initial render
-
-  try {
-    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
-    const res = await fetch(`${baseUrl}/api/content`);
-
-    if (!res.ok) {
-      console.error(`Failed to fetch data: ${res.status} ${res.statusText}`);
-      // Optionally, throw an error or return a fallback UI
-      return (
-        <main className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
-          <p className="text-red-500">Error loading portfolio data. Please check the server logs.</p>
-        </main>
-      );
-    }
-
-    data = await res.json();
-    console.log("Fetched data:", data);
-
-    // Ensure skills is an array, even if empty
-    if (!data.skills || !Array.isArray(data.skills)) {
-      console.warn("Skills data is missing or not an array. Using empty array.");
-      data.skills = [];
-    }
-    // Ensure projects is an array, even if empty
-    if (!data.projects || !Array.isArray(data.projects)) {
-      console.warn("Projects data is missing or not an array. Using empty array.");
-      data.projects = [];
-    }
-
-  } catch (error) {
-    console.error("Error fetching portfolio data:", error);
-    return (
-      <main className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
-        <p className="text-red-500">Error loading portfolio data. Please check the server logs.</p>
-      </main>
-    );
-  }
+  // Data is now imported directly, no need for a fetch call.
 
   return (
     <main className="min-h-screen bg-white dark:bg-gray-900">
