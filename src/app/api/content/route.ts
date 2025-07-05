@@ -17,24 +17,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-
-export async function POST(req: NextRequest) {
-  const session = await getServerSession();
-
-  if (!session) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const updatedData = await req.json();
-    // For POST, we still need fs to write to the file system if data is mutable
-    await fs.writeFile(dataFilePath, JSON.stringify(updatedData, null, 2));
-    return NextResponse.json({ message: "Portfolio data updated successfully" });
-  } catch (error) {
-    console.error("Error writing data.json:", error);
-    return NextResponse.json(
-      { message: "Error updating portfolio data" },
-      { status: 500 }
-    );
-  }
-}
