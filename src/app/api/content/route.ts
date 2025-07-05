@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import data from "../../../../public/data.json"; // Directly import data.json
 import { promises as fs } from "fs";
 import path from "path";
 
@@ -7,8 +8,6 @@ const dataFilePath = path.join(process.cwd(), "public", "data.json");
 
 export async function GET(req: NextRequest) {
   try {
-    const fileContents = await fs.readFile(dataFilePath, "utf8");
-    const data = JSON.parse(fileContents);
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error reading data.json:", error);
@@ -28,6 +27,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const updatedData = await req.json();
+    // For POST, we still need fs to write to the file system if data is mutable
     await fs.writeFile(dataFilePath, JSON.stringify(updatedData, null, 2));
     return NextResponse.json({ message: "Portfolio data updated successfully" });
   } catch (error) {
