@@ -19,8 +19,8 @@ export default async function HomePageContent() {
   }; // Default empty data to prevent errors during initial render
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'; // Fallback for safety
-    const res = await fetch(`${baseUrl}/api/content`, { cache: 'no-store' });
+    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/content`);
 
     if (!res.ok) {
       console.error(`Failed to fetch data: ${res.status} ${res.statusText}`);
