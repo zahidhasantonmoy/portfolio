@@ -19,7 +19,8 @@ export default async function HomePageContent() {
   }; // Default empty data to prevent errors during initial render
 
   try {
-    const res = await fetch('/api/content');
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/content`);
 
     if (!res.ok) {
       console.error(`Failed to fetch data: ${res.status} ${res.statusText}`);
