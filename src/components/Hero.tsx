@@ -181,6 +181,18 @@ const Hero = ({ name, title }: HeroProps) => {
           >
             View My Work
           </motion.a>
+
+          <motion.a
+            href="/files/Resume/Zahid_Hasan_Resume.pdf"
+            download="Zahid_Hasan_Resume.pdf"
+            className="px-8 py-4 bg-purple-600 text-white font-bold rounded-lg shadow-lg hover:bg-purple-700 transition-colors duration-300 flex items-center justify-center gap-2"
+            variants={itemVariants}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <span>Download CV</span>
+          </motion.a>
+
           <motion.a
             href="#contact"
             className="px-8 py-4 border-2 border-gray-400 text-gray-300 font-bold rounded-lg shadow-lg hover:bg-gray-700 hover:border-gray-700 transition-colors duration-300"

@@ -8,7 +8,8 @@ const navigation = [
   { name: 'Home', href: '/' },
   { name: 'About', href: '#about' },
   { name: 'Projects', href: '#projects' },
-  { name: 'Contact', href: '#contact' }
+  { name: 'Contact', href: '#contact' },
+  { name: 'Resume', href: '/files/Resume/Zahid_Hasan_Resume.pdf' }
 ];
 
 export default function Navbar() {
@@ -28,9 +29,8 @@ export default function Navbar() {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        scrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg' : 'bg-transparent'
-      }`}
+      className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg' : 'bg-transparent'
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -50,6 +50,8 @@ export default function Navbar() {
                 <motion.a
                   key={item.name}
                   href={item.href}
+                  target={item.name === 'Resume' ? '_blank' : undefined}
+                  rel={item.name === 'Resume' ? 'noopener noreferrer' : undefined}
                   whileHover={{ scale: 1.1 }}
                   className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
                 >
@@ -101,6 +103,8 @@ export default function Navbar() {
             <motion.a
               key={item.name}
               href={item.href}
+              target={item.name === 'Resume' ? '_blank' : undefined}
+              rel={item.name === 'Resume' ? 'noopener noreferrer' : undefined}
               whileHover={{ scale: 1.05 }}
               className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium"
             >
