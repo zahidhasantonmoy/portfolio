@@ -11,12 +11,14 @@ import ReviewForm from '@/components/ReviewForm';
 import Footer from '@/components/Footer';
 import data from '@/data/data.json';
 import { FilterProvider } from '@/context/FilterContext';
+import ScrollProgress from '@/components/ScrollProgress';
 
 export default async function HomePageContent() {
   // Data is now imported directly, no need for a fetch call. (Touched)
 
   return (
     <FilterProvider>
+      <ScrollProgress />
       <main className="min-h-screen bg-white dark:bg-gray-900">
         <Navbar />
         <Hero name={data.name} title={data.title} />

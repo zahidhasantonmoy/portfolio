@@ -70,7 +70,7 @@ const SkillsInteractive = ({ skills }: SkillsInteractiveProps) => {
                     container.addEventListener('click', (e: any) => {
                         if (e.target.classList.contains('tagcloud-item')) {
                             const text = e.target.innerText;
-                            setSelectedSkill(prev => prev === text ? null : text);
+                            setSelectedSkill(selectedSkill === text ? null : text);
                         }
                     });
                 }
