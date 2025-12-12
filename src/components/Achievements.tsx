@@ -1,58 +1,74 @@
 
 "use client";
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 
-const achievements = [
+interface Achievement {
+  title: string;
+  category: string;
+  location: string;
+  certificateStatus: string;
+  date?: string;
+}
+
+const achievements: Achievement[] = [
   {
     title: 'Creative Talent Search',
-    image: '/images/certificates/Creative Talent Search.jpg',
     category: 'Creative Arts',
     location: 'Dhaka',
     certificateStatus: 'Included',
   },
   {
     title: 'Folk Song',
-    image: '/images/certificates/Folk Song.jpg',
     category: 'Cultural Performance',
     location: 'Dhaka',
     certificateStatus: 'Included',
   },
   {
     title: 'Hamd, Nat',
-    image: '/images/certificates/Hamd, Nat.jpg',
     category: 'Religious Performance',
     location: 'Dhaka',
     certificateStatus: 'Included',
   },
   {
     title: 'Project Showcase',
-    image: '/images/certificates/Project Showcase.jpg',
     category: 'Technology Exhibition',
     location: 'Dhaka',
     certificateStatus: 'Included',
   },
   {
     title: 'Software Development Competition',
-    image: '/images/certificates/Software Development Competition.jpg',
     category: 'Software Development Competition',
     location: 'Dhaka',
     certificateStatus: 'Included',
   },
   {
-    title: 'New Software Development Achievement',
-    image: '/images/certificates/Software Development Competition.jpg', // Using an existing image as a placeholder
-    category: 'Software Development',
+    title: 'Intro to Machine Learning',
+    category: 'Data Science & AI',
+    location: 'Online',
+    certificateStatus: 'Included',
+  },
+  {
+    title: 'Cyber Hygiene',
+    category: 'Cybersecurity',
+    location: 'Online',
+    certificateStatus: 'Included',
+  },
+  {
+    title: 'Certificate of Achievement',
+    category: 'Recognition',
     location: 'Dhaka',
-    date: '2024',
+    certificateStatus: 'Included',
+  },
+  {
+    title: 'Professional Certificate',
+    category: 'Professional Development',
+    location: 'Online',
     certificateStatus: 'Included',
   },
 ];
 
 const Achievements = () => {
-  const [selectedImg, setSelectedImg] = useState<string | null>(null);
-
   return (
     <section id="achievements" className="py-20 bg-gray-900 text-white">
       <div className="container mx-auto px-6">
@@ -69,51 +85,38 @@ const Achievements = () => {
           {achievements.map((achievement, index) => (
             <motion.div
               key={index}
-              className="bg-gray-800 rounded-lg overflow-hidden shadow-lg cursor-pointer"
-              onClick={() => setSelectedImg(achievement.image)}
+              className="bg-gray-800 rounded-lg overflow-hidden shadow-lg p-6 flex flex-col items-center justify-center text-center hover:bg-gray-700 transition-colors duration-300 border border-gray-700"
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Image
-                src={achievement.image}
-                alt={achievement.title}
-                width={400}
-                height={300}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-lg font-bold text-center text-white">{achievement.title}</h3>
-                {achievement.category && <p className="text-sm text-gray-400 text-center">Category: {achievement.category}</p>}
-                {achievement.location && <p className="text-sm text-gray-400 text-center">Location: {achievement.location}</p>}
-                {achievement.date && <p className="text-sm text-gray-400 text-center">Date: {achievement.date}</p>}
-                {achievement.certificateStatus && <p className="text-sm text-gray-400 text-center">Certificate: {achievement.certificateStatus}</p>}
+              <h3 className="text-xl font-bold text-blue-400 mb-4">{achievement.title}</h3>
+              <div className="space-y-2">
+                {achievement.category && (
+                  <p className="text-sm text-gray-300">
+                    <span className="font-semibold text-gray-500">Category:</span> {achievement.category}
+                  </p>
+                )}
+                {achievement.location && (
+                  <p className="text-sm text-gray-300">
+                    <span className="font-semibold text-gray-500">Location:</span> {achievement.location}
+                  </p>
+                )}
+                {achievement.date && (
+                  <p className="text-sm text-gray-300">
+                    <span className="font-semibold text-gray-500">Date:</span> {achievement.date}
+                  </p>
+                )}
+                {achievement.certificateStatus && (
+                  <p className="text-sm text-gray-300">
+                    <span className="font-semibold text-gray-500">Status:</span> {achievement.certificateStatus}
+                  </p>
+                )}
               </div>
             </motion.div>
           ))}
         </div>
-
-        {selectedImg && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-            onClick={() => setSelectedImg(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="relative"
-            >
-              <Image
-                src={selectedImg}
-                alt="Selected Certificate"
-                width={800}
-                height={600}
-                className="max-w-full max-h-full rounded-lg"
-              />
-            </motion.div>
-          </div>
-        )}
       </div>
     </section>
   );
