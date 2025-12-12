@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import ProjectCard from './ProjectCard';
+import ProjectModal from './ProjectModal';
 
 interface Project {
   id: string;
@@ -20,6 +21,7 @@ interface ProjectsProps {
 
 const Projects = ({ projects }: ProjectsProps) => {
   const [selectedCategory, setSelectedCategory] = React.useState('All');
+  const [selectedProject, setSelectedProject] = React.useState<Project | null>(null);
 
   // Extract unique categories and add 'All'
   const categories = ['All', ...Array.from(new Set(projects.map((project) => project.category)))];
@@ -47,18 +49,17 @@ const Projects = ({ projects }: ProjectsProps) => {
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                selectedCategory === category
-                  ? 'bg-blue-600 text-white shadow-lg scale-105'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-              }`}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === category
+                ? 'bg-blue-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                }`}
             >
               {category}
             </button>
           ))}
         </div>
 
-        <motion.div 
+        <motion.div
           layout
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
@@ -68,12 +69,19 @@ const Projects = ({ projects }: ProjectsProps) => {
               title={project.title}
               description={project.description}
               images={project.images}
-              technologies={[]} 
+              technologies={[]}
               liveUrl={project.liveUrl}
               githubUrl={project.githubUrl}
+              onClick={() => setSelectedProject(project)}
             />
           ))}
         </motion.div>
+
+        <ProjectModal
+          project={selectedProject}
+          isOpen={!!selectedProject}
+          onClose={() => setSelectedProject(null)}
+        />
       </div>
     </section>
   );

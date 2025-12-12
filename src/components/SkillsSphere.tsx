@@ -15,45 +15,52 @@ interface SkillsSphereProps {
 
 const SkillsSphere = ({ skills }: SkillsSphereProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
-    const container = '.tagcloud';
-    const allSkills = skills.flatMap(category => category.items);
-    const texts = allSkills.length > 0 ? allSkills : ['No Skills Available'];
+    if (containerRef.current) {
+      // Clear any existing content to prevent duplicates
+      containerRef.current.innerHTML = '';
 
-    const options = {
-      radius: 300,
-      maxSpeed: 'fast',
-      initSpeed: 'fast',
-      direction: 135,
-      keep: true,
-      useContainerInlineStyles: false,
-    };
+      const allSkills = skills.flatMap(category => category.items);
+      // Fallback if data is missing, though verified it exists
+      const texts = allSkills.length > 0 ? allSkills : ['HTML', 'CSS', 'JavaScript', 'React', 'Next.js', 'Node.js'];
 
-    // @ts-ignore
-    let tagCloud = TagCloud(container, texts, options);
+      const options = {
+        radius: 300,
+        maxSpeed: 'normal',
+        initSpeed: 'normal',
+        direction: 135,
+        keep: true,
+        useContainerInlineStyles: false,
+      };
 
-    return () => {
-      tagCloud.destroy();
-    };
+      try {
+        // @ts-ignore
+        const tagCloud = TagCloud(containerRef.current, texts, options);
+
+        return () => {
+          if (tagCloud) {
+            tagCloud.destroy();
+          }
+        };
+      } catch (error) {
+        console.error("TagCloud init failed:", error);
+      }
+    }
   }, [skills]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
-      className="w-full h-[600px] flex items-center justify-center bg-gradient-to-b from-transparent to-gray-50 dark:to-gray-900"
-    >
+    <div className="relative w-full h-[600px] flex items-center justify-center bg-gray-50 dark:bg-gray-900 overflow-hidden">
+      {/* Debug: Hidden list to verify data presence in DOM */}
+      <div className="hidden">
+        {skills.flatMap(c => c.items).join(', ')}
+      </div>
+
       <div
         ref={containerRef}
-        className="tagcloud text-blue-600 dark:text-blue-400 cursor-pointer select-none"
-        style={{
-          fontSize: '16px',
-          fontWeight: 'bold',
-        }}
+        className="text-lg font-bold text-gray-800 dark:text-blue-400 cursor-pointer select-none relative z-10"
       />
-    </motion.div>
+    </div>
   );
 };
 

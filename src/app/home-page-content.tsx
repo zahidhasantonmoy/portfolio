@@ -7,6 +7,7 @@ import Achievements from '@/components/Achievements';
 import SkillSection from '@/components/SkillSection';
 import GitHubSection from '@/components/GitHubSection';
 import TimelineSection from '@/components/TimelineSection';
+import ReviewForm from '@/components/ReviewForm';
 import Footer from '@/components/Footer';
 import data from '@/data/data.json';
 
@@ -28,6 +29,7 @@ export default async function HomePageContent() {
       <GitHubSection />
       <TimelineSection />
       <Achievements />
+      <ReviewForm />
       <Contact />
       <Footer />
     </main>
