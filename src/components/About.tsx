@@ -1,75 +1,98 @@
-
 "use client";
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
-
-const aboutImages = [
-  '/images/1719598581208.jpg',
-  '/images/1719599333853.jpg',
-  '/images/1719599663754.jpg',
-  '/images/1719629502931.jpg',
-  '/images/20230104_142107.jpg',
-  '/images/20230104_142212.jpg',
-  '/images/20230104_143643.jpg',
-];
 
 interface AboutProps {
   aboutMe: string;
 }
 
 const About = ({ aboutMe }: AboutProps) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) =>
-        (prevIndex + 1) % aboutImages.length
-      );
-    }, 3000); // Change image every 3 seconds
-    return () => clearInterval(interval);
-  }, []);
+  // Split text into lines for "code" feel, or just wrap it
+  const bioLines = aboutMe.split('\n').filter(line => line.length > 0);
 
   return (
-    <section id="about" className="py-32 bg-white dark:bg-gray-900">
-      <div className="container mx-auto px-6">
-        <motion.h2
-          className="text-4xl font-bold text-center mb-12 text-gray-800 dark:text-white"
-          initial={{ opacity: 0, y: -50 }}
+    <section id="about" className="py-24 bg-white dark:bg-gray-900 transition-colors duration-300">
+      <div className="container mx-auto px-4 sm:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.8 }}
           viewport={{ once: true }}
+          className="max-w-5xl mx-auto"
         >
-          About Me
-        </motion.h2>
-        <div className="flex flex-col md:flex-row items-center gap-12">
-          <motion.div
-            className="md:w-1/3 relative w-64 h-64 sm:w-80 sm:h-80 overflow-hidden rounded-lg shadow-2xl mx-auto"
-            initial={{ opacity: 0, x: -100 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <Image
-              src={aboutImages[currentImageIndex]}
-              alt="About Me Image"
-              width={320} // Adjusted width
-              height={320} // Adjusted height
-              className="rounded-lg shadow-2xl transform hover:scale-105 transition-transform duration-300 ease-in-out w-full h-full object-cover"
-            />
-          </motion.div>
-          <motion.div
-            className="md:w-2/3 text-lg text-gray-700 dark:text-gray-300"
-            initial={{ opacity: 0, x: 100 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <p className="mb-4">
-              {aboutMe}
-            </p>
-          </motion.div>
-        </div>
+          <div className="flex items-center gap-4 mb-12 justify-center">
+            <h2 className="text-4xl font-bold text-gray-800 dark:text-white">
+              About Me
+              <span className="text-blue-500">.ts</span>
+            </h2>
+          </div>
+
+          {/* VS Code Window */}
+          <div className="bg-[#1e1e1e] rounded-xl overflow-hidden shadow-2xl border border-gray-700 font-mono text-sm md:text-base">
+            {/* Window Header */}
+            <div className="bg-[#2d2d2d] px-4 py-2 flex items-center gap-2 border-b border-gray-700">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                <div className="w-3 h-3 rounded-full bg-green-500" />
+              </div>
+              <div className="ml-4 text-gray-400 text-xs text-center flex-1">
+                zahid_portfolio.tsx
+              </div>
+            </div>
+
+            {/* Editor Content */}
+            <div className="p-4 md:p-8 flex overflow-x-auto">
+              {/* Line Numbers */}
+              <div className="text-gray-500 text-right pr-4 select-none border-r border-gray-700 mr-4 font-mono">
+                {Array.from({ length: 12 + bioLines.length }).map((_, i) => (
+                  <div key={i} className="leading-relaxed">{i + 1}</div>
+                ))}
+              </div>
+
+              {/* Code */}
+              <div className="flex-1 text-gray-300 leading-relaxed font-mono whitespace-pre-wrap break-words">
+                <div>
+                  <span className="text-purple-400">const</span> <span className="text-blue-400">developer</span> <span className="text-white">=</span> <span className="text-yellow-400">{'{'}</span>
+                </div>
+                <div className="pl-4">
+                  <span className="text-blue-300">name</span>: <span className="text-[#ce9178]">"Zahid Hasan Tonmoy"</span>,
+                </div>
+                <div className="pl-4">
+                  <span className="text-blue-300">role</span>: <span className="text-[#ce9178]">"Web Developer & AI Enthusiast"</span>,
+                </div>
+                <div className="pl-4">
+                  <span className="text-blue-300">location</span>: <span className="text-[#ce9178]">"Dhaka, Bangladesh"</span>,
+                </div>
+                <div className="pl-4">
+                  <span className="text-blue-300">skills</span>: <span className="text-yellow-400">['React', 'Next.js', 'Python', 'AI Agents']</span>,
+                </div>
+                <div className="pl-4">
+                  <span className="text-blue-300">bio</span>: <span className="text-yellow-400">`</span>
+                </div>
+                {bioLines.map((line, idx) => (
+                  <div key={idx} className="pl-8 text-[#9cdcfe]">
+                    {line}
+                  </div>
+                ))}
+                <div className="pl-4">
+                  <span className="text-yellow-400">`</span>,
+                </div>
+                <div className="pl-4">
+                  <span className="text-blue-300">contact</span>: <span className="text-[#ce9178]">"Via the paper plane below ✈️"</span>,
+                </div>
+                <div>
+                  <span className="text-yellow-400">{'}'}</span>;
+                </div>
+                <br />
+                <div>
+                  <span className="text-purple-400">export default</span> <span className="text-blue-400">developer</span>;
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
