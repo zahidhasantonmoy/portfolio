@@ -14,9 +14,12 @@ const navigation = [
   { name: 'Resume', href: '/files/Resume/Zahid_Hasan_Resume.pdf' }
 ];
 
+import { useAudio } from '@/hooks/useAudio';
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { playClick, playHover } = useAudio();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,6 +43,8 @@ export default function Navbar() {
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="flex-shrink-0 cursor-pointer"
+              onMouseEnter={() => playHover()}
+              onClick={() => playClick()}
             >
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
                 Zahid Hasan Tonmoy
@@ -58,6 +63,8 @@ export default function Navbar() {
                     target={item.name === 'Resume' ? '_blank' : undefined}
                     rel={item.name === 'Resume' ? 'noopener noreferrer' : undefined}
                     className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium inline-block"
+                    onMouseEnter={() => playHover()}
+                    onClick={() => playClick()}
                   >
                     {item.name}
                   </motion.a>

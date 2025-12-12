@@ -30,9 +30,9 @@ export default async function HomePageContent() {
           </div>
         </section>
         <Projects projects={data.projects} />
+        <Achievements />
         <GitHubSection />
         <TimelineSection />
-        <Achievements />
         <ReviewForm />
         <Contact />
         <Footer />

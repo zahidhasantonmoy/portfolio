@@ -4,11 +4,15 @@ import emailjs from '@emailjs/browser';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaPaperPlane, FaCheck } from 'react-icons/fa';
 
+import { useAudio } from '@/hooks/useAudio';
+
 const Contact = () => {
   const form = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showPlane, setShowPlane] = useState(false);
+
+  const { playSwoosh, playSuccess } = useAudio();
 
   const sendEmail = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,6 +21,7 @@ const Contact = () => {
       setIsSubmitting(true);
       // Start animation
       setShowPlane(true);
+      playSwoosh();
 
       emailjs.sendForm(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || '',
@@ -29,6 +34,7 @@ const Contact = () => {
           setTimeout(() => {
             setIsSubmitting(false);
             setIsSuccess(true);
+            playSuccess();
             setShowPlane(false);
           }, 2000); // Wait for animation roughly
         }, (error) => {

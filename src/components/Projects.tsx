@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ProjectCard from './ProjectCard';
 import ProjectModal from './ProjectModal';
 import { useFilter } from '@/context/FilterContext';
+import { useAudio } from '@/hooks/useAudio';
 
 interface Project {
   id: string;
@@ -24,6 +25,7 @@ const Projects = ({ projects }: ProjectsProps) => {
   const [selectedCategory, setSelectedCategory] = React.useState('All');
   const [selectedProject, setSelectedProject] = React.useState<Project | null>(null);
   const { selectedSkill } = useFilter();
+  const { playClick } = useAudio();
 
   // Extract unique categories and add 'All'
   const categories = ['All', ...Array.from(new Set(projects.map((project) => project.category)))];
@@ -109,7 +111,10 @@ const Projects = ({ projects }: ProjectsProps) => {
                   technologies={project.technologies || []}
                   liveUrl={project.liveUrl}
                   githubUrl={project.githubUrl}
-                  onClick={() => setSelectedProject(project)}
+                  onClick={() => {
+                    playClick();
+                    setSelectedProject(project);
+                  }}
                 />
               </motion.div>
             );
