@@ -1,9 +1,10 @@
 "use client";
-import React from 'react';
+import React, { useRef } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import { FaGithub, FaLinkedin, FaFacebook, FaTwitter, FaBrain, FaDatabase, FaChartLine } from 'react-icons/fa';
 import GradientText from './GradientText';
+import TypewriterText from './TypewriterText';
 
 interface HeroProps {
   name: string;
@@ -11,6 +12,32 @@ interface HeroProps {
 }
 
 const Hero = ({ name, title }: HeroProps) => {
+  const containerRef = useRef<HTMLElement>(null);
+
+  // Parallax Mouse Stuff
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+    const x = clientX / innerWidth - 0.5;
+    const y = clientY / innerHeight - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+  }
+
+  // Smooth springs for parallax
+  const springX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+  const springY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+
+  // Layer transforms (opposite directions for depth)
+  const layer1X = useTransform(springX, [-0.5, 0.5], [20, -20]);
+  const layer1Y = useTransform(springY, [-0.5, 0.5], [20, -20]);
+
+  const layer2X = useTransform(springX, [-0.5, 0.5], [-40, 40]);
+  const layer2Y = useTransform(springY, [-0.5, 0.5], [-40, 40]);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -55,12 +82,18 @@ const Hero = ({ name, title }: HeroProps) => {
   };
 
   return (
-    <section id="home" className="relative h-screen flex items-center justify-center text-center overflow-hidden bg-gradient-to-br from-gray-950 via-purple-950 to-blue-950">
+    <section
+      id="home"
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      className="relative h-screen flex items-center justify-center text-center overflow-hidden bg-gradient-to-br from-gray-950 via-purple-950 to-blue-950"
+    >
       {/* Dynamic Background Elements */}
       <div className="absolute inset-0 z-0">
-        {/* Animated Grid/Pattern */}
+        {/* Animated Grid/Pattern - Parallax Layer 1 */}
         <motion.div
           className="absolute inset-0 bg-grid-pattern opacity-10"
+          style={{ x: layer1X, y: layer1Y }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.1 }}
           transition={{ duration: 3, ease: "easeInOut" }}
@@ -105,9 +138,10 @@ const Hero = ({ name, title }: HeroProps) => {
           </svg>
         </motion.div>
 
-        {/* Iconic Overlays */}
+        {/* Iconic Overlays - Parallax Layer 2 */}
         <motion.div
           className="absolute top-1/4 left-1/4 text-white/5"
+          style={{ x: layer2X, y: layer2Y }}
           initial={{ scale: 0, rotate: 0 }}
           animate={{ scale: 1, rotate: 360 }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
@@ -116,6 +150,7 @@ const Hero = ({ name, title }: HeroProps) => {
         </motion.div>
         <motion.div
           className="absolute bottom-1/4 right-1/4 text-white/5"
+          style={{ x: layer2X, y: layer2Y }}
           initial={{ scale: 0, rotate: 0 }}
           animate={{ scale: 1, rotate: -360 }}
           transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
@@ -124,6 +159,7 @@ const Hero = ({ name, title }: HeroProps) => {
         </motion.div>
         <motion.div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/5"
+          style={{ x: layer1X, y: layer1Y }} // mix layers
           initial={{ scale: 0, rotate: 0 }}
           animate={{ scale: 1, rotate: 180 }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
@@ -161,12 +197,20 @@ const Hero = ({ name, title }: HeroProps) => {
         >
           <GradientText text={name} />
         </motion.h1>
-        <motion.p
-          className="text-2xl md:text-4xl font-light max-w-4xl leading-relaxed mb-8 text-gray-300"
+
+        {/* Typewriter Text Replacement */}
+        <motion.div
+          className="text-2xl md:text-4xl font-light max-w-4xl leading-relaxed mb-8 text-gray-300 min-h-[1.5em]"
           variants={itemVariants}
         >
-          {title}
-        </motion.p>
+          <TypewriterText
+            texts={['Data Analyst', 'AI Agent Developer', 'Digital Marketer']}
+            typingSpeed={100}
+            deleteSpeed={50}
+            delay={2000}
+            className="text-blue-200"
+          />
+        </motion.div>
 
         <motion.div
           className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 mb-8"

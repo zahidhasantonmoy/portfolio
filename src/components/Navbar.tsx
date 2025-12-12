@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import ThemeSwitcher from './ThemeSwitcher';
+import MagneticButton from './MagneticButton';
 
 const navigation = [
   { name: 'Home', href: '/' },
@@ -35,30 +36,32 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="flex-shrink-0"
-          >
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
-              Zahid Hasan Tonmoy
-            </span>
-          </motion.div>
+          <MagneticButton>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="flex-shrink-0 cursor-pointer"
+            >
+              <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
+                Zahid Hasan Tonmoy
+              </span>
+            </motion.div>
+          </MagneticButton>
 
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               {navigation.map((item) => (
-                <motion.a
-                  key={item.name}
-                  href={item.href}
-                  target={item.name === 'Resume' ? '_blank' : undefined}
-                  rel={item.name === 'Resume' ? 'noopener noreferrer' : undefined}
-                  whileHover={{ scale: 1.1 }}
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  {item.name}
-                </motion.a>
+                <MagneticButton key={item.name}>
+                  <motion.a
+                    href={item.href}
+                    target={item.name === 'Resume' ? '_blank' : undefined}
+                    rel={item.name === 'Resume' ? 'noopener noreferrer' : undefined}
+                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium inline-block"
+                  >
+                    {item.name}
+                  </motion.a>
+                </MagneticButton>
               ))}
             </div>
           </div>
