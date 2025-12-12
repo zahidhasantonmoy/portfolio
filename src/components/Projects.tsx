@@ -93,6 +93,7 @@ const Projects = ({ projects }: ProjectsProps) => {
             return (
               <motion.div
                 key={project.id}
+                layoutId={`project-${project.id}`}
                 layout
                 animate={{
                   opacity: isDimmed ? 0.3 : 1,
@@ -115,11 +116,15 @@ const Projects = ({ projects }: ProjectsProps) => {
           })}
         </motion.div>
 
-        <ProjectModal
-          project={selectedProject}
-          isOpen={!!selectedProject}
-          onClose={() => setSelectedProject(null)}
-        />
+        <AnimatePresence>
+          {selectedProject && (
+            <ProjectModal
+              project={selectedProject}
+              isOpen={!!selectedProject}
+              onClose={() => setSelectedProject(null)}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

@@ -87,16 +87,7 @@ const achievements: Achievement[] = [
 ];
 
 const Achievements = () => {
-  const [toasts, setToasts] = useState<string[]>([]);
 
-  // Simulate unlocks when viewing
-  const handleViewportEnter = () => {
-    // Trigger a fun sequence
-    if (toasts.length === 0) {
-      setTimeout(() => setToasts(prev => [...prev, "Visitor"]), 500);
-      setTimeout(() => setToasts(prev => [...prev, "Explorer"]), 2500);
-    }
-  };
 
   return (
     <section id="achievements" className="py-20 bg-gray-900 text-white relative">
@@ -105,7 +96,7 @@ const Achievements = () => {
           className="text-4xl font-bold text-center mb-16"
           initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          onViewportEnter={handleViewportEnter}
+
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
         >
@@ -166,29 +157,7 @@ const Achievements = () => {
         </div>
       </div>
 
-      {/* Achievement Toasts */}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
-        <AnimatePresence>
-          {toasts.map((toast) => (
-            <motion.div
-              key={toast}
-              initial={{ x: 100, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 100, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="bg-gray-800 border border-yellow-500/50 text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3"
-            >
-              <div className="w-10 h-10 bg-yellow-500/20 rounded-full flex items-center justify-center text-2xl">
-                🏆
-              </div>
-              <div>
-                <h4 className="font-bold text-yellow-500 text-sm uppercase tracking-wider">Achievement Unlocked</h4>
-                <p className="font-bold">{toast}</p>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+
     </section>
   );
 };
