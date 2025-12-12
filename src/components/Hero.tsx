@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'fram
 import { FaGithub, FaLinkedin, FaFacebook, FaTwitter, FaBrain, FaDatabase, FaChartLine } from 'react-icons/fa';
 import GradientText from './GradientText';
 import TypewriterText from './TypewriterText';
+import DecryptedText from './DecryptedText';
 
 interface HeroProps {
   name: string;
@@ -191,11 +192,12 @@ const Hero = ({ name, title }: HeroProps) => {
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           ></motion.div>
         </motion.div>
+
         <motion.h1
           className="text-6xl md:text-8xl font-extrabold mb-2 drop-shadow-lg"
           variants={itemVariants}
         >
-          <GradientText text={name} />
+          <DecryptedText text={name} speed={30} revealSpeed={50} />
         </motion.h1>
 
         {/* Typewriter Text Replacement */}
