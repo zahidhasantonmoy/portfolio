@@ -11,7 +11,7 @@ import Footer from '@/components/Footer';
 import data from '@/data/data.json';
 
 export default async function HomePageContent() {
-  // Data is now imported directly, no need for a fetch call.
+  // Data is now imported directly, no need for a fetch call. (Touched)
 
   return (
     <main className="min-h-screen bg-white dark:bg-gray-900">
