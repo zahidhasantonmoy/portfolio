@@ -78,6 +78,12 @@
         "/images/project image/Flexpath/Screenshot_20250703_215515.jpg",
         "/images/project image/Flexpath/Screenshot_20250703_215530.jpg"
       ],
+      "technologies": [
+        "Flutter",
+        "Supabase",
+        "PostgreSQL",
+        "Dart"
+      ],
       "githubUrl": "https://github.com/zahidhasantonmoy/Flexpath",
       "liveUrl": ""
     },
@@ -88,6 +94,14 @@
       "description": "This project focuses on predicting the daily closing price of gold using various machine learning regression algorithms. Based on historical financial data like Open, High, Low, and Volume, the study aims to determine the most accurate model for gold price forecasting.\n\nThe project also includes a web application that allows users to input data and receive real-time price predictions using the trained models. The goal is to provide a practical tool for investors, students, and researchers to make informed predictions using machine learning.\n⚙️ Core Functionalities:\n📥 Data Preprocessing\n\n    Load and clean historical gold price dataset\n\n    Convert date formats, handle missing values (none found)\n\n    Apply feature scaling (StandardScaler)\n\n📊 Exploratory Data Analysis (EDA)\n\n    Correlation heatmaps and pairplots\n\n    Time series visualizations of price trends\n\n    Feature relationship analysis (Price vs. Open, High, Low, Volume)\n\n🔧 Model Training & Evaluation\n\n    15+ regression models tested:\n\n        Linear Regression, Ridge, Lasso, Random Forest, Gradient Boosting, Huber Regressor, etc.\n\n    Metrics used: R², MSE, RMSE, MAE\n\n    Best model: Huber Regressor with R² ≈ 0.9999\n\n🤖 Prediction System\n\n    Predict prices using new input values (Open, High, Low, Volume)\n\n    Save results to CSV\n\n🌐 Web Application\n\n    Built to let users interactively input data\n\n    Select preferred algorithm from dropdown\n\n    View predicted gold price instantly\n\n📈 Performance Insights\n\n    Extremely high accuracy using price-related features\n\n    Demonstrated suitability for \"nowcasting\" daily prices",
       "images": [
         "/images/project image/Gold-Price-Predictor-Machine-Learning-app/website_app.png"
+      ],
+      "technologies": [
+        "Python",
+        "Scikit-learn",
+        "Pandas",
+        "Matplotlib",
+        "Flask",
+        "Machine Learning"
       ],
       "githubUrl": "https://github.com/zahidhasantonmoy/Gold-Price-Predictor-Machine-Learning-app",
       "liveUrl": "https://gold-price-predictor-2f1h.onrender.com/"
@@ -100,6 +114,13 @@
       "images": [
         "/images/project image/halarnati/halarnati.png"
       ],
+      "technologies": [
+        "PHP",
+        "MySQL",
+        "HTML",
+        "CSS",
+        "JavaScript"
+      ],
       "githubUrl": "https://github.com/zahidhasantonmoy/halarnati",
       "liveUrl": "https://halarnati.free.nf/"
     },
@@ -110,6 +131,13 @@
       "description": "OffenseOrbit is an advanced crime management platform designed to make communication between citizens and law enforcement seamless. By harnessing technology, OffenseOrbit helps streamline processes and ensure public safety. ",
       "images": [
         "/images/project image/OffenseOrbit/offenseorbit.png"
+      ],
+      "technologies": [
+        "PHP",
+        "MySQL",
+        "HTML",
+        "CSS",
+        "Bootstrap"
       ],
       "githubUrl": "https://github.com/zahidhasantonmoy/OffenseOrbit",
       "liveUrl": "http://offenseorbit.free.nf/"
@@ -127,6 +155,13 @@
         "/images/project image/smartdrainagesystem/Screenshot_20250705_023158_SmartDrainageApp.jpg",
         "/images/project image/smartdrainagesystem/Screenshot_20250705_023210_SmartDrainageApp.jpg"
       ],
+      "technologies": [
+        "ESP32",
+        "MicroPython",
+        "Firebase",
+        "Android (Java)",
+        "IoT"
+      ],
       "githubUrl": "https://github.com/zahidhasantonmoy/smartdrainagesystem",
       "liveUrl": ""
     },
@@ -137,6 +172,13 @@
       "description": "🚀 Just completed an exciting full-stack e-commerce project - Curious Cart BD! \n\nI'm proud to share my latest project: an innovative e-commerce platform built with Next.js, React, and TypeScript. This isn't just another online store - it's a thoughtful solution that combines technology with emotional wellness.\n\n✨ Key Features I Developed:\n• Responsive UI/UX with Tailwind CSS\n• Full cart & wishlist functionality with React Context API\n• Product management system with dynamic variants\n• Social sharing capabilities with react-share\n• Interactive image slideshow with react-slideshow-image\n• RESTful API endpoints for product data\n• Secure authentication system\n\n💼 What Makes This Project Special:\nCurious Cart BD features a unique product - the \"Prashanti Dua Jar\" - designed to bring peace and mindfulness to people's daily lives. Each jar contains 50+ color-coded prayer scrolls for different emotional states, housed in an elegant glass container. \n\nThis project showcases my skills in:\n• Full-stack web development (Next.js/React/TypeScript)\n• Modern UI/UX implementation with Tailwind CSS\n• State management with Context API\n• API development and integration\n• E-commerce functionality (cart, checkout, product management)\n• Responsive design principles\n\n🔧 Tech Stack: Next.js, React, TypeScript, Tailwind CSS, REST API",
       "images": [
         "/images/project image/CuriousCart/thumbnail.png"
+      ],
+      "technologies": [
+        "Next.js",
+        "React",
+        "TypeScript",
+        "Tailwind CSS",
+        "REST API"
       ],
       "githubUrl": "https://github.com/zahidhasantonmoy/curious_cart_bd",
       "liveUrl": "https://curiouscart.vercel.app/"
@@ -149,6 +191,12 @@
       "images": [
         "/images/project image/Jerseyvault/thumbnail.png"
       ],
+      "technologies": [
+        "React",
+        "Supabase",
+        "CSS",
+        "PostgreSQL"
+      ],
       "githubUrl": "https://github.com/zahidhasantonmoy/Jerseyvault",
       "liveUrl": "https://jerseyvault.vercel.app/"
     },
@@ -160,6 +208,14 @@
       "images": [
         "/images/project image/VortexShield/thumbnail.png"
       ],
+      "technologies": [
+        "Python",
+        "CustomTkinter",
+        "React",
+        "TypeScript",
+        "Vite",
+        "Cryptography"
+      ],
       "githubUrl": "",
       "liveUrl": "https://protocolzero.vercel.app/"
     },
@@ -170,6 +226,13 @@
       "description": "LocalDrop Pro is a modern, secure, peer-to-peer (P2P) file sharing and real-time chat web application. It allows devices to connect directly via WebRTC to transfer files and messages without intermediate servers (after the initial signaling handshake). The application is built with React and focuses on ease of use, speed, and privacy.\n\n## Key Features\n\n### 1. Peer-to-Peer Connectivity\n*   **Direct Transfer:** Uses WebRTC (via PeerJS) for direct browser-to-browser data transfer.\n*   **Easy Pairing:** Devices connect using a generated 6-digit short ID or by scanning a QR code.\n*   **Auto-Reconnection:** Automatically attempts to reconnect to previously known peers.\n\n### 2. File Transfer\n*   **Universal Support:** Supports sending files of any type and size.\n*   **Directory Support:** Automatically zips directories before sending.\n*   **Drag & Drop:** Intuitive drag-and-drop interface for initiating transfers.\n*   **Queue System:** Manages multiple file transfers sequentially.\n*   **Transfer Controls:** Pause, resume, and cancel capabilities for active transfers.\n*   **Visual Feedback:** Real-time progress bars, speed indicators, and transfer history.\n\n### 3. Communication\n*   **Real-time Chat:** Integrated text messaging system between connected peers.\n\n### 4. User Experience (UI/UX)\n*   **Themes:** Multiple visual themes (Aurora, Cyberpunk, Minimal) to customize the look.\n*   **Responsive Design:** Fully responsive layout suitable for desktop and mobile devices.\n*   **PWA Support:** Configured as a Progressive Web App (PWA) for native-like installation.\n*   **Animations:** Smooth transitions and interactions using Framer Motion.\n\n### 5. Security & Privacy\n*   **End-to-End Encryption:** Contains an `EncryptionService` implementing AES-GCM for secure data handling (foundation layer).\n*   **Local Focus:** Data stays local between peers whenever possible.",
       "images": [
         "/images/project image/LocalDropPro/thumbnail.png"
+      ],
+      "technologies": [
+        "React",
+        "WebRTC",
+        "PeerJS",
+        "PWA",
+        "Framer Motion"
       ],
       "githubUrl": "",
       "liveUrl": "https://localdrop-one.vercel.app/"
