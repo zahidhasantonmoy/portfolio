@@ -115,7 +115,7 @@ const TimelineSection = () => {
               >
                 {/* Event Card */}
                 <motion.div
-                  className={`w-full md:w-5/12 p-8 rounded-xl shadow-xl border ${colors.border} bg-gray-800 hover:${colors.border} transition-colors duration-300`}
+                  className={`w-full md:w-5/12 p-8 rounded-xl shadow-xl border ${colors.border} bg-gray-800 transition-colors duration-300`}
                   whileHover={{ translateY: -5 }}
                 >
                   <p className={`text-sm ${colors.text} mb-2 font-semibold`}>{event.date}</p>

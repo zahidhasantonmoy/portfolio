@@ -37,10 +37,10 @@ const ContactForm = () => {
 
     try {
       await emailjs.sendForm(
-        'service_your_service_id',
-        'template_your_template_id',
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
         formRef.current!,
-        'your_public_key'
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
       );
       setSubmitStatus('success');
       setFormData({

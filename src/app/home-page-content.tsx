@@ -1,21 +1,22 @@
+import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
-import Projects from '@/components/Projects';
-import Contact from '@/components/Contact';
-import Achievements from '@/components/Achievements';
-import SkillSection from '@/components/SkillSection';
-import GitHubSection from '@/components/GitHubSection';
-import TimelineSection from '@/components/TimelineSection';
-import ReviewForm from '@/components/ReviewForm';
-import Footer from '@/components/Footer';
+import ScrollProgress from '@/components/ScrollProgress';
 import data from '@/data/data.json';
 import { FilterProvider } from '@/context/FilterContext';
-import ScrollProgress from '@/components/ScrollProgress';
 
-export default async function HomePageContent() {
-  // Data is now imported directly, no need for a fetch call. (Touched)
+// Heavy below-the-fold sections loaded lazily to improve initial page speed
+const SkillSection = dynamic(() => import('@/components/SkillSection'), { ssr: true });
+const Projects = dynamic(() => import('@/components/Projects'), { ssr: true });
+const Achievements = dynamic(() => import('@/components/Achievements'), { ssr: true });
+const GitHubSection = dynamic(() => import('@/components/GitHubSection'), { ssr: false });
+const TimelineSection = dynamic(() => import('@/components/TimelineSection'), { ssr: true });
+const ReviewForm = dynamic(() => import('@/components/ReviewForm'), { ssr: false });
+const Contact = dynamic(() => import('@/components/Contact'), { ssr: true });
+const Footer = dynamic(() => import('@/components/Footer'), { ssr: true });
 
+export default function HomePageContent() {
   return (
     <FilterProvider>
       <ScrollProgress />

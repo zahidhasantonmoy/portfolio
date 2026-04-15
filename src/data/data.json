@@ -1,14 +1,30 @@
 {
   "name": "Zahid Hasan Tonmoy",
-  "title": "Data Analyst | AI Agent Developer | Digital Marketer",
-  "aboutMe": "Hello! I'm Zahid Hasan Tonmoy, a passionate Data Analyst, AI Agent Developer, and Digital Marketer.\nI specialize in transforming complex data into actionable insights, building intelligent AI solutions, and crafting effective digital strategies to drive growth and engagement.\nMy journey in technology and marketing has equipped me with a unique blend of analytical prowess, creative problem-solving, and a deep understanding of digital landscapes.",
+  "title": "MERN Full Stack Developer | Data Analyst | AI Agent Developer | Digital Marketer",
+  "aboutMe": "Hello! I'm Zahid Hasan Tonmoy, a MERN Full Stack Developer, Data Analyst, AI Agent Developer, and Digital Marketer based in Dhaka, Bangladesh.\nI build end-to-end web applications using MongoDB, Express.js, React, and Node.js — and I specialise in transforming complex data into actionable insights, building intelligent AI solutions, and crafting effective digital strategies to drive growth.\nMy journey in technology and marketing has equipped me with a unique blend of full-stack engineering, analytical prowess, creative problem-solving, and a deep understanding of digital landscapes.",
   "skills": [
+    {
+      "category": "MERN Stack & Backend",
+      "items": [
+        "MongoDB",
+        "Express.js",
+        "React",
+        "Node.js",
+        "REST API",
+        "Mongoose",
+        "JWT Auth",
+        "Redux",
+        "TypeScript"
+      ]
+    },
     {
       "category": "Web Development",
       "items": [
         "HTML",
         "CSS",
         "JavaScript",
+        "Next.js",
+        "Tailwind CSS",
         "PHP",
         "SQL",
         "WordPress"
@@ -20,9 +36,10 @@
         "Python",
         "Java",
         "C++",
-        "Next.js",
-        "React",
-        "Node.js"
+        "Flutter",
+        "Firebase",
+        "Supabase",
+        "Docker"
       ]
     },
     {
@@ -146,7 +163,7 @@
       "id": "5",
       "title": "Smart Drainage System",
       "category": "IoT",
-      "description": "Smart Drainage Monitor Project Description\n\nThe Smart Drainage Monitor is an innovative IoT-based system designed to prevent urban flooding by monitoring drainage chambers, detecting blockages, and automating clearance. This project addresses the critical issue of clogged drains, which often lead to waterlogging in cities, causing damage and disruption. By combining advanced hardware, cloud technology, and a user-friendly Android app, the system ensures real-time monitoring and efficient management of drainage systems.\n\nProject Overview\n\nThe Smart Drainage Monitor uses an ESP32-S3 microcontroller to collect data from multiple sensors, including water level, sonar (HC-SR04), gas (MQ8), temperature (LM35), IR, flame, and GPS modules. These sensors act as the system’s “eyes,” detecting water levels, potential blockages, and environmental conditions. The data is sent to Firebase Realtime Database, a cloud-based “notebook” that stores and updates sensor readings instantly. The Android app, developed as the primary user interface, displays this data, alerts users to blockages, and allows manual or automatic control of a servo motor to clear drains.\n\nKey Features\n\n\n\n\n\nReal-Time Monitoring: The app shows water levels for three drainage chambers, updated every 2 seconds, using a modern interface with a purple-blue gradient and bold “Smart Drainage Monitor” title.\n\n\n\nBlockage Detection: If two chambers are full and one is empty (e.g., [1, 1, 0]), the empty chamber is flagged as blocked, turning its display red with a “Blockage Detected” alert.\n\n\n\nSensor Insights: Displays data from sonar (proximity < 5 cm triggers a “Proximity Alert”), gas, temperature, and GPS, with default coordinates (23.812121, 90.357929) if GPS is unavailable.\n\n\n\nUser Controls: Includes a map button to view the drain’s location on Google Maps, a refresh button for manual data updates, and servo switches for manual or auto mode (10-second activation, 10-minute cooldown).\n\n\n\nAlerts: Clear red alerts for blockages or proximity issues, ensuring users are informed of critical conditions.\n\nTechnical Components\n\n\n\n\n\nHardware: ESP32-S3 with sensors (e.g., HC-SR04 on GPIO 12/13, servo on GPIO 15) running MicroPython to collect and send data to Firebase.\n\n\n\nSoftware: Android app (Java, minSdk 26) with Firebase integration (firebase-database:20.3.0) and a sleek UI using CardView and ProgressBar.\n\n\n\nCloud: Firebase Realtime Database stores sensor data (sensor_data) and servo control settings (servo_control).\n\nChallenges and Solutions\n\nChallenges included unreliable sensor data display and incorrect temperature readings (e.g., 330°C). These were addressed by implementing robust Firebase listeners, a manual refresh button, and suggesting hardware calibration for the LM35 sensor. The app reliably displays data and alerts, ensuring a seamless user experience.\n\nImpact and Future Work\n\nThe Smart Drainage Monitor enhances urban infrastructure by providing a proactive solution to flooding. The Android app, with its intuitive design and real-time alerts, empowers users to monitor and manage drainage systems effectively. Future enhancements could include push notifications for instant alerts and support for additional chambers to scale the system.\n\nThis project, with the Android app as my key contribution, demonstrates how technology can solve real-world problems, making cities safer and more resilient.",
+      "description": "Smart Drainage Monitor Project Description\n\nThe Smart Drainage Monitor is an innovative IoT-based system designed to prevent urban flooding by monitoring drainage chambers, detecting blockages, and automating clearance. This project addresses the critical issue of clogged drains, which often lead to waterlogging in cities, causing damage and disruption. By combining advanced hardware, cloud technology, and a user-friendly Android app, the system ensures real-time monitoring and efficient management of drainage systems.\n\nProject Overview\n\nThe Smart Drainage Monitor uses an ESP32-S3 microcontroller to collect data from multiple sensors, including water level, sonar (HC-SR04), gas (MQ8), temperature (LM35), IR, flame, and GPS modules. These sensors act as the system's \"eyes,\" detecting water levels, potential blockages, and environmental conditions. The data is sent to Firebase Realtime Database, a cloud-based \"notebook\" that stores and updates sensor readings instantly. The Android app, developed as the primary user interface, displays this data, alerts users to blockages, and allows manual or automatic control of a servo motor to clear drains.\n\nKey Features\n\nReal-Time Monitoring: The app shows water levels for three drainage chambers, updated every 2 seconds.\n\nBlockage Detection: If two chambers are full and one is empty, the empty chamber is flagged as blocked.\n\nSensor Insights: Displays data from sonar, gas, temperature, and GPS.\n\nUser Controls: Includes a map button, refresh button, and servo switches for manual or auto mode.\n\nTechnical Components\n\nHardware: ESP32-S3 with sensors running MicroPython to collect and send data to Firebase.\n\nSoftware: Android app (Java, minSdk 26) with Firebase integration.\n\nCloud: Firebase Realtime Database stores sensor data and servo control settings.",
       "images": [
         "/images/project image/smartdrainagesystem/IMG-20250705-WA0001.jpg",
         "/images/project image/smartdrainagesystem/IMG-20250705-WA0003.jpg",
@@ -169,7 +186,7 @@
       "id": "6",
       "title": "Curious Cart BD",
       "category": "Web Development",
-      "description": "🚀 Just completed an exciting full-stack e-commerce project - Curious Cart BD! \n\nI'm proud to share my latest project: an innovative e-commerce platform built with Next.js, React, and TypeScript. This isn't just another online store - it's a thoughtful solution that combines technology with emotional wellness.\n\n✨ Key Features I Developed:\n• Responsive UI/UX with Tailwind CSS\n• Full cart & wishlist functionality with React Context API\n• Product management system with dynamic variants\n• Social sharing capabilities with react-share\n• Interactive image slideshow with react-slideshow-image\n• RESTful API endpoints for product data\n• Secure authentication system\n\n💼 What Makes This Project Special:\nCurious Cart BD features a unique product - the \"Prashanti Dua Jar\" - designed to bring peace and mindfulness to people's daily lives. Each jar contains 50+ color-coded prayer scrolls for different emotional states, housed in an elegant glass container. \n\nThis project showcases my skills in:\n• Full-stack web development (Next.js/React/TypeScript)\n• Modern UI/UX implementation with Tailwind CSS\n• State management with Context API\n• API development and integration\n• E-commerce functionality (cart, checkout, product management)\n• Responsive design principles\n\n🔧 Tech Stack: Next.js, React, TypeScript, Tailwind CSS, REST API",
+      "description": "Curious Cart BD is a full-stack e-commerce platform built with Next.js, React, and TypeScript. This isn't just another online store — it's a thoughtful solution that combines technology with emotional wellness.\n\nKey Features:\n- Responsive UI/UX with Tailwind CSS\n- Full cart & wishlist functionality with React Context API\n- Product management system with dynamic variants\n- Social sharing capabilities\n- Interactive image slideshow\n- RESTful API endpoints for product data\n- Secure authentication system\n\nTech Stack: Next.js, React, TypeScript, Tailwind CSS, REST API",
       "images": [
         "/images/project image/CuriousCart/thumbnail.png"
       ],
@@ -187,7 +204,7 @@
       "id": "7",
       "title": "Jerseyvault",
       "category": "Web Development",
-      "description": "🚀 Just completed my latest project: Jerseyvault - A Full-Featured E-Commerce Platform! 🛍️\n\nI'm excited to share my latest creation: Jerseyvault, a modern e-commerce website built with React.js and powered by Supabase backend-as-a-service. This project showcases my full-stack development skills and attention to detail in creating a seamless user experience.\n\n🔧 Key Features & Technologies:\n• Frontend: React.js with React Router for SPA navigation\n• Backend: Supabase (PostgreSQL, Authentication, Real-time APIs)\n• State Management: React Context API for cart functionality\n• Responsive UI: Custom CSS with mobile-first design\n• Key Features: Product search/sorting, user auth, cart/checkout, order history, wishlist, and product reviews\n\n💼 Business Functionality:\n• Complete shopping flow: Browse → Add to Cart → Checkout\n• User authentication and profile management\n• Order tracking and history\n• Wishlist functionality\n• Product reviews and ratings system\n• Inventory management with stock validation\n\nThis project demonstrates my proficiency in:\n- Full-stack web development\n- RESTful API integration\n- Database design and management\n- User authentication and authorization\n- E-commerce business logic implementation\n- Modern React patterns and best practices",
+      "description": "Jerseyvault is a full-featured e-commerce platform built with React.js and powered by Supabase. It showcases full-stack development skills and attention to detail in creating a seamless user experience.\n\nKey Features:\n- Frontend: React.js with React Router for SPA navigation\n- Backend: Supabase (PostgreSQL, Authentication, Real-time APIs)\n- State Management: React Context API for cart functionality\n- Responsive UI: Custom CSS with mobile-first design\n- Complete shopping flow: Browse → Add to Cart → Checkout\n- User authentication and profile management\n- Order tracking and history\n- Wishlist functionality\n- Product reviews and ratings system\n- Inventory management with stock validation",
       "images": [
         "/images/project image/Jerseyvault/thumbnail.png"
       ],
@@ -204,7 +221,7 @@
       "id": "8",
       "title": "Vortex Shield",
       "category": "Web Development",
-      "description": "Vortex Shield is a cybersecurity-themed file encryption suite featuring a distinct \"cyberpunk\" / \"Matrix\" aesthetic. It provides tools for securely encrypting, decrypting, and permanently deleting files. The project consists of two main components: a native desktop application for Windows and a modern web application.\n\n## Components\n\n### 1. Desktop Application (Python)\n- **Core Script:** `vortex_shield.py`\n- **GUI Framework:** CustomTkinter (Modern Tkinter wrapper) with Drag-and-Drop support.\n- **Cryptography:** \n  - **Algorithm:** AES-GCM (Galois/Counter Mode).\n  - **Key Derivation:** Argon2id (memory-hard password hashing).\n  - **Features:** File encryption (`.vortex` extension), decryption, and secure deletion (3-pass overwrite).\n- **Key Features:**\n  - \"Matrix\" style scrolling log.\n  - Duress mode (accepts specific \"panic\" password to feign access).\n  - Sound effects for UI interactions.\n  - Single-file executable generation via PyInstaller.\n\n### 2. Web Application (React/Vite)\n- **Path:** `web/vortex-shield_-web-edition(1)/`\n- **Tech Stack:** React, TypeScript, Vite.\n- **UI Components:** Mirrors the desktop app's aesthetic with components like `CyberButton`, `MatrixText`, `LogViewer`, and `DropZone`.\n- **Purpose:** A web-based counterpart to the desktop encryption tool, likely offering client-side encryption or a similar simulation of the \"Vortex Shield\" experience in a browser.",
+      "description": "Vortex Shield is a cybersecurity-themed file encryption suite featuring a distinct cyberpunk aesthetic. It provides tools for securely encrypting, decrypting, and permanently deleting files. The project consists of two main components: a native desktop application for Windows and a modern web application.\n\nDesktop Application (Python):\n- GUI Framework: CustomTkinter with Drag-and-Drop support\n- Cryptography: AES-GCM algorithm, Argon2id key derivation\n- Features: File encryption (.vortex extension), decryption, and secure deletion (3-pass overwrite)\n- Duress mode, sound effects, single-file executable via PyInstaller\n\nWeb Application (React/Vite):\n- Tech Stack: React, TypeScript, Vite\n- UI Components: CyberButton, MatrixText, LogViewer, DropZone\n- Client-side encryption simulation in a browser",
       "images": [
         "/images/project image/VortexShield/thumbnail.png"
       ],
@@ -223,7 +240,7 @@
       "id": "9",
       "title": "LocalDrop Pro",
       "category": "Web Development",
-      "description": "LocalDrop Pro is a modern, secure, peer-to-peer (P2P) file sharing and real-time chat web application. It allows devices to connect directly via WebRTC to transfer files and messages without intermediate servers (after the initial signaling handshake). The application is built with React and focuses on ease of use, speed, and privacy.\n\n## Key Features\n\n### 1. Peer-to-Peer Connectivity\n*   **Direct Transfer:** Uses WebRTC (via PeerJS) for direct browser-to-browser data transfer.\n*   **Easy Pairing:** Devices connect using a generated 6-digit short ID or by scanning a QR code.\n*   **Auto-Reconnection:** Automatically attempts to reconnect to previously known peers.\n\n### 2. File Transfer\n*   **Universal Support:** Supports sending files of any type and size.\n*   **Directory Support:** Automatically zips directories before sending.\n*   **Drag & Drop:** Intuitive drag-and-drop interface for initiating transfers.\n*   **Queue System:** Manages multiple file transfers sequentially.\n*   **Transfer Controls:** Pause, resume, and cancel capabilities for active transfers.\n*   **Visual Feedback:** Real-time progress bars, speed indicators, and transfer history.\n\n### 3. Communication\n*   **Real-time Chat:** Integrated text messaging system between connected peers.\n\n### 4. User Experience (UI/UX)\n*   **Themes:** Multiple visual themes (Aurora, Cyberpunk, Minimal) to customize the look.\n*   **Responsive Design:** Fully responsive layout suitable for desktop and mobile devices.\n*   **PWA Support:** Configured as a Progressive Web App (PWA) for native-like installation.\n*   **Animations:** Smooth transitions and interactions using Framer Motion.\n\n### 5. Security & Privacy\n*   **End-to-End Encryption:** Contains an `EncryptionService` implementing AES-GCM for secure data handling (foundation layer).\n*   **Local Focus:** Data stays local between peers whenever possible.",
+      "description": "LocalDrop Pro is a modern, secure, peer-to-peer (P2P) file sharing and real-time chat web application. It allows devices to connect directly via WebRTC to transfer files and messages without intermediate servers.\n\nKey Features:\n- Direct P2P Transfer via WebRTC (PeerJS)\n- Easy Pairing via 6-digit short ID or QR code\n- Universal file support: any type and size\n- Directory support: auto-zips folders before sending\n- Drag & Drop interface\n- Queue system with pause, resume, and cancel\n- Real-time progress bars and transfer history\n- Integrated text chat between peers\n- Multiple visual themes: Aurora, Cyberpunk, Minimal\n- PWA support for native-like installation\n- End-to-End Encryption via AES-GCM",
       "images": [
         "/images/project image/LocalDropPro/thumbnail.png"
       ],

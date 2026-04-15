@@ -39,46 +39,57 @@ const getCategoryColor = (index: number) => {
 const SkillsInteractive = ({ skills }: SkillsInteractiveProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const { setSelectedSkill, selectedSkill } = useFilter();
+    // Keep a ref to selectedSkill so the click handler always reads the latest value
+    const selectedSkillRef = useRef(selectedSkill);
+    selectedSkillRef.current = selectedSkill;
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
     useEffect(() => {
-        if (containerRef.current) {
-            containerRef.current.innerHTML = '';
+        if (!containerRef.current) return;
 
-            const allSkills = skills.flatMap(c => c.items);
-            const texts = allSkills.length > 0 ? allSkills : ['HTML', 'CSS', 'JS', 'React', 'Node'];
+        containerRef.current.innerHTML = '';
 
-            const options = {
-                radius: 300,
-                maxSpeed: 'normal',
-                initSpeed: 'normal',
-                direction: 135,
-                keep: true,
-                useContainerInlineStyles: false,
-                containerClass: 'tagcloud-container',
-                itemClass: 'tagcloud-item',
-            };
+        const allSkills = skills.flatMap(c => c.items);
+        const texts = allSkills.length > 0 ? allSkills : ['HTML', 'CSS', 'JS', 'React', 'Node'];
 
-            try {
-                // @ts-ignore
-                const tc = TagCloud(containerRef.current, texts, options);
+        const options = {
+            radius: 300,
+            maxSpeed: 'normal',
+            initSpeed: 'normal',
+            direction: 135,
+            keep: true,
+            useContainerInlineStyles: false,
+            containerClass: 'tagcloud-container',
+            itemClass: 'tagcloud-item',
+        };
 
-                // Add click listeners to tag cloud items manually since the library might not expose strict events easily in React
-                // tailored approach: delegate click on container
-                const container = containerRef.current.querySelector('.tagcloud-container');
-                if (container) {
-                    container.addEventListener('click', (e: any) => {
-                        if (e.target.classList.contains('tagcloud-item')) {
-                            const text = e.target.innerText;
-                            setSelectedSkill(selectedSkill === text ? null : text);
-                        }
-                    });
-                }
+        let clickHandler: ((e: Event) => void) | null = null;
+        let tagContainer: Element | null = null;
 
-            } catch (error) {
-                console.error("TagCloud init failed:", error);
+        try {
+            // @ts-ignore
+            TagCloud(containerRef.current, texts, options);
+
+            tagContainer = containerRef.current.querySelector('.tagcloud-container');
+            if (tagContainer) {
+                clickHandler = (e: Event) => {
+                    const target = e.target as HTMLElement;
+                    if (target.classList.contains('tagcloud-item')) {
+                        const text = target.innerText;
+                        setSelectedSkill(prev => prev === text ? null : text);
+                    }
+                };
+                tagContainer.addEventListener('click', clickHandler);
             }
+        } catch (error) {
+            console.error("TagCloud init failed:", error);
         }
+
+        return () => {
+            if (tagContainer && clickHandler) {
+                tagContainer.removeEventListener('click', clickHandler);
+            }
+        };
     }, [skills]);
 
 
