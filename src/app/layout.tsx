@@ -75,16 +75,95 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Person",
+
+              // ── Core identity ──────────────────────────────────────────
+              "@id": "https://zahidhasantonmoy.vercel.app/#person",
               "name": "Zahid Hasan Tonmoy",
-              "jobTitle": "MERN Full Stack Developer, Data Analyst, AI Agent Developer & Digital Marketer",
-              "description": "MERN Full Stack Developer and Data Analyst based in Dhaka, Bangladesh. Specialises in MongoDB, Express.js, React, Node.js, Machine Learning, AI Agent Development, and Digital Marketing.",
+              "givenName": "Zahid Hasan",
+              "familyName": "Tonmoy",
+              "alternateName": "Zahid Tonmoy",
+              "gender": "Male",
+              "nationality": {
+                "@type": "Country",
+                "name": "Bangladesh"
+              },
+
+              // ── Professional identity ──────────────────────────────────
+              "jobTitle": "MERN Full Stack Developer & AI Agent Developer",
+              "description": "Zahid Hasan Tonmoy is a MERN Full Stack Developer, Data Analyst, AI Agent Developer, and Digital Marketer based in Dhaka, Bangladesh. He builds end-to-end web applications using MongoDB, Express.js, React, and Node.js, and specialises in machine learning, data analysis, and digital growth strategies. He has delivered 9+ projects spanning web apps, mobile apps, IoT systems, and ML models.",
+
+              // ── Online presence ────────────────────────────────────────
               "url": "https://zahidhasantonmoy.vercel.app",
-              "image": "https://zahidhasantonmoy.vercel.app/images/profile.jpg",
+              "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": "https://zahidhasantonmoy.vercel.app"
+              },
+
+              // ── Image ──────────────────────────────────────────────────
+              "image": {
+                "@type": "ImageObject",
+                "url": "https://zahidhasantonmoy.vercel.app/images/profile.jpg",
+                "width": 800,
+                "height": 600,
+                "caption": "Zahid Hasan Tonmoy — MERN Full Stack Developer"
+              },
+
+              // ── Location ───────────────────────────────────────────────
               "address": {
                 "@type": "PostalAddress",
                 "addressLocality": "Dhaka",
+                "addressRegion": "Dhaka Division",
                 "addressCountry": "BD"
               },
+              "homeLocation": {
+                "@type": "City",
+                "name": "Dhaka",
+                "containedInPlace": {
+                  "@type": "Country",
+                  "name": "Bangladesh"
+                }
+              },
+
+              // ── Occupation ─────────────────────────────────────────────
+              "hasOccupation": {
+                "@type": "Occupation",
+                "name": "MERN Full Stack Developer",
+                "occupationLocation": {
+                  "@type": "Country",
+                  "name": "Bangladesh"
+                },
+                "description": "Designs and builds full-stack web applications using MongoDB, Express.js, React, and Node.js. Also specialises in data analysis and AI agent development.",
+                "skills": "MongoDB, Express.js, React, Node.js, TypeScript, REST API, Next.js, Python, Machine Learning, Data Analysis"
+              },
+
+              // ── Education ──────────────────────────────────────────────
+              "alumniOf": [
+                {
+                  "@type": "CollegeOrUniversity",
+                  "name": "Daffodil International University",
+                  "sameAs": "https://daffodilvarsity.edu.bd",
+                  "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": "Dhaka",
+                    "addressCountry": "BD"
+                  }
+                },
+                {
+                  "@type": "EducationalOrganization",
+                  "name": "Milestone College",
+                  "description": "Higher Secondary Certificate (HSC) — 2018–2020"
+                },
+                {
+                  "@type": "EducationalOrganization",
+                  "name": "Faizur Rahman Ideal Institute",
+                  "description": "Secondary School Certificate (SSC) — 2016–2018"
+                }
+              ],
+
+              // ── Awards ─────────────────────────────────────────────────
+              "award": "Software Development Competition Winner 2024, Dhaka, Bangladesh",
+
+              // ── Knowledge & skills ─────────────────────────────────────
               "knowsAbout": [
                 "MERN Stack Development",
                 "MongoDB",
@@ -92,21 +171,81 @@ export default function RootLayout({
                 "React",
                 "Node.js",
                 "TypeScript",
-                "REST API",
+                "REST API Design",
+                "JWT Authentication",
+                "Redux",
+                "Mongoose",
+                "Next.js",
+                "Tailwind CSS",
                 "Data Analysis",
                 "Machine Learning",
-                "AI Agent Development",
-                "Digital Marketing",
-                "Next.js",
                 "Python",
-                "TensorFlow"
+                "TensorFlow",
+                "Keras",
+                "Scikit-learn",
+                "PyTorch",
+                "AI Agent Development",
+                "Flutter",
+                "Firebase",
+                "Supabase",
+                "Docker",
+                "SEO",
+                "Digital Marketing",
+                "Google Analytics"
               ],
-              "knowsLanguage": ["en", "bn"],
-              "nationality": "Bangladeshi",
-              "alumniOf": {
-                "@type": "CollegeOrUniversity",
-                "name": "Daffodil International University"
-              },
+              "knowsLanguage": [
+                {
+                  "@type": "Language",
+                  "name": "English",
+                  "alternateName": "en"
+                },
+                {
+                  "@type": "Language",
+                  "name": "Bengali",
+                  "alternateName": "bn"
+                }
+              ],
+
+              // ── Work examples ──────────────────────────────────────────
+              "workExample": [
+                {
+                  "@type": "SoftwareApplication",
+                  "name": "Flexpath",
+                  "description": "Gig economy mobile app for Bangladesh built with Flutter and Supabase.",
+                  "url": "https://github.com/zahidhasantonmoy/Flexpath",
+                  "applicationCategory": "BusinessApplication"
+                },
+                {
+                  "@type": "SoftwareApplication",
+                  "name": "Gold Price Predictor",
+                  "description": "ML regression app predicting gold prices with R² ≈ 0.9999.",
+                  "url": "https://gold-price-predictor-2f1h.onrender.com/",
+                  "applicationCategory": "FinanceApplication"
+                },
+                {
+                  "@type": "SoftwareApplication",
+                  "name": "Curious Cart BD",
+                  "description": "Full-stack Next.js e-commerce platform.",
+                  "url": "https://curiouscart.vercel.app/",
+                  "applicationCategory": "ShoppingApplication"
+                },
+                {
+                  "@type": "SoftwareApplication",
+                  "name": "LocalDrop Pro",
+                  "description": "P2P WebRTC file sharing PWA with end-to-end AES-GCM encryption.",
+                  "url": "https://localdrop-one.vercel.app/",
+                  "applicationCategory": "UtilitiesApplication"
+                },
+                {
+                  "@type": "SoftwareApplication",
+                  "name": "Vortex Shield",
+                  "description": "Cybersecurity file encryption suite with AES-GCM and Argon2id.",
+                  "url": "https://protocolzero.vercel.app/",
+                  "applicationCategory": "SecurityApplication"
+                }
+              ],
+
+              // ── Social profiles ────────────────────────────────────────
               "sameAs": [
                 "https://github.com/zahidhasantonmoy"
               ]

@@ -76,7 +76,7 @@ const SkillsInteractive = ({ skills }: SkillsInteractiveProps) => {
                     const target = e.target as HTMLElement;
                     if (target.classList.contains('tagcloud-item')) {
                         const text = target.innerText;
-                        setSelectedSkill(prev => prev === text ? null : text);
+                        setSelectedSkill((prev: string | null) => prev === text ? null : text);
                     }
                 };
                 tagContainer.addEventListener('click', clickHandler);
