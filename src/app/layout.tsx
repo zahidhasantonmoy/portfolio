@@ -5,19 +5,20 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://zahidhasantonmoy.vercel.app"),
   title: "Zahid Hasan Tonmoy | MERN Full Stack Developer, Data Analyst & AI Agent Developer",
-  description: "Zahid Hasan Tonmoy — MERN Full Stack Developer, Data Analyst, AI Agent Developer & Digital Marketer based in Dhaka, Bangladesh. Expert in MongoDB, Express.js, React, Node.js, Machine Learning, and Digital Marketing.",
+  description: "Zahid Hasan Tonmoy — MERN Full Stack Developer & AI Agent Developer based in Dhaka, Bangladesh. Explore projects, skills, and experience.",
   keywords: "Zahid Hasan Tonmoy, MERN Full Stack Developer, Data Analyst, AI Agent Developer, Digital Marketer, MongoDB, Express.js, React, Node.js, Machine Learning, Deep Learning, AI, Next.js, TypeScript, Bangladesh, Dhaka, Portfolio, Projects, Skills",
   openGraph: {
     title: "Zahid Hasan Tonmoy | MERN Full Stack Developer, Data Analyst & AI Agent Developer",
-    description: "Zahid Hasan Tonmoy — MERN Full Stack Developer, Data Analyst, AI Agent Developer & Digital Marketer based in Dhaka, Bangladesh. Expert in MongoDB, Express.js, React, Node.js, Machine Learning, and Digital Marketing.",
-    url: "https://zahidhasantonmoy.vercel.app", // Replace with your actual domain
+    description: "Zahid Hasan Tonmoy — MERN Full Stack Developer & AI Agent Developer based in Dhaka, Bangladesh. Explore projects, skills, and experience.",
+    url: "https://zahidhasantonmoy.vercel.app",
     siteName: "Zahid Hasan Tonmoy's Portfolio",
     images: [
       {
-        url: "https://zahidhasantonmoy.vercel.app/images/profile.jpg", // Replace with your actual profile image URL
-        width: 800,
-        height: 600,
+        url: "https://zahidhasantonmoy.vercel.app/images/og-image.jpg",
+        width: 1200,
+        height: 630,
         alt: "Zahid Hasan Tonmoy Profile Picture",
       },
     ],
@@ -27,9 +28,10 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Zahid Hasan Tonmoy | MERN Full Stack Developer, Data Analyst & AI Agent Developer",
-    description: "Zahid Hasan Tonmoy — MERN Full Stack Developer, Data Analyst, AI Agent Developer & Digital Marketer based in Dhaka, Bangladesh.",
-    creator: "@zahidhasantonmoy",
-    images: ["https://zahidhasantonmoy.vercel.app/images/profile.jpg"],
+    description: "Zahid Hasan Tonmoy — MERN Full Stack Developer & AI Agent Developer based in Dhaka, Bangladesh. Explore projects, skills, and experience.",
+    site: "@zahidhasan_bd",
+    creator: "@zahidhasan_bd",
+    images: ["https://zahidhasantonmoy.vercel.app/images/og-image.jpg"],
   },
   robots: {
     index: true,
@@ -247,7 +249,10 @@ export default function RootLayout({
 
               // ── Social profiles ────────────────────────────────────────
               "sameAs": [
-                "https://github.com/zahidhasantonmoy"
+                "https://github.com/zahidhasantonmoy",
+                "https://www.linkedin.com/in/zahidhasantonmoy/",
+                "https://www.facebook.com/zahidhasantonmoybd",
+                "https://x.com/zahidhasan_bd"
               ]
             })
           }}
