@@ -62,6 +62,11 @@ const Hero = ({ name, title }: HeroProps) => {
     },
   };
 
+  const heroItemVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+  };
+
   const iconVariants = {
     hidden: { scale: 0, opacity: 0 },
     visible: {
@@ -203,7 +208,7 @@ const Hero = ({ name, title }: HeroProps) => {
         */}
         <motion.h1
           className="text-6xl md:text-8xl font-extrabold mb-2 drop-shadow-lg relative w-full text-center"
-          variants={itemVariants}
+          variants={heroItemVariants}
         >
           {/* Invisible spacer — reserves the final width/height from first paint */}
           <span className="invisible select-none" aria-hidden="true">{name}</span>
@@ -223,7 +228,7 @@ const Hero = ({ name, title }: HeroProps) => {
         */}
         <motion.div
           className="text-2xl md:text-4xl font-light leading-relaxed mb-8 text-gray-300"
-          variants={itemVariants}
+          variants={heroItemVariants}
         >
           <span className="relative inline-block">
             {/* Ghost elements — invisible, absolutely stacked; size the container */}
