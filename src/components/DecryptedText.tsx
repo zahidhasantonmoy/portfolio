@@ -76,19 +76,32 @@ const DecryptedText = ({
     }, [text, speed]);
 
     return (
-        <span className={`${className} inline-block`}>
+        /*
+         * CLS fix — ghost + absolute overlay pattern:
+         *
+         * The OUTER span is `relative inline-block`. Its box geometry is
+         * determined entirely by the GHOST span below (the final settled `text`
+         * prop rendered invisibly in normal document flow). This box NEVER
+         * changes size, because `text` is a stable prop.
+         *
+         * The ANIMATED span is `absolute inset-0`. It fills the stable parent
+         * box exactly, so when scramble chars fluctuate between wide glyphs
+         * (M, W, @) and narrow ones (i, l, !) the animated span's own internal
+         * width oscillations are fully contained — they never shift any tracked
+         * box geometry in the layout tree.
+         */
+        <span className={`${className} relative inline-block`}>
+            {/* Ghost: final text in normal flow — gives the wrapper its stable size */}
+            <span className="invisible select-none" aria-hidden="true">{text}</span>
+            {/* Animated overlay: absolutely fills the ghost-sized box */}
             {useGradient ? (
-                /*
-                 * animate-pulse removed: opacity keyframes on a bg-clip-text
-                 * element cause repeated compositor repaints that Chrome can
-                 * register as visual instability. The scramble animation itself
-                 * is visually interesting enough without the pulse.
-                 */
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
+                <span className="absolute inset-0 flex items-center justify-center bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
                     {displayText}
                 </span>
             ) : (
-                <span>{displayText}</span>
+                <span className="absolute inset-0 flex items-center justify-center">
+                    {displayText}
+                </span>
             )}
         </span>
     );

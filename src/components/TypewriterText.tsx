@@ -55,12 +55,25 @@ const TypewriterText = ({
     }, [textIndex, isDeleting, texts, typingSpeed, deleteSpeed, delay, count]);
 
     return (
-        <span className={className}>
+        /*
+         * CLS fix — fill the fixed-size parent, don't shrink-wrap:
+         *
+         * Hero.tsx already positions this component inside an
+         * `absolute inset-x-0 top-0 flex items-center justify-center` span
+         * whose size is locked by ghost copies of all possible strings.
+         * But without `w-full` here, this root span still auto-sizes to
+         * `displayText.length` chars and shifts on every typed/deleted character.
+         *
+         * `inline-block w-full text-center` makes this span fill the entire
+         * width of that fixed parent box. Its own box geometry is then constant
+         * regardless of how many characters are currently visible.
+         */
+        <span className={`${className} inline-block w-full text-center`}>
             {displayText}
             <motion.span
                 animate={{ opacity: [0, 1, 0] }}
                 transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                className="inline-block ml-1 w-[2px] h-[1em] bg-current align-middle"
+                className="inline-block ml-1 w-[2px] h-[1em] bg-current align-middle flex-shrink-0"
             />
         </span>
     );
