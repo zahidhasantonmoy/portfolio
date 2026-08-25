@@ -175,13 +175,15 @@ const Hero = ({ name, title }: HeroProps) => {
         initial="hidden"
         animate="visible"
       >
-        <motion.div variants={itemVariants} className="mb-6 relative w-52 h-52 rounded-full overflow-hidden">
+        {/* Profile image — fixed 208×208 container, no layout shift */}
+        <motion.div variants={itemVariants} className="mb-6 relative w-52 h-52 rounded-full overflow-hidden flex-shrink-0">
           <Image
             src="/images/profile.jpg"
-            alt="Zahid Hasan Tonmoy"
-            layout="fill"
-            objectFit="cover"
-            className="transform hover:scale-105 transition-transform duration-300 ease-in-out"
+            alt="Zahid Hasan Tonmoy — profile photo"
+            fill
+            sizes="208px"
+            priority
+            className="object-cover transform hover:scale-105 transition-transform duration-300 ease-in-out"
           />
           {/* Modern Glow Effect */}
           <motion.div
@@ -193,16 +195,31 @@ const Hero = ({ name, title }: HeroProps) => {
           ></motion.div>
         </motion.div>
 
+        {/*
+          CLS fix for h1: render the real name text as an invisible spacer so the
+          container is always the correct intrinsic width, then overlay the
+          animated DecryptedText on top. This prevents the browser from seeing a
+          zero-width element that later expands.
+        */}
         <motion.h1
-          className="text-6xl md:text-8xl font-extrabold mb-2 drop-shadow-lg"
+          className="text-6xl md:text-8xl font-extrabold mb-2 drop-shadow-lg relative"
           variants={itemVariants}
         >
-          <DecryptedText text={name} speed={30} revealSpeed={50} />
+          {/* Invisible spacer — reserves the final width from the very first paint */}
+          <span className="invisible select-none" aria-hidden="true">{name}</span>
+          {/* Animated overlay — absolutely positioned so it never contributes to layout */}
+          <span className="absolute inset-0 flex items-center justify-center">
+            <DecryptedText text={name} speed={30} revealSpeed={50} />
+          </span>
         </motion.h1>
 
-        {/* Typewriter Text Replacement */}
+        {/*
+          CLS fix for typewriter subtitle: min-h matches the tallest possible
+          rendered line at both breakpoints (text-2xl ≈ 2rem line-height,
+          text-4xl ≈ 2.75rem line-height with leading-relaxed).
+        */}
         <motion.div
-          className="text-2xl md:text-4xl font-light max-w-4xl leading-relaxed mb-8 text-gray-300 min-h-[1.5em]"
+          className="text-2xl md:text-4xl font-light max-w-4xl leading-relaxed mb-8 text-gray-300 min-h-[2rem] md:min-h-[2.75rem]"
           variants={itemVariants}
         >
           <TypewriterText
@@ -250,45 +267,58 @@ const Hero = ({ name, title }: HeroProps) => {
           </motion.a>
         </motion.div>
 
+        {/* Social icon links — aria-label added for accessibility (#3) */}
         <motion.div
           className="flex space-x-6"
           variants={containerVariants}
         >
           <motion.a
-            href="https://github.com/zahidhasantonmoy" target="_blank" rel="noopener noreferrer"
+            href="https://github.com/zahidhasantonmoy"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="GitHub profile"
             className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
             variants={iconVariants}
             whileHover="hover"
             whileTap={{ scale: 0.9 }}
           >
-            <FaGithub size={30} />
+            <FaGithub size={30} aria-hidden="true" />
           </motion.a>
           <motion.a
-            href="https://www.linkedin.com/in/zahidhasantonmoy/" target="_blank" rel="noopener noreferrer"
+            href="https://www.linkedin.com/in/zahidhasantonmoy/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="LinkedIn profile"
             className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
             variants={iconVariants}
             whileHover="hover"
             whileTap={{ scale: 0.9 }}
           >
-            <FaLinkedin size={30} />
+            <FaLinkedin size={30} aria-hidden="true" />
           </motion.a>
           <motion.a
-            href="https://www.facebook.com/zahidhasantonmoybd" target="_blank" rel="noopener noreferrer"
+            href="https://www.facebook.com/zahidhasantonmoybd"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook profile"
             className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
             variants={iconVariants}
             whileHover="hover"
             whileTap={{ scale: 0.9 }}
           >
-            <FaFacebook size={30} />
+            <FaFacebook size={30} aria-hidden="true" />
           </motion.a>
           <motion.a
-            href="https://twitter.com/zahidhasantonmoy" target="_blank" rel="noopener noreferrer"
+            href="https://twitter.com/zahidhasantonmoy"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Twitter / X profile"
             className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
             variants={iconVariants}
             whileHover="hover"
             whileTap={{ scale: 0.9 }}
           >
-            <FaTwitter size={30} />
+            <FaTwitter size={30} aria-hidden="true" />
           </motion.a>
         </motion.div>
       </motion.div>
