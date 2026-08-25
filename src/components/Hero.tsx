@@ -202,10 +202,10 @@ const Hero = ({ name, title }: HeroProps) => {
           zero-width element that later expands.
         */}
         <motion.h1
-          className="text-6xl md:text-8xl font-extrabold mb-2 drop-shadow-lg relative"
+          className="text-6xl md:text-8xl font-extrabold mb-2 drop-shadow-lg relative w-full text-center"
           variants={itemVariants}
         >
-          {/* Invisible spacer — reserves the final width from the very first paint */}
+          {/* Invisible spacer — reserves the final width/height from first paint */}
           <span className="invisible select-none" aria-hidden="true">{name}</span>
           {/* Animated overlay — absolutely positioned so it never contributes to layout */}
           <span className="absolute inset-0 flex items-center justify-center">
@@ -214,21 +214,39 @@ const Hero = ({ name, title }: HeroProps) => {
         </motion.h1>
 
         {/*
-          CLS fix for typewriter subtitle: min-h matches the tallest possible
-          rendered line at both breakpoints (text-2xl ≈ 2rem line-height,
-          text-4xl ≈ 2.75rem line-height with leading-relaxed).
+          CLS fix for rotating role subtitle:
+          Ghost copies of every possible string are rendered as
+          position:absolute so they never affect document flow, but they
+          DO force the inline-block container to size itself to the
+          widest variant ('AI Agent Developer') from the first paint.
+          The live TypewriterText then renders on top at the same fixed size.
         */}
         <motion.div
-          className="text-2xl md:text-4xl font-light max-w-4xl leading-relaxed mb-8 text-gray-300 min-h-[2rem] md:min-h-[2.75rem]"
+          className="text-2xl md:text-4xl font-light leading-relaxed mb-8 text-gray-300"
           variants={itemVariants}
         >
-          <TypewriterText
-            texts={['Data Analyst', 'AI Agent Developer', 'Digital Marketer']}
-            typingSpeed={100}
-            deleteSpeed={50}
-            delay={2000}
-            className="text-blue-200"
-          />
+          <span className="relative inline-block">
+            {/* Ghost elements — invisible, absolutely stacked; size the container */}
+            {['Data Analyst', 'AI Agent Developer', 'Digital Marketer'].map((t) => (
+              <span
+                key={t}
+                className="invisible select-none block h-0 overflow-hidden"
+                aria-hidden="true"
+              >
+                {t}
+              </span>
+            ))}
+            {/* Live animated text */}
+            <span className="absolute inset-x-0 top-0 flex items-center justify-center">
+              <TypewriterText
+                texts={['Data Analyst', 'AI Agent Developer', 'Digital Marketer']}
+                typingSpeed={100}
+                deleteSpeed={50}
+                delay={2000}
+                className="text-blue-200"
+              />
+            </span>
+          </span>
         </motion.div>
 
         <motion.div

@@ -66,6 +66,8 @@ export default function RootLayout({
         <meta name="google-site-verification" content="-eYrJsU0hcmA8pqXUHm7_eB0wJ4RNDp_46BntwN6-z8" />
         {/* Bing Webmaster Tools verification */}
         <meta name="msvalidate.01" content="E05CF9D899277A036BD52256D00652CC" />
+        {/* Author */}
+        <meta name="author" content="Zahid Hasan Tonmoy" />
         {/* GEO (Generative Engine Optimization) — helps AI engines like ChatGPT, Perplexity, Google AI Overviews */}
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
         {/* llms.txt — machine-readable summary for LLM crawlers */}

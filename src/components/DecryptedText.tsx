@@ -20,7 +20,17 @@ const DecryptedText = ({
     revealSpeed = 100,
     useGradient = true
 }: DecryptedTextProps) => {
-    const [displayText, setDisplayText] = useState("");
+    /**
+     * CLS FIX: initialize with a full-length random scramble instead of ""
+     * so the gradient span is always exactly text.length characters wide
+     * from the very first paint. The animation only swaps glyphs — it never
+     * changes the element's box dimensions — eliminating all layout shifts.
+     */
+    const [displayText, setDisplayText] = useState<string>(() =>
+        Array.from({ length: text.length }, () =>
+            characters[Math.floor(Math.random() * characters.length)]
+        ).join('')
+    );
     const [isRevealed, setIsRevealed] = useState(false);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const revealIndexRef = useRef(0);
@@ -68,7 +78,13 @@ const DecryptedText = ({
     return (
         <span className={`${className} inline-block`}>
             {useGradient ? (
-                <span className={`bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 ${isRevealed ? '' : 'animate-pulse'}`}>
+                /*
+                 * animate-pulse removed: opacity keyframes on a bg-clip-text
+                 * element cause repeated compositor repaints that Chrome can
+                 * register as visual instability. The scramble animation itself
+                 * is visually interesting enough without the pulse.
+                 */
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
                     {displayText}
                 </span>
             ) : (
