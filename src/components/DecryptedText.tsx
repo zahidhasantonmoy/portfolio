@@ -26,11 +26,7 @@ const DecryptedText = ({
      * from the very first paint. The animation only swaps glyphs — it never
      * changes the element's box dimensions — eliminating all layout shifts.
      */
-    const [displayText, setDisplayText] = useState<string>(() =>
-        Array.from({ length: text.length }, () =>
-            characters[Math.floor(Math.random() * characters.length)]
-        ).join('')
-    );
+    const [displayText, setDisplayText] = useState<string>(text);
     const [isRevealed, setIsRevealed] = useState(false);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const revealIndexRef = useRef(0);
