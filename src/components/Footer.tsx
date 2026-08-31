@@ -43,7 +43,7 @@ const Footer = () => {
             <FaFacebook size={30} aria-hidden="true" />
           </a>
           <a
-            href="https://twitter.com/zahidhasantonmoy"
+            href="https://x.com/zahidhasan_bd"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Twitter / X profile"
