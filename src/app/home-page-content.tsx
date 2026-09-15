@@ -16,7 +16,10 @@ const ReviewForm = dynamic(() => import('@/components/ReviewForm'), { ssr: false
 const Contact = dynamic(() => import('@/components/Contact'), { ssr: true });
 const Footer = dynamic(() => import('@/components/Footer'), { ssr: true });
 
-export default function HomePageContent() {
+export default function HomePageContent({ dbProjects, dbSkills }: { dbProjects?: any, dbSkills?: any }) {
+  const finalProjects = dbProjects && dbProjects.length > 0 ? dbProjects : data.projects;
+  const finalSkills = dbSkills && dbSkills.length > 0 ? dbSkills : data.skills;
+
   return (
     <FilterProvider>
       <ScrollProgress />
@@ -27,10 +30,10 @@ export default function HomePageContent() {
         <section id="skills" className="py-20 bg-gray-50 dark:bg-gray-900">
           <div className="container mx-auto px-6">
             <h2 className="text-4xl font-bold text-center mb-12">My Skills</h2>
-            <SkillSection skills={data.skills} />
+            <SkillSection skills={finalSkills} />
           </div>
         </section>
-        <Projects projects={data.projects} />
+        <Projects projects={finalProjects} />
         <Achievements />
         <GitHubSection />
         <TimelineSection />

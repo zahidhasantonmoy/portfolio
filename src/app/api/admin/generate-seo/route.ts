@@ -29,8 +29,8 @@ export async function POST(request: Request) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     
-    // Fallback to gemini-pro if gemini-1.5-flash throws 404
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    // Use gemini-1.5-flash (the standard model for general text tasks)
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
       You are an expert SEO specialist and copywriter.
