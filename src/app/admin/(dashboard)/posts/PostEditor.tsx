@@ -52,6 +52,8 @@ export default function PostEditor({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [generatingSEO, setGeneratingSEO] = useState(false);
+  const [seoError, setSeoError] = useState("");
 
   // Form state
   const [form, setForm] = useState({
@@ -154,6 +156,38 @@ export default function PostEditor({
     if (!post?.id || !confirm("Delete this post permanently?")) return;
     const res = await fetch(`/api/admin/posts/${post.id}`, { method: "DELETE" });
     if (res.ok) router.push("/admin/posts");
+  }
+
+  async function handleGenerateSEO() {
+    if (!form.title_en.trim() || !form.content_en.trim()) {
+      setSeoError("Please enter English Title and Content first to generate SEO.");
+      return;
+    }
+    setGeneratingSEO(true);
+    setSeoError("");
+    setSuccess("");
+    try {
+      const res = await fetch("/api/admin/generate-seo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: form.title_en, content: form.content_en }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate SEO");
+
+      setForm((prev) => ({
+        ...prev,
+        seo_title_en: data.seo_title_en || prev.seo_title_en,
+        meta_desc_en: data.meta_desc_en || prev.meta_desc_en,
+        seo_title_bn: data.seo_title_bn || prev.seo_title_bn,
+        meta_desc_bn: data.meta_desc_bn || prev.meta_desc_bn,
+      }));
+      setSuccess("✨ SEO metadata auto-generated successfully!");
+    } catch (err: unknown) {
+      setSeoError(err instanceof Error ? err.message : "Something went wrong while generating SEO.");
+    } finally {
+      setGeneratingSEO(false);
+    }
   }
 
   const tabs: { id: TabType; label: string }[] = [
@@ -336,6 +370,27 @@ export default function PostEditor({
       {/* ── SEO Tab ── */}
       {activeTab === "seo" && (
         <div className="space-y-5">
+          <div className="flex items-center justify-between bg-indigo-900/20 border border-indigo-800/50 p-4 rounded-xl">
+            <div>
+              <h4 className="text-sm font-semibold text-indigo-300">AI SEO Generator</h4>
+              <p className="text-xs text-indigo-400/80 mt-1">Automatically write English & Bengali SEO titles and meta descriptions using Gemini AI based on your post content.</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleGenerateSEO}
+              disabled={generatingSEO}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+            >
+              {generatingSEO ? "Generating..." : "✨ Auto Generate"}
+            </button>
+          </div>
+          
+          {seoError && (
+            <div className="bg-red-900/30 border border-red-800 text-red-400 px-4 py-3 rounded-lg text-sm">
+              {seoError}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 gap-5">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
