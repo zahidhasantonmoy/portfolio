@@ -161,3 +161,70 @@ INSERT INTO tags (name_en, name_bn, slug) VALUES
   ('Tutorial', 'টিউটোরিয়াল', 'tutorial'),
   ('Beginner', 'শিক্ষার্থী', 'beginner')
 ON CONFLICT (slug) DO NOTHING;
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 11. CONTACT MESSAGES
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        TEXT NOT NULL,
+  email       TEXT NOT NULL,
+  message     TEXT NOT NULL,
+  status      TEXT DEFAULT 'unread' CHECK (status IN ('unread', 'read', 'replied')),
+  created_at  TIMESTAMPTZ DEFAULT now()
+);
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 12. PROJECTS
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CREATE TABLE IF NOT EXISTS projects (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title         TEXT NOT NULL,
+  description   TEXT NOT NULL,
+  tech_stack    TEXT[] NOT NULL,
+  github_url    TEXT,
+  live_url      TEXT,
+  image_url     TEXT,
+  display_order INTEGER DEFAULT 0,
+  created_at    TIMESTAMPTZ DEFAULT now(),
+  updated_at    TIMESTAMPTZ DEFAULT now()
+);
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 13. SKILLS
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CREATE TABLE IF NOT EXISTS skills (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  category      TEXT NOT NULL CHECK (category IN ('frontend', 'backend', 'tools')),
+  name          TEXT NOT NULL,
+  icon          TEXT,           -- URL or react-icon name
+  proficiency   INTEGER CHECK (proficiency BETWEEN 1 AND 100),
+  display_order INTEGER DEFAULT 0,
+  created_at    TIMESTAMPTZ DEFAULT now()
+);
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 14. NEWSLETTER CAMPAIGNS
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CREATE TABLE IF NOT EXISTS newsletter_campaigns (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  subject     TEXT NOT NULL,
+  body        TEXT NOT NULL,
+  sent_count  INTEGER DEFAULT 0,
+  sent_at     TIMESTAMPTZ DEFAULT now()
+);
+
+-- Trigger to update 'updated_at' on projects table
+CREATE TRIGGER projects_updated_at
+  BEFORE UPDATE ON projects
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- Insert some dummy skills so your frontend doesn't look empty initially
+INSERT INTO skills (category, name, display_order) VALUES
+  ('frontend', 'React', 1),
+  ('frontend', 'Next.js', 2),
+  ('backend', 'Laravel', 1),
+  ('backend', 'PostgreSQL', 2),
+  ('tools', 'Git', 1)
+ON CONFLICT DO NOTHING;
+

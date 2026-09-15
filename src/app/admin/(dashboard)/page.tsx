@@ -3,11 +3,12 @@ import Link from "next/link";
 
 export default async function AdminDashboard() {
   // Stats
-  const [postsRows, draftsRows, journalRows, subscribersRows] = await Promise.all([
+  const [postsRows, draftsRows, journalRows, subscribersRows, unreadMessagesRows] = await Promise.all([
     sql`SELECT count(*) as count FROM posts WHERE status = 'published'`,
     sql`SELECT count(*) as count FROM posts WHERE status = 'draft'`,
     sql`SELECT count(*) as count FROM development_logs`,
     sql`SELECT count(*) as count FROM subscribers WHERE status = 'active'`,
+    sql`SELECT count(*) as count FROM contact_messages WHERE status = 'unread'`.catch(() => [{ count: 0 }]),
   ]);
 
   const stats = [
@@ -15,6 +16,7 @@ export default async function AdminDashboard() {
     { label: "Drafts", value: draftsRows[0]?.count ?? 0, icon: "📄", color: "yellow", href: "/admin/posts?status=draft" },
     { label: "Journal Entries", value: journalRows[0]?.count ?? 0, icon: "📓", color: "emerald", href: "/admin/journal" },
     { label: "Subscribers", value: subscribersRows[0]?.count ?? 0, icon: "📧", color: "pink", href: "/admin/subscribers" },
+    { label: "Unread Messages", value: unreadMessagesRows[0]?.count ?? 0, icon: "💬", color: "blue", href: "/admin/messages" },
   ];
 
   // Recent posts
@@ -30,6 +32,7 @@ export default async function AdminDashboard() {
     yellow: "bg-yellow-600/20 text-yellow-400",
     emerald: "bg-emerald-600/20 text-emerald-400",
     pink: "bg-pink-600/20 text-pink-400",
+    blue: "bg-blue-600/20 text-blue-400",
   };
 
   return (
@@ -40,7 +43,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         {stats.map((stat) => (
           <Link key={stat.label} href={stat.href}
             className="bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-gray-700 transition group">
