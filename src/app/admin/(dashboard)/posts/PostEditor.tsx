@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
@@ -60,6 +60,9 @@ export default function PostEditor({
   
   const [generatingPost, setGeneratingPost] = useState(false);
   const [postTopic, setPostTopic] = useState("");
+  
+  const [quotas, setQuotas] = useState<any[]>([]);
+  const [loadingQuotas, setLoadingQuotas] = useState(false);
 
   // Form state
   const [form, setForm] = useState({
@@ -279,6 +282,29 @@ export default function PostEditor({
       setGeneratingImage(false);
     }
   }
+
+  // Fetch API Quotas
+  const fetchQuotas = useCallback(async () => {
+    setLoadingQuotas(true);
+    try {
+      const res = await fetch("/api/admin/ai-quota");
+      if (res.ok) {
+        const data = await res.json();
+        setQuotas(data.quotas || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch quotas", err);
+    } finally {
+      setLoadingQuotas(false);
+    }
+  }, []);
+
+  // Fetch quotas when switching to AI tab
+  useEffect(() => {
+    if (activeTab === "ai" && quotas.length === 0 && !loadingQuotas) {
+      fetchQuotas();
+    }
+  }, [activeTab, quotas.length, loadingQuotas, fetchQuotas]);
 
   async function handleAutoTranslate() {
     if (!form.title_en.trim() || !form.content_en.trim()) {
@@ -535,6 +561,43 @@ export default function PostEditor({
       {activeTab === "ai" && (
         <div className="space-y-6">
           
+          {/* Quota Dashboard */}
+          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-5 shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <span>⚡ AI API Quota Status</span>
+                </h3>
+                <p className="text-sm text-gray-400 mt-1">Real-time status of your AI API providers.</p>
+              </div>
+              <button 
+                onClick={fetchQuotas} 
+                disabled={loadingQuotas}
+                className="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-white transition-colors"
+              >
+                {loadingQuotas ? "Refreshing..." : "🔄 Refresh"}
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {quotas.map((q, idx) => (
+                <div key={idx} className="bg-gray-900 rounded-lg p-4 border border-gray-700/50 relative overflow-hidden">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`w-2.5 h-2.5 rounded-full ${q.isConfigured ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'}`}></div>
+                    <span className="font-semibold text-gray-200">{q.provider}</span>
+                  </div>
+                  <div className="text-xs text-gray-400 mb-1">Status: {q.isConfigured ? '✅ Configured' : '❌ Missing Key'}</div>
+                  {q.isConfigured && (
+                    <>
+                      <div className="text-xs font-medium text-emerald-400 mt-2">Limit: {q.limitInfo}</div>
+                      <div className="text-xs text-gray-500 mt-1">Usage: {q.usageInfo}</div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Action 1: Translation */}
           <div className="flex items-center justify-between bg-blue-900/20 border border-blue-800/50 p-4 rounded-xl">
             <div>

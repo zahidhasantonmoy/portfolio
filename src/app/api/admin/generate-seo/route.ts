@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { generateContentWithRetry } from "@/lib/gemini";
+import { generateContentWithFallback } from "@/lib/ai";
 
 export const maxDuration = 60; // Allow up to 60 seconds for Vercel Hobby
 
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     `;
 
     // Using our new retry & fallback utility, requesting JSON response format
-    const text = await generateContentWithRetry(prompt, systemInstruction, "application/json");
+    const text = await generateContentWithFallback(prompt, systemInstruction, true);
     
     let parsed;
     try {

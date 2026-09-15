@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
-import { GoogleGenAI, Type } from "@google/genai";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY || "dummy",
-});
+import { generateContentWithFallback } from "@/lib/ai";
 
 export const maxDuration = 60; // 60s for generating long content
 
@@ -39,48 +35,13 @@ Provide the response in JSON format with the following structure:
 }
     `;
 
-    const modelsToTry = ["gemini-3.6-flash", "gemini-2.5-flash"];
-    let responseText = "";
-
-    for (let i = 0; i < modelsToTry.length; i++) {
-      try {
-        const response = await ai.models.generateContent({
-          model: modelsToTry[i],
-          contents: prompt,
-          config: {
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: Type.OBJECT,
-              properties: {
-                title_en: { type: Type.STRING },
-                excerpt_en: { type: Type.STRING },
-                content_en: { type: Type.STRING },
-                seo_title_en: { type: Type.STRING },
-                meta_desc_en: { type: Type.STRING },
-              },
-              required: ["title_en", "excerpt_en", "content_en", "seo_title_en", "meta_desc_en"],
-            },
-            temperature: 0.7,
-          },
-        });
-
-        if (response.text) {
-          responseText = response.text;
-          break;
-        }
-      } catch (err: any) {
-        console.warn(`Model ${modelsToTry[i]} failed:`, err.message);
-        if (i === modelsToTry.length - 1) {
-          throw err;
-        }
-      }
-    }
-
-    if (!responseText) {
+    const text = await generateContentWithFallback(prompt, undefined, true);
+    
+    if (!text) {
       throw new Error("No response from AI");
     }
 
-    const result = JSON.parse(responseText);
+    const result = JSON.parse(text);
 
     return NextResponse.json(result);
   } catch (error: any) {
