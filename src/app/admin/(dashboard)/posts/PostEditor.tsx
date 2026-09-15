@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
 import { CldUploadWidget } from "next-cloudinary";
 import type { Post } from "@/types/blog";
@@ -50,10 +51,7 @@ export default function PostEditor({
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("english");
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [generatingSEO, setGeneratingSEO] = useState(false);
-  const [seoError, setSeoError] = useState("");
 
   // Form state
   const [form, setForm] = useState({
@@ -98,16 +96,14 @@ export default function PostEditor({
 
   async function handleSave(newStatus?: "draft" | "published") {
     setSaving(true);
-    setError("");
-    setSuccess("");
 
     if (!form.title_en.trim()) {
-      setError("English title is required.");
+      toast.error("English title is required.");
       setSaving(false);
       return;
     }
     if (!form.slug.trim()) {
-      setError("Slug is required.");
+      toast.error("Slug is required.");
       setSaving(false);
       return;
     }
@@ -138,7 +134,7 @@ export default function PostEditor({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Save failed");
 
-      setSuccess("Saved successfully!");
+      toast.success("Saved successfully!");
 
       if (mode === "create") {
         router.push(`/admin/posts/${data.post.id}/edit`);
@@ -146,7 +142,7 @@ export default function PostEditor({
         router.refresh();
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setSaving(false);
     }
@@ -154,18 +150,22 @@ export default function PostEditor({
 
   async function handleDelete() {
     if (!post?.id || !confirm("Delete this post permanently?")) return;
-    const res = await fetch(`/api/admin/posts/${post.id}`, { method: "DELETE" });
-    if (res.ok) router.push("/admin/posts");
+    try {
+      const res = await fetch(`/api/admin/posts/${post.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+      toast.success("Post deleted");
+      router.push("/admin/posts");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Error deleting post");
+    }
   }
 
   async function handleGenerateSEO() {
     if (!form.title_en.trim() || !form.content_en.trim()) {
-      setSeoError("Please enter English Title and Content first to generate SEO.");
+      toast.error("Please enter English Title and Content first to generate SEO.");
       return;
     }
     setGeneratingSEO(true);
-    setSeoError("");
-    setSuccess("");
     try {
       const res = await fetch("/api/admin/generate-seo", {
         method: "POST",
@@ -182,9 +182,9 @@ export default function PostEditor({
         seo_title_bn: data.seo_title_bn || prev.seo_title_bn,
         meta_desc_bn: data.meta_desc_bn || prev.meta_desc_bn,
       }));
-      setSuccess("✨ SEO metadata auto-generated successfully!");
+      toast.success("✨ SEO metadata auto-generated!");
     } catch (err: unknown) {
-      setSeoError(err instanceof Error ? err.message : "Something went wrong while generating SEO.");
+      toast.error(err instanceof Error ? err.message : "Failed to generate SEO");
     } finally {
       setGeneratingSEO(false);
     }
@@ -199,18 +199,6 @@ export default function PostEditor({
 
   return (
     <div className="space-y-6">
-      {/* Status alerts */}
-      {error && (
-        <div className="bg-red-900/30 border border-red-800 text-red-400 px-4 py-3 rounded-lg text-sm">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="bg-emerald-900/30 border border-emerald-800 text-emerald-400 px-4 py-3 rounded-lg text-sm">
-          {success}
-        </div>
-      )}
-
       {/* Top toolbar */}
       <div className="flex items-center justify-between bg-gray-900 border border-gray-800 rounded-xl px-4 py-3">
         <div className="flex items-center gap-3">
@@ -384,12 +372,6 @@ export default function PostEditor({
               {generatingSEO ? "Generating..." : "✨ Auto Generate"}
             </button>
           </div>
-          
-          {seoError && (
-            <div className="bg-red-900/30 border border-red-800 text-red-400 px-4 py-3 rounded-lg text-sm">
-              {seoError}
-            </div>
-          )}
 
           <div className="grid grid-cols-1 gap-5">
             <div>

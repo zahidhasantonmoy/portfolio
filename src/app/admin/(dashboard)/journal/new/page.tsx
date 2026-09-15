@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import type { LogMood } from "@/types/blog";
 
 const MOODS: { value: LogMood; emoji: string; label: string }[] = [
@@ -14,7 +15,6 @@ const MOODS: { value: LogMood; emoji: string; label: string }[] = [
 export default function NewJournalPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -33,7 +33,7 @@ export default function NewJournalPage() {
     setError("");
 
     if (!form.title.trim() || !form.content_en.trim()) {
-      setError("Title and English content are required.");
+      toast.error("Title and English content are required.");
       setSaving(false);
       return;
     }
@@ -57,11 +57,13 @@ export default function NewJournalPage() {
         throw new Error(data.error || "Failed to save");
       }
 
+      toast.success("Journal entry saved!");
       router.push("/admin");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to save");
+      toast.error(err instanceof Error ? err.message : "Failed to save");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
 
   return (
@@ -70,12 +72,6 @@ export default function NewJournalPage() {
         <h1 className="text-2xl font-bold text-white">New Journal Entry</h1>
         <p className="text-gray-400 text-sm mt-1">Log today&apos;s learning journey 📓</p>
       </div>
-
-      {error && (
-        <div className="mb-4 bg-red-900/30 border border-red-800 text-red-400 px-4 py-3 rounded-lg text-sm">
-          {error}
-        </div>
-      )}
 
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-5">
         {/* Date + Title */}
