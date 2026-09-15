@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -27,10 +27,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // Use gemini-1.5-flash (the standard model for general text tasks)
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const ai = new GoogleGenAI({ apiKey: apiKey });
 
     const prompt = `
       You are an expert SEO specialist and copywriter.
@@ -56,9 +53,12 @@ export async function POST(request: Request) {
       }
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let text = response.text();
+    const response = await ai.models.generateContent({
+      model: "gemini-3.6-flash",
+      contents: prompt,
+    });
+    
+    let text = response.text || "";
     
     // Clean up response if the model accidentally wraps it in markdown code blocks
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
