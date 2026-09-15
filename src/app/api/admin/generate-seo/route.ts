@@ -29,8 +29,8 @@ export async function POST(request: Request) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     
-    // We use gemini-1.5-flash as it's fast and excellent for text tasks
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Fallback to gemini-pro if gemini-1.5-flash throws 404
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     const prompt = `
       You are an expert SEO specialist and copywriter.
