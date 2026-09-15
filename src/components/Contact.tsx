@@ -1,47 +1,53 @@
 "use client";
-import React, { useRef, useState } from 'react';
-import emailjs from '@emailjs/browser';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaPaperPlane, FaCheck } from 'react-icons/fa';
+import toast from 'react-hot-toast';
 
 import { useAudio } from '@/hooks/useAudio';
 
 const Contact = () => {
-  const form = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showPlane, setShowPlane] = useState(false);
 
   const { playSwoosh, playSuccess } = useAudio();
 
-  const sendEmail = (e: React.FormEvent<HTMLFormElement>) => {
+  const sendEmail = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formElement = e.currentTarget;
+    const formData = new FormData(formElement);
+    
+    setIsSubmitting(true);
+    setShowPlane(true);
+    playSwoosh();
 
-    if (form.current) {
-      setIsSubmitting(true);
-      // Start animation
-      setShowPlane(true);
-      playSwoosh();
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("user_name"),
+          email: formData.get("user_email"),
+          message: formData.get("message"),
+        }),
+      });
 
-      emailjs.sendForm(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || '',
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || '',
-        form.current,
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || ''
-      )
-        .then((result) => {
-          console.log(result.text);
-          setTimeout(() => {
-            setIsSubmitting(false);
-            setIsSuccess(true);
-            playSuccess();
-            setShowPlane(false);
-          }, 2000); // Wait for animation roughly
-        }, (error) => {
-          console.log(error.text);
-          setIsSubmitting(false);
-          setShowPlane(false);
-        });
+      if (!res.ok) {
+        throw new Error("Failed to send message");
+      }
+
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setIsSuccess(true);
+        playSuccess();
+        setShowPlane(false);
+      }, 2000);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to send message. Please try again later.");
+      setIsSubmitting(false);
+      setShowPlane(false);
     }
   };
 
@@ -128,7 +134,7 @@ const Contact = () => {
                     transition={{ duration: 0.5 }}
                   >
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Send a Message</h3>
-                    <form ref={form} onSubmit={sendEmail} className="space-y-6">
+                    <form onSubmit={sendEmail} className="space-y-6">
                       <div>
                         <label htmlFor="user_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
                         <input type="text" id="user_name" name="user_name" required className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-white" placeholder="John Doe" />
