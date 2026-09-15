@@ -6,5 +6,5 @@ export { default } from "next-auth/middleware";
  * Login page is excluded from matching (NextAuth handles it).
  */
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/((?!login).*)"],
 };
