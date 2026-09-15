@@ -11,7 +11,7 @@ const navigation = [
   { name: 'About', href: '#about' },
   { name: 'Projects', href: '#projects' },
   { name: 'Contact', href: '#contact' },
-  { name: 'Resume', href: '/files/Resume/Zahid_Hasan_Resume.pdf' }
+  { name: 'Blog', href: '/blog' }
 ];
 
 import { useAudio } from '@/hooks/useAudio';
@@ -61,8 +61,8 @@ export default function Navbar() {
                 <MagneticButton key={item.name}>
                   <motion.a
                     href={item.href}
-                    target={item.name === 'Resume' ? '_blank' : undefined}
-                    rel={item.name === 'Resume' ? 'noopener noreferrer' : undefined}
+                    target={item.name === 'Blog' ? '_self' : undefined}
+                    rel={item.name === 'Blog' ? undefined : undefined}
                     className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium inline-block"
                     onMouseEnter={() => playHover()}
                     onClick={() => playClick()}
@@ -107,8 +107,8 @@ export default function Navbar() {
             <motion.a
               key={item.name}
               href={item.href}
-              target={item.name === 'Resume' ? '_blank' : undefined}
-              rel={item.name === 'Resume' ? 'noopener noreferrer' : undefined}
+              target={item.name === 'Blog' ? '_self' : undefined}
+              rel={item.name === 'Blog' ? undefined : undefined}
               whileHover={{ scale: 1.05 }}
               className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium"
             >

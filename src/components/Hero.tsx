@@ -269,14 +269,13 @@ const Hero = ({ name, title }: HeroProps) => {
           </motion.a>
 
           <motion.a
-            href="/files/Resume/Zahid_Hasan_Resume.pdf"
-            download="Zahid_Hasan_Resume.pdf"
+            href="/blog"
             className="px-8 py-4 bg-purple-600 text-white font-bold rounded-lg shadow-lg hover:bg-purple-700 transition-colors duration-300 flex items-center justify-center gap-2"
             variants={itemVariants}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <span>Download CV</span>
+            <span>Read Blog</span>
           </motion.a>
 
           <motion.a
