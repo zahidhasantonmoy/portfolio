@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { FaRegClock, FaRegCalendarAlt } from "react-icons/fa";
+import { FaRegCalendarAlt, FaRegClock } from "react-icons/fa";
+import Footer from "@/components/Footer";
 import Link from "next/link";
 import { getPostBySlug, getRelatedPosts, getAllPostSlugs } from "@/lib/blog";
 import ArticleContent from "@/components/blog/ArticleContent";
@@ -271,6 +272,7 @@ export default async function BlogPostPage({
           </section>
         )}
       </main>
+      <Footer />
     </>
   );
 }

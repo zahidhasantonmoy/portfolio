@@ -12,6 +12,7 @@ const navItems = [
   { href: "/admin/skills", label: "Skills", icon: "⚡" },
   { href: "/admin/messages", label: "Messages", icon: "💬" },
   { href: "/admin/subscribers", label: "Subscribers", icon: "📧" },
+  { href: "/admin/campaigns", label: "Campaigns", icon: "📢" },
   { href: "/", label: "← View Site", icon: "🌐", external: true },
 ];
 

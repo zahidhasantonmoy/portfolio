@@ -5,6 +5,7 @@ import { getPostBySlug } from "@/lib/blog";
 import ArticleContent from "@/components/blog/ArticleContent";
 import ShareButtons from "@/components/blog/ShareButtons";
 import { FaRegClock, FaRegCalendarAlt } from "react-icons/fa";
+import Footer from "@/components/Footer";
 
 export const revalidate = 300;
 
@@ -213,6 +214,7 @@ export default async function BnBlogPostPage({
           </article>
         </div>
       </main>
+      <Footer />
     </>
   );
 }

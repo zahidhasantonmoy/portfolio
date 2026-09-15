@@ -54,6 +54,9 @@ export default function PostEditor({
   const [generatingSEO, setGeneratingSEO] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [generatingMeta, setGeneratingMeta] = useState(false);
+  const [generatingImage, setGeneratingImage] = useState(false);
+  const [imagePrompt, setImagePrompt] = useState("");
+  const [imageModel, setImageModel] = useState("Gemini 3.6 Flash");
 
   // Form state
   const [form, setForm] = useState({
@@ -197,6 +200,45 @@ export default function PostEditor({
       toast.error(err instanceof Error ? err.message : "Failed to generate SEO");
     } finally {
       setGeneratingSEO(false);
+    }
+  }
+
+  async function handleGenerateImage() {
+    if (!form.content_en) {
+      toast.error("Please add some English content first so AI understands what image to generate.");
+      return;
+    }
+    
+    setGeneratingImage(true);
+    const loadingToast = toast.loading("🎨 Generating image... This can take up to 30 seconds.");
+    
+    try {
+      const res = await fetch("/api/admin/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: imagePrompt,
+          postDetails: `Title: ${form.title_en}\n\nContent: ${form.content_en}`,
+          modelName: imageModel,
+        }),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || "Failed to generate image");
+      
+      setForm((prev) => ({ ...prev, cover_image_url: data.url }));
+      if (data.promptUsed && !imagePrompt) {
+        setImagePrompt(data.promptUsed);
+      }
+      
+      toast.success("Image generated successfully!");
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Generation failed: " + err.message);
+    } finally {
+      toast.dismiss(loadingToast);
+      setGeneratingImage(false);
     }
   }
 
@@ -501,6 +543,43 @@ export default function PostEditor({
             >
               {generatingSEO ? "Generating..." : "✨ Auto Generate SEO"}
             </button>
+          </div>
+          
+          {/* Action 4: Image Generation */}
+          <div className="flex flex-col gap-4 bg-teal-900/20 border border-teal-800/50 p-4 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-semibold text-teal-300">Generate Thumbnail / Cover Image</h4>
+                <p className="text-xs text-teal-400/80 mt-1">Leave prompt empty to auto-generate based on post content.</p>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                value={imagePrompt}
+                onChange={(e) => setImagePrompt(e.target.value)}
+                placeholder="Enter prompt (optional) or leave blank for auto-generation..."
+                className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-teal-500"
+              />
+              <select
+                value={imageModel}
+                onChange={(e) => setImageModel(e.target.value)}
+                className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-teal-500"
+              >
+                <option value="Gemini 3.6 Flash">Gemini 3.6 Flash</option>
+                <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
+                <option value="Gemini 3.1 Flash Lite">Gemini 3.1 Flash Lite</option>
+              </select>
+              <button
+                type="button"
+                onClick={handleGenerateImage}
+                disabled={generatingImage}
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap disabled:opacity-50"
+              >
+                {generatingImage ? "Generating..." : "🎨 Generate Image"}
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-1 gap-5">
             <div>
