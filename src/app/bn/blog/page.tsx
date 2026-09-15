@@ -6,7 +6,7 @@ import BlogCard from "@/components/blog/BlogCard";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "ব্লগ | জাহিদ হাসান টনময়",
+  title: "ব্লগ | জাহিদ হাসান তন্ময়",
   description:
     "Laravel, PHP, PostgreSQL, React, JavaScript সহ আরো অনেক বিষয়ে বাংলায় technical article ও tutorial।",
   alternates: {

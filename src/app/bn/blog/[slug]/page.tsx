@@ -22,7 +22,7 @@ export async function generateMetadata({
   const description = post.meta_desc_bn || post.excerpt_bn || "";
 
   return {
-    title: `${title} | জাহিদ হাসান টনময়`,
+    title: `${title} | জাহিদ হাসান তন্ময়`,
     description,
     openGraph: {
       title,
@@ -66,7 +66,7 @@ export default async function BnBlogPostPage({
     headline: post.title_bn,
     description: post.excerpt_bn ?? "",
     datePublished: post.published_at ?? "",
-    author: { "@type": "Person", name: "জাহিদ হাসান টনময়" },
+    author: { "@type": "Person", name: "জাহিদ হাসান তন্ময়" },
     inLanguage: "bn",
     mainEntityOfPage: {
       "@type": "WebPage",
@@ -120,7 +120,7 @@ export default async function BnBlogPostPage({
                 <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shadow-inner">
                   Z
                 </div>
-                <span>জাহিদ হাসান টনময়</span>
+                <span>জাহিদ হাসান তন্ময়</span>
               </div>
               
               {publishDate && (
@@ -188,7 +188,7 @@ export default async function BnBlogPostPage({
                   Z
                 </div>
                 <div className="text-center sm:text-left">
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">জাহিদ হাসান টনময়</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">জাহিদ হাসান তন্ময়</p>
                   <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400 mt-1 mb-3 uppercase tracking-wide">সফটওয়্যার ডেভেলপার</p>
                   <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                     MERN ফুল-স্ট্যাক ডেভেলপার এবং AI এজেন্ট ডেভেলপার, ঢাকা, বাংলাদেশ।
