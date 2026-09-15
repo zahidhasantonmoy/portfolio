@@ -64,7 +64,7 @@ export const metadata: Metadata = {
 };
 
 import Providers from "./providers";
-import { ClientNavbar, ClientFooter } from "@/components/GlobalLayoutElements";
+import { ClientNavbar, ClientFooter, ClientChatBot } from "@/components/GlobalLayoutElements";
 
 export default function RootLayout({
   children,
@@ -356,6 +356,7 @@ export default function RootLayout({
           <ClientNavbar />
           {children}
           <ClientFooter />
+          <ClientChatBot />
         </Providers>
         <Analytics />
       </body>

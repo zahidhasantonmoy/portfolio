@@ -5,12 +5,19 @@ import ScrollProgress from '@/components/ScrollProgress';
 import data from '@/data/data.json';
 import { FilterProvider } from '@/context/FilterContext';
 
-// Heavy below-the-fold sections loaded lazily to improve initial page speed
-const SkillSection = dynamic(() => import('@/components/SkillSection'), { ssr: true });
+// Heavy below-the-fold sections loaded lazily to improve initial page speed & eliminate hydration lag
+const SkillSection = dynamic(() => import('@/components/SkillSection'), {
+  ssr: false,
+  loading: () => (
+    <div className="min-h-[350px] flex items-center justify-center">
+      <div className="w-8 h-8 border-3 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+    </div>
+  ),
+});
 const Projects = dynamic(() => import('@/components/Projects'), { ssr: true });
-const Achievements = dynamic(() => import('@/components/Achievements'), { ssr: true });
+const Achievements = dynamic(() => import('@/components/Achievements'), { ssr: false });
 const GitHubSection = dynamic(() => import('@/components/GitHubSection'), { ssr: false });
-const TimelineSection = dynamic(() => import('@/components/TimelineSection'), { ssr: true });
+const TimelineSection = dynamic(() => import('@/components/TimelineSection'), { ssr: false });
 const ReviewForm = dynamic(() => import('@/components/ReviewForm'), { ssr: false });
 const Contact = dynamic(() => import('@/components/Contact'), { ssr: true });
 

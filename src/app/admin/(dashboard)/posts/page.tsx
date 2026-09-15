@@ -1,5 +1,7 @@
 import { sql } from "@/lib/db";
 import Link from "next/link";
+import PostStatusToggle from "./PostStatusToggle";
+import { FaEye, FaHeart } from "react-icons/fa";
 
 export default async function AdminPostsPage({
   searchParams,
@@ -11,7 +13,9 @@ export default async function AdminPostsPage({
   let posts;
   if (status) {
     posts = await sql`
-      SELECT p.id, p.title_en, p.slug, p.status, p.post_type, p.published_at, p.created_at, c.name_en as cat_name
+      SELECT p.id, p.title_en, p.slug, p.status, p.post_type, p.published_at, p.created_at,
+             COALESCE(p.views, 0) as views, COALESCE(p.likes, 0) as likes, p.read_time_min,
+             c.name_en as cat_name
       FROM posts p
       LEFT JOIN categories c ON p.category_id = c.id
       WHERE p.status = ${status}
@@ -19,7 +23,9 @@ export default async function AdminPostsPage({
     `;
   } else {
     posts = await sql`
-      SELECT p.id, p.title_en, p.slug, p.status, p.post_type, p.published_at, p.created_at, c.name_en as cat_name
+      SELECT p.id, p.title_en, p.slug, p.status, p.post_type, p.published_at, p.created_at,
+             COALESCE(p.views, 0) as views, COALESCE(p.likes, 0) as likes, p.read_time_min,
+             c.name_en as cat_name
       FROM posts p
       LEFT JOIN categories c ON p.category_id = c.id
       ORDER BY p.created_at DESC
@@ -76,6 +82,7 @@ export default async function AdminPostsPage({
                 <th className="text-left px-6 py-3 text-xs text-gray-500 font-medium uppercase">Title</th>
                 <th className="text-left px-4 py-3 text-xs text-gray-500 font-medium uppercase">Type</th>
                 <th className="text-left px-4 py-3 text-xs text-gray-500 font-medium uppercase">Status</th>
+                <th className="text-left px-4 py-3 text-xs text-gray-500 font-medium uppercase">Engagement</th>
                 <th className="text-left px-4 py-3 text-xs text-gray-500 font-medium uppercase">Date</th>
                 <th className="px-4 py-3"></th>
               </tr>
@@ -91,15 +98,19 @@ export default async function AdminPostsPage({
                     <span className="text-xs text-gray-400 capitalize">{post.post_type}</span>
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${
-                      post.status === "published"
-                        ? "bg-emerald-900/40 text-emerald-400"
-                        : post.status === "scheduled"
-                        ? "bg-blue-900/40 text-blue-400"
-                        : "bg-yellow-900/40 text-yellow-400"
-                    }`}>
-                      {post.status}
-                    </span>
+                    <PostStatusToggle postId={post.id} initialStatus={post.status} />
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-3 text-xs text-gray-400">
+                      <span className="flex items-center gap-1">
+                        <FaEye className="text-indigo-400 text-[11px]" />
+                        {post.views}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <FaHeart className="text-rose-400 text-[11px]" />
+                        {post.likes}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-4 py-4">
                     <span className="text-xs text-gray-500">

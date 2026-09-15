@@ -64,9 +64,11 @@ CREATE TABLE IF NOT EXISTS posts (
   created_at       TIMESTAMPTZ DEFAULT now(),
   updated_at       TIMESTAMPTZ DEFAULT now(),
 
-  -- Extras
+  -- Extras & Engagement
   read_time_min    INTEGER DEFAULT 3,
-  is_featured      BOOLEAN DEFAULT false
+  is_featured      BOOLEAN DEFAULT false,
+  views            INTEGER DEFAULT 0,
+  likes            INTEGER DEFAULT 0
 );
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

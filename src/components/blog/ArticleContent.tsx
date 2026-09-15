@@ -36,6 +36,16 @@ export default function ArticleContent({ content }: ArticleContentProps) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeSanitize, rehypeHighlight]}
+        components={{
+          h2: ({ children, ...props }) => {
+            const text = String(children).replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').toLowerCase();
+            return <h2 id={text} className="scroll-mt-24" {...props}>{children}</h2>;
+          },
+          h3: ({ children, ...props }) => {
+            const text = String(children).replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').toLowerCase();
+            return <h3 id={text} className="scroll-mt-24" {...props}>{children}</h3>;
+          },
+        }}
       >
         {content}
       </ReactMarkdown>

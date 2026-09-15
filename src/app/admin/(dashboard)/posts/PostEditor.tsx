@@ -114,6 +114,34 @@ export default function PostEditor({
     }));
   }
 
+  const handleUploadAndInsertImage = async (file: File, field: "content_en" | "content_bn") => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only image files can be uploaded");
+      return;
+    }
+    const toastId = toast.loading("Uploading image to Cloudinary...");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/admin/upload-image", {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+
+      const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[^\w\s-]/g, "");
+      const markdownImage = `\n\n![${cleanName}](${data.url})\n\n`;
+      setForm((prev) => ({
+        ...prev,
+        [field]: prev[field] ? prev[field] + markdownImage : markdownImage,
+      }));
+      toast.success("Image uploaded and inserted into markdown! 🖼️", { id: toastId });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload image", { id: toastId });
+    }
+  };
+
   async function handleSave(newStatus?: "draft" | "published") {
     setSaving(true);
 
@@ -524,8 +552,50 @@ export default function PostEditor({
             />
           </div>
 
-          <div data-color-mode="dark">
-            <label className="block text-sm font-medium text-gray-300 mb-2">Content (English — Markdown)</label>
+          <div
+            data-color-mode="dark"
+            onPaste={(e) => {
+              const items = e.clipboardData?.items;
+              if (items) {
+                for (let i = 0; i < items.length; i++) {
+                  if (items[i].type.startsWith("image/")) {
+                    const file = items[i].getAsFile();
+                    if (file) {
+                      e.preventDefault();
+                      handleUploadAndInsertImage(file, "content_en");
+                      break;
+                    }
+                  }
+                }
+              }
+            }}
+            onDrop={(e) => {
+              const files = e.dataTransfer?.files;
+              if (files && files.length > 0 && files[0].type.startsWith("image/")) {
+                e.preventDefault();
+                handleUploadAndInsertImage(files[0], "content_en");
+              }
+            }}
+            onDragOver={(e) => e.preventDefault()}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-300">
+                Content (English — Markdown)
+              </label>
+              <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-indigo-300 rounded-lg border border-gray-700 transition">
+                <span>📷 Upload / Drop Image</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleUploadAndInsertImage(file, "content_en");
+                  }}
+                />
+              </label>
+            </div>
+            <p className="text-xs text-gray-500 mb-2">💡 Tip: Paste screenshots (Ctrl+V) or drag & drop images directly here!</p>
             <MDEditor
               value={form.content_en}
               onChange={(val) => setForm({ ...form, content_en: val ?? "" })}
@@ -565,8 +635,49 @@ export default function PostEditor({
             />
           </div>
 
-          <div data-color-mode="dark">
-            <label className="block text-sm font-medium text-gray-300 mb-2">বিষয়বস্তু (বাংলা — Markdown)</label>
+          <div
+            data-color-mode="dark"
+            onPaste={(e) => {
+              const items = e.clipboardData?.items;
+              if (items) {
+                for (let i = 0; i < items.length; i++) {
+                  if (items[i].type.startsWith("image/")) {
+                    const file = items[i].getAsFile();
+                    if (file) {
+                      e.preventDefault();
+                      handleUploadAndInsertImage(file, "content_bn");
+                      break;
+                    }
+                  }
+                }
+              }
+            }}
+            onDrop={(e) => {
+              const files = e.dataTransfer?.files;
+              if (files && files.length > 0 && files[0].type.startsWith("image/")) {
+                e.preventDefault();
+                handleUploadAndInsertImage(files[0], "content_bn");
+              }
+            }}
+            onDragOver={(e) => e.preventDefault()}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-300">
+                বিষয়বস্তু (বাংলা — Markdown)
+              </label>
+              <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-indigo-300 rounded-lg border border-gray-700 transition">
+                <span>📷 ছবি আপলোড</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleUploadAndInsertImage(file, "content_bn");
+                  }}
+                />
+              </label>
+            </div>
             <MDEditor
               value={form.content_bn}
               onChange={(val) => setForm({ ...form, content_bn: val ?? "" })}

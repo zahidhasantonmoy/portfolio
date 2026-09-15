@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   compress: true,
+  experimental: {
+    optimizePackageImports: ['react-icons', 'framer-motion', '@heroicons/react'],
+  },
 
   images: {
     domains: ['localhost'],
