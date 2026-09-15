@@ -6,7 +6,8 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 export async function generateContentWithFallback(
   prompt: string,
   systemInstruction?: string,
-  isJsonMode: boolean = true
+  isJsonMode: boolean = true,
+  preferredProvider: 'auto' | 'openrouter' | 'gemini' | 'groq' = 'auto'
 ): Promise<string> {
   const openRouterKey = process.env.OPENROUTER_API_KEY;
   const geminiKey = process.env.GEMINI_API_KEY;
@@ -15,7 +16,7 @@ export async function generateContentWithFallback(
   let lastError: any = null;
 
   // 1. Try OpenRouter first (Fast, cheap, wide model selection)
-  if (openRouterKey) {
+  if (openRouterKey && (preferredProvider === 'auto' || preferredProvider === 'openrouter')) {
     try {
       const openai = new OpenAI({
         baseURL: "https://openrouter.ai/api/v1",
@@ -44,8 +45,10 @@ export async function generateContentWithFallback(
     }
   }
 
+  if (preferredProvider === 'openrouter') throw new Error('OpenRouter failed: ' + (lastError?.message || 'Unknown error'));
+
   // 2. Try Gemini (Fallback)
-  if (geminiKey) {
+  if (geminiKey && (preferredProvider === 'auto' || preferredProvider === 'gemini')) {
     try {
       const ai = new GoogleGenAI({ apiKey: geminiKey });
       const models = [
@@ -79,8 +82,10 @@ export async function generateContentWithFallback(
     }
   }
 
+  if (preferredProvider === 'gemini') throw new Error('Gemini failed: ' + (lastError?.message || 'Unknown error'));
+
   // 3. Try Groq (Last Resort)
-  if (groqKey) {
+  if (groqKey && (preferredProvider === 'auto' || preferredProvider === 'groq')) {
     try {
       const groq = new OpenAI({
         baseURL: "https://api.groq.com/openai/v1",

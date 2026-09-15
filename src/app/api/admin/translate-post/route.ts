@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { title_en, excerpt_en, content_en } = await request.json();
+    const { title_en, excerpt_en, content_en, provider } = await request.json();
 
     if (!title_en || !content_en) {
       return NextResponse.json(
@@ -54,7 +54,12 @@ export async function POST(request: Request) {
       }
     `;
 
-    const text = await generateContentWithFallback(prompt, systemInstruction, true);
+    const text = await generateContentWithFallback(
+      prompt,
+      systemInstruction,
+      true, // isJsonMode
+      provider || "auto"
+    );
     
     let parsed;
     try {

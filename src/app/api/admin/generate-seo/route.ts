@@ -20,9 +20,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { title, content } = await request.json();
+    const { title, content, provider } = await request.json();
 
-    if (!title && !content) {
+    if (!title || !content) {
       return NextResponse.json(
         { error: "Post title and content are required to generate SEO." },
         { status: 400 }
@@ -56,7 +56,12 @@ export async function POST(request: Request) {
     `;
 
     // Using our new retry & fallback utility, requesting JSON response format
-    const text = await generateContentWithFallback(prompt, systemInstruction, true);
+    const text = await generateContentWithFallback(
+      prompt,
+      systemInstruction,
+      true,
+      provider || "auto"
+    );
     
     let parsed;
     try {

@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "GEMINI_API_KEY is not configured" }, { status: 500 });
     }
 
-    const { topic } = await req.json();
+    const { topic, provider } = await req.json();
     const targetTopic = topic?.trim() || "A random interesting topic about modern web development, React, or AI";
 
     const prompt = `
@@ -35,7 +35,7 @@ Provide the response in JSON format with the following structure:
 }
     `;
 
-    const text = await generateContentWithFallback(prompt, undefined, true);
+    const text = await generateContentWithFallback(prompt, undefined, true, provider || "auto");
     
     if (!text) {
       throw new Error("No response from AI");

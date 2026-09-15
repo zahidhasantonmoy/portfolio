@@ -57,6 +57,7 @@ export default function PostEditor({
   const [generatingImage, setGeneratingImage] = useState(false);
   const [imagePrompt, setImagePrompt] = useState("");
   const [imageModel, setImageModel] = useState("Gemini 3.6 Flash");
+  const [preferredProvider, setPreferredProvider] = useState("auto");
   
   const [generatingPost, setGeneratingPost] = useState(false);
   const [postTopic, setPostTopic] = useState("");
@@ -181,7 +182,7 @@ export default function PostEditor({
       const res = await fetch("/api/admin/generate-seo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: form.title_en, content: form.content_en }),
+        body: JSON.stringify({ title: form.title_en, content: form.content_en, provider: preferredProvider }),
       });
       
       const contentType = res.headers.get("content-type");
@@ -206,6 +207,7 @@ export default function PostEditor({
       toast.error(err instanceof Error ? err.message : "Failed to generate SEO");
     } finally {
       setGeneratingSEO(false);
+      fetchQuotas();
     }
   }
 
@@ -217,7 +219,7 @@ export default function PostEditor({
       const res = await fetch("/api/admin/generate-post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: postTopic }),
+        body: JSON.stringify({ topic: postTopic, provider: preferredProvider }),
       });
 
       const data = await res.json();
@@ -241,6 +243,7 @@ export default function PostEditor({
     } finally {
       toast.dismiss(loadingToast);
       setGeneratingPost(false);
+      fetchQuotas();
     }
   }
 
@@ -320,6 +323,7 @@ export default function PostEditor({
           title_en: form.title_en,
           excerpt_en: form.excerpt_en,
           content_en: form.content_en,
+          provider: preferredProvider,
         }),
       });
 
@@ -337,6 +341,7 @@ export default function PostEditor({
       toast.error(err instanceof Error ? err.message : "Translation failed");
     } finally {
       setTranslating(false);
+      fetchQuotas();
     }
   }
 
@@ -350,7 +355,7 @@ export default function PostEditor({
       const res = await fetch("/api/admin/generate-meta", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content_en: form.content_en }),
+        body: JSON.stringify({ content_en: form.content_en, provider: preferredProvider }),
       });
 
       const data = await res.json();
@@ -389,6 +394,7 @@ export default function PostEditor({
       toast.error(err instanceof Error ? err.message : "Failed to generate meta");
     } finally {
       setGeneratingMeta(false);
+      fetchQuotas();
     }
   }
 
@@ -570,13 +576,25 @@ export default function PostEditor({
                 </h3>
                 <p className="text-sm text-gray-400 mt-1">Real-time status of your AI API providers.</p>
               </div>
-              <button 
-                onClick={fetchQuotas} 
-                disabled={loadingQuotas}
-                className="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-white transition-colors"
-              >
-                {loadingQuotas ? "Refreshing..." : "🔄 Refresh"}
-              </button>
+              <div className="flex gap-2">
+                <select
+                  value={preferredProvider}
+                  onChange={(e) => setPreferredProvider(e.target.value)}
+                  className="text-xs bg-gray-900 border border-gray-700 hover:border-gray-500 rounded-lg text-white px-2 py-1.5 transition-colors focus:outline-none"
+                >
+                  <option value="auto">🤖 Auto-Routing (Smart Fallback)</option>
+                  <option value="openrouter">🌐 OpenRouter (Llama 3)</option>
+                  <option value="gemini">✨ Gemini (Flash/Lite)</option>
+                  <option value="groq">⚡ Groq (Llama 3 8B)</option>
+                </select>
+                <button 
+                  onClick={fetchQuotas} 
+                  disabled={loadingQuotas}
+                  className="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-white transition-colors"
+                >
+                  {loadingQuotas ? "Refreshing..." : "🔄 Refresh"}
+                </button>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
