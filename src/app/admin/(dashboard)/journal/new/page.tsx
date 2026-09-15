@@ -30,7 +30,6 @@ export default function NewJournalPage() {
 
   async function handleSave() {
     setSaving(true);
-    setError("");
 
     if (!form.title.trim() || !form.content_en.trim()) {
       toast.error("Title and English content are required.");
