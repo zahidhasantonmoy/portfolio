@@ -18,7 +18,7 @@ export async function GET() {
     {
       provider: "OpenRouter",
       isConfigured: !!openRouterKey,
-      limitInfo: "Free tier models depend on credits. Typical free limits apply.",
+      limitInfo: "50 Requests / Day (Free Tier)",
       usageInfo: "Unknown",
     },
     {
@@ -47,8 +47,12 @@ export async function GET() {
         const data = await res.json();
         const limit = data.data?.limit;
         const usage = data.data?.usage;
+        const isFreeTier = data.data?.is_free_tier;
         
-        if (limit !== undefined && limit !== null) {
+        if (isFreeTier) {
+          quotas[0].limitInfo = "50 Requests / Day (Free Tier)";
+          quotas[0].usageInfo = `$${(usage || 0).toFixed(4)} Used`;
+        } else if (limit !== undefined && limit !== null) {
           quotas[0].limitInfo = `$${limit.toFixed(4)} Total Limit`;
           quotas[0].usageInfo = `$${(usage || 0).toFixed(4)} Used`;
         } else {
