@@ -1,6 +1,6 @@
 -- ┌─────────────────────────────────────────────────────────────────┐
--- │   Blog + Journal + Newsletter — Supabase Database Schema        │
--- │   Run this in: Supabase Dashboard → SQL Editor                  │
+-- │   Blog + Journal + Newsletter — PostgreSQL Database Schema      │
+-- │   Run this in: Neon Console → SQL Editor                        │
 -- └─────────────────────────────────────────────────────────────────┘
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -121,56 +121,7 @@ CREATE INDEX IF NOT EXISTS idx_posts_category      ON posts(category_id);
 CREATE INDEX IF NOT EXISTS idx_dev_logs_date       ON development_logs(log_date DESC);
 CREATE INDEX IF NOT EXISTS idx_subscribers_email   ON subscribers(email);
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
--- 8. ROW LEVEL SECURITY (RLS)
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE tags ENABLE ROW LEVEL SECURITY;
-ALTER TABLE post_tags ENABLE ROW LEVEL SECURITY;
-ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE development_logs ENABLE ROW LEVEL SECURITY;
 
--- Public READ — only published posts (past/present publish date)
-CREATE POLICY "Public: read published posts"
-  ON posts FOR SELECT
-  TO anon
-  USING (status = 'published' AND published_at <= now());
-
-CREATE POLICY "Public: read categories"
-  ON categories FOR SELECT TO anon USING (true);
-
-CREATE POLICY "Public: read tags"
-  ON tags FOR SELECT TO anon USING (true);
-
-CREATE POLICY "Public: read post_tags"
-  ON post_tags FOR SELECT TO anon USING (true);
-
-CREATE POLICY "Public: read public dev logs"
-  ON development_logs FOR SELECT TO anon USING (is_public = true);
-
--- Public can INSERT subscribers (newsletter signup)
-CREATE POLICY "Public: subscribe to newsletter"
-  ON subscribers FOR INSERT TO anon WITH CHECK (true);
-
--- Authenticated (admin) — full access to everything
-CREATE POLICY "Auth: full access posts"
-  ON posts FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Auth: full access categories"
-  ON categories FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Auth: full access tags"
-  ON tags FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Auth: full access post_tags"
-  ON post_tags FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Auth: full access subscribers"
-  ON subscribers FOR ALL TO authenticated USING (true) WITH CHECK (true);
-
-CREATE POLICY "Auth: full access dev_logs"
-  ON development_logs FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- 9. AUTO-UPDATE updated_at

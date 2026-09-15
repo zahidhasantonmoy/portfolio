@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { sql } from "@/lib/db";
 
 /** POST /api/subscribe — Newsletter subscription */
 export async function POST(request: Request) {
@@ -10,37 +10,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Valid email required" }, { status: 400 });
     }
 
-    const supabase = await createClient();
-
     // Check if already subscribed
-    const { data: existing } = await supabase
-      .from("subscribers")
-      .select("id, status")
-      .eq("email", email)
-      .single();
+    const rows = await sql`SELECT id, status FROM subscribers WHERE email = ${email} LIMIT 1`;
+    const existing = rows.length > 0 ? rows[0] : null;
 
     if (existing) {
       if (existing.status === "active") {
         return NextResponse.json({ message: "Already subscribed!" });
       }
       // Re-subscribe
-      const { error } = await supabase
-        .from("subscribers")
-        .update({ status: "active", unsubscribed_at: null })
-        .eq("id", existing.id);
-      if (error) throw error;
+      await sql`
+        UPDATE subscribers
+        SET status = 'active', unsubscribed_at = NULL
+        WHERE id = ${existing.id}
+      `;
       return NextResponse.json({ message: "Welcome back! You're subscribed again." });
     }
 
     // New subscriber
-    const { error } = await supabase.from("subscribers").insert({
-      email,
-      name: name || null,
-      status: "active",
-      confirmed_at: new Date().toISOString(), // Double opt-in later
-    });
-
-    if (error) throw error;
+    await sql`
+      INSERT INTO subscribers (email, name, status, confirmed_at)
+      VALUES (${email}, ${name || null}, 'active', NOW())
+    `;
 
     return NextResponse.json(
       { message: "Successfully subscribed! Thank you." },
@@ -58,11 +49,11 @@ export async function DELETE(request: Request) {
     const { email } = await request.json();
     if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
 
-    const supabase = await createClient();
-    await supabase
-      .from("subscribers")
-      .update({ status: "unsubscribed", unsubscribed_at: new Date().toISOString() })
-      .eq("email", email);
+    await sql`
+      UPDATE subscribers
+      SET status = 'unsubscribed', unsubscribed_at = NOW()
+      WHERE email = ${email}
+    `;
 
     return NextResponse.json({ message: "Unsubscribed successfully." });
   } catch (err) {
