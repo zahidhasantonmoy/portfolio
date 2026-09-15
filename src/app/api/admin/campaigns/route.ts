@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
     // Actually, sending batch is limited to 100 emails per batch in Resend.
     // We will batch them in chunks of 100.
-    const chunkArray = (arr: any[], size: number) =>
+    const chunkArray = (arr: any[], size: number): any[][] =>
       arr.length > size
         ? [arr.slice(0, size), ...chunkArray(arr.slice(size), size)]
         : [arr];
