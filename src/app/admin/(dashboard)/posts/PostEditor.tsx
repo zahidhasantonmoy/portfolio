@@ -57,6 +57,9 @@ export default function PostEditor({
   const [generatingImage, setGeneratingImage] = useState(false);
   const [imagePrompt, setImagePrompt] = useState("");
   const [imageModel, setImageModel] = useState("Gemini 3.6 Flash");
+  
+  const [generatingPost, setGeneratingPost] = useState(false);
+  const [postTopic, setPostTopic] = useState("");
 
   // Form state
   const [form, setForm] = useState({
@@ -200,6 +203,41 @@ export default function PostEditor({
       toast.error(err instanceof Error ? err.message : "Failed to generate SEO");
     } finally {
       setGeneratingSEO(false);
+    }
+  }
+
+  async function handleGeneratePost() {
+    setGeneratingPost(true);
+    const loadingToast = toast.loading("✍️ Generating full blog post... This can take up to 60 seconds.");
+    
+    try {
+      const res = await fetch("/api/admin/generate-post", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: postTopic }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate post");
+
+      setForm((prev) => ({
+        ...prev,
+        title_en: data.title_en || prev.title_en,
+        slug: slugify(data.title_en || prev.title_en),
+        excerpt_en: data.excerpt_en || prev.excerpt_en,
+        content_en: data.content_en || prev.content_en,
+        seo_title_en: data.seo_title_en || prev.seo_title_en,
+        meta_desc_en: data.meta_desc_en || prev.meta_desc_en,
+      }));
+
+      toast.success("✨ Blog post generated successfully!");
+      // Automatically switch to English tab so the user can see the generated content
+      setActiveTab("english");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate post");
+    } finally {
+      toast.dismiss(loadingToast);
+      setGeneratingPost(false);
     }
   }
 
@@ -578,6 +616,34 @@ export default function PostEditor({
                 className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap disabled:opacity-50"
               >
                 {generatingImage ? "Generating..." : "🎨 Generate Image"}
+              </button>
+            </div>
+          </div>
+          
+          {/* Action 5: Auto Post Generation */}
+          <div className="flex flex-col gap-4 bg-emerald-900/20 border border-emerald-800/50 p-4 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-semibold text-emerald-300">AI Auto Post Generator</h4>
+                <p className="text-xs text-emerald-400/80 mt-1">Write a complete, human-like, SEO-optimized post about any topic.</p>
+              </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                value={postTopic}
+                onChange={(e) => setPostTopic(e.target.value)}
+                placeholder="Topic (e.g., Next.js 15 Server Actions)..."
+                className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="button"
+                onClick={handleGeneratePost}
+                disabled={generatingPost}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap disabled:opacity-50"
+              >
+                {generatingPost ? "Generating..." : "✍️ Generate Full Post"}
               </button>
             </div>
           </div>

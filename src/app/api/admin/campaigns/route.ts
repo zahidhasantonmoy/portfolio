@@ -4,11 +4,11 @@ import { authOptions } from "@/lib/auth";
 import { sql } from "@/lib/db";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export const maxDuration = 60; // 60s for batch email sending
 
 export async function POST(request: Request) {
+  const resend = new Resend(process.env.RESEND_API_KEY || "dummy");
+  
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
