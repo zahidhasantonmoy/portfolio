@@ -70,7 +70,9 @@ export default function PostEditor({
     meta_desc_bn: post?.meta_desc_bn ?? "",
     cover_image_url: post?.cover_image_url ?? "",
     category_id: post?.category_id ?? "",
-    published_at: post?.published_at ? post.published_at.slice(0, 16) : "",
+    published_at: post?.published_at
+      ? (typeof post.published_at === "string" ? post.published_at : new Date(post.published_at).toISOString()).slice(0, 16)
+      : "",
     is_featured: post?.is_featured ?? false,
     tag_ids: selectedTagIds,
   });
@@ -178,14 +180,9 @@ export default function PostEditor({
       {/* Top toolbar */}
       <div className="flex items-center justify-between bg-gray-900 border border-gray-800 rounded-xl px-4 py-3">
         <div className="flex items-center gap-3">
-          <select
-            value={form.post_type}
-            onChange={(e) => setForm({ ...form, post_type: e.target.value as "blog" | "journal" })}
-            className="bg-gray-800 border border-gray-700 text-white text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500"
-          >
-            <option value="blog">📝 Blog Post</option>
-            <option value="journal">📓 Journal Entry</option>
-          </select>
+          <span className="text-white text-sm font-medium bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-700">
+            📝 Blog Post
+          </span>
           <span className={`text-xs px-2 py-1 rounded-full capitalize ${
             form.status === "published"
               ? "bg-emerald-900/40 text-emerald-400"
