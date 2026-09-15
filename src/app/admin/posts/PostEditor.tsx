@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { CldUploadWidget } from "next-cloudinary";
 import type { Post } from "@/types/blog";
 
 // Markdown editor — dynamically imported to avoid SSR issues
@@ -399,13 +400,33 @@ export default function PostEditor({
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Cover Image URL
               </label>
-              <input
-                type="url"
-                value={form.cover_image_url}
-                onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })}
-                placeholder="https://... (Supabase Storage URL)"
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-indigo-500"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={form.cover_image_url}
+                  onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })}
+                  placeholder="https://... (Cloudinary URL)"
+                  className="flex-1 px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-indigo-500"
+                />
+                <CldUploadWidget
+                  uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "portfolio_preset"}
+                  onSuccess={(result: any) => {
+                    if (result.info && result.info.secure_url) {
+                      setForm({ ...form, cover_image_url: result.info.secure_url });
+                    }
+                  }}
+                >
+                  {({ open }) => (
+                    <button
+                      type="button"
+                      onClick={() => open()}
+                      className="px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Upload
+                    </button>
+                  )}
+                </CldUploadWidget>
+              </div>
               {form.cover_image_url && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={form.cover_image_url} alt="Cover preview" className="mt-3 h-32 w-auto rounded-lg object-cover" />
