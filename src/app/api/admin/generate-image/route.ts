@@ -43,17 +43,36 @@ export async function POST(request: Request) {
         );
       }
 
-      // Use text model to generate a descriptive image prompt
-      const textResponse = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
-        contents: `You are an expert prompt engineer for AI image generation. 
-        Create a concise, highly descriptive, and visual prompt (max 50 words) to generate a thumbnail image for the following blog post or newsletter.
-        Make it suitable for a developer or tech blog. Do not include any text in the image.
-        
-        Content: ${postDetails.substring(0, 2000)}`,
-      });
+      let mappedModel = "gemini-3.6-flash";
+      if (modelName === "Gemini 2.5 Flash") mappedModel = "gemini-2.5-flash";
+      else if (modelName === "Gemini 3.1 Flash Lite") mappedModel = "gemini-3.1-flash-lite";
 
-      finalPrompt = textResponse.text || "A modern software development workspace, abstract tech background, high quality, digital art.";
+      const modelsToTry = [mappedModel, "gemini-3.6-flash", "gemini-2.5-flash"];
+      let textResponse = null;
+
+      for (let i = 0; i < modelsToTry.length; i++) {
+        try {
+          textResponse = await ai.models.generateContent({
+            model: modelsToTry[i],
+            contents: `You are an expert prompt engineer for AI image generation. 
+            Create a concise, highly descriptive, and visual prompt (max 50 words) to generate a thumbnail image for the following blog post or newsletter.
+            Make it suitable for a developer or tech blog. Do not include any text in the image.
+            
+            Content: ${postDetails.substring(0, 2000)}`,
+          });
+          
+          if (textResponse && textResponse.text) {
+            break;
+          }
+        } catch (err: any) {
+          console.warn(`Image prompt generation with ${modelsToTry[i]} failed:`, err.message);
+          if (i === modelsToTry.length - 1) {
+            throw err;
+          }
+        }
+      }
+
+      finalPrompt = textResponse?.text || "A modern software development workspace, abstract tech background, high quality, digital art.";
     }
 
     // Call Pollinations.ai for image generation (Free, no API key needed, high quality)
