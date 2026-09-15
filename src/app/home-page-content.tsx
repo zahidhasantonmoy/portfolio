@@ -1,5 +1,4 @@
 import dynamic from 'next/dynamic';
-import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
 import ScrollProgress from '@/components/ScrollProgress';
@@ -14,7 +13,6 @@ const GitHubSection = dynamic(() => import('@/components/GitHubSection'), { ssr:
 const TimelineSection = dynamic(() => import('@/components/TimelineSection'), { ssr: true });
 const ReviewForm = dynamic(() => import('@/components/ReviewForm'), { ssr: false });
 const Contact = dynamic(() => import('@/components/Contact'), { ssr: true });
-const Footer = dynamic(() => import('@/components/Footer'), { ssr: true });
 
 export default function HomePageContent({ dbProjects, dbSkills }: { dbProjects?: any[], dbSkills?: any[] }) {
   // Map DB projects to frontend expected format
@@ -46,7 +44,6 @@ export default function HomePageContent({ dbProjects, dbSkills }: { dbProjects?:
     <FilterProvider>
       <ScrollProgress />
       <main className="min-h-screen bg-white dark:bg-gray-900">
-        <Navbar />
         <Hero name={data.name} title={data.title} />
         <About aboutMe={data.aboutMe} />
         <section id="skills" className="py-20 bg-gray-50 dark:bg-gray-900">
@@ -61,7 +58,6 @@ export default function HomePageContent({ dbProjects, dbSkills }: { dbProjects?:
         <TimelineSection />
         <ReviewForm />
         <Contact />
-        <Footer />
       </main>
     </FilterProvider>
   );
