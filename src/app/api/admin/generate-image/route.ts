@@ -43,11 +43,12 @@ export async function POST(request: Request) {
         );
       }
 
-      let mappedModel = "gemini-3.6-flash";
+      let mappedModel = "gemini-3.8-flash";
       if (modelName === "Gemini 2.5 Flash") mappedModel = "gemini-2.5-flash";
       else if (modelName === "Gemini 3.1 Flash Lite") mappedModel = "gemini-3.1-flash-lite";
+      else if (modelName === "Gemini 3.5 Flash Lite") mappedModel = "gemini-3.5-flash-lite";
 
-      const modelsToTry = [mappedModel, "gemini-3.6-flash", "gemini-2.5-flash"];
+      const modelsToTry = [mappedModel, "gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.6-flash"];
       let textResponse = null;
 
       for (let i = 0; i < modelsToTry.length; i++) {

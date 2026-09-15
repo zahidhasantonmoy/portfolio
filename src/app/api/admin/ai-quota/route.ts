@@ -24,7 +24,7 @@ export async function GET() {
     {
       provider: "Gemini",
       isConfigured: !!geminiKey,
-      limitInfo: "1,500 Requests / Day (Flash)",
+      limitInfo: "1000+ Requests / Day (Flash + Lite bulk)",
       usageInfo: "Tracked internally by Google",
     },
     {

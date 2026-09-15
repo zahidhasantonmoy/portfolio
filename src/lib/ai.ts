@@ -48,7 +48,12 @@ export async function generateContentWithFallback(
   if (geminiKey) {
     try {
       const ai = new GoogleGenAI({ apiKey: geminiKey });
-      const models = ["gemini-3.6-flash", "gemini-2.5-flash"];
+      const models = [
+        "gemini-3.8-flash",      // Best quality, but lowest limit (20/day)
+        "gemini-3.5-flash-lite", // Best bulk capacity (500/day)
+        "gemini-3.1-flash-lite", // Backup bulk capacity (500/day)
+        "gemini-3.6-flash"       // Extra fallback
+      ];
       
       for (const model of models) {
         try {

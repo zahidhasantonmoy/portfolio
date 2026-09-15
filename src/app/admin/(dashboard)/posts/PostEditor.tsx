@@ -668,9 +668,11 @@ export default function PostEditor({
                 onChange={(e) => setImageModel(e.target.value)}
                 className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-teal-500"
               >
+                <option value="Gemini 3.8 Flash">Gemini 3.8 Flash</option>
                 <option value="Gemini 3.6 Flash">Gemini 3.6 Flash</option>
-                <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
+                <option value="Gemini 3.5 Flash Lite">Gemini 3.5 Flash Lite</option>
                 <option value="Gemini 3.1 Flash Lite">Gemini 3.1 Flash Lite</option>
+                <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
               </select>
               <button
                 type="button"
