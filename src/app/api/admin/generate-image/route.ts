@@ -56,21 +56,19 @@ export async function POST(request: Request) {
       finalPrompt = textResponse.text || "A modern software development workspace, abstract tech background, high quality, digital art.";
     }
 
-    // Call Imagen 3 via Gemini API
-    const imageResponse = await ai.models.generateImages({
-      model: "imagen-3.0-generate-001",
-      prompt: finalPrompt,
-      config: {
-        numberOfImages: 1,
-        outputMimeType: "image/jpeg",
-        aspectRatio: "16:9",
-      },
-    });
-
-    const base64Image = imageResponse.generatedImages?.[0]?.image?.imageBytes;
-    if (!base64Image) {
+    // Call Pollinations.ai for image generation (Free, no API key needed, high quality)
+    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
+      finalPrompt
+    )}?width=1280&height=720&nologo=true`;
+    
+    const imageRes = await fetch(pollinationsUrl);
+    if (!imageRes.ok) {
       throw new Error("Failed to generate image from AI.");
     }
+    
+    const arrayBuffer = await imageRes.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64Image = buffer.toString("base64");
 
     // Upload to Cloudinary
     const uploadResponse = await new Promise((resolve, reject) => {

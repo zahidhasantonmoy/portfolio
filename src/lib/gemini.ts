@@ -11,7 +11,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * A robust wrapper for Gemini AI that includes exponential backoff retries and model fallback.
- * It primarily tries to use gemini-3.6-flash, and falls back to gemini-3.1-pro-preview.
+ * It primarily tries to use gemini-3.6-flash, and falls back to gemini-2.5-flash.
  */
 export async function generateContentWithRetry(
   prompt: string,
@@ -19,7 +19,7 @@ export async function generateContentWithRetry(
   responseMimeType: string = "application/json",
   maxRetries: number = 3
 ): Promise<string> {
-  const models = ["gemini-3.6-flash", "gemini-3.1-pro-preview"];
+  const models = ["gemini-3.6-flash", "gemini-2.5-flash"];
   let attempt = 0;
   let delay = 1000; // start with 1 second delay
 
