@@ -1,11 +1,10 @@
-import { createAdminClient } from "@/lib/supabase-server";
+import { sql } from "@/lib/db";
 import PostEditor from "../PostEditor";
 
 export default async function NewPostPage() {
-  const admin = createAdminClient();
-  const [{ data: categories }, { data: tags }] = await Promise.all([
-    admin.from("categories").select("id, name_en, slug").order("name_en"),
-    admin.from("tags").select("id, name_en, slug").order("name_en"),
+  const [categories, tags] = await Promise.all([
+    sql`SELECT id, name_en, slug FROM categories ORDER BY name_en`,
+    sql`SELECT id, name_en, slug FROM tags ORDER BY name_en`,
   ]);
 
   return (
@@ -15,8 +14,8 @@ export default async function NewPostPage() {
         <p className="text-gray-400 text-sm mt-1">Create a new blog post or journal entry</p>
       </div>
       <PostEditor
-        categories={categories ?? []}
-        tags={tags ?? []}
+        categories={categories as any[]}
+        tags={tags as any[]}
         mode="create"
       />
     </div>

@@ -1,11 +1,7 @@
-import { createAdminClient } from "@/lib/supabase-server";
+import { sql } from "@/lib/db";
 
 export default async function SubscribersPage() {
-  const admin = createAdminClient();
-  const { data: subscribers } = await admin
-    .from("subscribers")
-    .select("*")
-    .order("subscribed_at", { ascending: false });
+  const subscribers = await sql`SELECT * FROM subscribers ORDER BY subscribed_at DESC`;
 
   const activeCount = (subscribers ?? []).filter((s: { status: string }) => s.status === "active").length;
 
@@ -34,7 +30,7 @@ export default async function SubscribersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {(subscribers ?? []).map((sub: { id: string; email: string; name: string | null; status: string; subscribed_at: string }) => (
+              {(subscribers ?? []).map((sub: any) => (
                 <tr key={sub.id} className="hover:bg-gray-800/30 transition">
                   <td className="px-6 py-3 text-sm text-white">{sub.email}</td>
                   <td className="px-4 py-3 text-sm text-gray-400">{sub.name ?? "—"}</td>

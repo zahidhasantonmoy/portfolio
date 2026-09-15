@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase-server";
+import { sql } from "@/lib/db";
 import Link from "next/link";
 
 export default async function AdminPostsPage({
@@ -7,16 +7,24 @@ export default async function AdminPostsPage({
   searchParams: Promise<{ status?: string }>;
 }) {
   const { status } = await searchParams;
-  const admin = createAdminClient();
 
-  let query = admin
-    .from("posts")
-    .select(`id, title_en, slug, status, post_type, published_at, created_at, categories(name_en)`)
-    .order("created_at", { ascending: false });
-
-  if (status) query = query.eq("status", status);
-
-  const { data: posts } = await query;
+  let posts;
+  if (status) {
+    posts = await sql`
+      SELECT p.id, p.title_en, p.slug, p.status, p.post_type, p.published_at, p.created_at, c.name_en as cat_name
+      FROM posts p
+      LEFT JOIN categories c ON p.category_id = c.id
+      WHERE p.status = ${status}
+      ORDER BY p.created_at DESC
+    `;
+  } else {
+    posts = await sql`
+      SELECT p.id, p.title_en, p.slug, p.status, p.post_type, p.published_at, p.created_at, c.name_en as cat_name
+      FROM posts p
+      LEFT JOIN categories c ON p.category_id = c.id
+      ORDER BY p.created_at DESC
+    `;
+  }
 
   return (
     <div className="max-w-5xl">
@@ -73,7 +81,7 @@ export default async function AdminPostsPage({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {(posts ?? []).map((post: { id: string; title_en: string; slug: string; status: string; post_type: string; published_at: string | null; created_at: string; categories: { name_en: string } | null }) => (
+              {(posts ?? []).map((post: any) => (
                 <tr key={post.id} className="hover:bg-gray-800/50 transition">
                   <td className="px-6 py-4">
                     <p className="text-sm text-white font-medium">{post.title_en}</p>

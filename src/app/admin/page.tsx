@@ -1,30 +1,29 @@
-import { createAdminClient } from "@/lib/supabase-server";
+import { sql } from "@/lib/db";
 import Link from "next/link";
 
 export default async function AdminDashboard() {
-  const admin = createAdminClient();
-
   // Stats
-  const [postsRes, draftsRes, journalRes, subscribersRes] = await Promise.all([
-    admin.from("posts").select("id", { count: "exact" }).eq("status", "published"),
-    admin.from("posts").select("id", { count: "exact" }).eq("status", "draft"),
-    admin.from("development_logs").select("id", { count: "exact" }),
-    admin.from("subscribers").select("id", { count: "exact" }).eq("status", "active"),
+  const [postsRows, draftsRows, journalRows, subscribersRows] = await Promise.all([
+    sql`SELECT count(*) as count FROM posts WHERE status = 'published'`,
+    sql`SELECT count(*) as count FROM posts WHERE status = 'draft'`,
+    sql`SELECT count(*) as count FROM development_logs`,
+    sql`SELECT count(*) as count FROM subscribers WHERE status = 'active'`,
   ]);
 
   const stats = [
-    { label: "Published Posts", value: postsRes.count ?? 0, icon: "📝", color: "indigo", href: "/admin/posts" },
-    { label: "Drafts", value: draftsRes.count ?? 0, icon: "📄", color: "yellow", href: "/admin/posts?status=draft" },
-    { label: "Journal Entries", value: journalRes.count ?? 0, icon: "📓", color: "emerald", href: "/admin/journal" },
-    { label: "Subscribers", value: subscribersRes.count ?? 0, icon: "📧", color: "pink", href: "/admin/subscribers" },
+    { label: "Published Posts", value: postsRows[0]?.count ?? 0, icon: "📝", color: "indigo", href: "/admin/posts" },
+    { label: "Drafts", value: draftsRows[0]?.count ?? 0, icon: "📄", color: "yellow", href: "/admin/posts?status=draft" },
+    { label: "Journal Entries", value: journalRows[0]?.count ?? 0, icon: "📓", color: "emerald", href: "/admin/journal" },
+    { label: "Subscribers", value: subscribersRows[0]?.count ?? 0, icon: "📧", color: "pink", href: "/admin/subscribers" },
   ];
 
   // Recent posts
-  const { data: recentPosts } = await admin
-    .from("posts")
-    .select("id, title_en, slug, status, published_at, post_type")
-    .order("created_at", { ascending: false })
-    .limit(5);
+  const recentPosts = await sql`
+    SELECT id, title_en, slug, status, published_at, created_at, post_type
+    FROM posts
+    ORDER BY created_at DESC
+    LIMIT 5
+  `;
 
   const colorMap: Record<string, string> = {
     indigo: "bg-indigo-600/20 text-indigo-400",
@@ -88,7 +87,7 @@ export default async function AdminDashboard() {
               No posts yet. <Link href="/admin/posts/new" className="text-indigo-400">Create your first post →</Link>
             </p>
           ) : (
-            (recentPosts ?? []).map((post: { id: string; title_en: string; slug: string; status: string; post_type: string; published_at: string | null; created_at: string }) => (
+            (recentPosts ?? []).map((post: any) => (
               <div key={post.id} className="flex items-center justify-between py-2 border-b border-gray-800 last:border-0">
                 <div>
                   <p className="text-sm text-white font-medium truncate max-w-xs">{post.title_en}</p>
