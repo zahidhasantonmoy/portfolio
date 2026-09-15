@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { GoogleGenAI } from "@google/genai";
+import { generateContentWithRetry } from "@/lib/gemini";
 
 export const maxDuration = 60; // Allow up to 60 seconds for Vercel Hobby
 
@@ -29,9 +29,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const ai = new GoogleGenAI({ apiKey: apiKey });
-
     const prompt = `
+      Input:
+      Title: ${title}
+      Content: ${content.substring(0, 3000)}... // Truncated for token limits
+    `;
+    
+    const systemInstruction = `
       You are an expert SEO specialist and copywriter.
       I will provide you with the title and content of a blog post.
       Your task is to generate highly optimized SEO metadata for this post in BOTH English and Bengali.
@@ -42,10 +46,6 @@ export async function POST(request: Request) {
       - SEO Title (Bengali): Max 60 characters. Catchy and culturally appropriate translation/adaptation.
       - Meta Description (Bengali): Max 160 characters. Compelling and summarizes the post in Bengali.
 
-      Input:
-      Title: ${title}
-      Content: ${content.substring(0, 3000)}... // Truncated for token limits
-
       You MUST respond ONLY with a valid JSON object in the following format, with no markdown formatting or backticks around it:
       {
         "seo_title_en": "Your English Title",
@@ -55,15 +55,8 @@ export async function POST(request: Request) {
       }
     `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
-      contents: prompt,
-    });
-    
-    let text = response.text || "";
-    
-    // Clean up response if the model accidentally wraps it in markdown code blocks
-    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    // Using our new retry & fallback utility, requesting JSON response format
+    const text = await generateContentWithRetry(prompt, systemInstruction, "application/json");
     
     let parsed;
     try {

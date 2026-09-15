@@ -39,7 +39,7 @@ function slugify(text: string) {
     .trim();
 }
 
-type TabType = "english" | "bangla" | "seo" | "settings";
+type TabType = "english" | "bangla" | "ai" | "settings";
 
 export default function PostEditor({
   post,
@@ -52,6 +52,8 @@ export default function PostEditor({
   const [activeTab, setActiveTab] = useState<TabType>("english");
   const [saving, setSaving] = useState(false);
   const [generatingSEO, setGeneratingSEO] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [generatingMeta, setGeneratingMeta] = useState(false);
 
   // Form state
   const [form, setForm] = useState({
@@ -198,10 +200,96 @@ export default function PostEditor({
     }
   }
 
+  async function handleAutoTranslate() {
+    if (!form.title_en.trim() || !form.content_en.trim()) {
+      toast.error("Please write English Title and Content first.");
+      return;
+    }
+    setTranslating(true);
+    try {
+      const res = await fetch("/api/admin/translate-post", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title_en: form.title_en,
+          excerpt_en: form.excerpt_en,
+          content_en: form.content_en,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to translate");
+
+      setForm((prev) => ({
+        ...prev,
+        title_bn: data.title_bn || prev.title_bn,
+        excerpt_bn: data.excerpt_bn || prev.excerpt_bn,
+        content_bn: data.content_bn || prev.content_bn,
+      }));
+      toast.success("✨ Auto-translated successfully!");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Translation failed");
+    } finally {
+      setTranslating(false);
+    }
+  }
+
+  async function handleGenerateMeta() {
+    if (!form.content_en.trim()) {
+      toast.error("Please write English Content first.");
+      return;
+    }
+    setGeneratingMeta(true);
+    try {
+      const res = await fetch("/api/admin/generate-meta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content_en: form.content_en }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate meta");
+
+      // Set excerpts
+      setForm((prev) => ({
+        ...prev,
+        excerpt_en: data.excerpt_en || prev.excerpt_en,
+        excerpt_bn: data.excerpt_bn || prev.excerpt_bn,
+      }));
+
+      // Handle suggested tags
+      if (data.tags && Array.isArray(data.tags)) {
+        const newTagIds: string[] = [];
+        data.tags.forEach((suggestedTagName: string) => {
+          // Find if this tag exists in our global tags list
+          const existingTag = tags.find(
+            (t) => t.name_en.toLowerCase() === suggestedTagName.toLowerCase()
+          );
+          if (existingTag) {
+            newTagIds.push(existingTag.id);
+          }
+        });
+
+        // Merge without duplicates
+        const uniqueTags = Array.from(new Set([...form.tag_ids, ...newTagIds]));
+        setForm((prev) => ({ ...prev, tag_ids: uniqueTags }));
+        
+        toast.success(`✨ Generated excerpts & found ${newTagIds.length} matching tags!`);
+      } else {
+        toast.success("✨ Excerpts generated successfully!");
+      }
+
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate meta");
+    } finally {
+      setGeneratingMeta(false);
+    }
+  }
+
   const tabs: { id: TabType; label: string }[] = [
     { id: "english", label: "🇬🇧 English" },
     { id: "bangla", label: "🇧🇩 বাংলা" },
-    { id: "seo", label: "🔍 SEO" },
+    { id: "ai", label: "✨ AI Assistant" },
     { id: "settings", label: "⚙️ Settings" },
   ];
 
@@ -363,13 +451,47 @@ export default function PostEditor({
         </div>
       )}
 
-      {/* ── SEO Tab ── */}
-      {activeTab === "seo" && (
-        <div className="space-y-5">
+      {/* ── AI Assistant Tab ── */}
+      {activeTab === "ai" && (
+        <div className="space-y-6">
+          
+          {/* Action 1: Translation */}
+          <div className="flex items-center justify-between bg-blue-900/20 border border-blue-800/50 p-4 rounded-xl">
+            <div>
+              <h4 className="text-sm font-semibold text-blue-300">Auto Translate to Bengali</h4>
+              <p className="text-xs text-blue-400/80 mt-1">Uses AI to translate your English Title, Excerpt, and Content perfectly into Bengali.</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleAutoTranslate}
+              disabled={translating}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+            >
+              {translating ? "Translating..." : "🌐 Translate to Bengali"}
+            </button>
+          </div>
+
+          {/* Action 2: Excerpts & Tags */}
+          <div className="flex items-center justify-between bg-purple-900/20 border border-purple-800/50 p-4 rounded-xl">
+            <div>
+              <h4 className="text-sm font-semibold text-purple-300">Generate Excerpts & Tags</h4>
+              <p className="text-xs text-purple-400/80 mt-1">Reads your English content and generates engaging excerpts for both languages, plus suggests tags.</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleGenerateMeta}
+              disabled={generatingMeta}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+            >
+              {generatingMeta ? "Generating..." : "🏷️ Generate Excerpts & Tags"}
+            </button>
+          </div>
+
+          {/* Action 3: SEO */}
           <div className="flex items-center justify-between bg-indigo-900/20 border border-indigo-800/50 p-4 rounded-xl">
             <div>
               <h4 className="text-sm font-semibold text-indigo-300">AI SEO Generator</h4>
-              <p className="text-xs text-indigo-400/80 mt-1">Automatically write English & Bengali SEO titles and meta descriptions using Gemini AI based on your post content.</p>
+              <p className="text-xs text-indigo-400/80 mt-1">Automatically write English & Bengali SEO titles and meta descriptions.</p>
             </div>
             <button
               type="button"
@@ -377,10 +499,9 @@ export default function PostEditor({
               disabled={generatingSEO}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
             >
-              {generatingSEO ? "Generating..." : "✨ Auto Generate"}
+              {generatingSEO ? "Generating..." : "✨ Auto Generate SEO"}
             </button>
           </div>
-
           <div className="grid grid-cols-1 gap-5">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
