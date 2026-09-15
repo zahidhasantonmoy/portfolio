@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase-server";
-import { createClient } from "@/lib/supabase-server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { sql } from "@/lib/db";
 import type { PostFormData } from "@/types/blog";
 
-async function getAuthUser() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
+async function checkAuth() {
+  const session = await getServerSession(authOptions);
+  return session;
 }
 
 /** GET /api/admin/posts/[id] — single post (admin) */
@@ -14,19 +14,29 @@ export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getAuthUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!(await checkAuth())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const admin = createAdminClient();
-  const { data, error } = await admin
-    .from("posts")
-    .select(`*, categories(*), post_tags(tags(*))`)
-    .eq("id", id)
-    .single();
-
-  if (error) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json({ post: data });
+  
+  try {
+    const rows = await sql`SELECT * FROM posts WHERE id = ${id}`;
+    if (!rows.length) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    
+    const post = rows[0];
+    
+    const tagsRows = await sql`
+      SELECT tag_id FROM post_tags WHERE post_id = ${id}
+    `;
+    
+    return NextResponse.json({ 
+      post: { 
+        ...post,
+        post_tags: tagsRows
+      } 
+    });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: "Error fetching post" }, { status: 500 });
+  }
 }
 
 /** PATCH /api/admin/posts/[id] — update post */
@@ -34,8 +44,7 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getAuthUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!(await checkAuth())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
 
@@ -43,29 +52,46 @@ export async function PATCH(
     const body: Partial<PostFormData> = await request.json();
     const { tag_ids, ...postData } = body;
 
-    const admin = createAdminClient();
-
     // Recalculate read time if content changed
     if (postData.content_en) {
       const wordCount = postData.content_en.split(/\s+/).length;
       postData.read_time_min = Math.max(1, Math.ceil(wordCount / 200));
     }
 
-    const { data: post, error } = await admin
-      .from("posts")
-      .update({ ...postData, updated_at: new Date().toISOString() })
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) throw error;
+    const updatedRows = await sql`
+      UPDATE posts SET
+        post_type = COALESCE(${postData.post_type}, post_type),
+        status = COALESCE(${postData.status}, status),
+        title_en = COALESCE(${postData.title_en}, title_en),
+        title_bn = COALESCE(${postData.title_bn}, title_bn),
+        slug = COALESCE(${postData.slug}, slug),
+        excerpt_en = COALESCE(${postData.excerpt_en}, excerpt_en),
+        excerpt_bn = COALESCE(${postData.excerpt_bn}, excerpt_bn),
+        content_en = COALESCE(${postData.content_en}, content_en),
+        content_bn = COALESCE(${postData.content_bn}, content_bn),
+        seo_title_en = COALESCE(${postData.seo_title_en}, seo_title_en),
+        seo_title_bn = COALESCE(${postData.seo_title_bn}, seo_title_bn),
+        meta_desc_en = COALESCE(${postData.meta_desc_en}, meta_desc_en),
+        meta_desc_bn = COALESCE(${postData.meta_desc_bn}, meta_desc_bn),
+        cover_image_url = COALESCE(${postData.cover_image_url}, cover_image_url),
+        category_id = COALESCE(${postData.category_id}, category_id),
+        published_at = COALESCE(${postData.published_at}, published_at),
+        read_time_min = COALESCE(${postData.read_time_min}, read_time_min),
+        is_featured = COALESCE(${postData.is_featured}, is_featured),
+        updated_at = NOW()
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    
+    const post = updatedRows[0];
 
     // Update tags — delete old, insert new
     if (tag_ids !== undefined) {
-      await admin.from("post_tags").delete().eq("post_id", id);
+      await sql`DELETE FROM post_tags WHERE post_id = ${id}`;
       if (tag_ids.length > 0) {
-        const tagInserts = tag_ids.map((tag_id) => ({ post_id: id, tag_id }));
-        await admin.from("post_tags").insert(tagInserts);
+        for (const tag_id of tag_ids) {
+          await sql`INSERT INTO post_tags (post_id, tag_id) VALUES (${id}, ${tag_id})`;
+        }
       }
     }
 
@@ -81,14 +107,14 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getAuthUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!(await checkAuth())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const admin = createAdminClient();
-
-  const { error } = await admin.from("posts").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  return NextResponse.json({ success: true });
+  
+  try {
+    await sql`DELETE FROM posts WHERE id = ${id}`;
+    return NextResponse.json({ success: true });
+  } catch (err: unknown) {
+    return NextResponse.json({ error: "Delete failed" }, { status: 500 });
+  }
 }

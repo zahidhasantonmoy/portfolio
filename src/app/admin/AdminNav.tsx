@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase";
+import { signOut } from "next-auth/react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: "🏠" },
@@ -17,9 +17,7 @@ export default function AdminNav({ userEmail }: { userEmail: string }) {
   const router = useRouter();
 
   async function handleLogout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/admin/login");
+    await signOut({ callbackUrl: "/admin/login" });
   }
 
   return (
