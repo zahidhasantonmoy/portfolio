@@ -16,9 +16,31 @@ const ReviewForm = dynamic(() => import('@/components/ReviewForm'), { ssr: false
 const Contact = dynamic(() => import('@/components/Contact'), { ssr: true });
 const Footer = dynamic(() => import('@/components/Footer'), { ssr: true });
 
-export default function HomePageContent({ dbProjects, dbSkills }: { dbProjects?: any, dbSkills?: any }) {
-  const finalProjects = dbProjects && dbProjects.length > 0 ? dbProjects : data.projects;
-  const finalSkills = dbSkills && dbSkills.length > 0 ? dbSkills : data.skills;
+export default function HomePageContent({ dbProjects, dbSkills }: { dbProjects?: any[], dbSkills?: any[] }) {
+  // Map DB projects to frontend expected format
+  const mappedProjects = (dbProjects && dbProjects.length > 0) ? dbProjects.map(p => ({
+    id: p.id,
+    title: p.title,
+    description: p.description,
+    images: p.image_url ? [p.image_url] : [],
+    githubUrl: p.github_url || "",
+    liveUrl: p.live_url || "",
+    category: "Full Stack", // Fallback since DB doesn't have category
+    technologies: p.tech_stack || []
+  })) : data.projects;
+
+  // Group DB skills by category
+  let mappedSkills = data.skills;
+  if (dbSkills && dbSkills.length > 0) {
+    const categories = Array.from(new Set(dbSkills.map(s => s.category)));
+    mappedSkills = categories.map(cat => ({
+      category: cat,
+      items: dbSkills.filter(s => s.category === cat).map(s => s.name)
+    }));
+  }
+
+  const finalProjects = mappedProjects;
+  const finalSkills = mappedSkills;
 
   return (
     <FilterProvider>
