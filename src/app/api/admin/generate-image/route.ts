@@ -66,6 +66,14 @@ export async function POST(request: Request) {
       throw new Error("Failed to generate image from AI.");
     }
     
+    // If Cloudinary keys are not configured, just return the raw Pollinations URL
+    if (!process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET || !process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) {
+      return NextResponse.json({
+        url: pollinationsUrl,
+        promptUsed: finalPrompt,
+      });
+    }
+
     const arrayBuffer = await imageRes.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const base64Image = buffer.toString("base64");
