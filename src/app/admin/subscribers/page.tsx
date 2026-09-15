@@ -3,7 +3,7 @@ import { sql } from "@/lib/db";
 export default async function SubscribersPage() {
   const subscribers = await sql`SELECT * FROM subscribers ORDER BY subscribed_at DESC`;
 
-  const activeCount = (subscribers ?? []).filter((s: { status: string }) => s.status === "active").length;
+  const activeCount = (subscribers ?? []).filter((s: any) => s.status === "active").length;
 
   return (
     <div className="max-w-4xl">

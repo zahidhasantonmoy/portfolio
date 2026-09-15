@@ -23,6 +23,23 @@ export default async function JournalPage() {
 
   return (
     <main className="min-h-screen bg-white dark:bg-gray-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Development Journal | Zahid Hasan Tonmoy",
+            description: "Daily development journal tracking learning progress, bugs, and breakthrough notes.",
+            url: "https://zahidhasantonmoy.vercel.app/journal",
+            isPartOf: {
+              "@type": "WebSite",
+              name: "Zahid Hasan Tonmoy's Portfolio",
+              url: "https://zahidhasantonmoy.vercel.app"
+            }
+          })
+        }}
+      />
       {/* Header */}
       <section className="bg-gradient-to-br from-gray-900 via-emerald-950 to-gray-900 py-20 px-4">
         <div className="max-w-3xl mx-auto text-center">

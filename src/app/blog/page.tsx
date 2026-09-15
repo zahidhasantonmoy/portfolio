@@ -42,6 +42,23 @@ export default async function BlogPage({
 
   return (
     <main className="min-h-screen bg-white dark:bg-gray-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Zahid Hasan Tonmoy's Blog",
+            description: "Technical articles on Laravel, React, Next.js, and web development.",
+            url: "https://zahidhasantonmoy.vercel.app/blog",
+            isPartOf: {
+              "@type": "WebSite",
+              name: "Zahid Hasan Tonmoy's Portfolio",
+              url: "https://zahidhasantonmoy.vercel.app"
+            }
+          })
+        }}
+      />
       {/* Hero Header */}
       <section className="bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">

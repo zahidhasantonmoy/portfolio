@@ -45,8 +45,36 @@ export default async function JournalEntryPage({
     year: "numeric",
   });
 
+  // JSON-LD Article schema
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: entry.title,
+    description: `Development journal entry for ${date} — ${entry.mood} day working with ${(entry.tech_stack ?? []).join(", ")}.`,
+    datePublished: entry.log_date,
+    dateModified: entry.created_at || entry.log_date,
+    author: {
+      "@type": "Person",
+      name: "Zahid Hasan Tonmoy",
+      url: "https://zahidhasantonmoy.vercel.app",
+    },
+    publisher: {
+      "@type": "Person",
+      name: "Zahid Hasan Tonmoy",
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://zahidhasantonmoy.vercel.app/journal/${date}`,
+    },
+    inLanguage: "en",
+  };
+
   return (
     <main className="min-h-screen bg-white dark:bg-gray-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
       <article className="max-w-3xl mx-auto px-4 py-12">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-8">

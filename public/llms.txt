@@ -11,6 +11,9 @@ Zahid Hasan Tonmoy is a computer science student at Daffodil International Unive
 ## Identity
 
 - [Portfolio](https://zahidhasantonmoy.vercel.app): Official portfolio site
+- [Blog](https://zahidhasantonmoy.vercel.app/blog): Technical articles and tutorials (English)
+- [Bangla Blog](https://zahidhasantonmoy.vercel.app/bn/blog): Technical articles (Bangla)
+- [Dev Journal](https://zahidhasantonmoy.vercel.app/journal): Daily learning logs and notes
 - [GitHub](https://github.com/zahidhasantonmoy): Source code and projects
 - [LinkedIn](https://www.linkedin.com/in/zahidhasantonmoy/): Professional profile
 - [Contact](https://zahidhasantonmoy.vercel.app/#contact): Hire or get in touch

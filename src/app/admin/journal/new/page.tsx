@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase";
 import type { LogMood } from "@/types/blog";
 
 const MOODS: { value: LogMood; emoji: string; label: string }[] = [
@@ -14,7 +13,6 @@ const MOODS: { value: LogMood; emoji: string; label: string }[] = [
 
 export default function NewJournalPage() {
   const router = useRouter();
-  const supabase = createClient();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -44,20 +42,24 @@ export default function NewJournalPage() {
       ? form.tech_stack.split(",").map((t) => t.trim()).filter(Boolean)
       : [];
 
-    const { error: dbError } = await supabase.from("development_logs").insert({
-      log_date: form.log_date,
-      title: form.title,
-      mood: form.mood,
-      content_en: form.content_en,
-      content_bn: form.content_bn || null,
-      tech_stack,
-      is_public: form.is_public,
-    });
+    try {
+      const res = await fetch("/api/admin/journal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          tech_stack,
+        }),
+      });
 
-    if (dbError) {
-      setError(dbError.message);
-    } else {
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to save");
+      }
+
       router.push("/admin");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save");
     }
     setSaving(false);
   }
