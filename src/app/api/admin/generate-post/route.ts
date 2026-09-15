@@ -40,7 +40,7 @@ Provide the response in JSON format with the following structure:
     `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
+      model: "gemini-3.1-pro-preview",
       contents: prompt,
       config: {
         responseMimeType: "application/json",

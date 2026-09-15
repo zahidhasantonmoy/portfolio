@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
       // Use text model to generate a descriptive image prompt
       const textResponse = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-3.6-flash",
         contents: `You are an expert prompt engineer for AI image generation. 
         Create a concise, highly descriptive, and visual prompt (max 50 words) to generate a thumbnail image for the following blog post or newsletter.
         Make it suitable for a developer or tech blog. Do not include any text in the image.
