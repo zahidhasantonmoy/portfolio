@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { GoogleGenAI } from "@google/genai";
 
+export const maxDuration = 60; // Allow up to 60 seconds for Vercel Hobby
+
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -63,7 +65,14 @@ export async function POST(request: Request) {
     // Clean up response if the model accidentally wraps it in markdown code blocks
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
     
-    const parsed = JSON.parse(text);
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (parseError) {
+      console.error("Failed to parse Gemini response as JSON. Raw response text was:");
+      console.error(text);
+      throw new Error("Gemini returned invalid JSON format.");
+    }
 
     return NextResponse.json(parsed);
   } catch (error: unknown) {

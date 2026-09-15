@@ -172,6 +172,14 @@ export default function PostEditor({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: form.title_en, content: form.content_en }),
       });
+      
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Non-JSON response from SEO API:", text);
+        throw new Error(`Server returned an unexpected response (Status: ${res.status}). See console for details.`);
+      }
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to generate SEO");
 
