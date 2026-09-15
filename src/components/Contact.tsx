@@ -79,14 +79,14 @@ const Contact = () => {
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 mr-4">
                   <FaEnvelope size={20} />
                 </div>
-                <span>zahidhasantonmoy360@gmail.com</span>
+                <span>zahidhasantonmoy.dev@gmail.com</span>
               </div>
 
-              <a href="tel:+8801724348000" className="flex items-center p-4 bg-white dark:bg-gray-700/50 rounded-xl hover:shadow-md transition-shadow hover:text-blue-600 dark:hover:text-blue-400">
+              <a href="tel:+8801850077786" className="flex items-center p-4 bg-white dark:bg-gray-700/50 rounded-xl hover:shadow-md transition-shadow hover:text-blue-600 dark:hover:text-blue-400">
                 <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 mr-4">
                   <FaPhone size={20} />
                 </div>
-                <span>+880 1724 348000</span>
+                <span>+880 1850 077786</span>
               </a>
 
               <div className="flex items-center p-4 bg-white dark:bg-gray-700/50 rounded-xl hover:shadow-md transition-shadow">
