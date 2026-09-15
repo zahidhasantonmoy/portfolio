@@ -59,6 +59,14 @@ export default function PostEditor({
   const [imageModel, setImageModel] = useState("Gemini 3.6 Flash");
   const [preferredProvider, setPreferredProvider] = useState("auto");
   
+  const [completedTasks, setCompletedTasks] = useState({
+    seo: false,
+    translate: false,
+    meta: false,
+    image: false,
+    post: false,
+  });
+  
   const [generatingPost, setGeneratingPost] = useState(false);
   const [postTopic, setPostTopic] = useState("");
   
@@ -202,6 +210,7 @@ export default function PostEditor({
         seo_title_bn: data.seo_title_bn || prev.seo_title_bn,
         meta_desc_bn: data.meta_desc_bn || prev.meta_desc_bn,
       }));
+      setCompletedTasks(prev => ({ ...prev, seo: true }));
       toast.success("✨ SEO metadata auto-generated!");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to generate SEO");
@@ -235,6 +244,7 @@ export default function PostEditor({
         meta_desc_en: data.meta_desc_en || prev.meta_desc_en,
       }));
 
+      setCompletedTasks(prev => ({ ...prev, post: true }));
       toast.success("✨ Blog post generated successfully!");
       // Automatically switch to English tab so the user can see the generated content
       setActiveTab("english");
@@ -276,6 +286,7 @@ export default function PostEditor({
         setImagePrompt(data.promptUsed);
       }
       
+      setCompletedTasks(prev => ({ ...prev, image: true }));
       toast.success("Image generated successfully!");
     } catch (err: any) {
       console.error(err);
@@ -336,6 +347,7 @@ export default function PostEditor({
         excerpt_bn: data.excerpt_bn || prev.excerpt_bn,
         content_bn: data.content_bn || prev.content_bn,
       }));
+      setCompletedTasks(prev => ({ ...prev, translate: true }));
       toast.success("✨ Auto-translated successfully!");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Translation failed");
@@ -385,8 +397,10 @@ export default function PostEditor({
         const uniqueTags = Array.from(new Set([...form.tag_ids, ...newTagIds]));
         setForm((prev) => ({ ...prev, tag_ids: uniqueTags }));
         
+        setCompletedTasks(prev => ({ ...prev, meta: true }));
         toast.success(`✨ Generated excerpts & found ${newTagIds.length} matching tags!`);
       } else {
+        setCompletedTasks(prev => ({ ...prev, meta: true }));
         toast.success("✨ Excerpts generated successfully!");
       }
 
@@ -619,7 +633,10 @@ export default function PostEditor({
           {/* Action 1: Translation */}
           <div className="flex items-center justify-between bg-blue-900/20 border border-blue-800/50 p-4 rounded-xl">
             <div>
-              <h4 className="text-sm font-semibold text-blue-300">Auto Translate to Bengali</h4>
+              <h4 className="text-sm font-semibold text-blue-300">
+                Auto Translate to Bengali
+                {completedTasks.translate && <span className="ml-2 text-[10px] text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded-full border border-emerald-800/50">✅ Completed</span>}
+              </h4>
               <p className="text-xs text-blue-400/80 mt-1">Uses AI to translate your English Title, Excerpt, and Content perfectly into Bengali.</p>
             </div>
             <button
@@ -635,7 +652,10 @@ export default function PostEditor({
           {/* Action 2: Excerpts & Tags */}
           <div className="flex items-center justify-between bg-purple-900/20 border border-purple-800/50 p-4 rounded-xl">
             <div>
-              <h4 className="text-sm font-semibold text-purple-300">Generate Excerpts & Tags</h4>
+              <h4 className="text-sm font-semibold text-purple-300">
+                Generate Excerpts & Tags
+                {completedTasks.meta && <span className="ml-2 text-[10px] text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded-full border border-emerald-800/50">✅ Completed</span>}
+              </h4>
               <p className="text-xs text-purple-400/80 mt-1">Reads your English content and generates engaging excerpts for both languages, plus suggests tags.</p>
             </div>
             <button
@@ -651,7 +671,10 @@ export default function PostEditor({
           {/* Action 3: SEO */}
           <div className="flex items-center justify-between bg-indigo-900/20 border border-indigo-800/50 p-4 rounded-xl">
             <div>
-              <h4 className="text-sm font-semibold text-indigo-300">AI SEO Generator</h4>
+              <h4 className="text-sm font-semibold text-indigo-300">
+                AI SEO Generator
+                {completedTasks.seo && <span className="ml-2 text-[10px] text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded-full border border-emerald-800/50">✅ Completed</span>}
+              </h4>
               <p className="text-xs text-indigo-400/80 mt-1">Automatically write English & Bengali SEO titles and meta descriptions.</p>
             </div>
             <button
@@ -668,7 +691,10 @@ export default function PostEditor({
           <div className="flex flex-col gap-4 bg-teal-900/20 border border-teal-800/50 p-4 rounded-xl">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-semibold text-teal-300">Generate Thumbnail / Cover Image</h4>
+                <h4 className="text-sm font-semibold text-teal-300">
+                  Generate Thumbnail / Cover Image
+                  {completedTasks.image && <span className="ml-2 text-[10px] text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded-full border border-emerald-800/50">✅ Completed</span>}
+                </h4>
                 <p className="text-xs text-teal-400/80 mt-1">Leave prompt empty to auto-generate based on post content.</p>
               </div>
             </div>
@@ -707,7 +733,10 @@ export default function PostEditor({
           <div className="flex flex-col gap-4 bg-emerald-900/20 border border-emerald-800/50 p-4 rounded-xl">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-semibold text-emerald-300">AI Auto Post Generator</h4>
+                <h4 className="text-sm font-semibold text-emerald-300">
+                  AI Auto Post Generator
+                  {completedTasks.post && <span className="ml-2 text-[10px] text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded-full border border-emerald-800/50">✅ Completed</span>}
+                </h4>
                 <p className="text-xs text-emerald-400/80 mt-1">Write a complete, human-like, SEO-optimized post about any topic.</p>
               </div>
             </div>
