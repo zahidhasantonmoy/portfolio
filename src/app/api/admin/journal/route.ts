@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { sql } from "@/lib/db";
+import { revalidatePath } from "next/cache";
+import type { DevLog } from "@/types/blog";
 
 /** POST /api/admin/journal — create new dev log */
 export async function POST(request: Request) {
@@ -20,6 +22,10 @@ export async function POST(request: Request) {
       )
       RETURNING *
     `;
+
+    revalidatePath("/journal");
+    revalidatePath("/");
+    revalidatePath("/admin");
 
     return NextResponse.json({ log: insertedRows[0] }, { status: 201 });
   } catch (err: unknown) {

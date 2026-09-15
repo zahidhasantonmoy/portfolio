@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { sql } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 import type { PostFormData } from "@/types/blog";
 
 /** GET /api/admin/posts — all posts (admin only) */
@@ -75,6 +76,9 @@ export async function POST(request: Request) {
         await sql`INSERT INTO post_tags (post_id, tag_id) VALUES (${post.id}, ${tag_id})`;
       }
     }
+
+    revalidatePath("/blog");
+    revalidatePath("/");
 
     return NextResponse.json({ post }, { status: 201 });
   } catch (err: unknown) {

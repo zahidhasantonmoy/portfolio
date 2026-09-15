@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { sql } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 import type { PostFormData } from "@/types/blog";
 
 async function checkAuth() {
@@ -95,6 +96,10 @@ export async function PATCH(
       }
     }
 
+    revalidatePath("/blog");
+    revalidatePath("/blog/[slug]", "page");
+    revalidatePath("/");
+
     return NextResponse.json({ post });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Update failed";
@@ -113,6 +118,10 @@ export async function DELETE(
   
   try {
     await sql`DELETE FROM posts WHERE id = ${id}`;
+    
+    revalidatePath("/blog");
+    revalidatePath("/");
+    
     return NextResponse.json({ success: true });
   } catch (err: unknown) {
     return NextResponse.json({ error: "Delete failed" }, { status: 500 });
