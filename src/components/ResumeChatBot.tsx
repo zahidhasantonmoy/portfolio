@@ -19,14 +19,16 @@ interface Message {
 const INITIAL_MESSAGE: Message = {
   role: 'assistant',
   content:
-    "Hi there! 👋 I'm **Tonmoy AI**, Zahid's virtual assistant. Ask me anything about his technical stack, projects, AI expertise, or hiring details!",
+    "Hi there! 👋 I'm **Tonmoy AI**, Zahid's personal AI assistant. Ask me anything about his 9+ projects, skills, tech stack, blog articles, dev journals, or how to hire him! (বাংলা ও ইংরেজিতে কথা বলতে পারি)",
 };
 
 const SUGGESTIONS = [
-  '💼 Core Tech Stack',
-  '🚀 Top Projects (Flexpath & Curious Cart)',
-  '🤖 AI & ML Background',
+  '🚀 Top Projects (Flexpath & AI Apps)',
+  '💼 Full Tech Stack & Skills',
+  '✍️ Latest Blog Posts & Dev Journals',
+  '📄 Download Resume (CV)',
   '📬 How to hire or contact Zahid?',
+  '🇧🇩 বাংলায় তথ্য জানতে চাই',
 ];
 
 export default function ResumeChatBot() {
