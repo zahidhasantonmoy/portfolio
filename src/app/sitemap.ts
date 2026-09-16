@@ -13,7 +13,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/bn/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${base}/journal`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
     { url: `${base}/newsletter`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
-    { url: `${base}/files/Resume/Zahid_Hasan_Resume.pdf`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
   ];
 
   // Dynamic blog posts

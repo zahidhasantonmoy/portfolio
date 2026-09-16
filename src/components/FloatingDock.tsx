@@ -2,14 +2,14 @@
 
 import { motion, useMotionValue, useSpring, useTransform, MotionValue } from 'framer-motion';
 import { useRef } from 'react';
-import { FaHome, FaGithub, FaLinkedin, FaEnvelope, FaFileAlt } from 'react-icons/fa';
+import { FaHome, FaGithub, FaLinkedin, FaEnvelope, FaPenAlt } from 'react-icons/fa';
 
 const icons = [
     { icon: <FaHome size={24} aria-hidden="true" />, href: '#home', label: 'Home' },
     { icon: <FaGithub size={24} aria-hidden="true" />, href: 'https://github.com/zahidhasantonmoy', label: 'GitHub profile', external: true },
     { icon: <FaLinkedin size={24} aria-hidden="true" />, href: 'https://www.linkedin.com/in/zahidhasantonmoy/', label: 'LinkedIn profile', external: true },
+    { icon: <FaPenAlt size={22} aria-hidden="true" />, href: '/blog', label: 'Tech Blog' },
     { icon: <FaEnvelope size={24} aria-hidden="true" />, href: '#contact', label: 'Contact' },
-    { icon: <FaFileAlt size={24} aria-hidden="true" />, href: '/files/Resume/Zahid_Hasan_Resume.pdf', label: 'Download resume', external: true },
 ];
 
 export default function FloatingDock() {

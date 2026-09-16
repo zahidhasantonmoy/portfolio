@@ -8,6 +8,9 @@ Disallow: /api/setup
 Disallow: /api/setup/
 Disallow: /api/auth
 Disallow: /api/auth/
+Disallow: /files/
+Disallow: /files/*
+Disallow: /*resume*
 
 # Allow public structured API data for AI agents & crawlers
 Allow: /api/about

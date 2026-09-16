@@ -39,7 +39,7 @@ export async function GET() {
       languages: ["English", "Bengali"],
       portfolio: "https://zahidhasantonmoy.vercel.app",
       github: "https://github.com/zahidhasantonmoy",
-      resume: "https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf",
+      resume: "Available upon request via contact form",
       contactForm: "https://zahidhasantonmoy.vercel.app/#contact",
       availableFor: ["Freelance", "Full-time", "Remote", "Contract"],
     },

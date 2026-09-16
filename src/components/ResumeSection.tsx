@@ -153,11 +153,10 @@ const ResumeSection = () => {
           className="text-center mt-12"
         >
           <a
-            href="/resume.pdf"
-            className="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-            download
+            href="#contact"
+            className="inline-block px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
           >
-            Download Resume
+            Request Full Resume
           </a>
         </motion.div>
       </div>

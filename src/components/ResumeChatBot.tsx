@@ -32,7 +32,7 @@ const SUGGESTIONS = [
   '🚀 Top Projects (Flexpath & AI)',
   '🎓 Education & University (BUBT)',
   '💼 Full Tech Stack & Skills',
-  '📄 Download Resume (PDF)',
+  '📬 Request Resume / Contact',
   '🇧🇩 বাংলায় তথ্য জানতে চাই',
 ];
 
@@ -493,14 +493,13 @@ export default function ResumeChatBot() {
                       {chip}
                     </button>
                   ))}
-                  {/* Direct Action: Resume PDF */}
+                  {/* Direct Action: Contact Form */}
                   <a
-                    href="/files/Resume/Zahid_Hasan_Resume.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="#contact"
+                    onClick={() => setIsOpen(false)}
                     className="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 hover:bg-emerald-900 text-emerald-300 hover:text-white transition flex-shrink-0 flex items-center gap-1 shadow-sm"
                   >
-                    <span>📄 Open Resume PDF ↗</span>
+                    <span>📬 Contact Tonmoy ↗</span>
                   </a>
                 </div>
               )}

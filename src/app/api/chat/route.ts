@@ -17,7 +17,7 @@ const CONTACT_DETAIL = `
 • GitHub: https://github.com/zahidhasantonmoy
 • Portfolio Live Site: https://zahidhasantonmoy.vercel.app/
 • Direct Contact Form: https://zahidhasantonmoy.vercel.app/#contact
-• Resume PDF: https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf
+• Resume / CV: Available upon request via contact form or email (zahidhasantonmoy.dev@gmail.com)
 `;
 
 // Education Details (Accurately matching portfolio timeline)
@@ -118,7 +118,7 @@ const SITE_NAVIGATION_GUIDE = `
 • Technical Blog (Bangla): https://zahidhasantonmoy.vercel.app/bn/blog
 • Dev Journal (Daily Dev Logs): https://zahidhasantonmoy.vercel.app/journal
 • Newsletter: https://zahidhasantonmoy.vercel.app/newsletter
-• Resume (PDF Download): https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf
+• Resume / CV: Provided upon request to verified recruiters and clients via Contact Form
 `;
 
 // In-memory cache for dynamic DB context
@@ -240,7 +240,8 @@ CRITICAL RULES FOR RESPONSES:
    - If the user writes in English, answer in English.
 4. ACCURACY & EVIDENCE:
    - Only state facts listed in this knowledge base. Do not invent details.
-   - Provide clickable markdown links (e.g. [Flexpath](https://github.com/zahidhasantonmoy/Flexpath), [Blog](https://zahidhasantonmoy.vercel.app/blog), [Resume PDF](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)).
+   - Provide clickable markdown links (e.g. [Flexpath](https://github.com/zahidhasantonmoy/Flexpath), [Blog](https://zahidhasantonmoy.vercel.app/blog), [Contact Form](#contact)).
+   - For resume inquiries, direct users to request it via the contact form or email.
 5. TONE & STRUCTURE:
    - Be welcoming, professional, structured, and concise. Use bullet points and bold text for clarity.
 `;
@@ -276,7 +277,7 @@ function getSmartFallback(userQuery: string): string {
 • 🐙 **GitHub**: [github.com/zahidhasantonmoy](https://github.com/zahidhasantonmoy)
 • 📍 **Location**: Dhaka, Bangladesh (Works remotely worldwide)
 • 📬 **Direct Message**: [Contact Form](#contact)
-• 📄 **Resume**: [Download PDF](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)
+• 📄 **Resume / CV**: Available upon request via the [Contact Form](#contact) or direct email.
 
 Zahid is actively open for **full-time remote engineering roles**, contract work, and impactful projects!`;
   }
@@ -360,18 +361,17 @@ Zahid is actively open for **full-time remote engineering roles**, contract work
 
   // 5. Resume
   if (q.includes("resume") || q.includes("cv") || q.includes("রেজুমে") || q.includes("সিভি")) {
-    return `Zahid Hasan Tonmoy-এর পূর্ণাঙ্গ রেজুমে এখান থেকে ডাউনলোড করতে পারেন:
-📄 **[Download Resume (PDF)](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)**
+    return `Zahid Hasan Tonmoy-এর পূর্ণাঙ্গ অফিশিয়াল রেজুমে বা CV প্রয়োজন হলে সরাসরি অনুরোধ করতে পারেন:
+📬 **[Contact Form দিয়ে রিকোয়েস্ট করুন](#contact)** অথবা সরাসরি ইমেইল করুন: **[zahidhasantonmoy.dev@gmail.com](mailto:zahidhasantonmoy.dev@gmail.com)**
 
-এতে তাঁর BUBT-তে B.Sc in CSE ডিগ্রি, ৯+ প্রজেক্ট, অ্যাওয়ার্ড এবং ফুল-স্ট্যাক টেকনিক্যাল দক্ষতার বিস্তারিত রয়েছে।`;
+রিক্রুটার বা ক্লায়েন্টদের জন্য কাস্টমাইজড আপডেট করা CV তাৎক্ষণিকভাবে ইমেইলে পাঠিয়ে দেওয়া হবে।`;
   }
 
   // 6. Blog & Articles
   if (q.includes("blog") || q.includes("ব্লগ") || q.includes("article") || q.includes("পোস্ট") || q.includes("laravel")) {
     return `Zahid নিয়মিত ওয়েব ডেভেলপমেন্ট ও সফটওয়্যার ইঞ্জিনিয়ারিং নিয়ে টেকনিক্যাল আর্টিকেল লেখেন:
 
-• **[Laravel Blade Templates with Dynamic Data](https://zahidhasantonmoy.vercel.app/blog/practicing-laravel-blade-templates-with-dynamic-data)**: Practical guide on Blade templates, layout inheritance, and passing dynamic data in Laravel.
-• **[English Blog](https://zahidhasantonmoy.vercel.app/blog)**: Tutorials on React, Next.js, Laravel, PHP, and PostgreSQL.
+• **[English Blog](https://zahidhasantonmoy.vercel.app/blog)**: Tutorials on React, Next.js, MERN Stack, AI, and TypeScript.
 • **[বাংলা ব্লগ](https://zahidhasantonmoy.vercel.app/bn/blog)**: বাংলায় প্র্যাকটিক্যাল টেকনিক্যাল টিউটোরিয়াল।
 • **[Dev Journal](https://zahidhasantonmoy.vercel.app/journal)**: Daily engineering notes and learning logs.`;
   }
@@ -386,7 +386,6 @@ Quick Navigation:
 • 🚀 **[Projects](https://zahidhasantonmoy.vercel.app/#projects)**: 9+ web, mobile & ML projects
 • 🛠️ **[Skills](https://zahidhasantonmoy.vercel.app/#skills)**: MERN, Next.js, Flutter, Python, PostgreSQL
 • ✍️ **[Blog](https://zahidhasantonmoy.vercel.app/blog)** & **[বাংলা ব্লগ](https://zahidhasantonmoy.vercel.app/bn/blog)**
-• 📄 **[Download Resume](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)**
 • 📬 **[Contact Form](#contact)** or connect on **[LinkedIn](https://www.linkedin.com/in/zahidhasantonmoy/)**!`;
 }
 
