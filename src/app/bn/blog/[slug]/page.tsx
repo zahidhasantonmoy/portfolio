@@ -9,6 +9,7 @@ import ReadingProgressBar from "@/components/blog/ReadingProgressBar";
 import PostNavigation from "@/components/blog/PostNavigation";
 import BlogInteractions from "@/components/blog/BlogInteractions";
 import ArticleAudioPlayer from "@/components/blog/ArticleAudioPlayer";
+import TableOfContents from "@/components/blog/TableOfContents";
 
 export const revalidate = 300;
 
@@ -195,10 +196,16 @@ export default async function BnBlogPostPage({
               <BlogInteractions slug={slug} />
             </div>
 
+            {/* Mobile Table of Contents */}
+            <div className="lg:hidden mb-8">
+              <TableOfContents content={post.content_bn ?? ""} lang="bn" />
+            </div>
+
             {/* Listen to Article Audio Reader */}
             <ArticleAudioPlayer
               title={post.title_bn}
               content={post.content_bn ?? ""}
+              excerpt={post.excerpt_bn ?? ""}
               readTimeMin={post.read_time_min}
               lang="bn"
             />
@@ -262,6 +269,11 @@ export default async function BnBlogPostPage({
               </Link>
             </div>
           </article>
+
+          {/* Table of Contents Desktop Sidebar */}
+          <aside className="hidden lg:block w-72 flex-shrink-0 sticky top-24 self-start space-y-6">
+            <TableOfContents content={post.content_bn ?? ""} lang="bn" />
+          </aside>
         </div>
       </main>
     </>

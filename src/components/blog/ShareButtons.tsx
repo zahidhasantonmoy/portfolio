@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaFacebookF, FaTwitter, FaLinkedinIn, FaLink, FaCheck } from "react-icons/fa";
+import { FaFacebookF, FaTwitter, FaLinkedinIn, FaWhatsapp, FaLink, FaCheck } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 
 export default function ShareButtons({ title }: { title: string }) {
@@ -69,6 +69,12 @@ export default function ShareButtons({ title }: { title: string }) {
       icon: <FaLinkedinIn className="w-4 h-4" />,
       href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
       color: "bg-[#0A66C2] hover:bg-[#0A66C2]/90 hover:shadow-indigo-500/25",
+    },
+    {
+      name: "WhatsApp",
+      icon: <FaWhatsapp className="w-4 h-4" />,
+      href: `https://api.whatsapp.com/send?text=${encodeURIComponent(title + " " + url)}`,
+      color: "bg-[#25D366] hover:bg-[#25D366]/90 hover:shadow-emerald-500/25",
     },
   ];
 

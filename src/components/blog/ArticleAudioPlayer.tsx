@@ -13,6 +13,7 @@ import { HiSparkles } from "react-icons/hi2";
 interface ArticleAudioPlayerProps {
   title: string;
   content: string;
+  excerpt?: string;
   readTimeMin?: number;
   lang?: "en" | "bn";
 }
@@ -99,12 +100,14 @@ const SPEEDS = [1, 1.25, 1.5, 2, 0.8];
 export default function ArticleAudioPlayer({
   title,
   content,
+  excerpt,
   readTimeMin,
   lang = "en",
 }: ArticleAudioPlayerProps) {
   const [isSupported, setIsSupported] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [audioMode, setAudioMode] = useState<"summary" | "full">("summary");
   const [speedIndex, setSpeedIndex] = useState(0); // default 1.0x
   const [currentChunkIndex, setCurrentChunkIndex] = useState(0);
   const [chunks, setChunks] = useState<string[]>([]);
@@ -122,7 +125,7 @@ export default function ArticleAudioPlayer({
   isPlayingRef.current = isPlaying;
   rateRef.current = currentRate;
 
-  // Initialize SpeechSynthesis on mount
+  // Initialize SpeechSynthesis on mount or when mode/content changes
   useEffect(() => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       setIsSupported(false);
@@ -131,10 +134,25 @@ export default function ArticleAudioPlayer({
 
     synthRef.current = window.speechSynthesis;
 
-    // Prepare speech chunks (Title first, then sanitized content)
+    // Prepare speech chunks based on audioMode
     const cleanBody = sanitizeMarkdown(content);
-    const intro = lang === "bn" ? `আর্টিকেল: ${title}।` : `Article: ${title}.`;
-    const allChunks = [intro, ...splitIntoChunks(cleanBody)];
+    let allChunks: string[] = [];
+
+    if (audioMode === "summary") {
+      const cleanExcerpt = excerpt ? sanitizeMarkdown(excerpt) : "";
+      const summaryText = cleanExcerpt.trim()
+        ? cleanExcerpt.trim()
+        : splitIntoChunks(cleanBody).slice(0, 3).join(" ");
+      const intro =
+        lang === "bn"
+          ? `আর্টিকেল ওভারভিউ: ${title}। মূলভাব: `
+          : `Quick audio overview of ${title}. Key takeaways: `;
+      allChunks = [intro, ...splitIntoChunks(summaryText)];
+    } else {
+      const intro = lang === "bn" ? `আর্টিকেল: ${title}।` : `Article: ${title}.`;
+      allChunks = [intro, ...splitIntoChunks(cleanBody)];
+    }
+
     setChunks(allChunks);
 
     // Pick best matching voice
@@ -184,7 +202,18 @@ export default function ArticleAudioPlayer({
         synthRef.current.cancel();
       }
     };
-  }, [title, content, lang]);
+  }, [title, content, excerpt, lang, audioMode]);
+
+  const handleToggleMode = (newMode: "summary" | "full") => {
+    if (newMode === audioMode) return;
+    if (synthRef.current) {
+      synthRef.current.cancel();
+    }
+    setIsPlaying(false);
+    setIsPaused(false);
+    setCurrentChunkIndex(0);
+    setAudioMode(newMode);
+  };
 
   // Speak a specific chunk index
   const speakChunk = useCallback(
@@ -305,12 +334,18 @@ export default function ArticleAudioPlayer({
     chunks.length > 0 ? Math.round((currentChunkIndex / chunks.length) * 100) : 0;
 
   const t = {
-    title: lang === "bn" ? "আর্টিকেলটি শুনুন" : "Listen to this article",
+    title: lang === "bn" ? "অডিও ওভারভিউ ও পডকাস্ট" : "Audio Overview & Podcast",
+    summaryMode: lang === "bn" ? "⚡ ১ মিনিট সারসংক্ষেপ" : "⚡ 1-Min Summary",
+    fullMode: lang === "bn" ? "📖 সম্পূর্ণ আর্টিকেল" : "📖 Full Article",
     subtitle: lang === "bn" ? "ভয়েস রিডার (Audio)" : "Audio Narration",
     playing: lang === "bn" ? "চলছে..." : "Playing...",
     paused: lang === "bn" ? "পজ করা হয়েছে" : "Paused",
     ready:
-      lang === "bn"
+      audioMode === "summary"
+        ? lang === "bn"
+          ? "~১ মিনিট কুইক ওভারভিউ"
+          : "~1 min quick overview"
+        : lang === "bn"
         ? `${readTimeMin ? `${readTimeMin} মিনিট শোনা` : "শুনতে প্লে করুন"}`
         : `${readTimeMin ? `~${readTimeMin} min listen` : "Ready to play"}`,
     speed: `${currentRate}x`,
@@ -323,6 +358,35 @@ export default function ArticleAudioPlayer({
       {isPlaying && (
         <div className="absolute inset-0 bg-indigo-500/5 dark:bg-indigo-400/5 animate-pulse pointer-events-none" />
       )}
+
+      {/* Mode Selector Header */}
+      <div className="flex items-center gap-1.5 mb-3.5 pb-2.5 border-b border-indigo-100/70 dark:border-indigo-900/50">
+        <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 mr-1 hidden sm:inline">
+          {lang === "bn" ? "মোড:" : "Mode:"}
+        </span>
+        <button
+          type="button"
+          onClick={() => handleToggleMode("summary")}
+          className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+            audioMode === "summary"
+              ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/30"
+              : "bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/80 border border-gray-200/60 dark:border-gray-700/60"
+          }`}
+        >
+          {t.summaryMode}
+        </button>
+        <button
+          type="button"
+          onClick={() => handleToggleMode("full")}
+          className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
+            audioMode === "full"
+              ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/30"
+              : "bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/80 border border-gray-200/60 dark:border-gray-700/60"
+          }`}
+        >
+          {t.fullMode}
+        </button>
+      </div>
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 relative z-10">
         {/* Left Side: Play Button & Article Info */}

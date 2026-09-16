@@ -90,6 +90,15 @@ function PreBlock({ children, ...props }: any) {
   );
 }
 
+export function slugifyHeading(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}
+
 export default function ArticleContent({ content }: ArticleContentProps) {
   if (!content) {
     return (
@@ -117,12 +126,14 @@ export default function ArticleContent({ content }: ArticleContentProps) {
         rehypePlugins={[rehypeSanitize, rehypeHighlight]}
         components={{
           h2: ({ children, ...props }) => {
-            const text = String(children).toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').trim();
-            return <h2 id={text} className="scroll-mt-24" {...props}>{children}</h2>;
+            const rawText = extractText(children);
+            const id = slugifyHeading(rawText);
+            return <h2 id={id} className="scroll-mt-24" {...props}>{children}</h2>;
           },
           h3: ({ children, ...props }) => {
-            const text = String(children).toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').trim();
-            return <h3 id={text} className="scroll-mt-24" {...props}>{children}</h3>;
+            const rawText = extractText(children);
+            const id = slugifyHeading(rawText);
+            return <h3 id={id} className="scroll-mt-24" {...props}>{children}</h3>;
           },
           pre: PreBlock,
         }}

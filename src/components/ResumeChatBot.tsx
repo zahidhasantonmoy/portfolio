@@ -11,6 +11,8 @@ import {
   FaCopy,
   FaCheck,
   FaMicrophone,
+  FaVolumeUp,
+  FaVolumeMute,
 } from 'react-icons/fa';
 import { BsChatDotsFill } from 'react-icons/bs';
 
@@ -42,9 +44,11 @@ export default function ResumeChatBot() {
   const [hasOpened, setHasOpened] = useState(false);
   const [showPrompts, setShowPrompts] = useState(true);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [speakingIdx, setSpeakingIdx] = useState<number | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [speechLang, setSpeechLang] = useState<'en-US' | 'bn-BD'>('en-US');
   const [speechSupported, setSpeechSupported] = useState(false);
+  const [ttsSupported, setTtsSupported] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -57,6 +61,9 @@ export default function ResumeChatBot() {
     if (typeof window !== 'undefined') {
       const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       setSpeechSupported(!!SpeechRec);
+      if ('speechSynthesis' in window) {
+        setTtsSupported(true);
+      }
     }
   }, []);
 
@@ -71,6 +78,11 @@ export default function ResumeChatBot() {
   const handleSend = async (contentToSend?: string) => {
     const text = (contentToSend || input).trim();
     if (!text || isLoading) return;
+
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setSpeakingIdx(null);
 
     const newMessages: Message[] = [...messages, { role: 'user', content: text }];
     setMessages(newMessages);
@@ -108,7 +120,87 @@ export default function ResumeChatBot() {
   };
 
   const resetChat = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    setSpeakingIdx(null);
     setMessages([INITIAL_MESSAGE]);
+  };
+
+  const cleanTextForSpeech = (raw: string): string => {
+    return raw
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/!\[.*?\]\(.*?\)/g, ' ')
+      .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+      .replace(/[*_~#]/g, ' ')
+      .replace(/https?:\/\/\S+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  const toggleSpeak = (text: string, idx: number) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert('Audio speech is not supported in this browser.');
+      return;
+    }
+
+    const synth = window.speechSynthesis;
+
+    if (speakingIdx === idx) {
+      synth.cancel();
+      setSpeakingIdx(null);
+      return;
+    }
+
+    synth.cancel();
+
+    const clean = cleanTextForSpeech(text);
+    if (!clean) return;
+
+    const utterance = new SpeechSynthesisUtterance(clean);
+    const isBengali = /[\u0980-\u09FF]/.test(clean);
+
+    const voices = synth.getVoices();
+    if (isBengali) {
+      utterance.lang = 'bn-BD';
+      const bnVoice = voices.find(
+        (v) =>
+          v.lang.toLowerCase().startsWith('bn') ||
+          v.name.toLowerCase().includes('bangla') ||
+          v.name.toLowerCase().includes('bengali')
+      );
+      if (bnVoice) utterance.voice = bnVoice;
+    } else {
+      utterance.lang = 'en-US';
+      const enVoice = voices.find(
+        (v) =>
+          (v.lang.toLowerCase().startsWith('en-us') ||
+            v.lang.toLowerCase().startsWith('en-gb')) &&
+          (v.name.includes('Google') ||
+            v.name.includes('Natural') ||
+            v.name.includes('Microsoft') ||
+            v.name.includes('Samantha'))
+      ) || voices.find((v) => v.lang.toLowerCase().startsWith('en'));
+      if (enVoice) utterance.voice = enVoice;
+    }
+
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+
+    utterance.onend = () => {
+      setSpeakingIdx(null);
+    };
+
+    utterance.onerror = (e) => {
+      if (e.error !== 'interrupted') {
+        console.warn('Speech synthesis error:', e);
+      }
+      setSpeakingIdx(null);
+    };
+
+    setSpeakingIdx(idx);
+    synth.speak(utterance);
   };
 
   const copyMessage = async (text: string, idx: number) => {
@@ -263,7 +355,13 @@ export default function ResumeChatBot() {
                   <FaRedo className="text-xs" />
                 </button>
                 <button
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                      window.speechSynthesis.cancel();
+                    }
+                    setSpeakingIdx(null);
+                    setIsOpen(false);
+                  }}
                   title="Minimize"
                   className="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-white/10 transition"
                   aria-label="Minimize chat window"
@@ -291,25 +389,64 @@ export default function ResumeChatBot() {
 
                     {m.role === 'assistant' && (
                       <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-gray-700/50 text-[10px] text-gray-400">
-                        <span className="text-[9px] text-gray-500 font-semibold tracking-wider uppercase">Tonmoy AI</span>
-                        <button
-                          type="button"
-                          onClick={() => copyMessage(m.content, idx)}
-                          title="Copy answer to clipboard"
-                          className="inline-flex items-center gap-1 text-[10px] text-gray-400 hover:text-indigo-300 transition px-1.5 py-0.5 rounded hover:bg-gray-700/60"
-                        >
-                          {copiedIdx === idx ? (
-                            <>
-                              <FaCheck className="text-emerald-400 text-[10px]" />
-                              <span className="text-emerald-400 font-medium">Copied!</span>
-                            </>
-                          ) : (
-                            <>
-                              <FaCopy className="text-[10px]" />
-                              <span>Copy</span>
-                            </>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] text-gray-500 font-semibold tracking-wider uppercase">Tonmoy AI</span>
+                          {speakingIdx === idx && (
+                            <span className="flex items-center gap-0.5 text-indigo-400">
+                              <span className="w-1 h-2 bg-indigo-400 rounded-full animate-pulse"></span>
+                              <span className="w-1 h-3.5 bg-indigo-400 rounded-full animate-pulse [animation-delay:0.15s]"></span>
+                              <span className="w-1 h-2 bg-indigo-400 rounded-full animate-pulse [animation-delay:0.3s]"></span>
+                            </span>
                           )}
-                        </button>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          {/* Listen / Stop Voice Speech button */}
+                          {ttsSupported && (
+                            <button
+                              type="button"
+                              onClick={() => toggleSpeak(m.content, idx)}
+                              title={speakingIdx === idx ? 'Stop speaking' : 'Listen to response'}
+                              className={`inline-flex items-center gap-1 text-[10px] transition px-1.5 py-0.5 rounded ${
+                                speakingIdx === idx
+                                  ? 'text-rose-400 bg-rose-950/50 border border-rose-500/40 animate-pulse font-medium'
+                                  : 'text-gray-400 hover:text-indigo-300 hover:bg-gray-700/60'
+                              }`}
+                            >
+                              {speakingIdx === idx ? (
+                                <>
+                                  <FaVolumeMute className="text-[10px]" />
+                                  <span>Stop</span>
+                                </>
+                              ) : (
+                                <>
+                                  <FaVolumeUp className="text-[10px]" />
+                                  <span>Listen</span>
+                                </>
+                              )}
+                            </button>
+                          )}
+
+                          {/* Copy button */}
+                          <button
+                            type="button"
+                            onClick={() => copyMessage(m.content, idx)}
+                            title="Copy answer to clipboard"
+                            className="inline-flex items-center gap-1 text-[10px] text-gray-400 hover:text-indigo-300 transition px-1.5 py-0.5 rounded hover:bg-gray-700/60"
+                          >
+                            {copiedIdx === idx ? (
+                              <>
+                                <FaCheck className="text-emerald-400 text-[10px]" />
+                                <span className="text-emerald-400 font-medium">Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <FaCopy className="text-[10px]" />
+                                <span>Copy</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>

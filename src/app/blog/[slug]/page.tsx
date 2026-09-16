@@ -226,6 +226,7 @@ export default async function BlogPostPage({
             <ArticleAudioPlayer
               title={post.title_en}
               content={post.content_en ?? ""}
+              excerpt={post.excerpt_en ?? ""}
               readTimeMin={post.read_time_min}
               lang="en"
             />

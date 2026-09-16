@@ -11,16 +11,18 @@ interface TocItem {
 
 interface TableOfContentsProps {
   content: string;
+  lang?: 'en' | 'bn';
 }
 
 export const slugify = (text: string) =>
   text
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
     .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
     .trim();
 
-export default function TableOfContents({ content }: TableOfContentsProps) {
+export default function TableOfContents({ content, lang = 'en' }: TableOfContentsProps) {
   const [headings, setHeadings] = useState<TocItem[]>([]);
   const [activeId, setActiveId] = useState<string>('');
 
@@ -83,7 +85,7 @@ export default function TableOfContents({ content }: TableOfContentsProps) {
     >
       <div className="flex items-center gap-2 pb-3 mb-3 border-b border-gray-200 dark:border-gray-800 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
         <FaListUl className="text-indigo-500" />
-        <span>Table of Contents</span>
+        <span>{lang === 'bn' ? 'সূচিপত্র' : 'Table of Contents'}</span>
       </div>
 
       <ul className="space-y-2 text-xs">
