@@ -61,10 +61,10 @@ export default async function MessagesPage() {
                   : "bg-gray-900 border-gray-800 opacity-70 hover:opacity-100"
               }`}
             >
-              <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
+              <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-4 mb-4">
                 <div>
                   <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-lg font-bold text-white">{msg.name}</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-white">{msg.name}</h3>
                     {msg.status === "unread" && (
                       <span className="px-2 py-0.5 text-xs font-semibold bg-indigo-500 text-white rounded-full">
                         New
@@ -73,12 +73,12 @@ export default async function MessagesPage() {
                   </div>
                   <a
                     href={`mailto:${msg.email}`}
-                    className="text-indigo-400 text-sm hover:underline flex items-center gap-2"
+                    className="text-indigo-400 text-xs sm:text-sm hover:underline flex items-center gap-2"
                   >
-                    <span>📧</span> {msg.email}
+                    <span>📧</span> <span className="break-all">{msg.email}</span>
                   </a>
                 </div>
-                <div className="text-xs text-gray-500 font-medium whitespace-nowrap">
+                <div className="text-xs text-gray-500 font-medium">
                   {new Date(msg.created_at).toLocaleString("en-BD", {
                     dateStyle: "medium",
                     timeStyle: "short",
@@ -86,14 +86,14 @@ export default async function MessagesPage() {
                 </div>
               </div>
 
-              <div className="bg-gray-950/50 p-4 rounded-lg text-gray-300 text-sm whitespace-pre-wrap border border-gray-800/50">
+              <div className="bg-gray-950/50 p-4 rounded-lg text-gray-300 text-xs sm:text-sm whitespace-pre-wrap break-words border border-gray-800/50">
                 {msg.message}
               </div>
 
-              <div className="mt-4 flex gap-3 justify-end border-t border-gray-800 pt-4">
+              <div className="mt-4 flex flex-wrap gap-2 sm:gap-3 justify-end border-t border-gray-800 pt-4">
                 <a
                   href={`mailto:${msg.email}?subject=Reply from Zahid Hasan Tonmoy&body=Hi ${msg.name},%0D%0A%0D%0A`}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition"
+                  className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs sm:text-sm font-medium transition active:scale-95"
                 >
                   Reply Email
                 </a>

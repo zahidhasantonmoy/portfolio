@@ -67,27 +67,27 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {stats.map((stat) => (
           <Link key={stat.label} href={stat.href}
-            className="bg-gray-900 border border-gray-800 rounded-xl p-5 hover:border-gray-700 transition group">
-            <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg mb-3 text-xl ${colorMap[stat.color]}`}>
+            className="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-5 hover:border-gray-700 transition group">
+            <div className={`inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg mb-2 sm:mb-3 text-lg sm:text-xl ${colorMap[stat.color]}`}>
               {stat.icon}
             </div>
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
-            <p className="text-sm text-gray-500 mt-0.5">{stat.label}</p>
+            <p className="text-xl sm:text-2xl font-bold text-white">{stat.value}</p>
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">{stat.label}</p>
           </Link>
         ))}
       </div>
 
       {/* Top Read / Most Viewed Posts Analytics Section */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 sm:p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <FaChartLine className="text-indigo-400" />
-            <h2 className="font-semibold text-white">Top Read & Most Viewed Posts</h2>
+            <h2 className="font-semibold text-white text-sm sm:text-base">Top Read & Most Viewed Posts</h2>
           </div>
-          <span className="text-xs text-gray-500">Live audience metrics</span>
+          <span className="text-[11px] sm:text-xs text-gray-500">Live audience metrics</span>
         </div>
 
         {(!topPostsRows || topPostsRows.length === 0) ? (
@@ -95,18 +95,18 @@ export default async function AdminDashboard() {
         ) : (
           <div className="divide-y divide-gray-800">
             {topPostsRows.map((post: any, index: number) => (
-              <div key={post.id} className="py-3 flex items-center justify-between gap-4">
+              <div key={post.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="w-6 text-center text-xs font-bold text-gray-500">
+                  <span className="w-6 text-center text-xs font-bold text-gray-500 flex-shrink-0">
                     #{index + 1}
                   </span>
                   <div className="truncate">
                     <p className="text-sm text-white font-medium truncate">{post.title_en}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">/blog/{post.slug}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 truncate">/blog/{post.slug}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-6 flex-shrink-0 text-xs">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-6 flex-shrink-0 text-xs pl-9 sm:pl-0">
                   <div className="flex items-center gap-1.5 text-indigo-300 font-medium">
                     <FaEye className="text-indigo-400 text-xs" />
                     <span>{Number(post.views || 0).toLocaleString()} views</span>
@@ -130,7 +130,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Link href="/admin/posts/new"
           className="flex items-center gap-3 p-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl transition">
           <span className="text-2xl">✏️</span>

@@ -78,7 +78,7 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Projects</h1>
           <p className="text-gray-400">Manage your portfolio projects</p>
@@ -88,7 +88,7 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
             setCurrentProject({ display_order: 0 });
             setIsEditing(true);
           }}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition"
+          className="self-start sm:self-auto bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition active:scale-95"
         >
           + Add Project
         </button>

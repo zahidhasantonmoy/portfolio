@@ -7,6 +7,7 @@ import ShareButtons from "@/components/blog/ShareButtons";
 import { FaRegClock, FaRegCalendarAlt } from "react-icons/fa";
 import ReadingProgressBar from "@/components/blog/ReadingProgressBar";
 import PostNavigation from "@/components/blog/PostNavigation";
+import BlogInteractions from "@/components/blog/BlogInteractions";
 
 export const revalidate = 300;
 
@@ -181,17 +182,29 @@ export default async function BnBlogPostPage({
               </Link>
             </div>
 
-            {/* Desktop Breadcrumb */}
-            <nav className="hidden md:flex items-center gap-2 text-sm text-gray-500 mb-10">
-              <Link href="/bn" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">হোম</Link>
-              <span className="text-gray-300 dark:text-gray-700">/</span>
-              <Link href="/bn/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">ব্লগ</Link>
-              <span className="text-gray-300 dark:text-gray-700">/</span>
-              <span className="text-gray-800 dark:text-gray-200 truncate">{post.title_bn}</span>
-            </nav>
+            {/* Desktop & Mobile Breadcrumb with Live Blog Interactions */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-100 dark:border-gray-800">
+              <nav className="flex items-center gap-2 text-sm text-gray-500">
+                <Link href="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">হোম</Link>
+                <span className="text-gray-300 dark:text-gray-700">/</span>
+                <Link href="/bn/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">ব্লগ</Link>
+                <span className="text-gray-300 dark:text-gray-700">/</span>
+                <span className="text-gray-800 dark:text-gray-200 truncate max-w-[200px] sm:max-w-[300px]">{post.title_bn}</span>
+              </nav>
+              <BlogInteractions slug={slug} />
+            </div>
 
             <div className="prose dark:prose-invert max-w-none prose-lg prose-indigo prose-headings:font-bold prose-a:text-indigo-600 dark:prose-a:text-indigo-400 hover:prose-a:text-indigo-500">
               <ArticleContent content={post.content_bn ?? ""} />
+            </div>
+
+            {/* Bottom Claps & Feedback Bar */}
+            <div className="mt-10 p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <p className="font-bold text-gray-900 dark:text-white text-sm">আর্টিকেলটি কি আপনার ভালো লেগেছে?</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">তন্ময়ের কাজকে সাপোর্ট করতে তালি (Clap) দিয়ে উৎসাহিত করুন!</p>
+              </div>
+              <BlogInteractions slug={slug} />
             </div>
 
             {/* Mobile Share Buttons */}

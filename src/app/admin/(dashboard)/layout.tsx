@@ -19,10 +19,10 @@ export default async function AdminLayout({
   const unreadMessagesCount = Number(unreadRes[0]?.count ?? 0);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex">
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col lg:flex-row">
       <Toaster position="top-right" toastOptions={{ style: { background: '#1f2937', color: '#fff' } }} />
       <AdminNav userEmail={session.user?.email ?? ""} initialUnreadCount={unreadMessagesCount} />
-      <main className="flex-1 ml-64 p-8 overflow-auto">{children}</main>
+      <main className="flex-1 min-w-0 lg:ml-64 pt-20 lg:pt-8 p-4 sm:p-6 lg:p-8 overflow-x-hidden">{children}</main>
     </div>
   );
 }

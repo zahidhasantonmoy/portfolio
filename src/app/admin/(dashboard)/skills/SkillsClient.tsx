@@ -71,7 +71,7 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Skills</h1>
           <p className="text-gray-400">Manage your technical skills</p>
@@ -81,7 +81,7 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
             setCurrentSkill({ category: "frontend", display_order: 0, proficiency: 80 });
             setIsEditing(true);
           }}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition"
+          className="self-start sm:self-auto bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition active:scale-95"
         >
           + Add Skill
         </button>
@@ -142,7 +142,7 @@ export default function SkillsClient({ initialSkills }: { initialSkills: Skill[]
                   <p className="font-bold text-white">{skill.name}</p>
                   <p className="text-xs text-gray-500">Proficiency: {skill.proficiency}% | Order: {skill.display_order}</p>
                 </div>
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                   <button onClick={() => { setCurrentSkill(skill); setIsEditing(true); }} className="text-indigo-400 hover:text-indigo-300 text-sm">Edit</button>
                   <button onClick={() => handleDelete(skill.id)} className="text-red-400 hover:text-red-300 text-sm">Del</button>
                 </div>

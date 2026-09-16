@@ -61,6 +61,11 @@ export const metadata: Metadata = {
     ],
   },
   manifest: "/site.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Zahid Tonmoy",
+  },
 };
 
 import Providers from "./providers";
@@ -74,6 +79,14 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
+        {/* PWA & Mobile Web App Meta Tags */}
+        <meta name="theme-color" content="#030712" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Zahid Tonmoy" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="application-name" content="Zahid Tonmoy" />
+
         {/* Google Search Console verification */}
         <meta name="google-site-verification" content="-eYrJsU0hcmA8pqXUHm7_eB0wJ4RNDp_46BntwN6-z8" />
         {/* Bing Webmaster Tools verification */}

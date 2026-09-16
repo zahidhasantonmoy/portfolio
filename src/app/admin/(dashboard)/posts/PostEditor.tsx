@@ -450,12 +450,12 @@ export default function PostEditor({
   return (
     <div className="space-y-6">
       {/* Top toolbar */}
-      <div className="flex items-center justify-between bg-gray-900 border border-gray-800 rounded-xl px-4 py-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3">
         <div className="flex items-center gap-3">
           <span className="text-white text-sm font-medium bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-700">
             📝 Blog Post
           </span>
-          <span className={`text-xs px-2 py-1 rounded-full capitalize ${
+          <span className={`text-xs px-2.5 py-1 rounded-full capitalize font-medium ${
             form.status === "published"
               ? "bg-emerald-900/40 text-emerald-400"
               : form.status === "scheduled"
@@ -465,7 +465,7 @@ export default function PostEditor({
             {form.status}
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {mode === "edit" && (
             <button
               onClick={handleDelete}
@@ -493,12 +493,12 @@ export default function PostEditor({
 
       {/* Tabs */}
       <div className="border-b border-gray-800">
-        <div className="flex gap-1">
+        <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2.5 text-sm font-medium transition border-b-2 -mb-px ${
+              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition border-b-2 -mb-px ${
                 activeTab === tab.id
                   ? "border-indigo-500 text-indigo-400"
                   : "border-transparent text-gray-500 hover:text-gray-300"

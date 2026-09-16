@@ -72,7 +72,7 @@ export default function Navbar() {
                 whileHover={{ scale: 1.05 }}
                 className="flex-shrink-0 cursor-pointer"
               >
-                <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
+                <span className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
                   Zahid Hasan Tonmoy
                 </span>
               </motion.div>
@@ -100,7 +100,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <ThemeSwitcher />
 
             {/* Mobile menu button */}
@@ -128,13 +128,13 @@ export default function Navbar() {
         animate={{ opacity: isOpen ? 1 : 0, y: isOpen ? 0 : -20 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white dark:bg-gray-900">
+        <div className="px-3 pt-2 pb-4 space-y-1 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-xl border-b border-gray-200/80 dark:border-gray-800/80">
           {navigation.map((item) => (
             <Link
               key={item.name}
               href={item.href}
               onClick={(e) => handleNavClick(e, item.href)}
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2 rounded-md text-base font-medium"
+              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2.5 rounded-lg text-base font-medium transition active:scale-95"
             >
               <motion.span whileHover={{ scale: 1.05 }} className="block">
                 {item.name}

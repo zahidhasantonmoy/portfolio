@@ -124,7 +124,7 @@ export default function ResumeChatBot() {
   return (
     <aside
       aria-label="AI Assistant"
-      className="fixed bottom-5 right-5 z-50 flex flex-col items-end print:hidden"
+      className="fixed bottom-3 right-3 sm:bottom-5 sm:right-5 z-50 flex flex-col items-end print:hidden"
     >
       {/* Chat Window */}
       <AnimatePresence>
@@ -134,7 +134,7 @@ export default function ResumeChatBot() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 30 }}
             transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            className="w-[90vw] sm:w-[390px] h-[520px] max-h-[82vh] bg-gray-900/95 backdrop-blur-xl border border-indigo-500/30 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 text-white"
+            className="w-[calc(100vw-24px)] sm:w-[390px] h-[520px] max-h-[82vh] bg-gray-900/95 backdrop-blur-xl border border-indigo-500/30 rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 text-white"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-indigo-900/90 via-purple-900/90 to-gray-900 px-4 py-3.5 flex items-center justify-between border-b border-white/10">

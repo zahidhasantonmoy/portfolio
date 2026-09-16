@@ -47,25 +47,25 @@ const ProjectModal = ({ project, isOpen, onClose }: ProjectModalProps) => {
                 </button>
 
                 {/* Image Header */}
-                <div className="relative w-full h-64 md:h-96">
+                <div className="relative w-full h-52 sm:h-64 md:h-96">
                     <Image
                         src={project.images[0]}
                         alt={project.title}
                         fill
                         className="object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-80" />
-                    <div className="absolute bottom-6 left-6 md:bottom-8 md:left-8 text-white">
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-85" />
+                    <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 md:bottom-8 md:left-8 text-white pr-4">
                         <motion.span
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="inline-block px-3 py-1 bg-blue-600 rounded-full text-xs font-semibold mb-3 border border-blue-400/30"
+                            className="inline-block px-3 py-1 bg-blue-600 rounded-full text-xs font-semibold mb-2 sm:mb-3 border border-blue-400/30 shadow-sm"
                         >
                             {project.category}
                         </motion.span>
                         <motion.h2
                             layoutId={`title-${project.id}`}
-                            className="text-3xl md:text-5xl font-bold"
+                            className="text-2xl sm:text-3xl md:text-5xl font-bold break-words leading-tight"
                         >
                             {project.title}
                         </motion.h2>
@@ -73,12 +73,12 @@ const ProjectModal = ({ project, isOpen, onClose }: ProjectModalProps) => {
                 </div>
 
                 {/* Content */}
-                <div className="p-6 md:p-10 space-y-8">
+                <div className="p-4 sm:p-6 md:p-10 space-y-6 sm:space-y-8">
 
                     {/* Description */}
                     <div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">About the Project</h3>
-                        <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                        <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">About the Project</h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words">
                             {project.description}
                         </p>
                     </div>

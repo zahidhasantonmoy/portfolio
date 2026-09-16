@@ -35,26 +35,26 @@ export default async function AdminPostsPage({
   return (
     <div className="max-w-5xl">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Blog Posts</h1>
           <p className="text-gray-400 text-sm mt-1">{posts?.length ?? 0} total</p>
         </div>
         <Link
           href="/admin/posts/new"
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition"
+          className="self-start sm:self-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition active:scale-95"
         >
           + New Post
         </Link>
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-none">
         {["all", "published", "draft", "scheduled"].map((s) => (
           <Link
             key={s}
             href={s === "all" ? "/admin/posts" : `/admin/posts?status=${s}`}
-            className={`px-3 py-1.5 rounded-lg text-sm capitalize transition ${
+            className={`px-3 py-1.5 rounded-lg text-sm capitalize whitespace-nowrap transition ${
               (s === "all" ? !status : status === s)
                 ? "bg-indigo-600 text-white"
                 : "bg-gray-800 text-gray-400 hover:text-white"
@@ -76,7 +76,8 @@ export default async function AdminPostsPage({
             </Link>
           </div>
         ) : (
-          <table className="w-full">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px]">
             <thead>
               <tr className="border-b border-gray-800">
                 <th className="text-left px-6 py-3 text-xs text-gray-500 font-medium uppercase">Title</th>
@@ -140,6 +141,7 @@ export default async function AdminPostsPage({
               ))}
             </tbody>
           </table>
+        </div>
         )}
       </div>
     </div>

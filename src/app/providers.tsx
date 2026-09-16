@@ -2,10 +2,12 @@
 
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'react-hot-toast';
+import PwaRegister from '@/components/PwaRegister';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <PwaRegister />
       <Toaster
         position="bottom-right"
         toastOptions={{
