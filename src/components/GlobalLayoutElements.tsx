@@ -9,6 +9,10 @@ const ResumeChatBot = dynamic(() => import('@/components/ResumeChatBot'), {
   ssr: false,
 });
 
+const ResumeLeadDrawer = dynamic(() => import('@/components/ResumeLeadDrawer'), {
+  ssr: false,
+});
+
 export function ClientNavbar() {
   const pathname = usePathname();
   if (pathname?.startsWith('/admin')) return null;
@@ -25,4 +29,10 @@ export function ClientChatBot() {
   const pathname = usePathname();
   if (pathname?.startsWith('/admin')) return null;
   return <ResumeChatBot />;
+}
+
+export function ClientResumeLeadDrawer() {
+  const pathname = usePathname();
+  if (pathname?.startsWith('/admin')) return null;
+  return <ResumeLeadDrawer />;
 }

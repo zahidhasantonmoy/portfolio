@@ -152,12 +152,17 @@ const ResumeSection = () => {
           viewport={{ once: true }}
           className="text-center mt-12"
         >
-          <a
-            href="#contact"
-            className="inline-block px-8 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('open-resume-drawer', { detail: { purpose: 'Full-Time Engineering Role' } }));
+              }
+            }}
+            className="inline-flex items-center gap-2 px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold transition-all shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/40 cursor-pointer"
           >
-            Request Full Resume
-          </a>
+            <span>📄 Request Full Resume & Credentials</span>
+          </button>
         </motion.div>
       </div>
     </section>

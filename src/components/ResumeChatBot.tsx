@@ -493,13 +493,25 @@ export default function ResumeChatBot() {
                       {chip}
                     </button>
                   ))}
+                  {/* Direct Action: Request Resume Lead Drawer */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('open-resume-drawer', { detail: { purpose: 'Recruiter Outreach' } }));
+                      }
+                    }}
+                    className="px-2.5 py-1 rounded-full bg-pink-950/80 border border-pink-500/40 hover:bg-pink-900 text-pink-300 hover:text-white transition flex-shrink-0 flex items-center gap-1 shadow-sm"
+                  >
+                    <span>📄 Request Resume ↗</span>
+                  </button>
                   {/* Direct Action: Contact Form */}
                   <a
                     href="#contact"
                     onClick={() => setIsOpen(false)}
                     className="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 hover:bg-emerald-900 text-emerald-300 hover:text-white transition flex-shrink-0 flex items-center gap-1 shadow-sm"
                   >
-                    <span>📬 Contact Tonmoy ↗</span>
+                    <span>📬 Contact Form ↗</span>
                   </a>
                 </div>
               )}

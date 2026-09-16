@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
@@ -101,6 +101,116 @@ export default function PostEditor({
     is_featured: post?.is_featured ?? false,
     tag_ids: selectedTagIds,
   });
+
+  const [pingingIndex, setPingingIndex] = useState(false);
+  const [showSeoDetails, setShowSeoDetails] = useState(false);
+
+  // Real-time SEO & GEO (Generative Engine Optimization) Score Calculation
+  const seoScoreData = useMemo(() => {
+    let score = 0;
+    const checks: { label: string; passed: boolean; tip: string }[] = [];
+
+    // 1. English Title Length (40-70 chars ideal for Google SERP)
+    const titleLen = (form.title_en || "").trim().length;
+    const titlePassed = titleLen >= 40 && titleLen <= 70;
+    if (titlePassed) score += 15;
+    else if (titleLen > 0) score += 8;
+    checks.push({
+      label: "English Title Length",
+      passed: titlePassed,
+      tip: `${titleLen} chars (Ideal: 40–70 characters for Google SERP display)`,
+    });
+
+    // 2. Meta Description Length (120-165 chars ideal)
+    const metaDesc = (form.meta_desc_en || form.excerpt_en || "").trim();
+    const metaLen = metaDesc.length;
+    const metaPassed = metaLen >= 120 && metaLen <= 165;
+    if (metaPassed) score += 20;
+    else if (metaLen >= 50) score += 10;
+    checks.push({
+      label: "Meta Description Length",
+      passed: metaPassed,
+      tip: `${metaLen} chars (Ideal: 120–165 characters for search & AI snippets)`,
+    });
+
+    // 3. Dual-Language Bangla Localization Parity
+    const hasBnTitle = (form.title_bn || "").trim().length > 5;
+    const hasBnContent = (form.content_bn || "").trim().length > 30 || (form.excerpt_bn || "").trim().length > 20;
+    const bnPassed = hasBnTitle && hasBnContent;
+    if (bnPassed) score += 15;
+    else if (hasBnTitle || hasBnContent) score += 8;
+    checks.push({
+      label: "Dual-Language (Bangla) Parity",
+      passed: bnPassed,
+      tip: bnPassed
+        ? "Bangla title & content configured for regional search rank"
+        : "Add Bangla title & content to capture Bangladeshi audience & regional SEO",
+    });
+
+    // 4. Generative Engine Optimization (GEO) Direct Answer Readiness
+    const contentIntro = (form.content_en || "").slice(0, 400).toLowerCase();
+    const hasDirectAnswer =
+      contentIntro.length >= 80 &&
+      (/\b(is a|is an|are|used to|provides|enables|helps to|guide on|tutorial covers|in this article|learn how to)\b/i.test(
+        contentIntro
+      ) ||
+        contentIntro.split(" ").length >= 30);
+    if (hasDirectAnswer) score += 20;
+    else if ((form.content_en || "").length > 50) score += 10;
+    checks.push({
+      label: "GEO / AI Overview Direct Answer",
+      passed: !!hasDirectAnswer,
+      tip: hasDirectAnswer
+        ? "Opening paragraph delivers direct answer for Perplexity & Google AI Overviews"
+        : "Provide a clear direct definition/solution in the first 2-3 sentences for AI citations",
+    });
+
+    // 5. Content Depth & Heading Hierarchy
+    const wordCount = (form.content_en || "").trim().split(/\s+/).filter(Boolean).length;
+    const hasHeadings = /#{2,4}\s+/.test(form.content_en || "");
+    const depthPassed = wordCount >= 300 && hasHeadings;
+    if (depthPassed) score += 15;
+    else if (wordCount >= 100) score += 8;
+    checks.push({
+      label: "Article Depth & Headings (H2/H3)",
+      passed: depthPassed,
+      tip: `${wordCount} words, ${hasHeadings ? "structured with Markdown headings" : "headings missing"} (Target: 300+ words with H2/H3)`,
+    });
+
+    // 6. Clean URL Slug
+    const slugValid = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(form.slug || "");
+    if (slugValid && (form.slug || "").length >= 3) score += 15;
+    else if ((form.slug || "").length > 0) score += 7;
+    checks.push({
+      label: "Clean Search-Engine-Friendly Slug",
+      passed: slugValid && (form.slug || "").length >= 3,
+      tip: form.slug ? `/blog/${form.slug}` : "Provide a hyphenated, lowercase slug",
+    });
+
+    const finalScore = Math.min(100, Math.max(0, score));
+    return {
+      score: finalScore,
+      checks,
+      grade:
+        finalScore >= 80
+          ? "🚀 Top 1 Ranking & AI Ready"
+          : finalScore >= 50
+          ? "🟡 Good - Minor Optimizations Needed"
+          : "🔴 Needs SEO & Content Work",
+      badgeColor:
+        finalScore >= 80
+          ? "text-emerald-400 bg-emerald-950/60 border-emerald-500/40"
+          : finalScore >= 50
+          ? "text-yellow-400 bg-yellow-950/60 border-yellow-500/40"
+          : "text-rose-400 bg-rose-950/60 border-rose-500/40",
+      progressColor:
+        finalScore >= 80
+          ? "bg-emerald-500"
+          : finalScore >= 50
+          ? "bg-yellow-500"
+          : "bg-rose-500",
+    };
+  }, [form]);
 
   const handleTitleChange = useCallback((val: string) => {
     setForm((prev) => ({
@@ -210,6 +320,27 @@ export default function PostEditor({
       router.push("/admin/posts");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Error deleting post");
+    }
+  }
+
+  async function handlePingIndexing() {
+    setPingingIndex(true);
+    const loadingToast = toast.loading("🚀 Pinging Google & Bing to crawl and index...");
+    try {
+      const res = await fetch("/api/admin/index-google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: form.slug }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to notify search engines");
+
+      toast.success("✅ Google & Bing notified! Sitemap and URL submitted for instant indexing.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to ping search engines");
+    } finally {
+      toast.dismiss(loadingToast);
+      setPingingIndex(false);
     }
   }
 
@@ -621,6 +752,15 @@ export default function PostEditor({
           >
             <span>📥 Auto-Fill from JSON</span>
           </button>
+          <button
+            type="button"
+            onClick={handlePingIndexing}
+            disabled={pingingIndex || !form.slug}
+            title="Submit this article and sitemap directly to Google & Bing for rapid indexing"
+            className="inline-flex items-center gap-1.5 px-3 py-1 text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg transition font-medium disabled:opacity-50"
+          >
+            <span>{pingingIndex ? "⚡ Pinging..." : "⚡ Ping Google & Bing"}</span>
+          </button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {mode === "edit" && (
@@ -665,6 +805,80 @@ export default function PostEditor({
             </button>
           ))}
         </div>
+      </div>
+
+      {/* ── Live SEO & GEO Score Meter ── */}
+      <div className="bg-gray-900/90 border border-gray-800 rounded-xl p-4 shadow-lg backdrop-blur-md transition-all">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3.5">
+            {/* Score Badge */}
+            <div
+              className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center border font-mono font-bold text-base shadow-sm shrink-0 ${seoScoreData.badgeColor}`}
+            >
+              <span>{seoScoreData.score}</span>
+              <span className="text-[9px] uppercase tracking-wider -mt-1 font-sans text-gray-400">/ 100</span>
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-bold text-white tracking-wide">Live SEO & GEO Score</span>
+                <span className={`text-[11px] px-2 py-0.5 rounded-full border font-semibold ${seoScoreData.badgeColor}`}>
+                  {seoScoreData.grade}
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Real-time check for Google SERP Top 1 ranking & AI Overviews (ChatGPT, Perplexity, Gemini).
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowSeoDetails(!showSeoDetails)}
+              className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 rounded-lg transition flex items-center gap-1"
+            >
+              <span>{showSeoDetails ? "Hide Checklist ▲" : "View Checklist ▼"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handlePingIndexing}
+              disabled={pingingIndex || !form.slug}
+              className="px-3 py-1.5 text-xs bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/50 rounded-lg transition font-medium flex items-center gap-1 disabled:opacity-50"
+            >
+              <span>{pingingIndex ? "⚡ Pinging..." : "⚡ Ping Google"}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-full bg-gray-800 h-2 rounded-full mt-3 overflow-hidden">
+          <div
+            className={`h-full transition-all duration-500 ${seoScoreData.progressColor}`}
+            style={{ width: `${seoScoreData.score}%` }}
+          />
+        </div>
+
+        {/* Detailed Checklist */}
+        {showSeoDetails && (
+          <div className="mt-4 pt-4 border-t border-gray-800 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            {seoScoreData.checks.map((c, i) => (
+              <div
+                key={i}
+                className={`p-2.5 rounded-lg border flex items-start gap-2.5 ${
+                  c.passed
+                    ? "bg-emerald-950/20 border-emerald-900/40 text-emerald-300"
+                    : "bg-gray-950/60 border-gray-800 text-gray-400"
+                }`}
+              >
+                <span className="text-sm mt-0.5">{c.passed ? "✅" : "⚠️"}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold block text-gray-200">{c.label}</span>
+                  <span className="text-[11px] text-gray-400 block mt-0.5">{c.tip}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── English Tab ── */}

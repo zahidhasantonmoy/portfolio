@@ -22,6 +22,20 @@ export default async function Image({
   const categoryColor = post?.categories?.color || "#6366f1";
   const readTime = post?.read_time_min ? `${post.read_time_min} মিনিট পাঠ` : "৩ মিনিট পাঠ";
 
+  // Load Bengali font from fast CDN with edge caching to render crisp Bengali script without tofu boxes
+  let fontData: ArrayBuffer | null = null;
+  try {
+    const fontRes = await fetch(
+      "https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSansBengali/NotoSansBengali-Bold.ttf",
+      { cache: "force-cache" }
+    );
+    if (fontRes.ok) {
+      fontData = await fontRes.arrayBuffer();
+    }
+  } catch (err) {
+    console.warn("Noto Sans Bengali font load fallback:", err);
+  }
+
   return new ImageResponse(
     (
       <div
@@ -33,7 +47,7 @@ export default async function Image({
           justifyContent: "space-between",
           padding: "70px 80px",
           background: "linear-gradient(135deg, #090d16 0%, #111827 50%, #1e1b4b 100%)",
-          fontFamily: "sans-serif",
+          fontFamily: fontData ? "'Noto Sans Bengali', sans-serif" : "sans-serif",
           color: "white",
         }}
       >
@@ -143,6 +157,16 @@ export default async function Image({
     ),
     {
       ...size,
+      fonts: fontData
+        ? [
+            {
+              name: "Noto Sans Bengali",
+              data: fontData,
+              style: "normal",
+              weight: 700,
+            },
+          ]
+        : undefined,
     }
   );
 }
