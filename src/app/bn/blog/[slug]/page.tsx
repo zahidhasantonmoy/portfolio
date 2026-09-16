@@ -32,6 +32,16 @@ export async function generateMetadata({
       url: `${base}/bn/blog/${slug}`,
       type: "article",
       publishedTime: post.published_at ?? undefined,
+      authors: ["Zahid Hasan Tonmoy"],
+      images: post.cover_image_url
+        ? [{ url: post.cover_image_url, width: 1200, height: 630, alt: title }]
+        : [{ url: `${base}/bn/blog/${slug}/opengraph-image`, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: post.cover_image_url ? [post.cover_image_url] : [`${base}/bn/blog/${slug}/opengraph-image`],
     },
     alternates: {
       canonical: `${base}/bn/blog/${slug}`,

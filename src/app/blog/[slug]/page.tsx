@@ -43,13 +43,13 @@ export async function generateMetadata({
       authors: ["Zahid Hasan Tonmoy"],
       images: post.cover_image_url
         ? [{ url: post.cover_image_url, width: 1200, height: 630, alt: title }]
-        : [],
+        : [{ url: `${base}/blog/${slug}/opengraph-image`, width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: post.cover_image_url ? [post.cover_image_url] : [],
+      images: post.cover_image_url ? [post.cover_image_url] : [`${base}/blog/${slug}/opengraph-image`],
     },
     alternates: {
       canonical: `${base}/blog/${slug}`,

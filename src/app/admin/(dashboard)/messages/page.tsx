@@ -8,6 +8,7 @@ async function markAsRead(id: string) {
   await sql`UPDATE contact_messages SET status = 'read' WHERE id = ${id}`;
   revalidatePath("/admin/messages");
   revalidatePath("/admin"); // update unread count on dashboard
+  revalidatePath("/admin", "layout");
 }
 
 async function markAsUnread(id: string) {
@@ -15,6 +16,7 @@ async function markAsUnread(id: string) {
   await sql`UPDATE contact_messages SET status = 'unread' WHERE id = ${id}`;
   revalidatePath("/admin/messages");
   revalidatePath("/admin"); // update unread count on dashboard
+  revalidatePath("/admin", "layout");
 }
 
 async function deleteMessage(id: string) {
@@ -22,6 +24,7 @@ async function deleteMessage(id: string) {
   await sql`DELETE FROM contact_messages WHERE id = ${id}`;
   revalidatePath("/admin/messages");
   revalidatePath("/admin"); // update unread count on dashboard
+  revalidatePath("/admin", "layout");
 }
 
 export default async function MessagesPage() {

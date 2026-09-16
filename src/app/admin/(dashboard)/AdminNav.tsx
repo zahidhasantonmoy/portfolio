@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -16,9 +17,44 @@ const navItems = [
   { href: "/", label: "← View Site", icon: "🌐", external: true },
 ];
 
-export default function AdminNav({ userEmail }: { userEmail: string }) {
+export default function AdminNav({
+  userEmail,
+  initialUnreadCount = 0,
+}: {
+  userEmail: string;
+  initialUnreadCount?: number;
+}) {
   const pathname = usePathname();
   const router = useRouter();
+  const [unreadCount, setUnreadCount] = useState<number>(initialUnreadCount);
+
+  useEffect(() => {
+    setUnreadCount(initialUnreadCount);
+  }, [initialUnreadCount]);
+
+  // Polling for live new messages every 30 seconds
+  useEffect(() => {
+    let isMounted = true;
+    async function checkNotifications() {
+      try {
+        const res = await fetch("/api/admin/notifications");
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && typeof data.unreadMessages === "number") {
+            setUnreadCount(data.unreadMessages);
+          }
+        }
+      } catch {
+        // silent polling catch
+      }
+    }
+
+    const interval = setInterval(checkNotifications, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   async function handleLogout() {
     await signOut({ callbackUrl: "/admin/login" });
@@ -46,6 +82,8 @@ export default function AdminNav({ userEmail }: { userEmail: string }) {
             ? pathname === "/admin"
             : pathname.startsWith(item.href) && item.href !== "/";
 
+          const isMessages = item.href === "/admin/messages";
+
           return item.external ? (
             <Link
               key={item.href}
@@ -60,14 +98,24 @@ export default function AdminNav({ userEmail }: { userEmail: string }) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition relative ${
                 isActive
                   ? "bg-indigo-600 text-white font-medium"
                   : "text-gray-400 hover:text-white hover:bg-gray-800"
               }`}
             >
-              <span>{item.icon}</span>
+              <span className="relative">
+                {item.icon}
+                {isMessages && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+                )}
+              </span>
               <span>{item.label}</span>
+              {isMessages && unreadCount > 0 && (
+                <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500 text-white shadow-sm shadow-rose-500/30">
+                  {unreadCount}
+                </span>
+              )}
             </Link>
           );
         })}

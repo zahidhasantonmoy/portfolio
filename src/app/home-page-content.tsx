@@ -23,16 +23,42 @@ const Contact = dynamic(() => import('@/components/Contact'), { ssr: true });
 
 export default function HomePageContent({ dbProjects, dbSkills }: { dbProjects?: any[], dbSkills?: any[] }) {
   // Map DB projects to frontend expected format
-  const mappedProjects = (dbProjects && dbProjects.length > 0) ? dbProjects.map(p => ({
-    id: p.id,
-    title: p.title,
-    description: p.description,
-    images: p.image_url ? [p.image_url] : [],
-    githubUrl: p.github_url || "",
-    liveUrl: p.live_url || "",
-    category: "Full Stack", // Fallback since DB doesn't have category
-    technologies: p.tech_stack || []
-  })) : data.projects;
+  const mappedProjects = (dbProjects && dbProjects.length > 0) ? dbProjects.map(p => {
+    const matching = data.projects.find((dp: any) => 
+      dp.title.toLowerCase() === (p.title || "").toLowerCase() || 
+      dp.id === String(p.id)
+    );
+    const techStack: string[] = p.tech_stack || matching?.technologies || [];
+    const techStr = techStack.join(" ").toLowerCase();
+
+    let category = p.category || matching?.category;
+    if (!category) {
+      if (/flutter|android|react native|mobile|ios/i.test(techStr) || /app|flexpath/i.test(p.title || "")) {
+        category = "Mobile App";
+      } else if (/python|scikit|pandas|machine learning|deep learning|keras|tensorflow|ai|regression|predict/i.test(techStr)) {
+        category = "AI/ML";
+      } else if (/iot|esp32|micropython|arduino|sensor|drainage/i.test(techStr)) {
+        category = "IoT";
+      } else if (/security|encryption|aes|argon|cyber|shield|vault/i.test(techStr)) {
+        category = "Cybersecurity";
+      } else if (/next\.js|react|mongo|node|express|mern|php|sql|mysql|ecommerce/i.test(techStr)) {
+        category = "Web Development";
+      } else {
+        category = "Full Stack";
+      }
+    }
+
+    return {
+      id: p.id,
+      title: p.title,
+      description: p.description,
+      images: p.image_url ? [p.image_url] : (matching?.images || []),
+      githubUrl: p.github_url || matching?.githubUrl || "",
+      liveUrl: p.live_url || matching?.liveUrl || "",
+      category: category,
+      technologies: techStack
+    };
+  }) : data.projects;
 
   // Group DB skills by category
   let mappedSkills = data.skills;

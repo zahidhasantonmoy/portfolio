@@ -28,14 +28,20 @@ const Projects = ({ projects }: ProjectsProps) => {
   const { playClick } = useAudio();
 
   // Extract unique categories and add 'All'
-  const categories = ['All', ...Array.from(new Set(projects.map((project) => project.category)))];
+  const rawCategories = Array.from(new Set(projects.map((project) => project.category || 'General')));
+  const categories = ['All', ...rawCategories];
+
+  const getCategoryCount = (cat: string) => {
+    if (cat === 'All') return projects.length;
+    return projects.filter((p) => (p.category || 'General') === cat).length;
+  };
 
   // Logic: 
   // 1. Filter by Category first (existing behavior)
   // 2. Then visually highlight/dim based on selectedSkill
   const filteredProjects = selectedCategory === 'All'
     ? projects
-    : projects.filter((project) => project.category === selectedCategory);
+    : projects.filter((project) => (project.category || 'General') === selectedCategory);
 
   return (
     <section id="projects" className="py-20 bg-white dark:bg-gray-900 transition-colors duration-300">
@@ -51,19 +57,43 @@ const Projects = ({ projects }: ProjectsProps) => {
         </motion.h2>
 
         {/* Category Filter Buttons */}
-        <div className="flex flex-wrap justify-center gap-4 mb-8">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === category
-                ? 'bg-blue-600 text-white shadow-lg scale-105'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+        <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 mb-12">
+          {categories.map((category) => {
+            const count = getCategoryCount(category);
+            const isSelected = selectedCategory === category;
+            return (
+              <button
+                key={category}
+                onClick={() => {
+                  playClick();
+                  setSelectedCategory(category);
+                }}
+                className={`relative px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+                  isSelected
+                    ? 'text-white shadow-lg shadow-blue-500/25 scale-105'
+                    : 'bg-gray-100 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-transparent dark:border-gray-700/50'
                 }`}
-            >
-              {category}
-            </button>
-          ))}
+              >
+                {isSelected && (
+                  <motion.div
+                    layoutId="activeProjectCategory"
+                    className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full -z-10"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <span>{category}</span>
+                <span
+                  className={`text-[11px] px-1.5 py-0.5 rounded-full font-mono transition-colors ${
+                    isSelected
+                      ? 'bg-white/20 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Global Filter Indicator */}

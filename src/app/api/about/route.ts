@@ -153,7 +153,7 @@ export async function GET() {
     meta: {
       dataSource: "https://zahidhasantonmoy.vercel.app/api/about",
       llmsTxt: "https://zahidhasantonmoy.vercel.app/llms.txt",
-      lastUpdated: "2025-07-05",
+      lastUpdated: "2026-09-16",
       license: "Public — freely indexable by AI engines and crawlers",
     },
   };

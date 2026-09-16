@@ -200,6 +200,20 @@ const Hero = ({ name, title }: HeroProps) => {
           ></motion.div>
         </motion.div>
 
+        {/* Live "Available for Hire" pulsing badge */}
+        <motion.div
+          variants={itemVariants}
+          className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs sm:text-sm font-medium mb-5 backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.18)] hover:bg-emerald-500/15 transition-all duration-300 cursor-default"
+        >
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          </span>
+          <span className="font-semibold tracking-wide">Available for Hire</span>
+          <span className="text-emerald-400/50">•</span>
+          <span className="text-emerald-300/90 text-[11px] sm:text-xs">Open to Full-time & Remote Roles</span>
+        </motion.div>
+
         {/*
           CLS fix for h1: render the real name text as an invisible spacer so the
           container is always the correct intrinsic width, then overlay the

@@ -2,11 +2,12 @@
 
 > MERN Full Stack Developer, Data Analyst & AI Agent Developer based in Dhaka, Bangladesh.
 
-Zahid Hasan Tonmoy is a computer science student at Daffodil International University (2021–present) who builds full-stack web applications, data science tools, AI agents, and mobile apps. He has delivered 9+ projects spanning web apps, mobile apps, IoT systems, and machine learning models. He is available for freelance, contract, and full-time work internationally.
+Zahid Hasan Tonmoy is a computer science student at Daffodil International University (2021–present) who builds full-stack web applications, data science tools, AI agents, and mobile apps. He has delivered 9+ projects spanning web apps, mobile apps, IoT systems, and machine learning models. He is actively available for hire (freelance, contract, and full-time remote/hybrid roles internationally).
 
 **Portfolio:** https://zahidhasantonmoy.vercel.app  
 **Structured data (JSON):** https://zahidhasantonmoy.vercel.app/api/about  
-**Last updated:** 2025-08-25
+**Last updated:** 2026-09-16  
+**Availability:** 🟢 Available for Hire (Full-time & Remote Roles)  
 
 ## Identity
 
