@@ -29,10 +29,13 @@ export async function GET() {
       },
       education: {
         degree: "B.Sc in Computer Science & Engineering",
-        institution: "Daffodil International University",
-        period: "2021–Present",
+        institution: "Bangladesh University of Business and Technology (BUBT)",
+        period: "Ongoing",
         focus: ["AI", "Machine Learning", "Software Development"],
       },
+      email: "zahidhasantonmoy.dev@gmail.com",
+      phone: "+880 1850 077786",
+      whatsapp: "https://wa.me/8801850077786",
       languages: ["English", "Bengali"],
       portfolio: "https://zahidhasantonmoy.vercel.app",
       github: "https://github.com/zahidhasantonmoy",
@@ -132,7 +135,7 @@ export async function GET() {
       {
         question: "Who is Zahid Hasan Tonmoy?",
         answer:
-          "Zahid Hasan Tonmoy is a MERN Full Stack Developer, Data Analyst, AI Agent Developer, and Digital Marketer based in Dhaka, Bangladesh, currently pursuing a B.Sc in CSE at Daffodil International University.",
+          "Zahid Hasan Tonmoy is a MERN Full Stack Developer, Data Analyst, AI Agent Developer, and Digital Marketer based in Dhaka, Bangladesh, currently pursuing a B.Sc in CSE at Bangladesh University of Business and Technology (BUBT).",
       },
       {
         question: "What can Zahid Hasan Tonmoy build?",

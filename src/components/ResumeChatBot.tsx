@@ -23,11 +23,11 @@ const INITIAL_MESSAGE: Message = {
 };
 
 const SUGGESTIONS = [
-  '🚀 Top Projects (Flexpath & AI Apps)',
+  '📧 Email & Phone Number',
+  '🚀 Top Projects (Flexpath & AI)',
+  '🎓 Education & University (BUBT)',
   '💼 Full Tech Stack & Skills',
-  '✍️ Latest Blog Posts & Dev Journals',
-  '📄 Download Resume (CV)',
-  '📬 How to hire or contact Zahid?',
+  '📄 Download Resume (PDF)',
   '🇧🇩 বাংলায় তথ্য জানতে চাই',
 ];
 
@@ -105,15 +105,39 @@ export default function ResumeChatBot() {
       }
       const linkMatch = part.match(/^\[(.*?)\]\((.*?)\)$/);
       if (linkMatch) {
+        const linkText = linkMatch[1];
+        const href = linkMatch[2];
+        const isInternalAnchor = href.startsWith('#');
+        const isDirectAction = href.startsWith('mailto:') || href.startsWith('tel:');
+
+        if (isInternalAnchor) {
+          return (
+            <a
+              key={index}
+              href={href}
+              onClick={(e) => {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                  target.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="text-blue-400 hover:text-blue-300 underline font-medium cursor-pointer"
+            >
+              {linkText}
+            </a>
+          );
+        }
+
         return (
           <a
             key={index}
-            href={linkMatch[2]}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={href}
+            target={isDirectAction ? undefined : '_blank'}
+            rel={isDirectAction ? undefined : 'noopener noreferrer'}
             className="text-blue-400 hover:text-blue-300 underline font-medium"
           >
-            {linkMatch[1]}
+            {linkText}
           </a>
         );
       }

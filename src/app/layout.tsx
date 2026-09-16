@@ -167,13 +167,15 @@ export default function RootLayout({
                 "description": "Designs and builds full-stack web applications using MongoDB, Express.js, React, and Node.js. Also specialises in data analysis and AI agent development.",
                 "skills": "MongoDB, Express.js, React, Node.js, TypeScript, REST API, Next.js, Python, Machine Learning, Data Analysis"
               },
+              "email": "mailto:zahidhasantonmoy.dev@gmail.com",
+              "telephone": "+8801850077786",
 
               // ── Education ──────────────────────────────────────────────
               "alumniOf": [
                 {
                   "@type": "CollegeOrUniversity",
-                  "name": "Daffodil International University",
-                  "sameAs": "https://daffodilvarsity.edu.bd",
+                  "name": "Bangladesh University of Business and Technology (BUBT)",
+                  "sameAs": "https://www.bubt.edu.bd",
                   "address": {
                     "@type": "PostalAddress",
                     "addressLocality": "Dhaka",
@@ -182,13 +184,13 @@ export default function RootLayout({
                 },
                 {
                   "@type": "EducationalOrganization",
-                  "name": "Milestone College",
-                  "description": "Higher Secondary Certificate (HSC) — 2018–2020"
+                  "name": "Dhaka Udyan Government College",
+                  "description": "Higher Secondary Certificate (HSC) — 2019"
                 },
                 {
                   "@type": "EducationalOrganization",
-                  "name": "Faizur Rahman Ideal Institute",
-                  "description": "Secondary School Certificate (SSC) — 2016–2018"
+                  "name": "Moharkaya High School",
+                  "description": "Secondary School Certificate (SSC) — 2017"
                 }
               ],
 
@@ -300,7 +302,7 @@ export default function RootLayout({
                   "name": "Who is Zahid Hasan Tonmoy?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Zahid Hasan Tonmoy is a MERN Full Stack Developer, Data Analyst, AI Agent Developer, and Digital Marketer based in Dhaka, Bangladesh. He is currently pursuing a B.Sc in Computer Science & Engineering at Daffodil International University and has built 9+ projects spanning web apps, mobile apps, IoT, and machine learning."
+                    "text": "Zahid Hasan Tonmoy is a MERN Full Stack Developer, Data Analyst, AI Agent Developer, and Digital Marketer based in Dhaka, Bangladesh. He is currently pursuing a B.Sc in Computer Science & Engineering at Bangladesh University of Business and Technology (BUBT) and has built 9+ projects spanning web apps, mobile apps, IoT, and machine learning."
                   }
                 },
                 {
@@ -340,7 +342,7 @@ export default function RootLayout({
                   "name": "What is Zahid Hasan Tonmoy's educational background?",
                   "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Zahid is currently pursuing a B.Sc in Computer Science & Engineering at Daffodil International University (2021–present), with a focus on AI, Machine Learning, and Software Development. He won a Software Development Competition in 2024 and completed a Data Analysis Internship at Tech Solutions Ltd. in 2022."
+                    "text": "Zahid is currently pursuing a B.Sc in Computer Science & Engineering at Bangladesh University of Business and Technology (BUBT), with a focus on AI, Machine Learning, and Software Development. He won a Software Development Competition in 2024 and completed a Data Analysis Internship at Tech Solutions Ltd. in 2022."
                   }
                 }
               ]

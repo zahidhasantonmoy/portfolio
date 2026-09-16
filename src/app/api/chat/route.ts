@@ -7,77 +7,103 @@ import { sql } from "@/lib/db";
 export const maxDuration = 30; // Max allowed serverless duration on Vercel
 export const dynamic = "force-dynamic";
 
-// Core static projects data
+// Complete Contact Details
+const CONTACT_DETAIL = `
+• Email: zahidhasantonmoy.dev@gmail.com (mailto:zahidhasantonmoy.dev@gmail.com)
+• Phone / Mobile: +880 1850 077786 (tel:+8801850077786)
+• WhatsApp: +880 1850 077786 (https://wa.me/8801850077786)
+• Location: Dhaka, Bangladesh (Works remotely with teams worldwide)
+• LinkedIn: https://www.linkedin.com/in/zahidhasantonmoy/
+• GitHub: https://github.com/zahidhasantonmoy
+• Portfolio Live Site: https://zahidhasantonmoy.vercel.app/
+• Direct Contact Form: https://zahidhasantonmoy.vercel.app/#contact
+• Resume PDF: https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf
+`;
+
+// Education Details (Accurately matching portfolio timeline)
+const EDUCATION_DETAIL = `
+1. Undergraduate Degree (Ongoing):
+   • Degree: B.Sc. in Computer Science & Engineering (CSE)
+   • Institution: Bangladesh University of Business and Technology (BUBT), Dhaka
+   • Focus: Artificial Intelligence (AI), Machine Learning, and Full Stack Web & Mobile Development.
+
+2. Higher Secondary Certificate (HSC) (2019):
+   • Institution: Dhaka Udyan Government College, Dhaka
+   • Result: GPA 5.00 (Golden A+)
+   • Background: Science & Mathematics
+
+3. Secondary School Certificate (SSC) (2017):
+   • Institution: Moharkaya High School
+   • Result: GPA 4.78
+   • Background: Science
+`;
+
+// Achievements & Certifications
+const ACHIEVEMENTS_DETAIL = `
+• 1st Place / Winner: Software Development Competition (2024, Dhaka, Bangladesh)
+• 2nd Position: Project Showcase (2024, Brainstorming Week, BUBT CSE Department)
+• Top Performer: Digital Marketing Certification Program (2025, BUBT–TAFE)
+• Certified: Kaggle Intro to Machine Learning (2025)
+• Certified: Cyber Hygiene Training (2025, Google.org & The Asia Foundation)
+• Internship: Data Analysis Intern at Tech Solutions Ltd. (2022)
+`;
+
+// Featured Projects Catalog (All 9+ featured projects)
 const STATIC_PROJECTS_DETAIL = `
 1. Flexpath (Mobile App & Gig Economy Platform)
    • Stack: Flutter 3.x, Supabase (PostgreSQL, Auth, Realtime, Storage)
    • Features: NID verification with admin approval, job seeker and employer panels, real-time in-app chat, role-based dashboards, ratings and reviews.
-   • Links: GitHub: https://github.com/zahidhasantonmoy/Flexpath
+   • Links: [GitHub](https://github.com/zahidhasantonmoy/Flexpath)
 
 2. Gold Price Predictor (Machine Learning App)
    • Stack: Python, Scikit-learn, Flask, Pandas, NumPy, Matplotlib
    • Features: High-accuracy regression model (R² ≈ 0.9999) forecasting daily gold prices based on historical economic indicators.
-   • Links: Live Demo: https://gold-price-predictor-2f1h.onrender.com/
+   • Links: [Live Demo](https://gold-price-predictor-2f1h.onrender.com/)
 
 3. Curious Cart BD (Full-Stack E-Commerce Platform)
    • Stack: Next.js, React, TypeScript, Tailwind CSS, REST API
    • Features: Modern product catalog, interactive cart, checkout flow, responsive UI, search & filtering.
-   • Links: Live Demo: https://curiouscart.vercel.app/
+   • Links: [Live Demo](https://curiouscart.vercel.app/) | [GitHub](https://github.com/zahidhasantonmoy/curious_cart_bd)
 
 4. Jerseyvault (Sports E-Commerce Platform)
    • Stack: React, Supabase, PostgreSQL, Tailwind CSS
    • Features: Live order tracking, wishlist, real-time inventory management, product reviews, cart management.
-   • Links: Live Demo: https://jerseyvault.vercel.app/
+   • Links: [Live Demo](https://jerseyvault.vercel.app/) | [GitHub](https://github.com/zahidhasantonmoy/Jerseyvault)
 
 5. Vortex Shield (Cybersecurity File Encryption Suite)
    • Stack: Python, CustomTkinter, React, TypeScript, Cryptography
-   • Features: 256-bit AES-GCM military-grade file encryption with Argon2id password key derivation, integrity checking.
-   • Links: Live Demo: https://protocolzero.vercel.app/
+   • Features: 256-bit AES-GCM military-grade file encryption with Argon2id password key derivation, duress mode, 3-pass wipe.
+   • Links: [Live Demo](https://protocolzero.vercel.app/)
 
 6. LocalDrop Pro (P2P File Transfer PWA)
    • Stack: React, PeerJS (WebRTC), Tailwind CSS, PWA
-   • Features: Instant browser-to-browser direct peer-to-peer file transfer with AES-GCM encryption, zero server storage.
-   • Links: Live Demo: https://localdrop-one.vercel.app/
+   • Features: Instant browser-to-browser direct peer-to-peer file transfer with AES-GCM encryption, zero server storage, QR pairing.
+   • Links: [Live Demo](https://localdrop-one.vercel.app/)
 
 7. Smart Drainage System (IoT Flood Prevention)
    • Stack: ESP32-S3, MicroPython, Firebase Realtime Database, Android App
    • Features: Automated water-level monitoring, blockage detection, real-time flood alerts.
-   • Links: GitHub: https://github.com/zahidhasantonmoy/smartdrainagesystem
+   • Links: [GitHub](https://github.com/zahidhasantonmoy/smartdrainagesystem)
 
 8. Halarnati (Cloud File & Text Sharing)
    • Stack: PHP, MySQL, Apache, Bootstrap
    • Features: Secure file and note sharing platform for Bangladeshi students and developers.
-   • Links: Live Demo: https://halarnati.free.nf/
+   • Links: [Live Demo](https://halarnati.free.nf/)
 
 9. OffenseOrbit (Crime Reporting & Management)
    • Stack: PHP, MySQL, Bootstrap
    • Features: Citizen crime reporting portal with geo-tagging and law enforcement investigation workflow.
-   • Links: GitHub: https://github.com/zahidhasantonmoy/OffenseOrbit
+   • Links: [GitHub](https://github.com/zahidhasantonmoy/OffenseOrbit)
 `;
 
 const SKILLS_DETAIL = `
-• MERN Stack: MongoDB, Express.js, React, Node.js, Next.js, TypeScript, REST APIs, JWT Auth, Redux, Mongoose
-• Frontend Engineering: React 18, Next.js 14 (App Router), Tailwind CSS, Framer Motion, Three.js, HTML5, CSS3, JavaScript (ES6+)
-• Backend & Databases: Node.js, Express, PHP, PostgreSQL (Neon Serverless), MySQL, MongoDB, Supabase, Firebase
-• AI & Machine Learning: AI Agent Development, Google Gemini API, Groq, LangChain principles, Python, TensorFlow, Keras, Scikit-learn, PyTorch, Pandas, NumPy
-• Mobile: Flutter (Dart), Supabase, Firebase
-• Digital Marketing & SEO: Generative Engine Optimization (GEO), Schema.org (JSON-LD), SEO, SEM, Google Analytics
-• DevOps & Tools: Docker, Git, GitHub, Vercel, VS Code
-`;
-
-const ACHIEVEMENTS_DETAIL = `
-• Software Development Competition Winner 2024 (1st Place, Dhaka, Bangladesh)
-• Project Showcase 2nd Place 2024 (BUBT CSE Department)
-• Kaggle Intro to Machine Learning Certification (2025)
-• BUBT–TAFE Digital Marketing Top Performer (2025)
-• Google.org & Asia Foundation Cyber Hygiene Training (2025)
-• Data Analysis Internship at Tech Solutions Ltd. (2022)
-`;
-
-const EDUCATION_DETAIL = `
-• B.Sc. in Computer Science & Engineering (2021 – Present) at Daffodil International University (DIU), Dhaka
-• Higher Secondary Certificate (HSC) (2018 – 2020) at Milestone College, Dhaka
-• Secondary School Certificate (SSC) (2016 – 2018) at Faizur Rahman Ideal Institute, Dhaka
+• MERN Stack & Backend: MongoDB, Express.js, React, Node.js, Next.js, TypeScript, REST APIs, JWT Auth, Redux, Mongoose, PHP
+• Databases: PostgreSQL (Neon Serverless), MySQL, Supabase, Firebase Realtime Database
+• AI & Data Science: Google Gemini API, Groq, Python, TensorFlow, Keras, Scikit-learn, PyTorch, Pandas, NumPy, Matplotlib, LangChain concepts
+• Frontend & UI: React 18, Next.js 14 (App Router), Tailwind CSS, Framer Motion, Three.js, HTML5, CSS3, JavaScript (ES6+)
+• Mobile: Flutter (Dart) for cross-platform iOS & Android
+• Digital Marketing & SEO: Generative Engine Optimization (GEO), Schema.org (JSON-LD), Technical SEO, SEM, Google Analytics
+• Tools & DevOps: Docker, Git, GitHub, Vercel, VS Code
 `;
 
 const SITE_NAVIGATION_GUIDE = `
@@ -93,11 +119,9 @@ const SITE_NAVIGATION_GUIDE = `
 • Dev Journal (Daily Dev Logs): https://zahidhasantonmoy.vercel.app/journal
 • Newsletter: https://zahidhasantonmoy.vercel.app/newsletter
 • Resume (PDF Download): https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf
-• GitHub Profile: https://github.com/zahidhasantonmoy
-• LinkedIn Profile: https://www.linkedin.com/in/zahidhasantonmoy/
 `;
 
-// In-memory cache for dynamic DB context to avoid hitting Neon DB on every chat message
+// In-memory cache for dynamic DB context
 let cachedContext = "";
 let lastContextFetch = 0;
 const CONTEXT_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
@@ -108,9 +132,8 @@ async function getDynamicSiteContext(): Promise<string> {
     return cachedContext;
   }
 
-  const staticArticles = "\nPUBLISHED BLOG ARTICLES:\n• Practicing Laravel Blade Templates with Dynamic Data: https://zahidhasantonmoy.vercel.app/blog/practicing-laravel-blade-templates-with-dynamic-data\n• Explore tutorials on Laravel, React, Next.js, and PostgreSQL at https://zahidhasantonmoy.vercel.app/blog\n";
+  const staticArticles = "\nPUBLISHED ARTICLES ON BLOG:\n• Practicing Laravel Blade Templates with Dynamic Data: https://zahidhasantonmoy.vercel.app/blog/practicing-laravel-blade-templates-with-dynamic-data\n• More tutorials on Laravel, PHP, React, PostgreSQL at https://zahidhasantonmoy.vercel.app/blog\n";
 
-  // Race DB query with a 1.5s timeout so DB cold starts never stall the chat
   const dbFetchPromise = Promise.all([
     sql`SELECT title_en, title_bn, slug, excerpt_en FROM posts WHERE status = 'published' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 6`.catch(() => []),
     sql`SELECT log_date, title_en, title_bn FROM dev_logs ORDER BY log_date DESC LIMIT 4`.catch(() => []),
@@ -121,9 +144,7 @@ async function getDynamicSiteContext(): Promise<string> {
 
   try {
     const result = await Promise.race([dbFetchPromise, timeoutPromise]);
-    if (!result) {
-      return cachedContext || staticArticles;
-    }
+    if (!result) return cachedContext || staticArticles;
 
     const [posts, journals, dbProjects] = result;
     let context = "";
@@ -145,7 +166,7 @@ async function getDynamicSiteContext(): Promise<string> {
       context += journals
         .map(
           (j: any) =>
-            `• [${j.log_date}] "${j.title_en}" (${j.title_bn || ""}) - https://zahidhasantonmoy.vercel.app/journal/${j.log_date}`
+            `• [${j.log_date}] "${j.title_en}" - https://zahidhasantonmoy.vercel.app/journal/${j.log_date}`
         )
         .join("\n");
     }
@@ -173,8 +194,8 @@ function buildSystemPrompt(dynamicContext: string): string {
 You are "Tonmoy AI", the intelligent, friendly, and articulate personal AI representative and portfolio assistant for Zahid Hasan Tonmoy (জাহিদ হাসান তন্ময়).
 
 YOUR ROLE:
-Represent Zahid accurately, warmly, and professionally to recruiters, engineering leaders, potential clients, students, and collaborators.
-You know EVERYTHING about this portfolio site, his background, his projects, skills, blog articles, dev journals, and achievements.
+Represent Zahid accurately, warmly, and professionally to recruiters, engineering leaders, clients, students, and collaborators.
+You know EVERYTHING about this portfolio site, his background, contact info, projects, skills, blog articles, dev journals, education, and achievements.
 
 ABOUT ZAHID HASAN TONMOY:
 - Full Name: Zahid Hasan Tonmoy (জাহিদ হাসান তন্ময়)
@@ -183,170 +204,190 @@ ABOUT ZAHID HASAN TONMOY:
 - Current Status: Open for full-time software engineering roles, contract work, and high-impact freelance projects.
 - Bio: ${profileData.aboutMe}
 
-EDUCATION:
+DIRECT CONTACT DETAILS (ALWAYS SHARE FREELY WHEN ASKED):
+${CONTACT_DETAIL}
+
+ACADEMIC BACKGROUND & EDUCATION:
 ${EDUCATION_DETAIL}
+
+HONORS, AWARDS & CERTIFICATIONS:
+${ACHIEVEMENTS_DETAIL}
 
 TECHNICAL EXPERTISE:
 ${SKILLS_DETAIL}
 
-ALL FEATURED PROJECTS:
+ALL 9+ FEATURED PROJECTS:
 ${STATIC_PROJECTS_DETAIL}
 
-ACHIEVEMENTS & CERTIFICATIONS:
-${ACHIEVEMENTS_DETAIL}
-
-SERVICES OFFERED:
-1. Full Stack Web Development (MERN, Next.js, PostgreSQL/MongoDB, TypeScript)
-2. Custom AI Agent & Chatbot Development (Gemini API, Groq, automation workflows)
-3. Mobile App Development (Flutter, Supabase, Firebase)
-4. Data Analysis & Machine Learning (Python, Scikit-learn, predictive modeling)
-5. Performance Optimization & Technical SEO / GEO
-
-NAVIGATION LINKS ON THIS SITE:
+SITE NAVIGATION LINKS:
 ${SITE_NAVIGATION_GUIDE}
 
 ${dynamicContext}
 
 CRITICAL RULES FOR RESPONSES:
-1. BILINGUAL FLUENCY:
+1. DIRECT CONTACT & HIRING:
+   - When asked for email, phone number, WhatsApp, or how to contact/hire Zahid, ALWAYS provide:
+     • Email: [zahidhasantonmoy.dev@gmail.com](mailto:zahidhasantonmoy.dev@gmail.com)
+     • Phone / WhatsApp: [+880 1850 077786](tel:+8801850077786) ([WhatsApp Chat](https://wa.me/8801850077786))
+     • Direct Contact Form: [Contact Form](#contact)
+     • LinkedIn: [LinkedIn Profile](https://www.linkedin.com/in/zahidhasantonmoy/)
+2. UNIVERSITY / EDUCATION:
+   - When asked about university or education, state that he is pursuing B.Sc. in Computer Science & Engineering (CSE) at **Bangladesh University of Business and Technology (BUBT)**.
+   - For college: Dhaka Udyan Government College (HSC 2019, GPA 5.00).
+   - For school: Moharkaya High School (SSC 2017, GPA 4.78).
+3. BILINGUAL FLUENCY:
    - If the user writes in Bengali / Bangla (বাংলা) or Banglish, answer fluently, respectfully, and helpfully in standard Bengali (বাংলা).
    - If the user writes in English, answer in English.
-2. ACCURACY & EVIDENCE:
+4. ACCURACY & EVIDENCE:
    - Only state facts listed in this knowledge base. Do not invent details.
-   - When mentioning projects, blog posts, or sections, ALWAYS provide clickable markdown links (e.g. [Flexpath](https://github.com/zahidhasantonmoy/Flexpath), [Blog](https://zahidhasantonmoy.vercel.app/blog), [Resume PDF](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)).
-3. TONE & STRUCTURE:
-   - Be welcoming, professional, structured, and concise.
-   - Use bullet points, bold text for technologies, and clear section breaks. Keep responses concise so they generate quickly.
-4. CALL TO ACTION:
-   - If asked about hiring or contacting Zahid, guide them to the [Contact Form](https://zahidhasantonmoy.vercel.app/#contact), [LinkedIn](https://www.linkedin.com/in/zahidhasantonmoy/), [GitHub](https://github.com/zahidhasantonmoy), or encourage downloading his [Resume](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf).
+   - Provide clickable markdown links (e.g. [Flexpath](https://github.com/zahidhasantonmoy/Flexpath), [Blog](https://zahidhasantonmoy.vercel.app/blog), [Resume PDF](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)).
+5. TONE & STRUCTURE:
+   - Be welcoming, professional, structured, and concise. Use bullet points and bold text for clarity.
 `;
 }
 
+// Enhanced smart fallback covering all user intents with exact details
 function getSmartFallback(userQuery: string): string {
   const q = userQuery.toLowerCase();
 
-  if (q.includes("project") || q.includes("প্রজেক্ট") || q.includes("কাজ") || q.includes("flexpath") || q.includes("curious")) {
-    return `Zahid Hasan Tonmoy has built **9+ impactful projects** spanning web, mobile, AI, and IoT:
+  // 1. Email, Phone, Contact, WhatsApp
+  if (
+    q.includes("email") ||
+    q.includes("mail") ||
+    q.includes("phone") ||
+    q.includes("number") ||
+    q.includes("নাম্বার") ||
+    q.includes("ফোন") ||
+    q.includes("মেইল") ||
+    q.includes("ইমেইল") ||
+    q.includes("যোগাযোগ") ||
+    q.includes("contact") ||
+    q.includes("call") ||
+    q.includes("whatsapp") ||
+    q.includes("হোয়াটসঅ্যাপ") ||
+    q.includes("hire") ||
+    q.includes("হায়ার")
+  ) {
+    return `Zahid Hasan Tonmoy-এর সাথে সরাসরি যোগাযোগ করার সকল মাধ্যম নিচে দেওয়া হলো:
+
+• 📧 **Email**: [zahidhasantonmoy.dev@gmail.com](mailto:zahidhasantonmoy.dev@gmail.com)
+• 📱 **Phone / WhatsApp**: [+880 1850 077786](tel:+8801850077786) ([WhatsApp Chat](https://wa.me/8801850077786))
+• 💼 **LinkedIn**: [linkedin.com/in/zahidhasantonmoy](https://www.linkedin.com/in/zahidhasantonmoy/)
+• 🐙 **GitHub**: [github.com/zahidhasantonmoy](https://github.com/zahidhasantonmoy)
+• 📍 **Location**: Dhaka, Bangladesh (Works remotely worldwide)
+• 📬 **Direct Message**: [Contact Form](#contact)
+• 📄 **Resume**: [Download PDF](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)
+
+Zahid is actively open for **full-time remote engineering roles**, contract work, and impactful projects!`;
+  }
+
+  // 2. Education, University, BUBT, HSC, SSC
+  if (
+    q.includes("university") ||
+    q.includes("varsity") ||
+    q.includes("ভার্সিটি") ||
+    q.includes("ইউনিভার্সিটি") ||
+    q.includes("study") ||
+    q.includes("পড়াশোনা") ||
+    q.includes("education") ||
+    q.includes("bubt") ||
+    q.includes("hsc") ||
+    q.includes("ssc") ||
+    q.includes("college") ||
+    q.includes("school")
+  ) {
+    return `Zahid Hasan Tonmoy-এর শিক্ষাগত যোগ্যতা ও অ্যাকাডেমিক ব্যাকগ্রাউন্ড:
+
+• 🎓 **B.Sc. in Computer Science & Engineering (CSE)** (Ongoing)
+  **Bangladesh University of Business and Technology (BUBT)**, Dhaka
+  Focus: Artificial Intelligence, Machine Learning & Full Stack Software Development.
+
+• 📜 **Higher Secondary Certificate (HSC)** (2019)
+  **Dhaka Udyan Government College** — **GPA: 5.00 (Golden A+)**
+  Science & Mathematics.
+
+• 🏫 **Secondary School Certificate (SSC)** (2017)
+  **Moharkaya High School** — **GPA: 4.78**
+  Science.`;
+  }
+
+  // 3. Projects
+  if (
+    q.includes("project") ||
+    q.includes("প্রজেক্ট") ||
+    q.includes("কাজ") ||
+    q.includes("flexpath") ||
+    q.includes("gold") ||
+    q.includes("curious") ||
+    q.includes("jersey") ||
+    q.includes("vortex") ||
+    q.includes("localdrop")
+  ) {
+    return `Zahid Hasan Tonmoy web, mobile, AI ও IoT ডোমেইনে **9+ গুরুত্বপূর্ণ প্রজেক্ট** তৈরি করেছেন:
 
 • **[Flexpath](https://github.com/zahidhasantonmoy/Flexpath)**: Gig economy mobile platform for Bangladesh built with **Flutter & Supabase** (NID verification, real-time chat, dashboards).
 • **[Gold Price Predictor](https://gold-price-predictor-2f1h.onrender.com/)**: Machine learning regression model predicting daily gold prices ($R^2 \\approx 0.9999$) using **Python & Scikit-learn**.
 • **[Curious Cart BD](https://curiouscart.vercel.app/)**: Full-featured e-commerce platform built with **Next.js, TypeScript & Tailwind CSS**.
-• **[Jerseyvault](https://jerseyvault.vercel.app/)**: Sports merchandise platform with order tracking (**React & Supabase**).
+• **[Jerseyvault](https://jerseyvault.vercel.app/)**: Sports merchandise platform with live tracking (**React & Supabase**).
 • **[Vortex Shield](https://protocolzero.vercel.app/)**: Cybersecurity encryption suite using **AES-GCM (256-bit) & Argon2id**.
 • **[LocalDrop Pro](https://localdrop-one.vercel.app/)**: Browser-to-browser P2P file transfer via **WebRTC**.
+• **[Smart Drainage System](https://github.com/zahidhasantonmoy/smartdrainagesystem)**: IoT flood prevention with **ESP32 & MicroPython**.
 
-Explore all live demos in the **[Projects Section](https://zahidhasantonmoy.vercel.app/#projects)**!`;
+সব প্রজেক্টের লাইভ ডেমো দেখতে ভিজিট করুন **[Projects Section](https://zahidhasantonmoy.vercel.app/#projects)**!`;
   }
 
-  if (q.includes("skill") || q.includes("দক্ষতা") || q.includes("টেকনোলজি") || q.includes("stack")) {
-    return `Zahid's core technical expertise includes:
+  // 4. Skills & Tech Stack
+  if (
+    q.includes("skill") ||
+    q.includes("দক্ষতা") ||
+    q.includes("টেকনোলজি") ||
+    q.includes("stack") ||
+    q.includes("mern") ||
+    q.includes("flutter") ||
+    q.includes("python")
+  ) {
+    return `Zahid Hasan Tonmoy-এর টেকনিক্যাল স্কিল ও টেক স্ট্যাক:
 
-• **MERN & Full Stack**: React 18, Next.js 14, Node.js, Express, TypeScript, Tailwind CSS
+• **MERN & Frontend**: React 18, Next.js 14, Node.js, Express, TypeScript, Tailwind CSS, Framer Motion, Redux
 • **Databases**: PostgreSQL (Neon Serverless), MySQL, MongoDB, Supabase, Firebase
-• **Mobile Development**: Flutter & Dart (Cross-platform iOS/Android)
-• **AI & Machine Learning**: Gemini API, Groq, Scikit-learn, Python, LangChain principles
-• **DevOps & Cloud**: Docker, Git, GitHub Actions, Vercel
+• **Mobile Development**: Flutter & Dart (Cross-platform Android / iOS)
+• **AI & Machine Learning**: Gemini API, Groq, Python, Scikit-learn, TensorFlow, Keras, Pandas, NumPy
+• **Digital Marketing & SEO**: Generative Engine Optimization (GEO), Schema.org, Technical SEO, Google Analytics
+• **DevOps & Tools**: Docker, Git, GitHub Actions, Vercel
 
-Check the interactive **[Skills Section](https://zahidhasantonmoy.vercel.app/#skills)** to see the full skill matrix!`;
+বিস্তারিত দেখতে ভিজিট করুন **[Skills Section](https://zahidhasantonmoy.vercel.app/#skills)**!`;
   }
 
-  if (q.includes("blog") || q.includes("ব্লগ") || q.includes("article") || q.includes("পোস্ট") || q.includes("laravel")) {
-    return `Zahid writes technical articles and dev notes on web development:
+  // 5. Resume
+  if (q.includes("resume") || q.includes("cv") || q.includes("রেজুমে") || q.includes("সিভি")) {
+    return `Zahid Hasan Tonmoy-এর পূর্ণাঙ্গ রেজুমে এখান থেকে ডাউনলোড করতে পারেন:
+📄 **[Download Resume (PDF)](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)**
 
-• **[Laravel Blade Templates with Dynamic Data](https://zahidhasantonmoy.vercel.app/blog/practicing-laravel-blade-templates-with-dynamic-data)**: Practical guide on Blade templates, layout inheritance, and dynamic data in Laravel.
+এতে তাঁর BUBT-তে B.Sc in CSE ডিগ্রি, ৯+ প্রজেক্ট, অ্যাওয়ার্ড এবং ফুল-স্ট্যাক টেকনিক্যাল দক্ষতার বিস্তারিত রয়েছে।`;
+  }
+
+  // 6. Blog & Articles
+  if (q.includes("blog") || q.includes("ব্লগ") || q.includes("article") || q.includes("পোস্ট") || q.includes("laravel")) {
+    return `Zahid নিয়মিত ওয়েব ডেভেলপমেন্ট ও সফটওয়্যার ইঞ্জিনিয়ারিং নিয়ে টেকনিক্যাল আর্টিকেল লেখেন:
+
+• **[Laravel Blade Templates with Dynamic Data](https://zahidhasantonmoy.vercel.app/blog/practicing-laravel-blade-templates-with-dynamic-data)**: Practical guide on Blade templates, layout inheritance, and passing dynamic data in Laravel.
 • **[English Blog](https://zahidhasantonmoy.vercel.app/blog)**: Tutorials on React, Next.js, Laravel, PHP, and PostgreSQL.
-• **[Bangla Blog](https://zahidhasantonmoy.vercel.app/bn/blog)**: বাংলায় টেকনিক্যাল ব্লগ।
+• **[বাংলা ব্লগ](https://zahidhasantonmoy.vercel.app/bn/blog)**: বাংলায় প্র্যাকটিক্যাল টেকনিক্যাল টিউটোরিয়াল।
 • **[Dev Journal](https://zahidhasantonmoy.vercel.app/journal)**: Daily engineering notes and learning logs.`;
   }
 
-  if (q.includes("hire") || q.includes("contact") || q.includes("যোগাযোগ") || q.includes("হায়ার") || q.includes("email")) {
-    return `Zahid is available for **full-time remote engineering roles**, contract opportunities, and freelance projects!
+  // General Intro
+  return `Hello! I am **Tonmoy AI**, Zahid's personal AI portfolio assistant.
 
-You can connect with him via:
-• **[Contact Form](https://zahidhasantonmoy.vercel.app/#contact)** on this site (direct message)
-• **[LinkedIn](https://www.linkedin.com/in/zahidhasantonmoy/)**
-• **[GitHub](https://github.com/zahidhasantonmoy)**
-• **[Download Resume (PDF)](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)**`;
-  }
+Zahid Hasan Tonmoy (জাহিদ হাসান তন্ময়) is a **MERN Full Stack Developer, Data Analyst & AI Developer** based in Dhaka, Bangladesh (Studying B.Sc. in CSE at **BUBT**).
 
-  if (q.includes("resume") || q.includes("cv") || q.includes("রেজুমে") || q.includes("সিভি")) {
-    return `You can download Zahid Hasan Tonmoy's complete resume here:
-📄 **[Download Resume (PDF)](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)**
-
-It highlights his B.Sc. in CSE at Daffodil International University, 9+ featured projects, awards, and full-stack technical competencies.`;
-  }
-
-  return `Hello! I am **Tonmoy AI**, Zahid's portfolio assistant.
-
-Zahid Hasan Tonmoy (জাহিদ হাসান তন্ময়) is a **MERN Full Stack Developer, Data Analyst & AI Developer** based in Dhaka, Bangladesh.
-Here is how you can navigate this site:
-• 🚀 **[Featured Projects](https://zahidhasantonmoy.vercel.app/#projects)**: 9+ web, mobile & ML projects
-• 🛠️ **[Skills](https://zahidhasantonmoy.vercel.app/#skills)**: MERN, Next.js, Python, Flutter, PostgreSQL
-• ✍️ **[Technical Blog](https://zahidhasantonmoy.vercel.app/blog)** & **[বাংলা ব্লগ](https://zahidhasantonmoy.vercel.app/bn/blog)**
-• 📖 **[Dev Journal](https://zahidhasantonmoy.vercel.app/journal)**: Daily engineering logs
+Quick Navigation:
+• 📧 **Contact**: Email [zahidhasantonmoy.dev@gmail.com](mailto:zahidhasantonmoy.dev@gmail.com) | Phone [+880 1850 077786](tel:+8801850077786)
+• 🚀 **[Projects](https://zahidhasantonmoy.vercel.app/#projects)**: 9+ web, mobile & ML projects
+• 🛠️ **[Skills](https://zahidhasantonmoy.vercel.app/#skills)**: MERN, Next.js, Flutter, Python, PostgreSQL
+• ✍️ **[Blog](https://zahidhasantonmoy.vercel.app/blog)** & **[বাংলা ব্লগ](https://zahidhasantonmoy.vercel.app/bn/blog)**
 • 📄 **[Download Resume](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)**
-• 📬 **[Contact Zahid](https://zahidhasantonmoy.vercel.app/#contact)** or reach him on **[LinkedIn](https://www.linkedin.com/in/zahidhasantonmoy/)**!`;
-}
-
-// Direct Google Generative Language REST fetch with strict timeout
-async function callGeminiRest(
-  apiKey: string,
-  model: string,
-  systemPrompt: string,
-  history: { role: string; content: string }[],
-  userMessage: string,
-  timeoutMs: number = 4500
-): Promise<string> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const contents = [
-      ...history.map((m) => ({
-        role: m.role === "assistant" ? "model" : "user",
-        parts: [{ text: m.content }],
-      })),
-      {
-        role: "user",
-        parts: [{ text: userMessage }],
-      },
-    ];
-
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: systemPrompt }],
-          },
-          contents,
-          generationConfig: {
-            maxOutputTokens: 750,
-            temperature: 0.6,
-          },
-        }),
-      }
-    );
-
-    clearTimeout(timeoutId);
-
-    if (!res.ok) {
-      const errBody = await res.text().catch(() => "");
-      console.warn(`[Gemini REST ${model}] HTTP ${res.status}:`, errBody.slice(0, 150));
-      return "";
-    }
-
-    const data = await res.json();
-    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    return replyText || "";
-  } catch (err: any) {
-    clearTimeout(timeoutId);
-    console.warn(`[Gemini REST ${model}] failed or timed out:`, err?.message);
-    return "";
-  }
+• 📬 **[Contact Form](#contact)** or connect on **[LinkedIn](https://www.linkedin.com/in/zahidhasantonmoy/)**!`;
 }
 
 export async function POST(req: Request) {
@@ -362,7 +403,6 @@ export async function POST(req: Request) {
 
     const conversation = messages.slice(-6); // Keep last 6 messages for context
     const lastUserMessage = conversation[conversation.length - 1]?.content || "";
-    const conversationHistory = conversation.slice(0, -1);
 
     // Fetch dynamic context with cache and timeout
     const dynamicContext = await getDynamicSiteContext();
@@ -374,68 +414,88 @@ export async function POST(req: Request) {
 
     let reply = "";
 
+    // Format conversation history for prompt injection
+    const conversationText = conversation
+      .slice(0, -1)
+      .map((m: any) => `${m.role === "assistant" ? "Tonmoy AI" : "User"}: ${m.content}`)
+      .join("\n");
+
+    const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationText}\n\nUSER QUESTION: ${lastUserMessage}\n\nTONMOY AI RESPONSE:`;
+
     // ─────────────────────────────────────────────────────────────
-    // 1. PRIMARY ENGINE: GOOGLE GEMINI API (Highest limit models)
-    // Priority: gemini-2.0-flash-lite (30 RPM, 1500 RPD) -> gemini-1.5-flash -> gemini-2.0-flash
+    // 1. PRIMARY ENGINE: GOOGLE GEMINI API
     // ─────────────────────────────────────────────────────────────
     if (geminiKey) {
-      const highLimitGeminiModels = [
-        "gemini-2.0-flash-lite", // 30 RPM, 1,500 RPD - Highest throughput
-        "gemini-1.5-flash",      // 15 RPM, 1,500 RPD - High stability
-        "gemini-2.0-flash",      // 15 RPM, 1,500 RPD - High quality
-        "gemini-1.5-flash-8b",   // 15 RPM, 1,500 RPD - 4M TPM
-      ];
+      const geminiModels = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-8b"];
 
-      for (const model of highLimitGeminiModels) {
-        reply = await callGeminiRest(
-          geminiKey,
-          model,
-          systemPrompt,
-          conversationHistory,
-          lastUserMessage,
-          4500 // Strict 4.5s timeout per model
-        );
-
-        if (reply) break;
-      }
-
-      // If REST didn't succeed, try SDK once with gemini-2.0-flash-lite
-      if (!reply) {
+      for (const model of geminiModels) {
         try {
           const ai = new GoogleGenAI({ apiKey: geminiKey });
-          const historyText = conversation
-            .slice(0, -1)
-            .map((m: any) => `${m.role.toUpperCase()}: ${m.content}`)
-            .join("\n");
-
-          const promptWithHistory = `${systemPrompt}\n\nCONVERSATION:\n${historyText}\n\nUSER: ${lastUserMessage}\nASSISTANT:`;
-
-          const sdkPromise = ai.models.generateContent({
-            model: "gemini-2.0-flash-lite",
-            contents: promptWithHistory,
+          const genPromise = ai.models.generateContent({
+            model,
+            contents: fullPrompt,
+            config: {
+              maxOutputTokens: 750,
+              temperature: 0.6,
+            },
           });
 
           const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000));
-          const response: any = await Promise.race([sdkPromise, timeoutPromise]);
+          const result: any = await Promise.race([genPromise, timeoutPromise]);
 
-          if (response?.text) {
-            reply = response.text;
+          if (result?.text) {
+            reply = result.text.trim();
+            break;
           }
         } catch (err: any) {
-          console.warn("[Gemini SDK attempt failed]:", err?.message);
+          console.warn(`[Gemini SDK ${model} Error]:`, err?.message);
+        }
+
+        // Try direct REST fetch as backup for each model
+        if (!reply) {
+          try {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 4000);
+
+            const res = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                signal: controller.signal,
+                body: JSON.stringify({
+                  contents: [{ parts: [{ text: fullPrompt }] }],
+                  generationConfig: { maxOutputTokens: 750, temperature: 0.6 },
+                }),
+              }
+            );
+
+            clearTimeout(timer);
+
+            if (res.ok) {
+              const data = await res.json();
+              const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (text) {
+                reply = text.trim();
+                break;
+              }
+            }
+          } catch (err: any) {
+            console.warn(`[Gemini REST ${model} Error]:`, err?.message);
+          }
         }
       }
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 2. FALLBACK ENGINE: GROQ (Ultra-high quota: 14,400 Requests/Day)
+    // 2. SECONDARY ENGINE: GROQ (14,400 Daily Requests)
     // ─────────────────────────────────────────────────────────────
     if (!reply && groqKey) {
       try {
         const groq = new OpenAI({
           baseURL: "https://api.groq.com/openai/v1",
           apiKey: groqKey,
-          timeout: 4000,
+          timeout: 3500,
           maxRetries: 0,
         });
 
@@ -447,7 +507,6 @@ export async function POST(req: Request) {
           })),
         ];
 
-        // llama-3.1-8b-instant has 14,400 RPD and 30,000 TPM
         const completion = await groq.chat.completions.create({
           model: "llama-3.1-8b-instant",
           messages: groqMessages,
@@ -457,46 +516,43 @@ export async function POST(req: Request) {
 
         reply = completion.choices[0]?.message?.content || "";
       } catch (err: any) {
-        console.warn("[Groq Fallback Failed]:", err?.message);
+        console.warn("[Groq Fallback Error]:", err?.message);
       }
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 3. FALLBACK ENGINE: OPENROUTER (Free models)
+    // 3. TERTIARY ENGINE: OPENROUTER
     // ─────────────────────────────────────────────────────────────
     if (!reply && openRouterKey) {
       try {
         const openrouter = new OpenAI({
           baseURL: "https://openrouter.ai/api/v1",
           apiKey: openRouterKey,
-          timeout: 4000,
+          timeout: 3500,
           maxRetries: 0,
         });
 
-        const orMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-          { role: "system", content: systemPrompt },
-          ...conversation.map((m: any) => ({
-            role: m.role as "user" | "assistant",
-            content: String(m.content),
-          })),
-        ];
-
         const completion = await openrouter.chat.completions.create({
           model: "meta-llama/llama-3.1-8b-instruct:free",
-          messages: orMessages,
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...conversation.map((m: any) => ({
+              role: m.role as "user" | "assistant",
+              content: String(m.content),
+            })),
+          ],
           max_tokens: 700,
           temperature: 0.6,
         });
 
         reply = completion.choices[0]?.message?.content || "";
       } catch (err: any) {
-        console.warn("[OpenRouter Fallback Failed]:", err?.message);
+        console.warn("[OpenRouter Fallback Error]:", err?.message);
       }
     }
 
     // ─────────────────────────────────────────────────────────────
-    // 4. INSTANT HIGH-QUALITY LOCAL SMART FALLBACK
-    // Guaranteed instant response (<5ms) with status 200
+    // 4. SMART CONTEXTUAL FALLBACK (INSTANT <5MS, GUARANTEED ACCURATE)
     // ─────────────────────────────────────────────────────────────
     if (!reply) {
       reply = getSmartFallback(lastUserMessage);
@@ -504,10 +560,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ reply });
   } catch (error: any) {
-    console.error("[ChatBot API Error]:", error);
+    console.error("[ChatBot API Fatal Error]:", error);
     return NextResponse.json({
-      reply:
-        "Hello! I am Tonmoy AI. You can explore Zahid's 9+ projects at [Projects](#projects), read his technical articles at [Blog](/blog), or connect with him directly via the [Contact Form](#contact) and on [LinkedIn](https://www.linkedin.com/in/zahidhasantonmoy/)!",
+      reply: getSmartFallback("contact"),
     });
   }
 }
