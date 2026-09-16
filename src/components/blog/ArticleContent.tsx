@@ -38,11 +38,11 @@ export default function ArticleContent({ content }: ArticleContentProps) {
         rehypePlugins={[rehypeSanitize, rehypeHighlight]}
         components={{
           h2: ({ children, ...props }) => {
-            const text = String(children).replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').toLowerCase();
+            const text = String(children).toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').trim();
             return <h2 id={text} className="scroll-mt-24" {...props}>{children}</h2>;
           },
           h3: ({ children, ...props }) => {
-            const text = String(children).replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').toLowerCase();
+            const text = String(children).toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').trim();
             return <h3 id={text} className="scroll-mt-24" {...props}>{children}</h3>;
           },
         }}

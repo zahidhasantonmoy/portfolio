@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { FaRegCalendarAlt, FaRegClock } from "react-icons/fa";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 import { getPostBySlug, getRelatedPosts, getAllPostSlugs } from "@/lib/blog";
 import ArticleContent from "@/components/blog/ArticleContent";
@@ -226,7 +225,7 @@ export default async function BlogPostPage({
                   {post.post_tags.map(({ tags: tag }) => (
                     <Link
                       key={tag.id}
-                      href={`/tags/${tag.slug}`}
+                      href={`/blog?search=${encodeURIComponent(tag.name_en)}`}
                       className="px-4 py-2 rounded-xl text-sm font-medium bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 dark:hover:bg-indigo-900/30 dark:hover:text-indigo-400 transition-all shadow-sm"
                     >
                       #{tag.name_en}
@@ -287,7 +286,6 @@ export default async function BlogPostPage({
           </section>
         )}
       </main>
-      <Footer />
     </>
   );
 }
