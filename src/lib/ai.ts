@@ -52,10 +52,10 @@ export async function generateContentWithFallback(
     try {
       const ai = new GoogleGenAI({ apiKey: geminiKey });
       const models = [
-        "gemini-3.8-flash",      // Best quality, but lowest limit (20/day)
-        "gemini-3.5-flash-lite", // Best bulk capacity (500/day)
-        "gemini-3.1-flash-lite", // Backup bulk capacity (500/day)
-        "gemini-3.6-flash"       // Extra fallback
+        "gemini-2.0-flash-lite", // 30 RPM, 1,500/day
+        "gemini-1.5-flash",      // 15 RPM, 1,500/day
+        "gemini-2.0-flash",      // 15 RPM, 1,500/day
+        "gemini-1.5-flash-8b",   // 15 RPM, 1,500/day
       ];
       
       for (const model of models) {
@@ -99,7 +99,7 @@ export async function generateContentWithFallback(
       messages.push({ role: "user", content: prompt });
 
       const response = await groq.chat.completions.create({
-        model: "llama3-8b-8192", // Super fast model
+        model: "llama-3.1-8b-instant", // 14,400 Requests/Day
         messages,
         response_format: isJsonMode ? { type: "json_object" } : undefined,
       });

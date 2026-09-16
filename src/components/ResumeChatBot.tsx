@@ -84,7 +84,7 @@ export default function ResumeChatBot() {
         {
           role: 'assistant',
           content:
-            "I couldn't reach the server right now. Feel free to contact Zahid directly via the [Contact Form](#contact) or on [LinkedIn](https://www.linkedin.com/in/zahid-hasan-tonmoy)!",
+            "I couldn't reach the server right now. Please try asking again in a moment, or feel free to contact Zahid directly via the [Contact Form](#contact) or on [LinkedIn](https://www.linkedin.com/in/zahidhasantonmoy/)!",
         },
       ]);
     } finally {

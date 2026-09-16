@@ -4,6 +4,9 @@ import { GoogleGenAI } from "@google/genai";
 import profileData from "@/data/data.json";
 import { sql } from "@/lib/db";
 
+export const maxDuration = 30; // Max allowed serverless duration on Vercel
+export const dynamic = "force-dynamic";
+
 // Core static projects data
 const STATIC_PROJECTS_DETAIL = `
 1. Flexpath (Mobile App & Gig Economy Platform)
@@ -56,7 +59,7 @@ const SKILLS_DETAIL = `
 • MERN Stack: MongoDB, Express.js, React, Node.js, Next.js, TypeScript, REST APIs, JWT Auth, Redux, Mongoose
 • Frontend Engineering: React 18, Next.js 14 (App Router), Tailwind CSS, Framer Motion, Three.js, HTML5, CSS3, JavaScript (ES6+)
 • Backend & Databases: Node.js, Express, PHP, PostgreSQL (Neon Serverless), MySQL, MongoDB, Supabase, Firebase
-• AI & Machine Learning: AI Agent Development, OpenAI API, Google Gemini, Groq, LangChain principles, Python, TensorFlow, Keras, Scikit-learn, PyTorch, Pandas, NumPy
+• AI & Machine Learning: AI Agent Development, Google Gemini API, Groq, LangChain principles, Python, TensorFlow, Keras, Scikit-learn, PyTorch, Pandas, NumPy
 • Mobile: Flutter (Dart), Supabase, Firebase
 • Digital Marketing & SEO: Generative Engine Optimization (GEO), Schema.org (JSON-LD), SEO, SEM, Google Analytics
 • DevOps & Tools: Docker, Git, GitHub, Vercel, VS Code
@@ -94,14 +97,35 @@ const SITE_NAVIGATION_GUIDE = `
 • LinkedIn Profile: https://www.linkedin.com/in/zahidhasantonmoy/
 `;
 
-async function getDynamicSiteContext(): Promise<string> {
-  try {
-    const [posts, journals, dbProjects] = await Promise.all([
-      sql`SELECT title_en, title_bn, slug, excerpt_en FROM posts WHERE status = 'published' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 8`.catch(() => []),
-      sql`SELECT log_date, title_en, title_bn FROM dev_logs ORDER BY log_date DESC LIMIT 5`.catch(() => []),
-      sql`SELECT title, description, tech_stack, live_url, github_url FROM projects ORDER BY display_order ASC, created_at DESC LIMIT 6`.catch(() => []),
-    ]);
+// In-memory cache for dynamic DB context to avoid hitting Neon DB on every chat message
+let cachedContext = "";
+let lastContextFetch = 0;
+const CONTEXT_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
 
+async function getDynamicSiteContext(): Promise<string> {
+  const now = Date.now();
+  if (cachedContext && now - lastContextFetch < CONTEXT_CACHE_TTL) {
+    return cachedContext;
+  }
+
+  const staticArticles = "\nPUBLISHED BLOG ARTICLES:\n• Practicing Laravel Blade Templates with Dynamic Data: https://zahidhasantonmoy.vercel.app/blog/practicing-laravel-blade-templates-with-dynamic-data\n• Explore tutorials on Laravel, React, Next.js, and PostgreSQL at https://zahidhasantonmoy.vercel.app/blog\n";
+
+  // Race DB query with a 1.5s timeout so DB cold starts never stall the chat
+  const dbFetchPromise = Promise.all([
+    sql`SELECT title_en, title_bn, slug, excerpt_en FROM posts WHERE status = 'published' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 6`.catch(() => []),
+    sql`SELECT log_date, title_en, title_bn FROM dev_logs ORDER BY log_date DESC LIMIT 4`.catch(() => []),
+    sql`SELECT title, description, tech_stack, live_url, github_url FROM projects ORDER BY display_order ASC, created_at DESC LIMIT 5`.catch(() => []),
+  ]);
+
+  const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
+
+  try {
+    const result = await Promise.race([dbFetchPromise, timeoutPromise]);
+    if (!result) {
+      return cachedContext || staticArticles;
+    }
+
+    const [posts, journals, dbProjects] = result;
     let context = "";
 
     if (posts && posts.length > 0) {
@@ -109,11 +133,11 @@ async function getDynamicSiteContext(): Promise<string> {
       context += posts
         .map(
           (p: any) =>
-            `• "${p.title_en}" (${p.title_bn || ""}): https://zahidhasantonmoy.vercel.app/blog/${p.slug} - Brief: ${p.excerpt_en || "Technical guide"}`
+            `• "${p.title_en}" (${p.title_bn || ""}): https://zahidhasantonmoy.vercel.app/blog/${p.slug}`
         )
         .join("\n");
     } else {
-      context += "\nPUBLISHED BLOG ARTICLES:\n• Practicing Laravel Blade Templates with Dynamic Data: https://zahidhasantonmoy.vercel.app/blog/practicing-laravel-blade-templates-with-dynamic-data\n• More tutorials on Laravel, PHP, React, PostgreSQL at https://zahidhasantonmoy.vercel.app/blog\n";
+      context += staticArticles;
     }
 
     if (journals && journals.length > 0) {
@@ -131,14 +155,16 @@ async function getDynamicSiteContext(): Promise<string> {
       context += dbProjects
         .map(
           (dp: any) =>
-            `• ${dp.title}: Stack: ${Array.isArray(dp.tech_stack) ? dp.tech_stack.join(", ") : dp.tech_stack}. Live: ${dp.live_url || "N/A"}, GitHub: ${dp.github_url || "N/A"}`
+            `• ${dp.title}: Stack: ${Array.isArray(dp.tech_stack) ? dp.tech_stack.join(", ") : dp.tech_stack}. Live: ${dp.live_url || "N/A"}`
         )
         .join("\n");
     }
 
+    cachedContext = context;
+    lastContextFetch = now;
     return context;
   } catch {
-    return "\nPUBLISHED BLOG ARTICLES:\n• Practicing Laravel Blade Templates with Dynamic Data: https://zahidhasantonmoy.vercel.app/blog/practicing-laravel-blade-templates-with-dynamic-data\n• Explore all articles at https://zahidhasantonmoy.vercel.app/blog\n";
+    return cachedContext || staticArticles;
   }
 }
 
@@ -171,12 +197,12 @@ ${ACHIEVEMENTS_DETAIL}
 
 SERVICES OFFERED:
 1. Full Stack Web Development (MERN, Next.js, PostgreSQL/MongoDB, TypeScript)
-2. Custom AI Agent & Chatbot Development (OpenAI, Gemini, Groq, automation workflows)
+2. Custom AI Agent & Chatbot Development (Gemini API, Groq, automation workflows)
 3. Mobile App Development (Flutter, Supabase, Firebase)
 4. Data Analysis & Machine Learning (Python, Scikit-learn, predictive modeling)
 5. Performance Optimization & Technical SEO / GEO
 
-PAGES & NAVIGATION LINKS ON THIS PORTFOLIO:
+NAVIGATION LINKS ON THIS SITE:
 ${SITE_NAVIGATION_GUIDE}
 
 ${dynamicContext}
@@ -190,7 +216,7 @@ CRITICAL RULES FOR RESPONSES:
    - When mentioning projects, blog posts, or sections, ALWAYS provide clickable markdown links (e.g. [Flexpath](https://github.com/zahidhasantonmoy/Flexpath), [Blog](https://zahidhasantonmoy.vercel.app/blog), [Resume PDF](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)).
 3. TONE & STRUCTURE:
    - Be welcoming, professional, structured, and concise.
-   - Use bullet points, bold text for technologies, and clear section breaks.
+   - Use bullet points, bold text for technologies, and clear section breaks. Keep responses concise so they generate quickly.
 4. CALL TO ACTION:
    - If asked about hiring or contacting Zahid, guide them to the [Contact Form](https://zahidhasantonmoy.vercel.app/#contact), [LinkedIn](https://www.linkedin.com/in/zahidhasantonmoy/), [GitHub](https://github.com/zahidhasantonmoy), or encourage downloading his [Resume](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf).
 `;
@@ -212,10 +238,22 @@ function getSmartFallback(userQuery: string): string {
 Explore all live demos in the **[Projects Section](https://zahidhasantonmoy.vercel.app/#projects)**!`;
   }
 
+  if (q.includes("skill") || q.includes("দক্ষতা") || q.includes("টেকনোলজি") || q.includes("stack")) {
+    return `Zahid's core technical expertise includes:
+
+• **MERN & Full Stack**: React 18, Next.js 14, Node.js, Express, TypeScript, Tailwind CSS
+• **Databases**: PostgreSQL (Neon Serverless), MySQL, MongoDB, Supabase, Firebase
+• **Mobile Development**: Flutter & Dart (Cross-platform iOS/Android)
+• **AI & Machine Learning**: Gemini API, Groq, Scikit-learn, Python, LangChain principles
+• **DevOps & Cloud**: Docker, Git, GitHub Actions, Vercel
+
+Check the interactive **[Skills Section](https://zahidhasantonmoy.vercel.app/#skills)** to see the full skill matrix!`;
+  }
+
   if (q.includes("blog") || q.includes("ব্লগ") || q.includes("article") || q.includes("পোস্ট") || q.includes("laravel")) {
     return `Zahid writes technical articles and dev notes on web development:
 
-• **[Laravel Blade Templates with Dynamic Data](https://zahidhasantonmoy.vercel.app/blog/practicing-laravel-blade-templates-with-dynamic-data)**: Practical guide on Blade templates, layout inheritance, and passing dynamic data in Laravel.
+• **[Laravel Blade Templates with Dynamic Data](https://zahidhasantonmoy.vercel.app/blog/practicing-laravel-blade-templates-with-dynamic-data)**: Practical guide on Blade templates, layout inheritance, and dynamic data in Laravel.
 • **[English Blog](https://zahidhasantonmoy.vercel.app/blog)**: Tutorials on React, Next.js, Laravel, PHP, and PostgreSQL.
 • **[Bangla Blog](https://zahidhasantonmoy.vercel.app/bn/blog)**: বাংলায় টেকনিক্যাল ব্লগ।
 • **[Dev Journal](https://zahidhasantonmoy.vercel.app/journal)**: Daily engineering notes and learning logs.`;
@@ -235,12 +273,12 @@ You can connect with him via:
     return `You can download Zahid Hasan Tonmoy's complete resume here:
 📄 **[Download Resume (PDF)](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)**
 
-It highlights his education at Daffodil International University, 9+ projects, awards, and full-stack technical competencies.`;
+It highlights his B.Sc. in CSE at Daffodil International University, 9+ featured projects, awards, and full-stack technical competencies.`;
   }
 
   return `Hello! I am **Tonmoy AI**, Zahid's portfolio assistant.
 
-Zahid Hasan Tonmoy is a **MERN Full Stack Developer, Data Analyst & AI Agent Developer** based in Dhaka, Bangladesh.
+Zahid Hasan Tonmoy (জাহিদ হাসান তন্ময়) is a **MERN Full Stack Developer, Data Analyst & AI Developer** based in Dhaka, Bangladesh.
 Here is how you can navigate this site:
 • 🚀 **[Featured Projects](https://zahidhasantonmoy.vercel.app/#projects)**: 9+ web, mobile & ML projects
 • 🛠️ **[Skills](https://zahidhasantonmoy.vercel.app/#skills)**: MERN, Next.js, Python, Flutter, PostgreSQL
@@ -248,6 +286,67 @@ Here is how you can navigate this site:
 • 📖 **[Dev Journal](https://zahidhasantonmoy.vercel.app/journal)**: Daily engineering logs
 • 📄 **[Download Resume](https://zahidhasantonmoy.vercel.app/files/Resume/Zahid_Hasan_Resume.pdf)**
 • 📬 **[Contact Zahid](https://zahidhasantonmoy.vercel.app/#contact)** or reach him on **[LinkedIn](https://www.linkedin.com/in/zahidhasantonmoy/)**!`;
+}
+
+// Direct Google Generative Language REST fetch with strict timeout
+async function callGeminiRest(
+  apiKey: string,
+  model: string,
+  systemPrompt: string,
+  history: { role: string; content: string }[],
+  userMessage: string,
+  timeoutMs: number = 4500
+): Promise<string> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const contents = [
+      ...history.map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      })),
+      {
+        role: "user",
+        parts: [{ text: userMessage }],
+      },
+    ];
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: systemPrompt }],
+          },
+          contents,
+          generationConfig: {
+            maxOutputTokens: 750,
+            temperature: 0.6,
+          },
+        }),
+      }
+    );
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => "");
+      console.warn(`[Gemini REST ${model}] HTTP ${res.status}:`, errBody.slice(0, 150));
+      return "";
+    }
+
+    const data = await res.json();
+    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    return replyText || "";
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+    console.warn(`[Gemini REST ${model}] failed or timed out:`, err?.message);
+    return "";
+  }
 }
 
 export async function POST(req: Request) {
@@ -261,25 +360,83 @@ export async function POST(req: Request) {
       );
     }
 
-    const conversation = messages.slice(-8); // Keep last 8 messages for context
+    const conversation = messages.slice(-6); // Keep last 6 messages for context
     const lastUserMessage = conversation[conversation.length - 1]?.content || "";
+    const conversationHistory = conversation.slice(0, -1);
 
-    // Fetch dynamic context from live DB (posts, journals, dynamic projects)
+    // Fetch dynamic context with cache and timeout
     const dynamicContext = await getDynamicSiteContext();
     const systemPrompt = buildSystemPrompt(dynamicContext);
 
+    const geminiKey = process.env.GEMINI_API_KEY;
     const groqKey = process.env.GROQ_API_KEY;
     const openRouterKey = process.env.OPENROUTER_API_KEY;
-    const geminiKey = process.env.GEMINI_API_KEY;
 
     let reply = "";
 
-    // 1. Try Groq first for ultra-fast latency (<500ms)
-    if (groqKey) {
+    // ─────────────────────────────────────────────────────────────
+    // 1. PRIMARY ENGINE: GOOGLE GEMINI API (Highest limit models)
+    // Priority: gemini-2.0-flash-lite (30 RPM, 1500 RPD) -> gemini-1.5-flash -> gemini-2.0-flash
+    // ─────────────────────────────────────────────────────────────
+    if (geminiKey) {
+      const highLimitGeminiModels = [
+        "gemini-2.0-flash-lite", // 30 RPM, 1,500 RPD - Highest throughput
+        "gemini-1.5-flash",      // 15 RPM, 1,500 RPD - High stability
+        "gemini-2.0-flash",      // 15 RPM, 1,500 RPD - High quality
+        "gemini-1.5-flash-8b",   // 15 RPM, 1,500 RPD - 4M TPM
+      ];
+
+      for (const model of highLimitGeminiModels) {
+        reply = await callGeminiRest(
+          geminiKey,
+          model,
+          systemPrompt,
+          conversationHistory,
+          lastUserMessage,
+          4500 // Strict 4.5s timeout per model
+        );
+
+        if (reply) break;
+      }
+
+      // If REST didn't succeed, try SDK once with gemini-2.0-flash-lite
+      if (!reply) {
+        try {
+          const ai = new GoogleGenAI({ apiKey: geminiKey });
+          const historyText = conversation
+            .slice(0, -1)
+            .map((m: any) => `${m.role.toUpperCase()}: ${m.content}`)
+            .join("\n");
+
+          const promptWithHistory = `${systemPrompt}\n\nCONVERSATION:\n${historyText}\n\nUSER: ${lastUserMessage}\nASSISTANT:`;
+
+          const sdkPromise = ai.models.generateContent({
+            model: "gemini-2.0-flash-lite",
+            contents: promptWithHistory,
+          });
+
+          const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000));
+          const response: any = await Promise.race([sdkPromise, timeoutPromise]);
+
+          if (response?.text) {
+            reply = response.text;
+          }
+        } catch (err: any) {
+          console.warn("[Gemini SDK attempt failed]:", err?.message);
+        }
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // 2. FALLBACK ENGINE: GROQ (Ultra-high quota: 14,400 Requests/Day)
+    // ─────────────────────────────────────────────────────────────
+    if (!reply && groqKey) {
       try {
         const groq = new OpenAI({
           baseURL: "https://api.groq.com/openai/v1",
           apiKey: groqKey,
+          timeout: 4000,
+          maxRetries: 0,
         });
 
         const groqMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -290,8 +447,9 @@ export async function POST(req: Request) {
           })),
         ];
 
+        // llama-3.1-8b-instant has 14,400 RPD and 30,000 TPM
         const completion = await groq.chat.completions.create({
-          model: "llama-3.3-70b-versatile",
+          model: "llama-3.1-8b-instant",
           messages: groqMessages,
           max_tokens: 700,
           temperature: 0.6,
@@ -299,16 +457,20 @@ export async function POST(req: Request) {
 
         reply = completion.choices[0]?.message?.content || "";
       } catch (err: any) {
-        console.warn("[ChatBot Groq Failed, trying fallback]:", err?.message);
+        console.warn("[Groq Fallback Failed]:", err?.message);
       }
     }
 
-    // 2. Try OpenRouter (Fallback)
+    // ─────────────────────────────────────────────────────────────
+    // 3. FALLBACK ENGINE: OPENROUTER (Free models)
+    // ─────────────────────────────────────────────────────────────
     if (!reply && openRouterKey) {
       try {
         const openrouter = new OpenAI({
           baseURL: "https://openrouter.ai/api/v1",
           apiKey: openRouterKey,
+          timeout: 4000,
+          maxRetries: 0,
         });
 
         const orMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -320,7 +482,7 @@ export async function POST(req: Request) {
         ];
 
         const completion = await openrouter.chat.completions.create({
-          model: "meta-llama/llama-3.3-70b-instruct",
+          model: "meta-llama/llama-3.1-8b-instruct:free",
           messages: orMessages,
           max_tokens: 700,
           temperature: 0.6,
@@ -328,48 +490,14 @@ export async function POST(req: Request) {
 
         reply = completion.choices[0]?.message?.content || "";
       } catch (err: any) {
-        console.warn("[ChatBot OpenRouter Failed, trying fallback]:", err?.message);
+        console.warn("[OpenRouter Fallback Failed]:", err?.message);
       }
     }
 
-    // 3. Try Gemini (Fallback)
-    if (!reply && geminiKey) {
-      const geminiModels = [
-        "gemini-2.0-flash",
-        "gemini-1.5-flash",
-        "gemini-1.5-pro",
-      ];
-      try {
-        const ai = new GoogleGenAI({ apiKey: geminiKey });
-
-        for (const model of geminiModels) {
-          try {
-            const historySummary = conversation
-              .slice(0, -1)
-              .map((m: any) => `${m.role.toUpperCase()}: ${m.content}`)
-              .join("\n");
-
-            const fullPrompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${historySummary}\n\nUSER: ${lastUserMessage}\nASSISTANT:`;
-
-            const response = await ai.models.generateContent({
-              model,
-              contents: fullPrompt,
-            });
-
-            if (response.text) {
-              reply = response.text;
-              break;
-            }
-          } catch (err: any) {
-            console.warn(`[ChatBot Gemini ${model} Failed]:`, err?.message);
-          }
-        }
-      } catch (err: any) {
-        console.warn("[ChatBot Gemini init error]:", err?.message);
-      }
-    }
-
-    // 4. If all remote LLMs fail or rate-limit, provide the smart contextual fallback
+    // ─────────────────────────────────────────────────────────────
+    // 4. INSTANT HIGH-QUALITY LOCAL SMART FALLBACK
+    // Guaranteed instant response (<5ms) with status 200
+    // ─────────────────────────────────────────────────────────────
     if (!reply) {
       reply = getSmartFallback(lastUserMessage);
     }
@@ -383,4 +511,3 @@ export async function POST(req: Request) {
     });
   }
 }
-
