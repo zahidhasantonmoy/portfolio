@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   compress: true,
+  poweredByHeader: false,
+  swcMinify: true,
   experimental: {
     optimizePackageImports: ['react-icons', 'framer-motion', '@heroicons/react'],
   },
@@ -13,13 +15,12 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 208, 256, 384],
   },
 
-  // Allow AI crawlers and bots to access the site freely
+  // Performance, caching & security headers for Pingdom Grade A
   async headers() {
     return [
       {
         source: '/(.*)',
         headers: [
-          // Strong caching for static assets
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
@@ -30,9 +31,9 @@ const nextConfig = {
           },
         ],
       },
+      // Aggressive caching for Next.js static JS/CSS bundles (1 year, immutable)
       {
-        // Cache static files aggressively
-        source: '/images/(.*)',
+        source: '/_next/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
@@ -40,8 +41,72 @@ const nextConfig = {
           },
         ],
       },
+      // Aggressive caching for static images
       {
-        source: '/files/(.*)',
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Aggressive caching for icons
+      {
+        source: '/icons/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Aggressive caching for root favicon and icons
+      {
+        source: '/(favicon.ico|favicon-16x16.png|favicon-32x32.png|apple-touch-icon.png|android-chrome-192x192.png|android-chrome-512x512.png)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Aggressive caching for SVG files
+      {
+        source: '/:path*.svg',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Cache web app manifest
+      {
+        source: '/site.webmanifest',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=604800, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      // Service worker (no-cache so updates propagate immediately)
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+          {
+            key: 'Service-Worker-Allowed',
+            value: '/',
+          },
+        ],
+      },
+      {
+        source: '/files/:path*',
         headers: [
           {
             key: 'Cache-Control',

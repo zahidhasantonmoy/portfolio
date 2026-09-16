@@ -1,9 +1,13 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import ResumeChatBot from '@/components/ResumeChatBot';
+
+const ResumeChatBot = dynamic(() => import('@/components/ResumeChatBot'), {
+  ssr: false,
+});
 
 export function ClientNavbar() {
   const pathname = usePathname();
