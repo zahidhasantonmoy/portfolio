@@ -39,7 +39,7 @@ function slugify(text: string) {
     .trim();
 }
 
-type TabType = "english" | "bangla" | "ai" | "settings";
+type TabType = "english" | "bangla" | "ai" | "json" | "settings";
 
 export default function PostEditor({
   post,
@@ -72,6 +72,11 @@ export default function PostEditor({
   
   const [quotas, setQuotas] = useState<any[]>([]);
   const [loadingQuotas, setLoadingQuotas] = useState(false);
+
+  // JSON Input Box state
+  const [jsonInput, setJsonInput] = useState("");
+  const [parsedJsonData, setParsedJsonData] = useState<any>(null);
+  const [jsonError, setJsonError] = useState<string | null>(null);
 
   // Form state
   const [form, setForm] = useState({
@@ -440,10 +445,155 @@ export default function PostEditor({
     }
   }
 
+  const EXAMPLE_JSON_STRUCTURE = `{
+  "slug": "example-technical-topic",
+  "blog_url": "https://zahidhasantonmoy.vercel.app/blog/example-technical-topic",
+  "bangla": {
+    "title": "বাংলা ব্লগের শিরোনাম",
+    "article": "সম্পূর্ণ বাংলা article"
+  },
+  "english": {
+    "title": "English Blog Title",
+    "article": "Complete English article"
+  },
+  "excerpt": {
+    "english": "Short English excerpt",
+    "bangla": "সংক্ষিপ্ত বাংলা সারসংক্ষেপ"
+  },
+  "seo": {
+    "meta_description_bn": "বাংলা Meta Description",
+    "seo_title_bn": "বাংলা SEO Title",
+    "meta_description_en": "English Meta Description, maximum 160 characters",
+    "seo_title_en": "English SEO Title",
+    "primary_keyword": "primary keyword",
+    "secondary_keywords": [ "keyword 1", "keyword 2" ],
+    "search_intent": "informational"
+  },
+  "social": {
+    "linkedin_post": "Complete LinkedIn post",
+    "linkedin_hashtags": [ "#Laravel", "#PHP", "#WebDevelopment" ],
+    "devto_title": "DEV.to title",
+    "devto_article": "Complete DEV.to article",
+    "devto_tags": [ "laravel", "php", "webdev" ]
+  },
+  "thumbnail": {
+    "prompt": "Complete AI image-generation prompt",
+    "text": "Short thumbnail text",
+    "aspect_ratio": "16:9"
+  },
+  "links": {
+    "github": null,
+    "portfolio": null
+  },
+  "branding": {
+    "angle": "Short personal-branding angle"
+  }
+}`;
+
+  const handleJsonInputChange = (val: string) => {
+    setJsonInput(val);
+    if (!val.trim()) {
+      setParsedJsonData(null);
+      setJsonError(null);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(val.trim());
+      setParsedJsonData(parsed);
+      setJsonError(null);
+    } catch (err: any) {
+      setParsedJsonData(null);
+      setJsonError(err?.message || "Invalid JSON syntax");
+    }
+  };
+
+  const applyJsonToForm = (customJson?: string) => {
+    const raw = customJson ?? jsonInput;
+    if (!raw.trim()) {
+      toast.error("Please paste or load JSON first");
+      return;
+    }
+
+    try {
+      const data = JSON.parse(raw.trim());
+
+      let parsedSlug = data.slug || "";
+      if (!parsedSlug && data.blog_url) {
+        const parts = String(data.blog_url).split("/blog/");
+        if (parts[1]) parsedSlug = parts[1].replace(/\/$/, "");
+      }
+      if (!parsedSlug && data.english?.title) {
+        parsedSlug = slugify(data.english.title);
+      }
+
+      const title_en = data.english?.title || data.title_en || "";
+      const content_en = data.english?.article || data.english?.content || data.content_en || "";
+      const excerpt_en = data.excerpt?.english || data.excerpt?.en || data.excerpt_en || "";
+
+      const title_bn = data.bangla?.title || data.title_bn || "";
+      const content_bn = data.bangla?.article || data.bangla?.content || data.content_bn || "";
+      const excerpt_bn = data.excerpt?.bangla || data.excerpt?.bn || data.excerpt_bn || "";
+
+      const seo_title_en = data.seo?.seo_title_en || title_en;
+      const seo_title_bn = data.seo?.seo_title_bn || title_bn;
+      const meta_desc_en = data.seo?.meta_description_en || excerpt_en;
+      const meta_desc_bn = data.seo?.meta_description_bn || excerpt_bn;
+
+      if (data.thumbnail?.prompt) {
+        setImagePrompt(data.thumbnail.prompt);
+      }
+
+      // Match tags
+      const importedKeywords: string[] = [
+        ...(Array.isArray(data.social?.devto_tags) ? data.social.devto_tags : []),
+        ...(Array.isArray(data.seo?.secondary_keywords) ? data.seo.secondary_keywords : []),
+        ...(data.seo?.primary_keyword ? [data.seo.primary_keyword] : []),
+      ].map((k: string) => String(k).toLowerCase().trim().replace(/^#/, ""));
+
+      const matchedTagIds: string[] = [];
+      if (tags && tags.length > 0 && importedKeywords.length > 0) {
+        tags.forEach((t) => {
+          const nameLower = t.name_en.toLowerCase();
+          const slugLower = t.slug.toLowerCase();
+          if (
+            importedKeywords.some(
+              (kw) => kw === nameLower || kw === slugLower || nameLower.includes(kw) || kw.includes(nameLower)
+            )
+          ) {
+            if (!matchedTagIds.includes(t.id)) matchedTagIds.push(t.id);
+          }
+        });
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        slug: parsedSlug || prev.slug,
+        title_en: title_en || prev.title_en,
+        content_en: content_en || prev.content_en,
+        excerpt_en: excerpt_en || prev.excerpt_en,
+        title_bn: title_bn || prev.title_bn,
+        content_bn: content_bn || prev.content_bn,
+        excerpt_bn: excerpt_bn || prev.excerpt_bn,
+        seo_title_en: seo_title_en || prev.seo_title_en,
+        seo_title_bn: seo_title_bn || prev.seo_title_bn,
+        meta_desc_en: meta_desc_en || prev.meta_desc_en,
+        meta_desc_bn: meta_desc_bn || prev.meta_desc_bn,
+        tag_ids: matchedTagIds.length > 0 ? Array.from(new Set([...prev.tag_ids, ...matchedTagIds])) : prev.tag_ids,
+      }));
+
+      setParsedJsonData(data);
+      toast.success("✨ All blog fields auto-filled successfully from JSON!");
+      setActiveTab("english");
+    } catch (err: any) {
+      toast.error("JSON Error: " + (err?.message || "Invalid JSON"));
+    }
+  };
+
   const tabs: { id: TabType; label: string }[] = [
     { id: "english", label: "🇬🇧 English" },
     { id: "bangla", label: "🇧🇩 বাংলা" },
     { id: "ai", label: "✨ AI Assistant" },
+    { id: "json", label: "📥 JSON Import" },
     { id: "settings", label: "⚙️ Settings" },
   ];
 
@@ -464,6 +614,13 @@ export default function PostEditor({
           }`}>
             {form.status}
           </span>
+          <button
+            type="button"
+            onClick={() => setActiveTab("json")}
+            className="inline-flex items-center gap-1.5 px-3 py-1 text-xs bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 rounded-lg transition font-medium"
+          >
+            <span>📥 Auto-Fill from JSON</span>
+          </button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {mode === "edit" && (
@@ -964,6 +1121,286 @@ export default function PostEditor({
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── JSON Import Tab ── */}
+      {activeTab === "json" && (
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-indigo-950/40 via-purple-950/30 to-gray-900 border border-indigo-500/30 rounded-xl p-5 shadow-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                  <span>📥 Auto-Fill Blog Post from JSON</span>
+                  <span className="text-[11px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-normal">
+                    One-Click Auto Fill
+                  </span>
+                </h3>
+                <p className="text-xs text-gray-400 mt-1">
+                  Paste your structured blog JSON below. It will automatically populate the English title & article, Bangla title & article, slug, excerpts, SEO meta tags, AI image prompt, and matching tags.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      const text = await navigator.clipboard.readText();
+                      if (text) {
+                        handleJsonInputChange(text);
+                        toast.success("📋 Pasted from clipboard!");
+                      }
+                    } catch {
+                      toast.error("Clipboard permission denied. Please paste manually (Ctrl+V).");
+                    }
+                  }}
+                  className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg border border-gray-700 transition flex items-center gap-1.5"
+                >
+                  📋 Paste
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleJsonInputChange(EXAMPLE_JSON_STRUCTURE);
+                    toast.success("✨ Sample JSON template loaded!");
+                  }}
+                  className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-indigo-300 rounded-lg border border-gray-700 transition flex items-center gap-1.5"
+                >
+                  ✨ Load Template
+                </button>
+                {jsonInput && (
+                  <button
+                    type="button"
+                    onClick={() => handleJsonInputChange("")}
+                    className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-red-400 rounded-lg border border-gray-700 transition flex items-center gap-1.5"
+                  >
+                    🧹 Clear
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Textarea */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <label className="text-gray-300 font-medium flex items-center gap-2">
+                <span>JSON Input Box</span>
+                {parsedJsonData && (
+                  <span className="text-emerald-400 font-mono text-[11px] bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded">
+                    ✓ Valid JSON
+                  </span>
+                )}
+                {jsonError && (
+                  <span className="text-red-400 font-mono text-[11px] bg-red-950/40 border border-red-500/30 px-2 py-0.5 rounded">
+                    ⚠ {jsonError}
+                  </span>
+                )}
+              </label>
+              <span className="text-gray-500">
+                {jsonInput.length > 0 ? `${jsonInput.length} characters` : "Waiting for JSON..."}
+              </span>
+            </div>
+
+            <div className="relative">
+              <textarea
+                value={jsonInput}
+                onChange={(e) => handleJsonInputChange(e.target.value)}
+                placeholder={EXAMPLE_JSON_STRUCTURE}
+                rows={16}
+                className={`w-full px-4 py-3 bg-gray-950 border rounded-xl text-gray-100 font-mono text-xs leading-relaxed placeholder-gray-600 focus:outline-none focus:ring-1 resize-y transition ${
+                  jsonError
+                    ? "border-red-500/50 focus:ring-red-500"
+                    : parsedJsonData
+                    ? "border-emerald-500/50 focus:ring-emerald-500"
+                    : "border-gray-800 focus:border-indigo-500 focus:ring-indigo-500"
+                }`}
+              />
+            </div>
+          </div>
+
+          {/* Real-time Field Detection Card */}
+          {parsedJsonData && (
+            <div className="bg-gray-900/90 border border-gray-800 rounded-xl p-4 space-y-3">
+              <h4 className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                Detected Fields in JSON
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 text-xs">
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.slug || parsedJsonData.blog_url
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>🔗 Slug</span>
+                  <span>{parsedJsonData.slug ? "✓" : parsedJsonData.blog_url ? "from URL" : "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.english?.title && parsedJsonData.english?.article
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>🇬🇧 English Post</span>
+                  <span>{parsedJsonData.english?.title ? "✓ Ready" : "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.bangla?.title && parsedJsonData.bangla?.article
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>🇧🇩 বাংলা পোস্ট</span>
+                  <span>{parsedJsonData.bangla?.title ? "✓ Ready" : "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.excerpt?.english || parsedJsonData.excerpt?.bangla
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>📝 Excerpts</span>
+                  <span>{parsedJsonData.excerpt ? "✓ Ready" : "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.seo?.meta_description_en || parsedJsonData.seo?.seo_title_en
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>🔍 SEO Meta</span>
+                  <span>{parsedJsonData.seo ? "✓ Ready" : "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.thumbnail?.prompt
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>🎨 Image Prompt</span>
+                  <span>{parsedJsonData.thumbnail?.prompt ? "✓ Ready" : "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.social?.linkedin_post || parsedJsonData.social?.devto_article
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>📱 Social Media</span>
+                  <span>{parsedJsonData.social ? "✓ Ready" : "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.branding?.angle
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>💡 Brand Angle</span>
+                  <span>{parsedJsonData.branding?.angle ? "✓ Ready" : "—"}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Primary Action Button */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => applyJsonToForm()}
+              disabled={!jsonInput.trim()}
+              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/25 transition-all transform active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 text-sm cursor-pointer"
+            >
+              <span>🚀 Auto-Fill Form from JSON</span>
+            </button>
+            <p className="text-xs text-gray-400">
+              Clicking will automatically populate English, Bangla, SEO, Excerpts, Slug, and AI cover prompt, then redirect you to review in the English tab.
+            </p>
+          </div>
+
+          {/* Social Syndication Companion Card (LinkedIn & Dev.to) */}
+          {parsedJsonData?.social && (
+            <div className="mt-8 border border-gray-800 bg-gray-900/60 rounded-2xl p-6 space-y-6">
+              <div>
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <span>📱 Social Media & Cross-Posting Content</span>
+                  <span className="text-[11px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">
+                    Ready to Copy
+                  </span>
+                </h3>
+                <p className="text-xs text-gray-400 mt-1">
+                  The JSON contains pre-formatted social media posts. You can copy them with one click below:
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* LinkedIn Box */}
+                {parsedJsonData.social.linkedin_post && (
+                  <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-blue-400 flex items-center gap-1.5">
+                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                        LinkedIn Post
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const hashtags = Array.isArray(parsedJsonData.social.linkedin_hashtags)
+                            ? "\n\n" + parsedJsonData.social.linkedin_hashtags.join(" ")
+                            : "";
+                          navigator.clipboard.writeText(parsedJsonData.social.linkedin_post + hashtags);
+                          toast.success("📋 Copied LinkedIn post!");
+                        }}
+                        className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-blue-300 rounded border border-gray-700 transition cursor-pointer"
+                      >
+                        Copy Post
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-300 whitespace-pre-wrap font-sans bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto">
+                      {parsedJsonData.social.linkedin_post}
+                      {Array.isArray(parsedJsonData.social.linkedin_hashtags) && (
+                        <span className="block mt-2 text-blue-400 font-medium">
+                          {parsedJsonData.social.linkedin_hashtags.join(" ")}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                )}
+
+                {/* DEV.to Box */}
+                {parsedJsonData.social.devto_article && (
+                  <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-gray-200 flex items-center gap-1.5">
+                        <span className="font-bold border border-gray-600 px-1 py-0.2 rounded text-[10px]">DEV</span>
+                        DEV.to Article
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const tagsHeader = Array.isArray(parsedJsonData.social.devto_tags)
+                            ? `Tags: ${parsedJsonData.social.devto_tags.join(", ")}\n\n`
+                            : "";
+                          const titleHeader = parsedJsonData.social.devto_title
+                            ? `# ${parsedJsonData.social.devto_title}\n\n`
+                            : "";
+                          navigator.clipboard.writeText(titleHeader + tagsHeader + parsedJsonData.social.devto_article);
+                          toast.success("📋 Copied DEV.to article!");
+                        }}
+                        className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-gray-200 rounded border border-gray-700 transition cursor-pointer"
+                      >
+                        Copy Article
+                      </button>
+                    </div>
+                    <div className="text-xs text-gray-300 bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto space-y-2 font-mono">
+                      {parsedJsonData.social.devto_title && (
+                        <p className="font-bold text-white font-sans">{parsedJsonData.social.devto_title}</p>
+                      )}
+                      <p className="whitespace-pre-wrap">{parsedJsonData.social.devto_article.slice(0, 300)}...</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
