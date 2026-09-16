@@ -6,12 +6,24 @@ import LiveBlogList from "@/components/blog/LiveBlogList";
 export const revalidate = 300; // ISR — 5 minutes
 
 export const metadata: Metadata = {
-  title: "Blog | Zahid Hasan Tonmoy",
+  title: "Blog | Zahid Hasan Tonmoy - MERN, AI & Web Engineering",
   description:
-    "Technical articles, tutorials, and learning notes on Laravel, PHP, PostgreSQL, React, JavaScript and more by Zahid Hasan Tonmoy.",
+    "Technical articles, in-depth tutorials, and architectural notes on MERN Stack, Next.js, TypeScript, AI Agents, Python Machine Learning, and Cloud Development by Zahid Hasan Tonmoy.",
+  keywords: [
+    "MERN Stack Tutorial",
+    "Next.js 14",
+    "React",
+    "Node.js",
+    "TypeScript",
+    "AI Agent Development",
+    "Python Machine Learning",
+    "Zahid Hasan Tonmoy",
+    "Software Engineering Blog",
+    "Web Development Bangladesh"
+  ],
   openGraph: {
-    title: "Blog | Zahid Hasan Tonmoy",
-    description: "Technical blog on web development, Laravel, React, and more.",
+    title: "Blog | Zahid Hasan Tonmoy - MERN, AI & Web Engineering",
+    description: "Technical blog on MERN Stack, Next.js, AI Agents, Machine Learning, and Modern Web Architecture.",
     url: "https://zahidhasantonmoy.vercel.app/blog",
     type: "website",
   },
@@ -44,8 +56,8 @@ export default async function BlogPage({
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "CollectionPage",
-            name: "Zahid Hasan Tonmoy's Blog",
-            description: "Technical articles on Laravel, React, Next.js, and web development.",
+            name: "Zahid Hasan Tonmoy's Technical Blog",
+            description: "Technical articles on MERN Stack, Next.js, TypeScript, AI Agents, and Machine Learning.",
             url: "https://zahidhasantonmoy.vercel.app/blog",
             isPartOf: {
               "@type": "WebSite",
@@ -60,7 +72,7 @@ export default async function BlogPage({
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm mb-6">
             <span>✍️</span>
-            <span>Development Blog</span>
+            <span>Engineering & AI Blog</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Thoughts, Tutorials &amp;{" "}
@@ -69,8 +81,7 @@ export default async function BlogPage({
             </span>
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Articles on Laravel, PHP, PostgreSQL, React, JavaScript — and everything I&apos;m learning
-            as a developer. Also available in{" "}
+            Practical insights on MERN Stack, Next.js, AI Agents, Python ML, and scalable web architecture — everything I&apos;m building and learning as an engineer. Also available in{" "}
             <Link href="/bn/blog" className="text-indigo-400 hover:text-indigo-300 underline underline-offset-4">
               বাংলা
             </Link>

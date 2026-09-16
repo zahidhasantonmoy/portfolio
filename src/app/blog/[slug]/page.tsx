@@ -84,34 +84,80 @@ export default async function BlogPostPage({
       })
     : null;
 
-  // JSON-LD Article schema
+  const wordCount = post.content_en ? post.content_en.trim().split(/\s+/).length : 0;
+
+  // JSON-LD BreadcrumbList schema for rich Google search breadcrumbs
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://zahidhasantonmoy.vercel.app",
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Blog",
+        "item": "https://zahidhasantonmoy.vercel.app/blog",
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": post.title_en,
+        "item": `https://zahidhasantonmoy.vercel.app/blog/${slug}`,
+      },
+    ],
+  };
+
+  // JSON-LD Article schema (E-E-A-T linked with Author #person entity)
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
+    "@id": `https://zahidhasantonmoy.vercel.app/blog/${slug}#article`,
     headline: post.title_en,
-    description: post.excerpt_en ?? "",
-    image: post.cover_image_url ?? "",
-    datePublished: post.published_at ?? "",
-    dateModified: post.updated_at,
+    name: post.title_en,
+    description: post.meta_desc_en || post.excerpt_en || "",
+    image: post.cover_image_url || `https://zahidhasantonmoy.vercel.app/blog/${slug}/opengraph-image`,
+    datePublished: post.published_at || new Date().toISOString(),
+    dateModified: post.updated_at || post.published_at || new Date().toISOString(),
+    wordCount: wordCount,
+    timeRequired: `PT${post.read_time_min || Math.max(1, Math.ceil(wordCount / 200))}M`,
+    inLanguage: "en",
     author: {
       "@type": "Person",
+      "@id": "https://zahidhasantonmoy.vercel.app/#person",
       name: "Zahid Hasan Tonmoy",
       url: "https://zahidhasantonmoy.vercel.app",
+      jobTitle: "MERN Full Stack Developer & AI Agent Developer",
     },
     publisher: {
       "@type": "Person",
+      "@id": "https://zahidhasantonmoy.vercel.app/#person",
       name: "Zahid Hasan Tonmoy",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://zahidhasantonmoy.vercel.app/images/profile.jpg",
+      },
     },
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": `https://zahidhasantonmoy.vercel.app/blog/${slug}`,
     },
-    inLanguage: "en",
+    keywords: post.categories?.name_en
+      ? [post.categories.name_en, "MERN", "Web Development", "AI", "Zahid Hasan Tonmoy"]
+      : ["Web Development", "Zahid Hasan Tonmoy"],
   };
 
   return (
     <>
       <ReadingProgressBar />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}

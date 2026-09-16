@@ -76,24 +76,80 @@ export default async function BnBlogPostPage({
       })
     : null;
 
-  // Bengali JSON-LD schema
+  const wordCount = post.content_bn ? post.content_bn.trim().split(/\s+/).length : 0;
+
+  // Bengali BreadcrumbList schema
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "হোম",
+        "item": "https://zahidhasantonmoy.vercel.app",
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "বাংলা ব্লগ",
+        "item": "https://zahidhasantonmoy.vercel.app/bn/blog",
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": post.title_bn,
+        "item": `https://zahidhasantonmoy.vercel.app/bn/blog/${slug}`,
+      },
+    ],
+  };
+
+  // Bengali JSON-LD article schema (E-E-A-T linked with Author entity)
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
+    "@id": `https://zahidhasantonmoy.vercel.app/bn/blog/${slug}#article`,
     headline: post.title_bn,
-    description: post.excerpt_bn ?? "",
-    datePublished: post.published_at ?? "",
-    author: { "@type": "Person", name: "জাহিদ হাসান তন্ময়" },
+    name: post.title_bn,
+    description: post.meta_desc_bn || post.excerpt_bn || "",
+    image: post.cover_image_url || `https://zahidhasantonmoy.vercel.app/bn/blog/${slug}/opengraph-image`,
+    datePublished: post.published_at || new Date().toISOString(),
+    dateModified: post.updated_at || post.published_at || new Date().toISOString(),
+    wordCount: wordCount,
+    timeRequired: `PT${post.read_time_min || Math.max(1, Math.ceil(wordCount / 200))}M`,
     inLanguage: "bn",
+    author: {
+      "@type": "Person",
+      "@id": "https://zahidhasantonmoy.vercel.app/#person",
+      name: "জাহিদ হাসান তন্ময়",
+      url: "https://zahidhasantonmoy.vercel.app",
+      jobTitle: "MERN Full Stack Developer & AI Agent Developer",
+    },
+    publisher: {
+      "@type": "Person",
+      "@id": "https://zahidhasantonmoy.vercel.app/#person",
+      name: "Zahid Hasan Tonmoy",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://zahidhasantonmoy.vercel.app/images/profile.jpg",
+      },
+    },
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": `https://zahidhasantonmoy.vercel.app/bn/blog/${slug}`,
     },
+    keywords: post.categories?.name_bn
+      ? [post.categories.name_bn, "বাংলা ব্লগ", "প্রোগ্রামিং", "জাহিদ হাসান তন্ময়"]
+      : ["বাংলা ব্লগ", "প্রোগ্রামিং", "জাহিদ হাসান তন্ময়"],
   };
 
   return (
     <>
       <ReadingProgressBar />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}

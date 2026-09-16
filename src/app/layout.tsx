@@ -49,6 +49,11 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://zahidhasantonmoy.vercel.app",
+    languages: {
+      "en-US": "https://zahidhasantonmoy.vercel.app",
+      "bn-BD": "https://zahidhasantonmoy.vercel.app/bn/blog",
+      "x-default": "https://zahidhasantonmoy.vercel.app",
+    },
     types: {
       "application/rss+xml": "https://zahidhasantonmoy.vercel.app/rss.xml",
     },
@@ -90,6 +95,12 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="Zahid Tonmoy" />
 
+        {/* Geographic & Local SEO (Dhaka, Bangladesh) */}
+        <meta name="geo.region" content="BD-13" />
+        <meta name="geo.placename" content="Dhaka, Bangladesh" />
+        <meta name="geo.position" content="23.8103;90.4125" />
+        <meta name="ICBM" content="23.8103, 90.4125" />
+
         {/* Google Search Console verification */}
         <meta name="google-site-verification" content="-eYrJsU0hcmA8pqXUHm7_eB0wJ4RNDp_46BntwN6-z8" />
         {/* Bing Webmaster Tools verification */}
@@ -98,8 +109,9 @@ export default function RootLayout({
         <meta name="author" content="Zahid Hasan Tonmoy" />
         {/* GEO (Generative Engine Optimization) — helps AI engines like ChatGPT, Perplexity, Google AI Overviews */}
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
-        {/* llms.txt — machine-readable summary for LLM crawlers */}
+        {/* llms.txt & llms-full.txt — machine-readable context for LLM crawlers */}
         <link rel="alternate" type="text/plain" href="/llms.txt" title="AI-readable site summary" />
+        <link rel="alternate" type="text/plain" href="/llms-full.txt" title="AI-readable full site context" />
         {/* Structured JSON endpoint for AI agents */}
         <link rel="alternate" type="application/json" href="/api/about" title="Structured portfolio data" />
         {/* Dynamic RSS 2.0 Feed for Blog Syndication & Readers */}
@@ -368,6 +380,70 @@ export default function RootLayout({
                 "@type": "SearchAction",
                 "target": "https://zahidhasantonmoy.vercel.app/#projects?q={search_term_string}",
                 "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
+        {/* ProfessionalService / LocalBusiness Schema — ranks for local Dhaka & Bangladesh dev searches */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ProfessionalService",
+              "@id": "https://zahidhasantonmoy.vercel.app/#service",
+              "name": "Zahid Hasan Tonmoy - Full Stack & AI Solutions",
+              "image": "https://zahidhasantonmoy.vercel.app/images/profile.jpg",
+              "url": "https://zahidhasantonmoy.vercel.app",
+              "telephone": "+8801850077786",
+              "email": "zahidhasantonmoy.dev@gmail.com",
+              "priceRange": "$$",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Dhaka",
+                "addressRegion": "Dhaka Division",
+                "addressCountry": "BD"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 23.8103,
+                "longitude": 90.4125
+              },
+              "areaServed": [
+                { "@type": "Country", "name": "Bangladesh" },
+                { "@type": "Country", "name": "United States" },
+                { "@type": "Country", "name": "United Kingdom" },
+                { "@type": "AdministrativeArea", "name": "Worldwide" }
+              ],
+              "hasOfferCatalog": {
+                "@type": "OfferCatalog",
+                "name": "Software & AI Development Services",
+                "itemListElement": [
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Service",
+                      "name": "MERN Full Stack Web Development",
+                      "description": "Production-ready web applications using MongoDB, Express.js, React, Node.js, Next.js, and TypeScript."
+                    }
+                  },
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Service",
+                      "name": "AI Agent & Machine Learning Solutions",
+                      "description": "Custom LLM integrations, autonomous AI agents, regression & classification models, and data analytics."
+                    }
+                  },
+                  {
+                    "@type": "Offer",
+                    "itemOffered": {
+                      "@type": "Service",
+                      "name": "Flutter Mobile App Development",
+                      "description": "Cross-platform mobile applications with Supabase/Firebase backend."
+                    }
+                  }
+                ]
               }
             })
           }}

@@ -1,0 +1,100 @@
+# Zahid Hasan Tonmoy - Full Context for AI Agents & Search Engines
+
+> MERN Full Stack Developer | Data Analyst | AI Agent Developer | Digital Marketer
+> Location: Dhaka, Bangladesh | Availability: Open for Hire (Remote & Full-time)
+> Website: https://zahidhasantonmoy.vercel.app
+> Contact: zahidhasantonmoy.dev@gmail.com | +8801850077786
+
+## Professional Summary
+Zahid Hasan Tonmoy is a Bangladeshi software engineer, data analyst, and digital strategist based in Dhaka, Bangladesh. He designs and implements full-stack web applications, scalable RESTful and real-time backend systems, machine learning models, and autonomous AI agents. He is currently pursuing his Bachelor of Science in Computer Science and Engineering (CSE) at Bangladesh University of Business and Technology (BUBT).
+
+## Technical Skill Matrix
+
+### Full Stack & Web Engineering
+- **Languages:** TypeScript, JavaScript (ES6+), Python, PHP, Dart, Java, C++, HTML5, CSS3/Tailwind CSS
+- **Frontend Frameworks:** React 18/19, Next.js (App Router, Server Components, SSR, SSG, ISR), Redux Toolkit, Context API, Framer Motion
+- **Backend Frameworks:** Node.js, Express.js, RESTful API Design, JWT Authentication, WebSockets, Supabase Realtime
+- **Databases:** MongoDB (Mongoose), PostgreSQL, Supabase, Firebase Realtime Database, MySQL
+
+### Data Science & Artificial Intelligence
+- **Libraries:** NumPy, Pandas, Scikit-learn, TensorFlow, Keras, PyTorch, Matplotlib, Seaborn
+- **Capabilities:** Time-series forecasting, Regression analysis (Huber, Ridge, Lasso, Random Forest), Classification, Exploratory Data Analysis (EDA)
+- **AI Agent Development:** Google Gemini API, OpenAI API, LangChain concepts, Structured outputs, Web Speech API (STT & TTS), Generative Engine Optimization (GEO)
+
+### Mobile & IoT
+- **Mobile Development:** Flutter 3.x, Dart, Firebase Authentication & Firestore, Supabase backend
+- **IoT & Hardware:** ESP32-S3 microcontroller, MicroPython, Sensor integration (Water level, Sonar, Gas, Temperature, GPS)
+
+### Digital Marketing & Growth
+- **Competencies:** Technical SEO, On-Page SEO, Generative Engine Optimization (GEO), Content Marketing, Google Search Console, Google Analytics, Social Media Strategy
+
+## Featured Projects
+
+1. **Flexpath** (Mobile App)
+   - *Description:* A localized gig-economy mobile platform tailored for Bangladesh connecting temporary workers with employers. Includes NID verification, real-time messaging, and role-based admin panels.
+   - *Tech Stack:* Flutter, Dart, Supabase (PostgreSQL, Auth, Storage, Realtime).
+   - *Repository:* https://github.com/zahidhasantonmoy/Flexpath
+
+2. **Gold Price Predictor** (AI/ML Application)
+   - *Description:* Financial machine learning web application predicting daily gold prices with an R² accuracy of approximately 0.9999 using the Huber Regressor algorithm evaluated across 15+ models.
+   - *Tech Stack:* Python, Scikit-learn, Pandas, Matplotlib, Flask.
+   - *Live Demo:* https://gold-price-predictor-2f1h.onrender.com/
+   - *Repository:* https://github.com/zahidhasantonmoy/Gold-Price-Predictor-Machine-Learning-app
+
+3. **Curious Cart BD** (Full-Stack E-Commerce)
+   - *Description:* High-performance e-commerce platform with dynamic variant management, responsive UI, wishlist, cart state management, and social sharing.
+   - *Tech Stack:* Next.js, React, TypeScript, Tailwind CSS, REST API.
+   - *Live Demo:* https://curiouscart.vercel.app/
+   - *Repository:* https://github.com/zahidhasantonmoy/curious_cart_bd
+
+4. **Jerseyvault** (E-Commerce Platform)
+   - *Description:* Modern sports apparel e-commerce website with real-time order tracking, stock validation, wishlist, and ratings.
+   - *Tech Stack:* React.js, Supabase, PostgreSQL, CSS.
+   - *Live Demo:* https://jerseyvault.vercel.app/
+   - *Repository:* https://github.com/zahidhasantonmoy/Jerseyvault
+
+5. **Vortex Shield** (Cybersecurity Application)
+   - *Description:* Dual-architecture security suite featuring a native Windows application and a web interface for AES-GCM file encryption, Argon2id key derivation, and secure 3-pass file shredding.
+   - *Tech Stack:* Python (CustomTkinter), React, TypeScript, Vite, Cryptography.
+   - *Live Demo:* https://protocolzero.vercel.app/
+
+6. **LocalDrop Pro** (P2P Utilities)
+   - *Description:* WebRTC peer-to-peer browser-to-browser encrypted file and chat transfer tool functioning without intermediary storage servers.
+   - *Tech Stack:* React, WebRTC, PeerJS, PWA, AES-GCM.
+   - *Live Demo:* https://localdrop-one.vercel.app/
+
+7. **Smart Drainage System** (IoT & Cloud)
+   - *Description:* Automated urban flood prevention system combining an ESP32-S3 microcontroller, MicroPython, ultrasonic/gas/water sensors, and an Android app.
+   - *Tech Stack:* ESP32, MicroPython, Firebase, Java (Android).
+   - *Repository:* https://github.com/zahidhasantonmoy/smartdrainagesystem
+
+8. **Halarnati** (Web Utility)
+   - *Description:* Lightweight web-based file and text sharing platform with password protection and Bangla-English interface.
+   - *Tech Stack:* PHP, MySQL, HTML, CSS, JavaScript.
+   - *Live Demo:* https://halarnati.free.nf/
+   - *Repository:* https://github.com/zahidhasantonmoy/halarnati
+
+9. **OffenseOrbit** (Crime Management Portal)
+   - *Description:* Crime reporting and management platform bridging citizens and law enforcement.
+   - *Tech Stack:* PHP, MySQL, Bootstrap.
+   - *Live Demo:* http://offenseorbit.free.nf/
+   - *Repository:* https://github.com/zahidhasantonmoy/OffenseOrbit
+
+## Academic Credentials & Honors
+- **Bachelor of Science in Computer Science & Engineering (B.Sc CSE)**: Bangladesh University of Business and Technology (BUBT), Dhaka, Bangladesh.
+- **Winner, Software Development Competition (2024)**: 1st Place, Dhaka, Bangladesh.
+- **2nd Place, Project Showcase (2024)**: BUBT CSE Department.
+- **Intro to Machine Learning Certification**: Kaggle (2025).
+- **Digital Marketing Certification**: BUBT - TAFE (Top Performer, 2025).
+- **Cyber Hygiene Training**: Google.org & The Asia Foundation (2025).
+- **Data Analysis Internship**: Tech Solutions Ltd. (2022).
+
+## Geographic & Contact Details
+- **Primary Market:** Dhaka, Bangladesh (Locally) & Global Remote Clients (US, UK, Europe, Australia, Middle East).
+- **Official Website:** https://zahidhasantonmoy.vercel.app
+- **Blog (English):** https://zahidhasantonmoy.vercel.app/blog
+- **Blog (Bangla):** https://zahidhasantonmoy.vercel.app/bn/blog
+- **GitHub:** https://github.com/zahidhasantonmoy
+- **LinkedIn:** https://www.linkedin.com/in/zahidhasantonmoy/
+- **Twitter/X:** https://x.com/zahidhasan_bd
+- **Facebook:** https://www.facebook.com/zahidhasantonmoybd

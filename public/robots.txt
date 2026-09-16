@@ -1,7 +1,29 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/admin
+Disallow: /api/admin/
+Disallow: /api/setup
+Disallow: /api/setup/
+Disallow: /api/auth
+Disallow: /api/auth/
 
-# Explicitly allow major AI crawlers
+# Allow public structured API data for AI agents & crawlers
+Allow: /api/about
+Allow: /api/content
+
+# Major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# Explicitly allow major AI crawlers for Generative Engine Optimization (GEO)
 User-agent: GPTBot
 Allow: /
 
@@ -17,13 +39,11 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
+User-agent: Google-Extended
 Allow: /
 
 Sitemap: https://zahidhasantonmoy.vercel.app/sitemap.xml
 
-# AI-readable summary
-# llms-txt: https://zahidhasantonmoy.vercel.app/llms.txt
+# Machine-readable context for LLMs
+# https://zahidhasantonmoy.vercel.app/llms.txt
+

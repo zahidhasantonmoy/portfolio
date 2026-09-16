@@ -6,9 +6,19 @@ import LiveBlogList from "@/components/blog/LiveBlogList";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "ব্লগ | জাহিদ হাসান তন্ময়",
+  title: "বাংলা টেক ব্লগ | জাহিদ হাসান তন্ময় - MERN ও AI ইঞ্জিনিয়ারিং",
   description:
-    "Laravel, PHP, PostgreSQL, React, JavaScript সহ আরো অনেক বিষয়ে বাংলায় technical article ও tutorial।",
+    "MERN স্ট্যাক, Next.js, React, TypeScript, পাইথন মেশিন লার্নিং ও এআই এজেন্ট ডেভেলপমেন্ট সহ আধুনিক ওয়েব প্রযুক্তির উপর বাংলায় গভীর টেকনিক্যাল আর্টিকেল ও টিউটোরিয়াল।",
+  keywords: [
+    "বাংলা ব্লগ",
+    "প্রোগ্রামিং টিউটোরিয়াল বাংলা",
+    "MERN Stack Bangla",
+    "Next.js Bangla Tutorial",
+    "React বাংলা",
+    "মেশিন লার্নিং বাংলা",
+    "জাহিদ হাসান তন্ময়",
+    "ওয়েব ডেভেলপমেন্ট বাংলাদেশ"
+  ],
   alternates: {
     canonical: "https://zahidhasantonmoy.vercel.app/bn/blog",
     languages: {
@@ -31,16 +41,16 @@ export default async function BnBlogPage() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm mb-6">
             <span>🇧🇩</span>
-            <span>বাংলা ব্লগ</span>
+            <span>বাংলা ইঞ্জিনিয়ারিং ব্লগ</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            প্রযুক্তি শেখার{" "}
+            প্রযুক্তি ও ইঞ্জিনিয়ারিং{" "}
             <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-              জার্নাল
+              নোটস
             </span>
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-6">
-            Laravel, PHP, PostgreSQL, React, JavaScript — আমি যা শিখছি তা বাংলায় লিখছি।
+            MERN স্ট্যাক, Next.js, AI এজেন্টস, পাইথন মেশিন লার্নিং ও স্কেলেবল ওয়েব আর্কিটেকচার — বাস্তব প্রজেক্টের অভিজ্ঞতা বাংলায়।
           </p>
           <Link
             href="/blog"
