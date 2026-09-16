@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getPublishedPosts, getCategories } from "@/lib/blog";
-import BlogCard from "@/components/blog/BlogCard";
+import LiveBlogList from "@/components/blog/LiveBlogList";
 
 export const revalidate = 300;
 
@@ -20,12 +20,9 @@ export const metadata: Metadata = {
 
 export default async function BnBlogPage() {
   const [posts, categories] = await Promise.all([
-    getPublishedPosts({ limit: 12 }),
+    getPublishedPosts({ limit: 100 }),
     getCategories(),
   ]);
-
-  // Filter posts that have Bangla content
-  const bnPosts = posts.filter((p) => p.title_bn || p.content_bn);
 
   return (
     <main className="min-h-screen bg-white dark:bg-gray-900">
@@ -55,37 +52,11 @@ export default async function BnBlogPage() {
       </section>
 
       <div className="max-w-5xl mx-auto px-4 py-12">
-        {/* Category filter */}
-        <div className="flex gap-2 flex-wrap mb-10">
-          {categories.map((cat) => (
-            <span
-              key={cat.id}
-              className="px-3 py-1.5 rounded-full text-xs font-medium text-white"
-              style={{ backgroundColor: cat.color }}
-            >
-              {cat.name_bn || cat.name_en}
-            </span>
-          ))}
-        </div>
-
-        {bnPosts.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-5xl mb-4">📝</p>
-            <p className="text-gray-500 text-lg mb-2">এখনো বাংলায় কোনো article নেই।</p>
-            <p className="text-gray-600 text-sm mb-6">
-              Admin panel থেকে post লেখার সময় বাংলা content যোগ করুন।
-            </p>
-            <Link href="/blog" className="text-indigo-500 hover:text-indigo-400 text-sm">
-              🇬🇧 English blog পড়ুন →
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {bnPosts.map((post) => (
-              <BlogCard key={post.id} post={post} lang="bn" />
-            ))}
-          </div>
-        )}
+        <LiveBlogList
+          initialPosts={posts}
+          categories={categories}
+          lang="bn"
+        />
       </div>
     </main>
   );

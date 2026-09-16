@@ -8,6 +8,7 @@ import { FaRegClock, FaRegCalendarAlt } from "react-icons/fa";
 import ReadingProgressBar from "@/components/blog/ReadingProgressBar";
 import PostNavigation from "@/components/blog/PostNavigation";
 import BlogInteractions from "@/components/blog/BlogInteractions";
+import ArticleAudioPlayer from "@/components/blog/ArticleAudioPlayer";
 
 export const revalidate = 300;
 
@@ -193,6 +194,14 @@ export default async function BnBlogPostPage({
               </nav>
               <BlogInteractions slug={slug} />
             </div>
+
+            {/* Listen to Article Audio Reader */}
+            <ArticleAudioPlayer
+              title={post.title_bn}
+              content={post.content_bn ?? ""}
+              readTimeMin={post.read_time_min}
+              lang="bn"
+            />
 
             <div className="prose dark:prose-invert max-w-none prose-lg prose-indigo prose-headings:font-bold prose-a:text-indigo-600 dark:prose-a:text-indigo-400 hover:prose-a:text-indigo-500">
               <ArticleContent content={post.content_bn ?? ""} />

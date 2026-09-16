@@ -10,6 +10,7 @@ import BlogInteractions from "@/components/blog/BlogInteractions";
 import TableOfContents from "@/components/blog/TableOfContents";
 import ReadingProgressBar from "@/components/blog/ReadingProgressBar";
 import PostNavigation from "@/components/blog/PostNavigation";
+import ArticleAudioPlayer from "@/components/blog/ArticleAudioPlayer";
 
 export const revalidate = 300;
 
@@ -220,6 +221,14 @@ export default async function BlogPostPage({
             <div className="lg:hidden mb-8">
               <TableOfContents content={post.content_en ?? ""} />
             </div>
+
+            {/* Listen to Article Audio Reader */}
+            <ArticleAudioPlayer
+              title={post.title_en}
+              content={post.content_en ?? ""}
+              readTimeMin={post.read_time_min}
+              lang="en"
+            />
 
             <div className="prose dark:prose-invert max-w-none prose-lg prose-indigo prose-headings:font-bold prose-a:text-indigo-600 dark:prose-a:text-indigo-400 hover:prose-a:text-indigo-500">
               <ArticleContent content={post.content_en ?? ""} />
