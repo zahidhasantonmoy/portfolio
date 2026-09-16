@@ -8,6 +8,9 @@ import {
   FaPaperPlane,
   FaRedo,
   FaChevronDown,
+  FaCopy,
+  FaCheck,
+  FaMicrophone,
 } from 'react-icons/fa';
 import { BsChatDotsFill } from 'react-icons/bs';
 
@@ -38,12 +41,24 @@ export default function ResumeChatBot() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
   const [showPrompts, setShowPrompts] = useState(true);
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [speechLang, setSpeechLang] = useState<'en-US' | 'bn-BD'>('en-US');
+  const [speechSupported, setSpeechSupported] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      setSpeechSupported(!!SpeechRec);
+    }
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -94,6 +109,66 @@ export default function ResumeChatBot() {
 
   const resetChat = () => {
     setMessages([INITIAL_MESSAGE]);
+  };
+
+  const copyMessage = async (text: string, idx: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIdx(idx);
+      setTimeout(() => setCopiedIdx(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy message:', err);
+    }
+  };
+
+  const toggleListening = () => {
+    if (!speechSupported) {
+      alert('Speech recognition is supported in Google Chrome and Microsoft Edge.');
+      return;
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognition = new SpeechRec();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = speechLang;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        let transcript = '';
+        for (let i = 0; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        setInput(transcript);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error('Failed to start speech recognition:', err);
+      setIsListening(false);
+    }
   };
 
   // Helper to render markdown bold and markdown links
@@ -213,6 +288,30 @@ export default function ResumeChatBot() {
                     }`}
                   >
                     <div className="whitespace-pre-wrap">{renderMessageContent(m.content)}</div>
+
+                    {m.role === 'assistant' && (
+                      <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-gray-700/50 text-[10px] text-gray-400">
+                        <span className="text-[9px] text-gray-500 font-semibold tracking-wider uppercase">Tonmoy AI</span>
+                        <button
+                          type="button"
+                          onClick={() => copyMessage(m.content, idx)}
+                          title="Copy answer to clipboard"
+                          className="inline-flex items-center gap-1 text-[10px] text-gray-400 hover:text-indigo-300 transition px-1.5 py-0.5 rounded hover:bg-gray-700/60"
+                        >
+                          {copiedIdx === idx ? (
+                            <>
+                              <FaCheck className="text-emerald-400 text-[10px]" />
+                              <span className="text-emerald-400 font-medium">Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <FaCopy className="text-[10px]" />
+                              <span>Copy</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -274,23 +373,72 @@ export default function ResumeChatBot() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                if (isListening && recognitionRef.current) {
+                  recognitionRef.current.stop();
+                  setIsListening(false);
+                }
                 handleSend();
               }}
-              className="p-2.5 bg-gray-950/90 border-t border-white/10 flex items-center gap-2"
+              className="p-2.5 bg-gray-950/90 border-t border-white/10 flex items-center gap-1.5"
             >
+              {/* Voice recognition & language toggle */}
+              {speechSupported && (
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={toggleListening}
+                    disabled={isLoading}
+                    title={
+                      isListening
+                        ? 'Listening... Click to stop'
+                        : `Voice typing in ${speechLang === 'en-US' ? 'English' : 'বাংলা'} (Click to speak)`
+                    }
+                    className={`relative p-2 rounded-xl transition flex items-center justify-center ${
+                      isListening
+                        ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/50 animate-pulse'
+                        : 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700'
+                    }`}
+                    aria-label={isListening ? 'Stop voice recording' : 'Start voice input'}
+                  >
+                    {isListening && (
+                      <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                      </span>
+                    )}
+                    <FaMicrophone className="text-xs" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSpeechLang((prev) => (prev === 'en-US' ? 'bn-BD' : 'en-US'))}
+                    title={`Click to switch speech language (Current: ${speechLang === 'en-US' ? 'English' : 'বাংলা'})`}
+                    className="px-1.5 py-1 text-[10px] font-bold rounded-lg bg-gray-800 hover:bg-gray-700 text-indigo-300 border border-gray-700 transition flex-shrink-0"
+                  >
+                    {speechLang === 'en-US' ? 'EN' : 'বাং'}
+                  </button>
+                </div>
+              )}
+
               <input
                 ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about Zahid's experience..."
+                placeholder={
+                  isListening
+                    ? speechLang === 'bn-BD'
+                      ? '🎙️ কথা বলুন... শুনছি...'
+                      : '🎙️ Listening... Speak now...'
+                    : "Ask about Zahid's experience..."
+                }
                 disabled={isLoading}
-                className="flex-1 bg-gray-800/80 text-white placeholder-gray-400 text-xs px-3.5 py-2.5 rounded-xl border border-gray-700 focus:outline-none focus:border-indigo-500 transition"
+                className="flex-1 bg-gray-800/80 text-white placeholder-gray-400 text-xs px-3 py-2.5 rounded-xl border border-gray-700 focus:outline-none focus:border-indigo-500 transition"
               />
               <button
                 type="submit"
                 disabled={!input.trim() || isLoading}
-                className="p-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl transition flex items-center justify-center shadow-md shadow-indigo-600/30"
+                className="p-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl transition flex items-center justify-center shadow-md shadow-indigo-600/30 flex-shrink-0"
                 aria-label="Send message"
               >
                 <FaPaperPlane className="text-xs" />

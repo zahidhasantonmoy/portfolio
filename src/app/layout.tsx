@@ -48,7 +48,10 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://zahidhasantonmoy.vercel.app", // Replace with your actual domain
+    canonical: "https://zahidhasantonmoy.vercel.app",
+    types: {
+      "application/rss+xml": "https://zahidhasantonmoy.vercel.app/rss.xml",
+    },
   },
   icons: {
     icon: [
@@ -99,6 +102,8 @@ export default function RootLayout({
         <link rel="alternate" type="text/plain" href="/llms.txt" title="AI-readable site summary" />
         {/* Structured JSON endpoint for AI agents */}
         <link rel="alternate" type="application/json" href="/api/about" title="Structured portfolio data" />
+        {/* Dynamic RSS 2.0 Feed for Blog Syndication & Readers */}
+        <link rel="alternate" type="application/rss+xml" title="Zahid Hasan Tonmoy's Blog" href="https://zahidhasantonmoy.vercel.app/rss.xml" />
       </head>
       <body className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-white`}>
         <script

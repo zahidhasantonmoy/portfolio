@@ -255,7 +255,7 @@ export default function PostEditor({
 
   async function handleGeneratePost() {
     setGeneratingPost(true);
-    const loadingToast = toast.loading("✍️ Generating full blog post... This can take up to 60 seconds.");
+    const loadingToast = toast.loading("✍️ Generating complete dual-language blog post with Gemini... This can take up to 60 seconds.");
     
     try {
       const res = await fetch("/api/admin/generate-post", {
@@ -267,19 +267,19 @@ export default function PostEditor({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to generate post");
 
-      setForm((prev) => ({
+      const jsonString = JSON.stringify(data, null, 2);
+      setJsonInput(jsonString);
+      applyJsonToForm(jsonString);
+
+      setCompletedTasks((prev) => ({
         ...prev,
-        title_en: data.title_en || prev.title_en,
-        slug: slugify(data.title_en || prev.title_en),
-        excerpt_en: data.excerpt_en || prev.excerpt_en,
-        content_en: data.content_en || prev.content_en,
-        seo_title_en: data.seo_title_en || prev.seo_title_en,
-        meta_desc_en: data.meta_desc_en || prev.meta_desc_en,
+        post: true,
+        translate: true,
+        seo: true,
+        meta: true,
       }));
 
-      setCompletedTasks(prev => ({ ...prev, post: true }));
-      toast.success("✨ Blog post generated successfully!");
-      // Automatically switch to English tab so the user can see the generated content
+      toast.success("✨ Complete dual-language blog post, SEO & social content auto-filled!");
       setActiveTab("english");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to generate post");
