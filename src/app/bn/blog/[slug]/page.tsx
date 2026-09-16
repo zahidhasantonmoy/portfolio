@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getPostBySlug } from "@/lib/blog";
+import { getPostBySlug, getAdjacentPosts } from "@/lib/blog";
 import ArticleContent from "@/components/blog/ArticleContent";
 import ShareButtons from "@/components/blog/ShareButtons";
 import { FaRegClock, FaRegCalendarAlt } from "react-icons/fa";
+import ReadingProgressBar from "@/components/blog/ReadingProgressBar";
+import PostNavigation from "@/components/blog/PostNavigation";
 
 export const revalidate = 300;
 
@@ -51,6 +53,8 @@ export default async function BnBlogPostPage({
 
   if (!post || !post.title_bn) notFound();
 
+  const adjacent = await getAdjacentPosts(post.id, post.published_at);
+
   const publishDate = post.published_at
     ? new Date(post.published_at).toLocaleDateString("bn-BD", {
         day: "numeric",
@@ -76,6 +80,7 @@ export default async function BnBlogPostPage({
 
   return (
     <>
+      <ReadingProgressBar />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -155,6 +160,17 @@ export default async function BnBlogPostPage({
 
           {/* Main Article Content */}
           <article className="flex-1 bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 md:p-12 -mt-24 relative z-20">
+            {/* Prominent Back to Articles Button */}
+            <div className="mb-6">
+              <Link
+                href="/bn/blog"
+                className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 py-2 px-4 rounded-full bg-gray-50 dark:bg-gray-800/80 border border-gray-200/80 dark:border-gray-700/80 hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-white dark:hover:bg-gray-800 transition-all shadow-sm group"
+              >
+                <span className="group-hover:-translate-x-1.5 transition-transform duration-200 text-indigo-500 font-bold">←</span>
+                <span>সকল ব্লগে ফিরে যান</span>
+              </Link>
+            </div>
+
             {/* Desktop Breadcrumb */}
             <nav className="hidden md:flex items-center gap-2 text-sm text-gray-500 mb-10">
               <Link href="/bn" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">হোম</Link>
@@ -177,6 +193,9 @@ export default async function BnBlogPostPage({
                 </div>
               </div>
             </div>
+
+            {/* Next / Previous Article Navigation */}
+            <PostNavigation prev={adjacent.prev} next={adjacent.next} lang="bn" />
             
             {/* Premium Author Card */}
             <div className="mt-12 p-8 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 shadow-sm relative overflow-hidden">

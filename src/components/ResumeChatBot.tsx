@@ -37,6 +37,7 @@ export default function ResumeChatBot() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
+  const [showPrompts, setShowPrompts] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -204,21 +205,46 @@ export default function ResumeChatBot() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick Suggestion Chips */}
-            {messages.length <= 2 && (
-              <div className="px-3 py-2 border-t border-white/5 flex gap-1.5 overflow-x-auto whitespace-nowrap bg-black/20 text-[11px]">
-                {SUGGESTIONS.map((chip, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSend(chip)}
-                    disabled={isLoading}
-                    className="px-2.5 py-1 rounded-full bg-indigo-950/60 border border-indigo-500/30 hover:bg-indigo-900/60 text-indigo-200 hover:text-white transition flex-shrink-0"
-                  >
-                    {chip}
-                  </button>
-                ))}
+            {/* Interactive Quick Prompts & Action Chips */}
+            <div className="border-t border-white/10 bg-gray-950/80 flex flex-col">
+              <div className="flex items-center justify-between px-3 pt-2 pb-1 text-[11px] text-gray-400">
+                <span className="flex items-center gap-1.5 text-indigo-300 font-semibold">
+                  <span className="text-amber-400">⚡</span>
+                  <span>Quick Actions & Prompts</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowPrompts(!showPrompts)}
+                  className="text-[10px] text-gray-400 hover:text-white px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 transition"
+                >
+                  {showPrompts ? 'Hide' : 'Show'}
+                </button>
               </div>
-            )}
+
+              {showPrompts && (
+                <div className="px-3 pb-2 pt-1 flex gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none text-[11px]">
+                  {SUGGESTIONS.map((chip, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSend(chip)}
+                      disabled={isLoading}
+                      className="px-2.5 py-1 rounded-full bg-indigo-950/80 border border-indigo-500/30 hover:bg-indigo-900 text-indigo-200 hover:text-white transition flex-shrink-0 shadow-sm active:scale-95"
+                    >
+                      {chip}
+                    </button>
+                  ))}
+                  {/* Direct Action: Resume PDF */}
+                  <a
+                    href="/files/Resume/Zahid_Hasan_Resume.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 hover:bg-emerald-900 text-emerald-300 hover:text-white transition flex-shrink-0 flex items-center gap-1 shadow-sm"
+                  >
+                    <span>📄 Open Resume PDF ↗</span>
+                  </a>
+                </div>
+              )}
+            </div>
 
             {/* Input Bar */}
             <form

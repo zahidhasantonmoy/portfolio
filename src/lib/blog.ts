@@ -258,3 +258,53 @@ export async function getAllPublishedPostsForSitemap() {
     return [];
   }
 }
+
+// ─── Adjacent Posts (Previous & Next Navigation) ──────────────────────────────
+
+export interface AdjacentPosts {
+  prev: { title_en: string; title_bn?: string | null; slug: string } | null;
+  next: { title_en: string; title_bn?: string | null; slug: string } | null;
+}
+
+export async function getAdjacentPosts(
+  currentPostId: string,
+  publishedAt?: string | null
+): Promise<AdjacentPosts> {
+  try {
+    const pubDate = publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString();
+
+    const [prevRows, nextRows] = await Promise.all([
+      sql`
+        SELECT title_en, title_bn, slug
+        FROM posts
+        WHERE status = 'published'
+          AND post_type = 'blog'
+          AND published_at <= NOW()
+          AND id != ${currentPostId}
+          AND published_at < ${pubDate}
+        ORDER BY published_at DESC
+        LIMIT 1
+      `.catch(() => []),
+      sql`
+        SELECT title_en, title_bn, slug
+        FROM posts
+        WHERE status = 'published'
+          AND post_type = 'blog'
+          AND published_at <= NOW()
+          AND id != ${currentPostId}
+          AND published_at > ${pubDate}
+        ORDER BY published_at ASC
+        LIMIT 1
+      `.catch(() => []),
+    ]);
+
+    return {
+      prev: (prevRows[0] as any) || null,
+      next: (nextRows[0] as any) || null,
+    };
+  } catch (err) {
+    console.warn("[getAdjacentPosts] Database unreachable:", err);
+    return { prev: null, next: null };
+  }
+}
+
