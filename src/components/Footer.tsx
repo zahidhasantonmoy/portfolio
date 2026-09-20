@@ -85,6 +85,15 @@ const Footer = () => {
               <FaCoffee size={28} aria-hidden="true" />
             </a>
           </div>
+          <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-xs text-gray-400 mb-4">
+            <a href="/links" className="hover:text-indigo-400 font-medium transition-colors">Social Hub & Links</a>
+            <span>•</span>
+            <a href="/blog" className="hover:text-indigo-400 transition-colors">Tech Blog</a>
+            <span>•</span>
+            <a href="/bn/blog" className="hover:text-indigo-400 transition-colors">বাংলা ব্লগ</a>
+            <span>•</span>
+            <a href="/journal" className="hover:text-indigo-400 transition-colors">Dev Journal</a>
+          </div>
           {/* text-gray-300 instead of text-gray-400 — meets WCAG AA contrast on bg-gray-800 (#4) */}
           <p className="text-gray-300 text-sm">
             &copy; {new Date().getFullYear()} Zahid Hasan Tonmoy. All rights reserved.
