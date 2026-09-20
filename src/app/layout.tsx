@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://zahidhasantonmoy.vercel.app"),
   title: "Zahid Hasan Tonmoy | MERN Full Stack Developer, Data Analyst & AI Agent Developer",
   description: "Zahid Hasan Tonmoy — MERN Full Stack Developer & AI Agent Developer based in Dhaka, Bangladesh. Explore projects, skills, and experience.",
-  keywords: "Zahid Hasan Tonmoy, MERN Full Stack Developer, Data Analyst, AI Agent Developer, Digital Marketer, MongoDB, Express.js, React, Node.js, Machine Learning, Deep Learning, AI, Next.js, TypeScript, Bangladesh, Dhaka, Portfolio, Projects, Skills",
+  keywords: "Zahid Hasan Tonmoy, MERN Full Stack Developer, Data Analyst, AI Agent Developer, Digital Marketer, MongoDB, Express.js, React, Node.js, Machine Learning, Deep Learning, AI, Next.js, TypeScript, Bangladesh, Dhaka, Portfolio, Projects, Skills, Medium, Dev.to, Buy Me a Coffee, Tech Writer, Open Source",
   openGraph: {
     title: "Zahid Hasan Tonmoy | MERN Full Stack Developer, Data Analyst & AI Agent Developer",
     description: "Zahid Hasan Tonmoy — MERN Full Stack Developer & AI Agent Developer based in Dhaka, Bangladesh. Explore projects, skills, and experience.",
@@ -301,7 +301,10 @@ export default function RootLayout({
                 "https://github.com/zahidhasantonmoy",
                 "https://www.linkedin.com/in/zahidhasantonmoy/",
                 "https://www.facebook.com/zahidhasantonmoybd",
-                "https://x.com/zahidhasan_bd"
+                "https://x.com/zahidhasan_bd",
+                "https://medium.com/@zahidhasantonmoy",
+                "https://dev.to/zahidhasantonmoy",
+                "https://buymeacoffee.com/zahidhasantonmoy"
               ]
             })
           }}

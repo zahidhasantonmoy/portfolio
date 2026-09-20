@@ -20,6 +20,9 @@ Zahid Hasan Tonmoy is a MERN Full Stack Developer, Data Analyst, AI Agent Develo
 - [Dev Journal](https://zahidhasantonmoy.vercel.app/journal): Daily learning logs and notes
 - [GitHub](https://github.com/zahidhasantonmoy): Source code and projects
 - [LinkedIn](https://www.linkedin.com/in/zahidhasantonmoy/): Professional profile
+- [Medium](https://medium.com/@zahidhasantonmoy): Tech articles and tutorials
+- [Dev.to](https://dev.to/zahidhasantonmoy): Developer community posts
+- [Buy Me a Coffee](https://buymeacoffee.com/zahidhasantonmoy): Support Zahid's open-source work
 - [Contact](https://zahidhasantonmoy.vercel.app/#contact): Hire or get in touch
 
 ## Projects

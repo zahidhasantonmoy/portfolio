@@ -2,7 +2,7 @@
 "use client";
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaGithub, FaLinkedin, FaFacebook, FaTwitter } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaFacebook, FaTwitter, FaMedium, FaDev, FaCoffee } from 'react-icons/fa';
 
 import NewsletterSection from './NewsletterSection';
 
@@ -56,6 +56,33 @@ const Footer = () => {
               className="text-gray-400 hover:text-white transition-colors duration-300"
             >
               <FaTwitter size={30} aria-hidden="true" />
+            </a>
+            <a
+              href="https://medium.com/@zahidhasantonmoy"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Medium profile"
+              className="text-gray-400 hover:text-white transition-colors duration-300"
+            >
+              <FaMedium size={30} aria-hidden="true" />
+            </a>
+            <a
+              href="https://dev.to/zahidhasantonmoy"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Dev.to profile"
+              className="text-gray-400 hover:text-white transition-colors duration-300"
+            >
+              <FaDev size={30} aria-hidden="true" />
+            </a>
+            <a
+              href="https://buymeacoffee.com/zahidhasantonmoy"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Buy Me a Coffee"
+              className="text-gray-400 hover:text-yellow-400 transition-colors duration-300"
+            >
+              <FaCoffee size={28} aria-hidden="true" />
             </a>
           </div>
           {/* text-gray-300 instead of text-gray-400 — meets WCAG AA contrast on bg-gray-800 (#4) */}

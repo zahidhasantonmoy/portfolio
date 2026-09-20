@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { GoogleGenAI } from "@google/genai";
 import profileData from "@/data/data.json";
@@ -15,6 +15,9 @@ const CONTACT_DETAIL = `
 • Location: Dhaka, Bangladesh (Works remotely with teams worldwide)
 • LinkedIn: https://www.linkedin.com/in/zahidhasantonmoy/
 • GitHub: https://github.com/zahidhasantonmoy
+• Medium: https://medium.com/@zahidhasantonmoy
+• Dev.to: https://dev.to/zahidhasantonmoy
+• Buy Me a Coffee: https://buymeacoffee.com/zahidhasantonmoy
 • Portfolio Live Site: https://zahidhasantonmoy.vercel.app/
 • Direct Contact Form: https://zahidhasantonmoy.vercel.app/#contact
 • Resume / CV: Available upon request via contact form or email (zahidhasantonmoy.dev@gmail.com)
@@ -400,6 +403,9 @@ I'm here to help you learn about his MERN full-stack projects, AI agents, data a
 • 📱 **Phone / WhatsApp**: [+880 1850 077786](tel:+8801850077786) ([WhatsApp Chat](https://wa.me/8801850077786))
 • 💼 **LinkedIn**: [linkedin.com/in/zahidhasantonmoy](https://www.linkedin.com/in/zahidhasantonmoy/)
 • 🐙 **GitHub**: [github.com/zahidhasantonmoy](https://github.com/zahidhasantonmoy)
+• ✍️ **Medium**: [medium.com/@zahidhasantonmoy](https://medium.com/@zahidhasantonmoy)
+• 💻 **Dev.to**: [dev.to/zahidhasantonmoy](https://dev.to/zahidhasantonmoy)
+• ☕ **Buy Me a Coffee**: [buymeacoffee.com/zahidhasantonmoy](https://buymeacoffee.com/zahidhasantonmoy)
 • 📬 **Direct Message**: [Contact Form](#contact)
 
 Zahid remote full-time role ebong high-impact project-er jonno available!`;
@@ -411,6 +417,9 @@ Zahid remote full-time role ebong high-impact project-er jonno available!`;
 • 📱 **ফোন / হোয়াটসঅ্যাপ**: [+880 1850 077786](tel:+8801850077786) ([WhatsApp Chat](https://wa.me/8801850077786))
 • 💼 **লিঙ্কডইন**: [linkedin.com/in/zahidhasantonmoy](https://www.linkedin.com/in/zahidhasantonmoy/)
 • 🐙 **গিটহাব**: [github.com/zahidhasantonmoy](https://github.com/zahidhasantonmoy)
+• ✍️ **মিডিয়াম**: [medium.com/@zahidhasantonmoy](https://medium.com/@zahidhasantonmoy)
+• 💻 **Dev.to**: [dev.to/zahidhasantonmoy](https://dev.to/zahidhasantonmoy)
+• ☕ **Buy Me a Coffee**: [buymeacoffee.com/zahidhasantonmoy](https://buymeacoffee.com/zahidhasantonmoy)
 • 📬 **মেসেজ পাঠান**: [কন্টাক্ট ফর্ম](#contact)
 
 জাহিদ ফুল-টাইম রিমোট রোল ও ফ্রিল্যান্স প্রজেক্টের জন্য উন্মুক্ত!`;
@@ -421,6 +430,9 @@ Zahid remote full-time role ebong high-impact project-er jonno available!`;
 • 📱 **Phone / WhatsApp**: [+880 1850 077786](tel:+8801850077786) ([WhatsApp Chat](https://wa.me/8801850077786))
 • 💼 **LinkedIn**: [linkedin.com/in/zahidhasantonmoy](https://www.linkedin.com/in/zahidhasantonmoy/)
 • 🐙 **GitHub**: [github.com/zahidhasantonmoy](https://github.com/zahidhasantonmoy)
+• ✍️ **Medium**: [medium.com/@zahidhasantonmoy](https://medium.com/@zahidhasantonmoy)
+• 💻 **Dev.to**: [dev.to/zahidhasantonmoy](https://dev.to/zahidhasantonmoy)
+• ☕ **Buy Me a Coffee**: [buymeacoffee.com/zahidhasantonmoy](https://buymeacoffee.com/zahidhasantonmoy)
 • 📬 **Direct Message**: [Contact Form](#contact)
 
 Zahid is open for full-time engineering roles, contracts, and collaborations!`;

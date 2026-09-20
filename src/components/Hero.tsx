@@ -2,7 +2,7 @@
 import React, { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
-import { FaGithub, FaLinkedin, FaFacebook, FaTwitter, FaBrain, FaDatabase, FaChartLine } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaFacebook, FaTwitter, FaBrain, FaDatabase, FaChartLine, FaMedium, FaDev, FaCoffee } from 'react-icons/fa';
 import GradientText from './GradientText';
 import TypewriterText from './TypewriterText';
 import DecryptedText from './DecryptedText';
@@ -355,6 +355,42 @@ const Hero = ({ name, title }: HeroProps) => {
             whileTap={{ scale: 0.9 }}
           >
             <FaTwitter size={30} aria-hidden="true" />
+          </motion.a>
+          <motion.a
+            href="https://medium.com/@zahidhasantonmoy"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Medium profile"
+            className="text-gray-400 hover:text-green-400 transition-colors duration-300"
+            variants={iconVariants}
+            whileHover="hover"
+            whileTap={{ scale: 0.9 }}
+          >
+            <FaMedium size={30} aria-hidden="true" />
+          </motion.a>
+          <motion.a
+            href="https://dev.to/zahidhasantonmoy"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Dev.to profile"
+            className="text-gray-400 hover:text-white transition-colors duration-300"
+            variants={iconVariants}
+            whileHover="hover"
+            whileTap={{ scale: 0.9 }}
+          >
+            <FaDev size={30} aria-hidden="true" />
+          </motion.a>
+          <motion.a
+            href="https://buymeacoffee.com/zahidhasantonmoy"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Buy Me a Coffee"
+            className="text-gray-400 hover:text-yellow-400 transition-colors duration-300"
+            variants={iconVariants}
+            whileHover="hover"
+            whileTap={{ scale: 0.9 }}
+          >
+            <FaCoffee size={28} aria-hidden="true" />
           </motion.a>
         </motion.div>
       </motion.div>
