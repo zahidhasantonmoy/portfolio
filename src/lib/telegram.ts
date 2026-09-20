@@ -27,8 +27,8 @@ export async function sendTelegramAlert({
 
   const label =
     type === "resume_lead"
-      ? "📄 *NEW RESUME / HIRE REQUEST*"
-      : "📬 *NEW CONTACT MESSAGE*";
+      ? "📄 <b>NEW RESUME / HIRE REQUEST</b>"
+      : "📬 <b>NEW CONTACT MESSAGE</b>";
 
   const bdTime = new Intl.DateTimeFormat("en-BD", {
     timeZone: "Asia/Dhaka",
@@ -41,19 +41,19 @@ export async function sendTelegramAlert({
   }).format(new Date());
 
   const preview =
-    message.length > 200 ? message.slice(0, 200).trimEnd() + "…" : message;
+    message.length > 300 ? message.slice(0, 300).trimEnd() + "…" : message;
 
   const text = [
     label,
     "",
-    `👤 *Name:* ${escapeMarkdown(name)}`,
-    `📧 *Email:* ${escapeMarkdown(email)}`,
-    `🕐 *Time (BD):* ${bdTime}`,
+    `👤 <b>Name:</b> ${escapeHtml(name)}`,
+    `📧 <b>Email:</b> ${escapeHtml(email)}`,
+    `🕐 <b>Time (BD):</b> ${bdTime}`,
     "",
-    `💬 *Message:*`,
-    `${escapeMarkdown(preview)}`,
+    `💬 <b>Message:</b>`,
+    `<i>${escapeHtml(preview)}</i>`,
     "",
-    `🔗 [View in Admin](https://zahidhasantonmoy.vercel.app/admin/messages)`,
+    `🔗 <a href="https://zahidhasantonmoy.vercel.app/admin/messages">View in Admin Panel</a>`,
   ].join("\n");
 
   try {
@@ -65,7 +65,7 @@ export async function sendTelegramAlert({
         body: JSON.stringify({
           chat_id: chatId,
           text,
-          parse_mode: "Markdown",
+          parse_mode: "HTML",
           disable_web_page_preview: true,
         }),
       }
@@ -81,7 +81,11 @@ export async function sendTelegramAlert({
   }
 }
 
-/** Escape special Markdown v1 characters for Telegram */
-function escapeMarkdown(text: string): string {
-  return text.replace(/[_*[\]()~`>#+\-=|{}.!\\]/g, "\\$&");
+/** Escape HTML special characters for Telegram HTML mode */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
+

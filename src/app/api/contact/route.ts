@@ -17,8 +17,8 @@ export async function POST(request: Request) {
 
     // Detect if this is a resume/hire lead from ResumeLeadDrawer
     const isResumeLead = message.startsWith("[REQUEST RESUME");
-    // Fire-and-forget — never block or fail the response
-    sendTelegramAlert({
+    // Await alert so serverless runtime doesn't terminate before HTTP request finishes
+    await sendTelegramAlert({
       name,
       email,
       message,
