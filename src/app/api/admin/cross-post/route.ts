@@ -75,15 +75,33 @@ async function crossPostToDevTo({
   }
 
   // DEV.to accepts max 4 tags, must be lowercase letters/numbers/hyphens
-  const cleanTags = tags
+  let cleanTags = tags
     .slice(0, 4)
     .map((t) => t.toLowerCase().replace(/[^a-z0-9-]/g, "").trim())
     .filter(Boolean);
 
+  // SEO Fallback: If no valid tags supplied, provide relevant discovery tags
+  if (cleanTags.length === 0) {
+    cleanTags = ["webdev", "programming", "javascript", "tech"];
+  }
+
+  // SEO Attribution & Canonical Backlink:
+  // Appends a permanent dofollow markdown backlink to Zahid's portfolio.
+  // This preserves SEO PageRank, domain authority, and referral traffic even if aggregators scrape DEV.to.
+  let bodyWithSeoAttribution = content;
+  if (canonicalUrl && !bodyWithSeoAttribution.includes(canonicalUrl)) {
+    bodyWithSeoAttribution = `${bodyWithSeoAttribution.trimEnd()}
+
+---
+
+*This article was originally published on [**Zahid Hasan Tonmoy's Portfolio**](${canonicalUrl}).*
+*Connect with Zahid on [GitHub](https://github.com/zahidhasantonmoy) & [LinkedIn](https://www.linkedin.com/in/zahidhasantonmoy).*`;
+  }
+
   const articlePayload: Record<string, unknown> = {
     article: {
       title,
-      body_markdown: content,
+      body_markdown: bodyWithSeoAttribution,
       published: false, // Always draft first — review before publishing
       tags: cleanTags,
       ...(canonicalUrl && { canonical_url: canonicalUrl }),

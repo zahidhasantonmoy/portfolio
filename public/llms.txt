@@ -6,7 +6,7 @@ Zahid Hasan Tonmoy is a MERN Full Stack Developer, Data Analyst, AI Agent Develo
 
 **Portfolio:** https://zahidhasantonmoy.vercel.app  
 **Structured data (JSON):** https://zahidhasantonmoy.vercel.app/api/about  
-**Last updated:** 2026-09-16  
+**Last updated:** 2026-09-20  
 **Availability:** 🟢 Available for Hire (Full-time & Remote Roles)  
 **Location:** Dhaka, Bangladesh  
 **Email:** zahidhasantonmoy.dev@gmail.com  

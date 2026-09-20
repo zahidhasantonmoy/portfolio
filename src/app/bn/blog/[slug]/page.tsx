@@ -124,6 +124,12 @@ export default async function BnBlogPostPage({
       name: "জাহিদ হাসান তন্ময়",
       url: "https://zahidhasantonmoy.vercel.app",
       jobTitle: "MERN Full Stack Developer & AI Agent Developer",
+      sameAs: [
+        "https://github.com/zahidhasantonmoy",
+        "https://www.linkedin.com/in/zahidhasantonmoy/",
+        "https://dev.to/zahidhasantonmoy",
+        "https://medium.com/@zahidhasantonmoy",
+      ],
     },
     publisher: {
       "@type": "Person",
