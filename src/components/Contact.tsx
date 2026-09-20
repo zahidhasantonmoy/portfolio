@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaPaperPlane, FaCheck } from 'react-icons/fa';
+import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaPaperPlane, FaCheck, FaGithub, FaLinkedin, FaMedium, FaDev, FaCoffee } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 
 import { useAudio } from '@/hooks/useAudio';
@@ -94,6 +94,65 @@ const Contact = () => {
                   <FaMapMarkerAlt size={20} />
                 </div>
                 <span>Dhaka, Bangladesh</span>
+              </div>
+            </div>
+
+            {/* Social & Developer Profiles */}
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-4">
+                Connect &amp; Follow
+              </h4>
+              <div className="flex flex-wrap gap-2.5">
+                <a
+                  href="https://github.com/zahidhasantonmoy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub profile"
+                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700/60 rounded-xl text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white hover:shadow-md transition-all text-xs font-medium"
+                >
+                  <FaGithub size={15} />
+                  <span>GitHub</span>
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/zahidhasantonmoy/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn profile"
+                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700/60 rounded-xl text-gray-700 dark:text-gray-200 hover:text-blue-600 hover:shadow-md transition-all text-xs font-medium"
+                >
+                  <FaLinkedin size={15} />
+                  <span>LinkedIn</span>
+                </a>
+                <a
+                  href="https://medium.com/@zahidhasantonmoy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Medium profile"
+                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700/60 rounded-xl text-gray-700 dark:text-gray-200 hover:text-green-500 hover:shadow-md transition-all text-xs font-medium"
+                >
+                  <FaMedium size={15} />
+                  <span>Medium</span>
+                </a>
+                <a
+                  href="https://dev.to/zahidhasantonmoy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Dev.to profile"
+                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700/60 rounded-xl text-gray-700 dark:text-gray-200 hover:text-indigo-400 hover:shadow-md transition-all text-xs font-medium"
+                >
+                  <FaDev size={15} />
+                  <span>Dev.to</span>
+                </a>
+                <a
+                  href="https://buymeacoffee.com/zahidhasantonmoy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Buy Me a Coffee"
+                  className="flex items-center gap-2 px-3 py-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-700/30 rounded-xl hover:shadow-md hover:scale-105 transition-all text-xs font-semibold"
+                >
+                  <FaCoffee size={15} />
+                  <span>Buy Me a Coffee</span>
+                </a>
               </div>
             </div>
           </motion.div>

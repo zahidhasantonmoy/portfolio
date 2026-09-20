@@ -2,21 +2,24 @@
 
 import { motion, useMotionValue, useSpring, useTransform, MotionValue } from 'framer-motion';
 import { useRef } from 'react';
-import { FaHome, FaGithub, FaLinkedin, FaEnvelope, FaPenAlt } from 'react-icons/fa';
+import { FaHome, FaGithub, FaLinkedin, FaEnvelope, FaPenAlt, FaMedium, FaDev, FaCoffee } from 'react-icons/fa';
 
 const icons = [
-    { icon: <FaHome size={24} aria-hidden="true" />, href: '#home', label: 'Home' },
-    { icon: <FaGithub size={24} aria-hidden="true" />, href: 'https://github.com/zahidhasantonmoy', label: 'GitHub profile', external: true },
-    { icon: <FaLinkedin size={24} aria-hidden="true" />, href: 'https://www.linkedin.com/in/zahidhasantonmoy/', label: 'LinkedIn profile', external: true },
-    { icon: <FaPenAlt size={22} aria-hidden="true" />, href: '/blog', label: 'Tech Blog' },
-    { icon: <FaEnvelope size={24} aria-hidden="true" />, href: '#contact', label: 'Contact' },
+    { icon: <FaHome size={22} aria-hidden="true" />, href: '#home', label: 'Home' },
+    { icon: <FaGithub size={22} aria-hidden="true" />, href: 'https://github.com/zahidhasantonmoy', label: 'GitHub profile', external: true },
+    { icon: <FaLinkedin size={22} aria-hidden="true" />, href: 'https://www.linkedin.com/in/zahidhasantonmoy/', label: 'LinkedIn profile', external: true },
+    { icon: <FaMedium size={22} aria-hidden="true" />, href: 'https://medium.com/@zahidhasantonmoy', label: 'Medium profile', external: true },
+    { icon: <FaDev size={22} aria-hidden="true" />, href: 'https://dev.to/zahidhasantonmoy', label: 'Dev.to profile', external: true },
+    { icon: <FaCoffee size={20} aria-hidden="true" />, href: 'https://buymeacoffee.com/zahidhasantonmoy', label: 'Buy Me a Coffee', external: true },
+    { icon: <FaPenAlt size={20} aria-hidden="true" />, href: '/blog', label: 'Tech Blog' },
+    { icon: <FaEnvelope size={22} aria-hidden="true" />, href: '#contact', label: 'Contact' },
 ];
 
 export default function FloatingDock() {
     const mouseX = useMotionValue(Infinity);
 
     return (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex h-16 items-end gap-4 rounded-2xl bg-white/10 dark:bg-black/10 px-4 pb-3 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-2xl">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex h-16 items-end gap-2 sm:gap-3 rounded-2xl bg-white/10 dark:bg-black/10 px-3 sm:px-4 pb-3 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-2xl max-w-[95vw] overflow-x-auto">
             {icons.map((item, i) => (
                 <DockIcon key={i} mouseX={mouseX} {...item} />
             ))}

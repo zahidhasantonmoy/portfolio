@@ -4,7 +4,7 @@ import Link from "next/link";
 import { getPostBySlug, getAdjacentPosts } from "@/lib/blog";
 import ArticleContent from "@/components/blog/ArticleContent";
 import ShareButtons from "@/components/blog/ShareButtons";
-import { FaRegClock, FaRegCalendarAlt } from "react-icons/fa";
+import { FaRegClock, FaRegCalendarAlt, FaGithub, FaLinkedin, FaMedium, FaDev, FaCoffee } from "react-icons/fa";
 import ReadingProgressBar from "@/components/blog/ReadingProgressBar";
 import PostNavigation from "@/components/blog/PostNavigation";
 import BlogInteractions from "@/components/blog/BlogInteractions";
@@ -308,13 +308,56 @@ export default async function BnBlogPostPage({
                     MERN ফুল-স্ট্যাক ডেভেলপার এবং AI এজেন্ট ডেভেলপার, ঢাকা, বাংলাদেশ।
                     ওয়েব ডেভেলপমেন্ট, রিঅ্যাক্ট, লারাভেল এবং আমার লার্নিং জার্নি নিয়ে লিখছি।
                   </p>
-                  <Link
-                    href="/bn"
-                    className="inline-flex items-center gap-2 mt-4 px-5 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-indigo-300 transition-all shadow-sm group"
-                  >
-                    পোর্টফোলিও দেখুন 
-                    <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  </Link>
+                  <div className="flex flex-wrap items-center gap-3 mt-4">
+                    <Link
+                      href="/bn"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-indigo-300 transition-all shadow-sm group"
+                    >
+                      পোর্টফোলিও দেখুন 
+                      <span className="group-hover:translate-x-1 transition-transform">→</span>
+                    </Link>
+                    <a
+                      href="https://medium.com/@zahidhasantonmoy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="মিডিয়াম প্রোফাইল"
+                      title="মিডিয়ামে আর্টিকেল পড়ুন"
+                      className="p-2.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-green-500 hover:border-green-400 transition-all shadow-sm"
+                    >
+                      <FaMedium size={16} />
+                    </a>
+                    <a
+                      href="https://dev.to/zahidhasantonmoy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="DEV.to প্রোফাইল"
+                      title="DEV.to প্রোফাইল"
+                      className="p-2.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-indigo-400 hover:border-indigo-400 transition-all shadow-sm"
+                    >
+                      <FaDev size={16} />
+                    </a>
+                    <a
+                      href="https://github.com/zahidhasantonmoy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="গিটহাব প্রোফাইল"
+                      title="গিটহাব প্রোফাইল"
+                      className="p-2.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:border-gray-400 transition-all shadow-sm"
+                    >
+                      <FaGithub size={16} />
+                    </a>
+                    <a
+                      href="https://buymeacoffee.com/zahidhasantonmoy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Buy Me a Coffee"
+                      title="Buy Me a Coffee-তে সাপোর্ট করুন"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-700/40 text-xs font-semibold hover:shadow-md hover:scale-105 transition-all shadow-sm"
+                    >
+                      <FaCoffee size={14} />
+                      <span>সাপোর্ট করুন</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
