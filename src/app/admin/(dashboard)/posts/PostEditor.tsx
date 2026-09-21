@@ -884,7 +884,6 @@ export default function PostEditor({
   },
   "og_image_en": "https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents/opengraph-image",
   "og_image_bn": "https://zahidhasantonmoy.vercel.app/bn/blog/mastering-autonomous-ai-agents/opengraph-image",
-  "og_image": "https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents/opengraph-image",
   "word_count": {
     "english": 1450,
     "bangla": 1380

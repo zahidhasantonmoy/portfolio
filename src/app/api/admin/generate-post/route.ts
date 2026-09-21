@@ -163,7 +163,6 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
   },
   "og_image_en": "string",
   "og_image_bn": "string",
-  "og_image": "string",
   "links": {
     "github": "https://github.com/zahidhasantonmoy",
     "portfolio": "https://zahidhasantonmoy.vercel.app"
@@ -211,7 +210,7 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
     const ogBn = result.og_image_bn || `https://zahidhasantonmoy.vercel.app/bn/blog/${slug}/opengraph-image`;
     result.og_image_en = ogEn;
     result.og_image_bn = ogBn;
-    result.og_image = ogEn;
+    delete (result as any).og_image;
 
     if (!result.seo) result.seo = {};
     const primaryEn = result.seo.primary_keyword_en || result.seo.primary_keyword || targetTopic;
