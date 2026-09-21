@@ -22,16 +22,34 @@ function toPost(row: Record<string, unknown>): Post {
 
 // ─── Posts ────────────────────────────────────────────────────────────────────
 
+/**
+ * Automatically transitions any scheduled posts whose published_at time has arrived into 'published' status.
+ */
+export async function autoPublishScheduledPosts(): Promise<void> {
+  try {
+    await sql`
+      UPDATE posts
+      SET status = 'published', updated_at = NOW()
+      WHERE status = 'scheduled' AND published_at <= NOW()
+    `;
+  } catch (err) {
+    // Non-blocking catch to avoid build/runtime disruption
+  }
+}
+
 export async function getPublishedPosts(opts?: {
   category?: string;
   search?: string;
   limit?: number;
   offset?: number;
 }): Promise<Post[]> {
-  const limit = opts?.limit ?? 12;
+  const limit = opts?.limit ?? 10;
   const offset = opts?.offset ?? 0;
 
   try {
+    // Lazy sync any due scheduled posts
+    await autoPublishScheduledPosts();
+
     let rows;
 
     if (opts?.search && opts?.category) {
@@ -42,7 +60,7 @@ export async function getPublishedPosts(opts?: {
                c.slug as cat_slug, c.color as cat_color
         FROM posts p
         LEFT JOIN categories c ON p.category_id = c.id
-        WHERE p.status = 'published'
+        WHERE (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
           AND p.post_type = 'blog'
           AND p.published_at <= NOW()
           AND c.slug = ${opts.category}
@@ -60,7 +78,7 @@ export async function getPublishedPosts(opts?: {
                c.slug as cat_slug, c.color as cat_color
         FROM posts p
         LEFT JOIN categories c ON p.category_id = c.id
-        WHERE p.status = 'published'
+        WHERE (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
           AND p.post_type = 'blog'
           AND p.published_at <= NOW()
           AND (p.title_en ILIKE ${'%' + opts.search + '%'}
@@ -77,7 +95,7 @@ export async function getPublishedPosts(opts?: {
                c.slug as cat_slug, c.color as cat_color
         FROM posts p
         LEFT JOIN categories c ON p.category_id = c.id
-        WHERE p.status = 'published'
+        WHERE (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
           AND p.post_type = 'blog'
           AND p.published_at <= NOW()
           AND c.slug = ${opts.category}
@@ -92,7 +110,7 @@ export async function getPublishedPosts(opts?: {
                c.slug as cat_slug, c.color as cat_color
         FROM posts p
         LEFT JOIN categories c ON p.category_id = c.id
-        WHERE p.status = 'published'
+        WHERE (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
           AND p.post_type = 'blog'
           AND p.published_at <= NOW()
         ORDER BY p.published_at DESC
@@ -116,7 +134,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
       FROM posts p
       LEFT JOIN categories c ON p.category_id = c.id
       WHERE p.slug = ${slug}
-        AND p.status = 'published'
+        AND (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
         AND p.published_at <= NOW()
       LIMIT 1
     `;
@@ -151,7 +169,8 @@ export async function getRelatedPosts(
     const rows = await sql`
       SELECT id, title_en, title_bn, slug, excerpt_en, cover_image_url, published_at, read_time_min
       FROM posts
-      WHERE status = 'published' AND post_type = 'blog'
+      WHERE (status = 'published' OR (status = 'scheduled' AND published_at <= NOW()))
+        AND post_type = 'blog'
         AND id != ${postId} AND published_at <= NOW()
       ORDER BY published_at DESC
       LIMIT ${limit}
@@ -162,7 +181,8 @@ export async function getRelatedPosts(
   const rows = await sql`
     SELECT id, title_en, title_bn, slug, excerpt_en, cover_image_url, published_at, read_time_min
     FROM posts
-    WHERE status = 'published' AND post_type = 'blog'
+    WHERE (status = 'published' OR (status = 'scheduled' AND published_at <= NOW()))
+      AND post_type = 'blog'
       AND id != ${postId} AND category_id = ${categoryId} AND published_at <= NOW()
     ORDER BY published_at DESC
     LIMIT ${limit}
@@ -174,7 +194,8 @@ export async function getAllPostSlugs(): Promise<{ slug: string }[]> {
   try {
     const rows = await sql`
       SELECT slug FROM posts
-      WHERE status = 'published' AND post_type = 'blog'
+      WHERE (status = 'published' OR (status = 'scheduled' AND published_at <= NOW()))
+        AND post_type = 'blog'
     `;
     return rows as { slug: string }[];
   } catch (err) {
@@ -182,6 +203,7 @@ export async function getAllPostSlugs(): Promise<{ slug: string }[]> {
     return [];
   }
 }
+
 
 // ─── Journal ──────────────────────────────────────────────────────────────────
 
@@ -250,7 +272,8 @@ export async function getAllPublishedPostsForSitemap() {
     const rows = await sql`
       SELECT slug, updated_at, published_at, post_type, cover_image_url, title_en, title_bn, excerpt_en, excerpt_bn
       FROM posts
-      WHERE status = 'published' AND published_at <= NOW()
+      WHERE (status = 'published' OR (status = 'scheduled' AND published_at <= NOW()))
+        AND published_at <= NOW()
     `;
     return rows;
   } catch (err) {
@@ -277,7 +300,7 @@ export async function getAdjacentPosts(
       sql`
         SELECT title_en, title_bn, slug
         FROM posts
-        WHERE status = 'published'
+        WHERE (status = 'published' OR (status = 'scheduled' AND published_at <= NOW()))
           AND post_type = 'blog'
           AND published_at <= NOW()
           AND id != ${currentPostId}
@@ -288,7 +311,7 @@ export async function getAdjacentPosts(
       sql`
         SELECT title_en, title_bn, slug
         FROM posts
-        WHERE status = 'published'
+        WHERE (status = 'published' OR (status = 'scheduled' AND published_at <= NOW()))
           AND post_type = 'blog'
           AND published_at <= NOW()
           AND id != ${currentPostId}

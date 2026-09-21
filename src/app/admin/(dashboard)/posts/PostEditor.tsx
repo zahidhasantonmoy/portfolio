@@ -40,7 +40,109 @@ function slugify(text: string) {
     .trim();
 }
 
+// Helper to format Date for datetime-local input (YYYY-MM-DDTHH:mm)
+function formatForDatetimeInput(d: Date): string {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// Compute dynamic human-friendly relative time message
+function getRelativeTimeMessage(targetDateStr?: string | null): string {
+  if (!targetDateStr) return "";
+  const target = new Date(targetDateStr).getTime();
+  if (isNaN(target)) return "";
+  const diff = target - Date.now();
+  if (diff <= 0) return "Ready to go live (time arrived)";
+
+  const diffMinutes = Math.floor(diff / (1000 * 60));
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffDays > 0) {
+    const remHours = diffHours % 24;
+    return `in ${diffDays} day${diffDays > 1 ? "s" : ""}${remHours > 0 ? ` ${remHours} hr${remHours > 1 ? "s" : ""}` : ""}`;
+  }
+  if (diffHours > 0) {
+    const remMins = diffMinutes % 60;
+    return `in ${diffHours} hr${diffHours > 1 ? "s" : ""}${remMins > 0 ? ` ${remMins} min${remMins > 1 ? "s" : ""}` : ""}`;
+  }
+  return `in ${diffMinutes} minute${diffMinutes > 1 ? "s" : ""}`;
+}
+
+// Parse imported publish date strings (supports YYYY-MM-DD or ISO datetime)
+function parsePublishDate(rawDateStr?: string): { isFuture: boolean; isoString?: string; formattedInput?: string } {
+  if (!rawDateStr || typeof rawDateStr !== "string") return { isFuture: false };
+  const trimmed = rawDateStr.trim();
+  if (!trimmed) return { isFuture: false };
+
+  let dt: Date;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    // If only YYYY-MM-DD, set default publish time to 10:00:00 AM local time
+    const [y, m, d] = trimmed.split("-").map(Number);
+    dt = new Date(y, m - 1, d, 10, 0, 0);
+  } else {
+    dt = new Date(trimmed);
+  }
+
+  if (isNaN(dt.getTime())) return { isFuture: false };
+
+  const isFuture = dt.getTime() > Date.now();
+  const formattedInput = formatForDatetimeInput(dt);
+
+  return {
+    isFuture,
+    isoString: dt.toISOString(),
+    formattedInput,
+  };
+}
+
+// Quick presets generator
+function getSchedulePresets() {
+  const now = new Date();
+
+  const tomorrow10 = new Date(now);
+  tomorrow10.setDate(tomorrow10.getDate() + 1);
+  tomorrow10.setHours(10, 0, 0, 0);
+
+  const tomorrowEvening = new Date(now);
+  tomorrowEvening.setDate(tomorrowEvening.getDate() + 1);
+  tomorrowEvening.setHours(19, 0, 0, 0);
+
+  const in2Days10 = new Date(now);
+  in2Days10.setDate(in2Days10.getDate() + 2);
+  in2Days10.setHours(10, 0, 0, 0);
+
+  const nextWeekend = new Date(now);
+  const daysUntilSunday = (7 - nextWeekend.getDay()) % 7 || 7;
+  nextWeekend.setDate(nextWeekend.getDate() + daysUntilSunday);
+  nextWeekend.setHours(20, 0, 0, 0);
+
+  const nextMonday9 = new Date(now);
+  const daysUntilMonday = (8 - nextMonday9.getDay()) % 7 || 7;
+  nextMonday9.setDate(nextMonday9.getDate() + daysUntilMonday);
+  nextMonday9.setHours(9, 0, 0, 0);
+
+  return [
+    { label: "Tomorrow 10 AM", sub: "10:00 AM", dt: formatForDatetimeInput(tomorrow10), icon: "🌅" },
+    { label: "Tomorrow 7 PM", sub: "07:00 PM", dt: formatForDatetimeInput(tomorrowEvening), icon: "🌆" },
+    { label: "In 2 Days (10 AM)", sub: "+2 days", dt: formatForDatetimeInput(in2Days10), icon: "📅" },
+    { label: "Next Sunday 8 PM", sub: "Prime Time", dt: formatForDatetimeInput(nextWeekend), icon: "🎉" },
+    { label: "Next Monday 9 AM", sub: "Workweek Kickoff", dt: formatForDatetimeInput(nextMonday9), icon: "🗓️" },
+  ];
+}
+
+// Quick hour adjuster
+function adjustScheduleTime(hoursToAdd: number, baseDateStr?: string): string {
+  const base = baseDateStr && !isNaN(new Date(baseDateStr).getTime())
+    ? new Date(baseDateStr)
+    : new Date();
+  const start = base.getTime() < Date.now() ? new Date() : base;
+  start.setTime(start.getTime() + hoursToAdd * 60 * 60 * 1000);
+  return formatForDatetimeInput(start);
+}
+
 type TabType = "english" | "bangla" | "ai" | "json" | "settings";
+
 
 export default function PostEditor({
   post,
@@ -362,6 +464,15 @@ export default function PostEditor({
     setShowScheduleModal(false);
     await handleSave("scheduled", selectedDatetime);
   }
+
+  async function handleUnschedule() {
+    setForm((prev) => ({ ...prev, status: "draft", published_at: "" }));
+    setScheduleDate("");
+    setShowScheduleModal(false);
+    toast.success("Schedule cancelled. Post reverted to draft.");
+    await handleSave("draft", "");
+  }
+
 
   async function handleDelete() {
     if (!post?.id || !confirm("Delete this post permanently?")) return;
@@ -1008,8 +1119,17 @@ export default function PostEditor({
       }
 
       const readTime = Number(data.reading_time_minutes || data.read_time_min) || (content_en ? Math.max(1, Math.ceil(content_en.trim().split(/\s+/).length / 200)) : undefined);
-      const postStatus = (data.status === "draft" || data.status === "published" || data.status === "scheduled") ? data.status : undefined;
-      const publishedAt = data.published_date || data.published_at || undefined;
+      
+      // Smart Future Date Detection for Automated Scheduling
+      const rawDateStr = data.published_date || data.published_at;
+      const parsedDateInfo = parsePublishDate(rawDateStr);
+
+      let postStatus = (data.status === "draft" || data.status === "published" || data.status === "scheduled") ? data.status : undefined;
+      if (parsedDateInfo.isFuture) {
+        postStatus = "scheduled";
+      }
+
+      const publishedAt = parsedDateInfo.formattedInput || rawDateStr || undefined;
 
       setForm((prev) => ({
         ...prev,
@@ -1032,8 +1152,25 @@ export default function PostEditor({
       }));
 
       setParsedJsonData(data);
-      toast.success("✨ All blog fields auto-filled successfully from JSON!");
+      if (parsedDateInfo.isFuture) {
+        const formattedDateDisplay = new Date(parsedDateInfo.isoString!).toLocaleDateString([], {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+        const formattedTimeDisplay = new Date(parsedDateInfo.isoString!).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        toast.success(
+          `⏰ Future date detected (${formattedDateDisplay} at ${formattedTimeDisplay}). Article automatically scheduled!`,
+          { duration: 6000 }
+        );
+      } else {
+        toast.success("✨ All blog fields auto-filled successfully from JSON!");
+      }
       setActiveTab("english");
+
     } catch (err: any) {
       toast.error("JSON Error: " + (err?.message || "Invalid JSON"));
     }
@@ -1055,17 +1192,42 @@ export default function PostEditor({
           <span className="text-white text-sm font-medium bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-700">
             📝 Blog Post
           </span>
-          <span className={`text-xs px-2.5 py-1 rounded-full capitalize font-medium ${
-            form.status === "published"
-              ? "bg-emerald-900/40 text-emerald-400 border border-emerald-500/30"
-              : form.status === "scheduled"
-              ? "bg-blue-900/40 text-blue-400 border border-blue-500/30"
-              : "bg-yellow-900/40 text-yellow-400 border border-yellow-500/30"
-          }`}>
-            {form.status === "scheduled" && form.published_at
-              ? `⏰ Scheduled: ${new Date(form.published_at).toLocaleDateString([], { month: "short", day: "numeric" })} at ${new Date(form.published_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-              : form.status}
-          </span>
+          {form.status === "scheduled" ? (
+            <button
+              type="button"
+              onClick={() => {
+                setScheduleDate(form.published_at || formatForDatetimeInput(new Date()));
+                setShowScheduleModal(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-950/80 text-blue-300 border border-blue-500/50 hover:bg-blue-900/60 transition active:scale-95 group shadow-sm cursor-pointer"
+              title="Click to view, adjust or unschedule"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping"></span>
+              <span>
+                ⏰ Scheduled:{" "}
+                {form.published_at
+                  ? `${new Date(form.published_at).toLocaleDateString([], { month: "short", day: "numeric" })} at ${new Date(form.published_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                  : "Pick time"}
+              </span>
+              {form.published_at && (
+                <span className="text-[10px] text-blue-400/90 font-mono bg-blue-900/60 px-1.5 py-0.2 rounded border border-blue-500/30">
+                  {getRelativeTimeMessage(form.published_at)}
+                </span>
+              )}
+              <span className="text-[10px] text-blue-400 underline group-hover:text-white transition ml-0.5">
+                Edit ↗
+              </span>
+            </button>
+          ) : (
+            <span className={`text-xs px-2.5 py-1 rounded-full capitalize font-medium ${
+              form.status === "published"
+                ? "bg-emerald-900/40 text-emerald-400 border border-emerald-500/30"
+                : "bg-yellow-900/40 text-yellow-400 border border-yellow-500/30"
+            }`}>
+              {form.status}
+            </span>
+          )}
+
           <button
             type="button"
             onClick={() => setActiveTab("json")}
@@ -2278,70 +2440,350 @@ export default function PostEditor({
 
       {/* ── Settings Tab ── */}
       {activeTab === "settings" && (
-        <div className="space-y-5">
-          <div className="grid grid-cols-2 gap-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
-              <select
-                value={form.category_id}
-                onChange={(e) => setForm({ ...form, category_id: e.target.value })}
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
-              >
-                <option value="">No category</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name_en}</option>
-                ))}
-              </select>
-            </div>
+        <div className="space-y-6">
+          {/* Publishing Status & Automated Scheduling Manager Card */}
+          <div className="bg-gray-900/90 border border-gray-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-800 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-sm border border-indigo-500/20">
+                  ⏰
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white tracking-tight">
+                    Publication &amp; Schedule Controller
+                  </h3>
+                  <p className="text-xs text-gray-400">
+                    Control visibility, immediate publication, or automated future release.
+                  </p>
+                </div>
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Publish Date</label>
-              <input
-                type="datetime-local"
-                value={form.published_at}
-                onChange={(e) => setForm({ ...form, published_at: e.target.value })}
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-3">Tags</label>
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <button
-                  key={tag.id}
-                  type="button"
-                  onClick={() => toggleTag(tag.id)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
-                    form.tag_ids.includes(tag.id)
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
-                  }`}
-                >
-                  {tag.name_en}
-                </button>
-              ))}
-              {tags.length === 0 && (
-                <p className="text-sm text-gray-500">No tags yet. Add tags from the database.</p>
+              {form.status === "scheduled" && form.published_at && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-950/80 border border-blue-500/40 text-blue-300">
+                  <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+                  <span>Scheduled: {getRelativeTimeMessage(form.published_at)}</span>
+                </span>
               )}
             </div>
+
+            {/* Mode Cards: Draft, Publish Now, Schedule */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Draft Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  setForm({ ...form, status: "draft" });
+                }}
+                className={`p-4 rounded-xl border text-left transition flex flex-col justify-between cursor-pointer ${
+                  form.status === "draft"
+                    ? "bg-amber-950/40 border-amber-500/60 shadow-md shadow-amber-500/10"
+                    : "bg-gray-950/50 border-gray-800 hover:border-gray-700 opacity-70 hover:opacity-100"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-lg">📄</span>
+                  <input
+                    type="radio"
+                    name="pub_mode"
+                    checked={form.status === "draft"}
+                    onChange={() => setForm({ ...form, status: "draft" })}
+                    className="accent-amber-500 cursor-pointer"
+                  />
+                </div>
+                <div className="mt-3">
+                  <p className="text-xs font-bold text-white">Draft Mode</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">
+                    Private and hidden. Readers and search engines cannot see it.
+                  </p>
+                </div>
+              </button>
+
+              {/* Publish Immediately Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  setForm({
+                    ...form,
+                    status: "published",
+                    published_at: form.published_at && new Date(form.published_at).getTime() <= Date.now()
+                      ? form.published_at
+                      : formatForDatetimeInput(new Date()),
+                  });
+                }}
+                className={`p-4 rounded-xl border text-left transition flex flex-col justify-between cursor-pointer ${
+                  form.status === "published"
+                    ? "bg-emerald-950/40 border-emerald-500/60 shadow-md shadow-emerald-500/10"
+                    : "bg-gray-950/50 border-gray-800 hover:border-gray-700 opacity-70 hover:opacity-100"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-lg">⚡</span>
+                  <input
+                    type="radio"
+                    name="pub_mode"
+                    checked={form.status === "published"}
+                    onChange={() =>
+                      setForm({
+                        ...form,
+                        status: "published",
+                        published_at: formatForDatetimeInput(new Date()),
+                      })
+                    }
+                    className="accent-emerald-500 cursor-pointer"
+                  />
+                </div>
+                <div className="mt-3">
+                  <p className="text-xs font-bold text-white">Publish Live Now</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">
+                    Immediately live on your blog, feed.xml, and sitemap.
+                  </p>
+                </div>
+              </button>
+
+              {/* Scheduled Publication Card */}
+              <button
+                type="button"
+                onClick={() => {
+                  const defaultTarget = form.published_at && new Date(form.published_at).getTime() > Date.now()
+                    ? form.published_at
+                    : getSchedulePresets()[0].dt;
+                  setForm({
+                    ...form,
+                    status: "scheduled",
+                    published_at: defaultTarget,
+                  });
+                  setScheduleDate(defaultTarget);
+                }}
+                className={`p-4 rounded-xl border text-left transition flex flex-col justify-between cursor-pointer ${
+                  form.status === "scheduled"
+                    ? "bg-blue-950/50 border-blue-500/60 shadow-md shadow-blue-500/10"
+                    : "bg-gray-950/50 border-gray-800 hover:border-gray-700 opacity-70 hover:opacity-100"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-lg">⏰</span>
+                  <input
+                    type="radio"
+                    name="pub_mode"
+                    checked={form.status === "scheduled"}
+                    onChange={() => {
+                      const defaultTarget = form.published_at && new Date(form.published_at).getTime() > Date.now()
+                        ? form.published_at
+                        : getSchedulePresets()[0].dt;
+                      setForm({
+                        ...form,
+                        status: "scheduled",
+                        published_at: defaultTarget,
+                      });
+                    }}
+                    className="accent-blue-500 cursor-pointer"
+                  />
+                </div>
+                <div className="mt-3">
+                  <p className="text-xs font-bold text-white">Schedule for Later</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">
+                    Auto-publishes at target future date &amp; time.
+                  </p>
+                </div>
+              </button>
+            </div>
+
+            {/* Direct In-Page Schedule Configuration Panel (Active when Scheduled) */}
+            {form.status === "scheduled" && (
+              <div className="bg-gray-950/70 border border-blue-500/30 rounded-xl p-4 sm:p-5 space-y-4 animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-blue-300 flex items-center gap-1.5">
+                    <span>📅</span> Pick Future Release Date &amp; Time
+                  </span>
+                  <span className="text-[11px] text-gray-400 font-mono">
+                    Timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Dhaka"}
+                  </span>
+                </div>
+
+                {/* Preset Chips */}
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+                    Quick Preset Timing:
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {getSchedulePresets().map((preset) => {
+                      const isSelected = form.published_at === preset.dt;
+                      return (
+                        <button
+                          key={preset.label}
+                          type="button"
+                          onClick={() => {
+                            setForm({ ...form, published_at: preset.dt });
+                            setScheduleDate(preset.dt);
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 cursor-pointer ${
+                            isSelected
+                              ? "bg-blue-600 text-white border-blue-500 shadow-sm"
+                              : "bg-gray-900 border-gray-800 text-gray-300 hover:border-gray-700 hover:text-white"
+                          }`}
+                        >
+                          <span>{preset.icon}</span>
+                          <span>{preset.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Direct DateTime-Local Input & Quick Adjusters */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+                      Custom Exact Datetime:
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={form.published_at || ""}
+                      onChange={(e) => {
+                        setForm({ ...form, published_at: e.target.value });
+                        setScheduleDate(e.target.value);
+                      }}
+                      className="w-full px-3.5 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-blue-500 transition"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+                      Fast Hour Adjusters:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {[
+                        { label: "+1 Hour", h: 1 },
+                        { label: "+3 Hours", h: 3 },
+                        { label: "+1 Day", h: 24 },
+                        { label: "+1 Week", h: 168 },
+                      ].map((adj) => (
+                        <button
+                          key={adj.label}
+                          type="button"
+                          onClick={() => {
+                            const newDt = adjustScheduleTime(adj.h, form.published_at);
+                            setForm({ ...form, published_at: newDt });
+                            setScheduleDate(newDt);
+                          }}
+                          className="px-2.5 py-2 text-[11px] font-medium bg-gray-900 hover:bg-gray-800 text-blue-300 border border-blue-500/20 rounded-lg transition cursor-pointer"
+                        >
+                          {adj.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Live Countdown & Validation Banner */}
+                {form.published_at ? (
+                  new Date(form.published_at).getTime() > Date.now() ? (
+                    <div className="p-3 rounded-xl bg-blue-950/40 border border-blue-500/40 text-blue-300 text-xs flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base animate-spin">⏱️</span>
+                        <div>
+                          <p className="font-semibold text-white">
+                            Scheduled to publish {getRelativeTimeMessage(form.published_at)}
+                          </p>
+                          <p className="text-[11px] text-blue-400/90 font-mono mt-0.5">
+                            Target: {new Date(form.published_at).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric", year: "numeric" })} at {new Date(form.published_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleUnschedule}
+                        className="px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white text-[11px] font-medium transition cursor-pointer"
+                      >
+                        Cancel Schedule
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-500/40 text-amber-300 text-xs flex items-center gap-2">
+                      <span>⚠️</span>
+                      <span>Selected time is in the past! Please select a future date or click &ldquo;Publish Live Now&rdquo;.</span>
+                    </div>
+                  )
+                ) : (
+                  <div className="p-3 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 text-xs">
+                    Please pick a date and time above to activate scheduled release.
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="is_featured"
-              checked={form.is_featured}
-              onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
-              className="w-4 h-4 accent-indigo-600"
-            />
-            <label htmlFor="is_featured" className="text-sm text-gray-300">
-              Featured post (shown prominently on blog listing)
-            </label>
+          {/* Category, Tags & Featured Post */}
+          <div className="bg-gray-900/90 border border-gray-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-lg">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
+                <select
+                  value={form.category_id}
+                  onChange={(e) => setForm({ ...form, category_id: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-950 border border-gray-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
+                >
+                  <option value="">No category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name_en}</option>
+                  ))}
+                </select>
+              </div>
+
+              {form.status !== "scheduled" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    {form.status === "published" ? "Live Publish Timestamp" : "Creation / Draft Date"}
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={form.published_at || ""}
+                    onChange={(e) => setForm({ ...form, published_at: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-950 border border-gray-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-3">Tags</label>
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                  <button
+                    key={tag.id}
+                    type="button"
+                    onClick={() => toggleTag(tag.id)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition cursor-pointer ${
+                      form.tag_ids.includes(tag.id)
+                        ? "bg-indigo-600 text-white"
+                        : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
+                    }`}
+                  >
+                    {tag.name_en}
+                  </button>
+                ))}
+                {tags.length === 0 && (
+                  <p className="text-sm text-gray-500">No tags yet. Add tags from the database.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <input
+                type="checkbox"
+                id="is_featured"
+                checked={form.is_featured}
+                onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
+                className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
+              />
+              <label htmlFor="is_featured" className="text-sm text-gray-300 cursor-pointer">
+                Featured post (shown prominently on blog listing)
+              </label>
+            </div>
           </div>
         </div>
       )}
+
 
       {/* Bottom Save Bar */}
       <div className="flex items-center justify-between pt-4 border-t border-gray-800">
@@ -2397,112 +2839,162 @@ export default function PostEditor({
       {/* Schedule Post Modal */}
       {showScheduleModal && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
           onClick={() => setShowScheduleModal(false)}
         >
           <div
-            className="bg-gray-900 border border-gray-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in duration-150"
+            className="bg-gray-900 border border-gray-800 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in duration-150"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-gray-800 pb-3">
-              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                <span className="text-blue-400">⏰</span> Schedule Article Publication
-              </h3>
+            <div className="flex items-center justify-between border-b border-gray-800 pb-3.5">
+              <div className="flex items-center gap-2.5">
+                <span className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-base border border-blue-500/20">
+                  ⏰
+                </span>
+                <div>
+                  <h3 className="text-sm font-bold text-white tracking-tight">
+                    Schedule Article Publication
+                  </h3>
+                  <p className="text-[11px] text-gray-400">
+                    Auto-publishes to blog, sitemap &amp; RSS when this time arrives.
+                  </p>
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={() => setShowScheduleModal(false)}
-                className="text-gray-400 hover:text-white text-xs"
+                className="text-gray-400 hover:text-white text-xs w-7 h-7 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-xs text-gray-400">
-              Pick a future date and time. The post will remain private and automatically go live on your blog and RSS feed when this time arrives.
-            </p>
-
-            {/* Quick Presets */}
+            {/* Presets Grid */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Quick Presets</label>
+              <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+                Quick Preset Times:
+              </label>
               <div className="grid grid-cols-2 gap-2">
-                {(() => {
-                  const now = new Date();
-
-                  const tomorrow10 = new Date(now);
-                  tomorrow10.setDate(tomorrow10.getDate() + 1);
-                  tomorrow10.setHours(10, 0, 0, 0);
-
-                  const in2Days10 = new Date(now);
-                  in2Days10.setDate(in2Days10.getDate() + 2);
-                  in2Days10.setHours(10, 0, 0, 0);
-
-                  const in3DaysEvening = new Date(now);
-                  in3DaysEvening.setDate(in3DaysEvening.getDate() + 3);
-                  in3DaysEvening.setHours(19, 0, 0, 0);
-
-                  const nextWeekend = new Date(now);
-                  const daysUntilSunday = (7 - nextWeekend.getDay()) % 7 || 7;
-                  nextWeekend.setDate(nextWeekend.getDate() + daysUntilSunday);
-                  nextWeekend.setHours(20, 0, 0, 0);
-
-                  const formatForInput = (d: Date) => {
-                    const pad = (n: number) => n.toString().padStart(2, "0");
-                    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-                  };
-
-                  return [
-                    { label: "Tomorrow at 10 AM", dt: formatForInput(tomorrow10) },
-                    { label: "In 2 Days at 10 AM", dt: formatForInput(in2Days10) },
-                    { label: "In 3 Days at 7 PM", dt: formatForInput(in3DaysEvening) },
-                    { label: "Next Sunday 8 PM", dt: formatForInput(nextWeekend) },
-                  ].map((p) => (
+                {getSchedulePresets().map((p) => {
+                  const isSelected = scheduleDate === p.dt;
+                  return (
                     <button
                       key={p.label}
                       type="button"
                       onClick={() => setScheduleDate(p.dt)}
-                      className={`px-3 py-2 text-xs rounded-xl border text-left transition ${
-                        scheduleDate === p.dt
-                          ? "bg-blue-600/30 border-blue-500 text-white font-semibold"
-                          : "bg-gray-800/60 border-gray-700/60 text-gray-300 hover:bg-gray-800"
+                      className={`px-3 py-2 text-xs rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                        isSelected
+                          ? "bg-blue-600/30 border-blue-500 text-white font-semibold shadow-sm"
+                          : "bg-gray-800/60 border-gray-700/60 text-gray-300 hover:bg-gray-800 hover:text-white"
                       }`}
                     >
-                      {p.label}
+                      <div className="flex items-center gap-2 truncate">
+                        <span>{p.icon}</span>
+                        <span className="truncate">{p.label}</span>
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-mono">{p.sub}</span>
                     </button>
-                  ));
-                })()}
+                  );
+                })}
               </div>
             </div>
 
-            {/* Custom Datetime Input */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Custom Date &amp; Time</label>
+            {/* Custom Datetime Input & Hour Adjusters */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+                  Exact Datetime Selection:
+                </label>
+                <span className="text-[10px] text-gray-500 font-mono">
+                  {Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Dhaka"}
+                </span>
+              </div>
               <input
                 type="datetime-local"
                 value={scheduleDate}
                 onChange={(e) => setScheduleDate(e.target.value)}
-                className="w-full bg-gray-950 border border-gray-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
+                className="w-full bg-gray-950 border border-gray-700 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-blue-500 transition"
               />
+
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {[
+                  { label: "+1h", h: 1 },
+                  { label: "+3h", h: 3 },
+                  { label: "+1 Day", h: 24 },
+                  { label: "+1 Week", h: 168 },
+                ].map((adj) => (
+                  <button
+                    key={adj.label}
+                    type="button"
+                    onClick={() => setScheduleDate(adjustScheduleTime(adj.h, scheduleDate))}
+                    className="px-2.5 py-1 text-[11px] font-medium bg-gray-800 hover:bg-gray-700 text-blue-300 border border-blue-500/20 rounded-lg transition cursor-pointer"
+                  >
+                    {adj.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2.5 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowScheduleModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 transition"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => handleScheduleSubmit(scheduleDate)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 transition shadow-md shadow-blue-600/30"
-              >
-                Confirm Schedule ⏰
-              </button>
+            {/* Live Countdown in Modal */}
+            {scheduleDate && (
+              <div className={`p-3 rounded-xl border text-xs ${
+                new Date(scheduleDate).getTime() > Date.now()
+                  ? "bg-blue-950/40 border-blue-500/40 text-blue-300"
+                  : "bg-amber-950/40 border-amber-500/40 text-amber-300"
+              }`}>
+                {new Date(scheduleDate).getTime() > Date.now() ? (
+                  <div className="flex items-center gap-2">
+                    <span className="animate-spin text-base">⏱️</span>
+                    <div>
+                      <p className="font-semibold text-white">
+                        Will go live {getRelativeTimeMessage(scheduleDate)}
+                      </p>
+                      <p className="text-[11px] text-blue-400 font-mono mt-0.5">
+                        Target: {new Date(scheduleDate).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric", year: "numeric" })} at {new Date(scheduleDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p>⚠️ Selected time is in the past! Please pick a future date &amp; time.</p>
+                )}
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex items-center justify-between pt-2 border-t border-gray-800">
+              {form.status === "scheduled" ? (
+                <button
+                  type="button"
+                  onClick={handleUnschedule}
+                  className="px-3 py-2 rounded-xl text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 border border-rose-500/30 transition cursor-pointer"
+                >
+                  Unschedule / Revert to Draft
+                </button>
+              ) : (
+                <div />
+              )}
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowScheduleModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleScheduleSubmit(scheduleDate)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 transition shadow-md shadow-blue-600/30 cursor-pointer"
+                >
+                  Confirm Schedule ⏰
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }

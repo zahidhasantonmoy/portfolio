@@ -18,6 +18,7 @@ export default function PostStatusToggle({
   const toggleStatus = async () => {
     if (loading) return;
 
+    // If currently scheduled, clicking publishes it immediately. If published -> draft. If draft -> published.
     const nextStatus = status === 'published' ? 'draft' : 'published';
     const previousStatus = status;
 
@@ -40,7 +41,7 @@ export default function PostStatusToggle({
 
       toast.success(
         nextStatus === 'published'
-          ? 'Post published live! 🚀'
+          ? (previousStatus === 'scheduled' ? 'Scheduled post published live now! 🚀' : 'Post published live! 🚀')
           : 'Post moved to draft.'
       );
     } catch (err: any) {
@@ -52,26 +53,38 @@ export default function PostStatusToggle({
   };
 
   const isPublished = status === 'published';
+  const isScheduled = status === 'scheduled';
 
   return (
     <button
       onClick={toggleStatus}
       disabled={loading}
-      title={`Click to switch to ${isPublished ? 'draft' : 'published'}`}
+      title={
+        isScheduled
+          ? 'Currently scheduled — click to publish live immediately'
+          : `Click to switch to ${isPublished ? 'draft' : 'published'}`
+      }
       className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium transition shadow-sm ${
         loading ? 'opacity-60 cursor-wait' : 'cursor-pointer hover:scale-105'
       } ${
         isPublished
           ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-900/60'
+          : isScheduled
+          ? 'bg-blue-950/60 text-blue-300 border border-blue-500/40 hover:bg-blue-900/60'
           : 'bg-yellow-950/60 text-yellow-300 border border-yellow-500/40 hover:bg-yellow-900/60'
       }`}
     >
       <span
         className={`w-1.5 h-1.5 rounded-full ${
-          isPublished ? 'bg-emerald-400' : 'bg-yellow-400'
+          isPublished
+            ? 'bg-emerald-400'
+            : isScheduled
+            ? 'bg-blue-400 animate-pulse'
+            : 'bg-yellow-400'
         }`}
       />
-      <span className="capitalize">{status}</span>
+      <span className="capitalize">{isScheduled ? '⏰ Scheduled' : status}</span>
     </button>
   );
+
 }

@@ -76,8 +76,9 @@ export async function PATCH(
         meta_desc_bn = COALESCE(${postData.meta_desc_bn}, meta_desc_bn),
         cover_image_url = COALESCE(${postData.cover_image_url}, cover_image_url),
         category_id = COALESCE(${postData.category_id}, category_id),
-        published_at = COALESCE(${postData.published_at}, published_at),
+        published_at = ${postData.published_at !== undefined ? (postData.published_at || null) : sql`published_at`},
         read_time_min = COALESCE(${postData.read_time_min}, read_time_min),
+
         is_featured = COALESCE(${postData.is_featured}, is_featured),
         updated_at = NOW()
       WHERE id = ${id}

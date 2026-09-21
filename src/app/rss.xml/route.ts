@@ -12,10 +12,12 @@ export async function GET() {
     posts = await sql`
       SELECT id, title_en, slug, excerpt_en, content_en, cover_image_url, published_at, post_type
       FROM posts
-      WHERE status = 'published' AND published_at <= NOW()
+      WHERE (status = 'published' OR (status = 'scheduled' AND published_at <= NOW()))
+        AND published_at <= NOW()
       ORDER BY published_at DESC
       LIMIT 50
     `;
+
   } catch (error) {
     console.error("[RSS Feed] Error fetching posts from database:", error);
   }
