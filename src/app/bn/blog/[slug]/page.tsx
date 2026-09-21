@@ -120,7 +120,22 @@ export default async function BnBlogPostPage({
     headline: post.title_bn,
     name: post.title_bn,
     description: post.meta_desc_bn || post.excerpt_bn || "",
-    image: post.cover_image_url || `https://zahidhasantonmoy.vercel.app/bn/blog/${slug}/opengraph-image`,
+    image: post.cover_image_url
+      ? {
+          "@type": "ImageObject",
+          url: post.cover_image_url,
+          width: 1280,
+          height: 720,
+          caption: post.title_bn,
+          representativeOfPage: true,
+        }
+      : {
+          "@type": "ImageObject",
+          url: `https://zahidhasantonmoy.vercel.app/bn/blog/${slug}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          caption: post.title_bn,
+        },
     datePublished: post.published_at || new Date().toISOString(),
     dateModified: post.updated_at || post.published_at || new Date().toISOString(),
     wordCount: wordCount,
@@ -177,6 +192,13 @@ export default async function BnBlogPostPage({
               <img
                 src={post.cover_image_url}
                 alt={post.title_bn}
+                title={post.title_bn}
+                width={1280}
+                height={720}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                itemProp="image"
                 className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>

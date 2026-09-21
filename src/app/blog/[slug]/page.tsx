@@ -124,7 +124,22 @@ export default async function BlogPostPage({
     headline: post.title_en,
     name: post.title_en,
     description: post.meta_desc_en || post.excerpt_en || "",
-    image: post.cover_image_url || `https://zahidhasantonmoy.vercel.app/blog/${slug}/opengraph-image`,
+    image: post.cover_image_url
+      ? {
+          "@type": "ImageObject",
+          url: post.cover_image_url,
+          width: 1280,
+          height: 720,
+          caption: post.title_en,
+          representativeOfPage: true,
+        }
+      : {
+          "@type": "ImageObject",
+          url: `https://zahidhasantonmoy.vercel.app/blog/${slug}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          caption: post.title_en,
+        },
     datePublished: post.published_at || new Date().toISOString(),
     dateModified: post.updated_at || post.published_at || new Date().toISOString(),
     wordCount: wordCount,
@@ -182,6 +197,13 @@ export default async function BlogPostPage({
               <img
                 src={post.cover_image_url}
                 alt={post.title_en}
+                title={post.title_en}
+                width={1280}
+                height={720}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                itemProp="image"
                 className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>

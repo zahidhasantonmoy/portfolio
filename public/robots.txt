@@ -16,6 +16,16 @@ Disallow: /*resume*
 Allow: /api/about
 Allow: /api/content
 
+# Googlebot Image Crawler (Ensures Google Images indexes portfolio & blog cover photos)
+User-agent: Googlebot-Image
+Allow: /
+Allow: /images/
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.png
+Allow: /*.webp
+Allow: /*.svg
+
 # Major search engines
 User-agent: Googlebot
 Allow: /
@@ -45,8 +55,9 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
+# Sitemaps (Standard Web Pages + Dedicated Google Image Sitemap)
 Sitemap: https://zahidhasantonmoy.vercel.app/sitemap.xml
+Sitemap: https://zahidhasantonmoy.vercel.app/sitemap-images.xml
 
 # Machine-readable context for LLMs
 # https://zahidhasantonmoy.vercel.app/llms.txt
-

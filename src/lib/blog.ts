@@ -248,7 +248,7 @@ export async function getAllTags(): Promise<Tag[]> {
 export async function getAllPublishedPostsForSitemap() {
   try {
     const rows = await sql`
-      SELECT slug, updated_at, published_at, post_type
+      SELECT slug, updated_at, published_at, post_type, cover_image_url, title_en, title_bn, excerpt_en, excerpt_bn
       FROM posts
       WHERE status = 'published' AND published_at <= NOW()
     `;

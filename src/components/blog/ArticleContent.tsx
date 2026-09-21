@@ -148,6 +148,27 @@ export default function ArticleContent({ content }: ArticleContentProps) {
             return <h3 id={id} className="scroll-mt-28" {...props}>{children}</h3>;
           },
           pre: PreBlock,
+          img: ({ src, alt, title, ...props }: any) => {
+            return (
+              <figure className="my-8">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={src}
+                  alt={alt || "Article diagram illustration"}
+                  title={title || alt || "Article illustration"}
+                  loading="lazy"
+                  decoding="async"
+                  className="rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 w-full max-h-[550px] object-contain mx-auto bg-black/5 dark:bg-black/20"
+                  {...props}
+                />
+                {alt && (
+                  <figcaption className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2.5 italic">
+                    {alt}
+                  </figcaption>
+                )}
+              </figure>
+            );
+          },
         }}
       >
         {content}

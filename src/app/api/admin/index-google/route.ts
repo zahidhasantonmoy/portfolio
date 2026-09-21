@@ -14,8 +14,9 @@ export async function POST(req: Request) {
     const { slug, url } = body;
     const siteUrl = "https://zahidhasantonmoy.vercel.app";
     const sitemapUrl = `${siteUrl}/sitemap.xml`;
+    const imageSitemapUrl = `${siteUrl}/sitemap-images.xml`;
 
-    const targetUrls: string[] = [sitemapUrl];
+    const targetUrls: string[] = [sitemapUrl, imageSitemapUrl];
     if (slug) {
       targetUrls.push(`${siteUrl}/blog/${slug}`);
       targetUrls.push(`${siteUrl}/bn/blog/${slug}`);
@@ -23,33 +24,20 @@ export async function POST(req: Request) {
       targetUrls.push(url);
     }
 
-    // Ping search engines
-    const googlePingUrl = `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`;
-    const bingPingUrl = `https://www.bing.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`;
+    const inspectionTarget = slug ? `${siteUrl}/blog/${slug}` : (url || siteUrl);
 
+    // Deep links for Google Search Console
+    const gscLinks = {
+      sitemapSubmission: `https://search.google.com/search-console/sitemaps`,
+      urlInspection: `https://search.google.com/search-console/inspect?resource_id=${encodeURIComponent(siteUrl + "/")}&id=${encodeURIComponent(inspectionTarget)}`,
+      googleImageSearchCheck: `https://www.google.com/search?q=${encodeURIComponent("site:" + new URL(siteUrl).hostname)}&tbm=isch`,
+    };
+
+    // Ping search engines
+    const bingPingUrl = `https://www.bing.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`;
     const results: Record<string, any> = {};
 
-    // 1. Ping Google
-    try {
-      const googleRes = await fetch(googlePingUrl, {
-        method: "GET",
-        headers: {
-          "User-Agent": "Mozilla/5.0 (compatible; PortfolioBot/2.0; +https://zahidhasantonmoy.vercel.app)",
-        },
-      });
-      results.google = {
-        status: googleRes.status,
-        ok: googleRes.ok || googleRes.status < 400,
-      };
-    } catch (err: any) {
-      results.google = {
-        status: 500,
-        ok: false,
-        error: err?.message || "Failed to reach Google",
-      };
-    }
-
-    // 2. Ping Bing
+    // 1. Bing Ping
     try {
       const bingRes = await fetch(bingPingUrl, {
         method: "GET",
@@ -71,8 +59,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Search engines pinged successfully for immediate crawling and indexing!",
+      message: "Search engines notified. Use the provided Google Search Console links to submit/inspect immediately!",
       pingedUrls: targetUrls,
+      sitemaps: {
+        web: sitemapUrl,
+        images: imageSitemapUrl,
+      },
+      gscLinks,
       results,
     });
   } catch (error: any) {
