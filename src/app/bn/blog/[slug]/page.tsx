@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getPostBySlug, getAdjacentPosts } from "@/lib/blog";
+import { getPostBySlug, getAdjacentPosts, getRelatedPosts } from "@/lib/blog";
 import ArticleContent from "@/components/blog/ArticleContent";
 import ShareButtons from "@/components/blog/ShareButtons";
 import { FaRegClock, FaRegCalendarAlt, FaGithub, FaLinkedin, FaMedium, FaDev, FaCoffee } from "react-icons/fa";
@@ -10,6 +10,11 @@ import PostNavigation from "@/components/blog/PostNavigation";
 import BlogInteractions from "@/components/blog/BlogInteractions";
 import ArticleAudioPlayer from "@/components/blog/ArticleAudioPlayer";
 import TableOfContents from "@/components/blog/TableOfContents";
+import ArticleFloatingBar from "@/components/blog/ArticleFloatingBar";
+import AuthorMiniCard from "@/components/blog/AuthorMiniCard";
+import SidebarRelatedPosts from "@/components/blog/SidebarRelatedPosts";
+import RelatedPosts from "@/components/blog/RelatedPosts";
+import { BlogReaderProvider } from "@/components/blog/BlogReaderContext";
 
 export const revalidate = 300;
 
@@ -66,7 +71,10 @@ export default async function BnBlogPostPage({
 
   if (!post || !post.title_bn) notFound();
 
-  const adjacent = await getAdjacentPosts(post.id, post.published_at);
+  const [related, adjacent] = await Promise.all([
+    getRelatedPosts(post.id, post.category_id ?? null),
+    getAdjacentPosts(post.id, post.published_at),
+  ]);
 
   const publishDate = post.published_at
     ? new Date(post.published_at).toLocaleDateString("bn-BD", {
@@ -225,161 +233,160 @@ export default async function BnBlogPostPage({
           </div>
         </div>
 
-        {/* Content Section with Sidebar */}
-        <div className="max-w-6xl mx-auto px-4 py-12 flex flex-col md:flex-row gap-10 relative">
-          
-          {/* Share Sidebar */}
-          <aside className="hidden md:flex flex-col w-16 flex-shrink-0 sticky top-24 h-[calc(100vh-8rem)]">
-            <ShareButtons title={post.title_bn} />
-          </aside>
-
-          {/* Main Article Content */}
-          <article className="flex-1 bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 md:p-12 -mt-24 relative z-20">
-            {/* Prominent Back to Articles Button */}
-            <div className="mb-6">
-              <Link
-                href="/bn/blog"
-                className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 py-2 px-4 rounded-full bg-gray-50 dark:bg-gray-800/80 border border-gray-200/80 dark:border-gray-700/80 hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-white dark:hover:bg-gray-800 transition-all shadow-sm group"
-              >
-                <span className="group-hover:-translate-x-1.5 transition-transform duration-200 text-indigo-500 font-bold">←</span>
-                <span>সকল ব্লগে ফিরে যান</span>
-              </Link>
-            </div>
-
-            {/* Desktop & Mobile Breadcrumb with Live Blog Interactions */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-100 dark:border-gray-800">
-              <nav className="flex items-center gap-2 text-sm text-gray-500">
-                <Link href="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">হোম</Link>
-                <span className="text-gray-300 dark:text-gray-700">/</span>
-                <Link href="/bn/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">ব্লগ</Link>
-                <span className="text-gray-300 dark:text-gray-700">/</span>
-                <span className="text-gray-800 dark:text-gray-200 truncate max-w-[200px] sm:max-w-[300px]">{post.title_bn}</span>
-              </nav>
-              <BlogInteractions slug={slug} />
-            </div>
-
-            {/* Mobile Table of Contents */}
-            <div className="lg:hidden mb-8">
-              <TableOfContents content={post.content_bn ?? ""} lang="bn" />
-            </div>
-
-            {/* Listen to Article Audio Reader */}
-            <ArticleAudioPlayer
-              title={post.title_bn}
-              content={post.content_bn ?? ""}
-              excerpt={post.excerpt_bn ?? ""}
-              readTimeMin={post.read_time_min}
-              lang="bn"
-            />
-
-            <div className="prose dark:prose-invert max-w-none prose-lg prose-indigo prose-headings:font-bold prose-a:text-indigo-600 dark:prose-a:text-indigo-400 hover:prose-a:text-indigo-500">
-              <ArticleContent content={post.content_bn ?? ""} />
-            </div>
-
-            {/* Bottom Claps & Feedback Bar */}
-            <div className="mt-10 p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <p className="font-bold text-gray-900 dark:text-white text-sm">আর্টিকেলটি কি আপনার ভালো লেগেছে?</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">তন্ময়ের কাজকে সাপোর্ট করতে তালি (Clap) দিয়ে উৎসাহিত করুন!</p>
-              </div>
-              <BlogInteractions slug={slug} />
-            </div>
-
-            {/* Mobile Share Buttons */}
-            <div className="md:hidden mt-10 pt-8 border-t border-gray-100 dark:border-gray-800">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4 text-center">শেয়ার করুন</h3>
-              <div className="flex justify-center">
-                <div className="flex flex-row gap-3">
-                  <ShareButtons title={post.title_bn} />
-                </div>
-              </div>
-            </div>
-
-            {/* Next / Previous Article Navigation */}
-            <PostNavigation prev={adjacent.prev} next={adjacent.next} lang="bn" />
+        {/* Content Section with 3-Column Layout */}
+        <BlogReaderProvider>
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row gap-6 xl:gap-10 relative justify-center items-start">
             
-            {/* Premium Author Card */}
-            <div className="mt-12 p-8 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
-              
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-3xl shadow-lg ring-4 ring-white dark:ring-gray-900 flex-shrink-0">
-                  Z
+            {/* Left Interactive Floating Bar */}
+            <ArticleFloatingBar slug={slug} title={post.title_bn} lang="bn" />
+
+            {/* Main Article Content */}
+            <article className="flex-1 max-w-4xl min-w-0 w-full bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 sm:p-8 md:p-12 -mt-20 sm:-mt-24 relative z-20">
+              {/* Prominent Back to Articles Button */}
+              <div className="mb-6">
+                <Link
+                  href="/bn/blog"
+                  className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 py-2 px-4 rounded-full bg-gray-50 dark:bg-gray-800/80 border border-gray-200/80 dark:border-gray-700/80 hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-white dark:hover:bg-gray-800 transition-all shadow-sm group"
+                >
+                  <span className="group-hover:-translate-x-1.5 transition-transform duration-200 text-indigo-500 font-bold">←</span>
+                  <span>সকল ব্লগে ফিরে যান</span>
+                </Link>
+              </div>
+
+              {/* Desktop & Mobile Breadcrumb with Live Blog Interactions */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-gray-100 dark:border-gray-800">
+                <nav className="flex items-center gap-2 text-sm text-gray-500">
+                  <Link href="/" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">হোম</Link>
+                  <span className="text-gray-300 dark:text-gray-700">/</span>
+                  <Link href="/bn/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">ব্লগ</Link>
+                  <span className="text-gray-300 dark:text-gray-700">/</span>
+                  <span className="text-gray-800 dark:text-gray-200 truncate max-w-[200px] sm:max-w-[300px]">{post.title_bn}</span>
+                </nav>
+                <BlogInteractions slug={slug} />
+              </div>
+
+              {/* Mobile Table of Contents */}
+              <div className="lg:hidden mb-8">
+                <TableOfContents content={post.content_bn ?? ""} lang="bn" />
+              </div>
+
+              {/* Listen to Article Audio Reader */}
+              <ArticleAudioPlayer
+                title={post.title_bn}
+                content={post.content_bn ?? ""}
+                excerpt={post.excerpt_bn ?? ""}
+                readTimeMin={post.read_time_min}
+                lang="bn"
+              />
+
+              <div className="w-full my-6">
+                <ArticleContent content={post.content_bn ?? ""} />
+              </div>
+
+              {/* Bottom Claps & Feedback Bar */}
+              <div className="mt-10 p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <p className="font-bold text-gray-900 dark:text-white text-sm">আর্টিকেলটি কি আপনার ভালো লেগেছে?</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">তন্ময়ের কাজকে সাপোর্ট করতে তালি (Clap) দিয়ে উৎসাহিত করুন!</p>
                 </div>
-                <div className="text-center sm:text-left">
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">জাহিদ হাসান তন্ময়</p>
-                  <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400 mt-1 mb-3 uppercase tracking-wide">সফটওয়্যার ডেভেলপার</p>
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                    MERN ফুল-স্ট্যাক ডেভেলপার এবং AI এজেন্ট ডেভেলপার, ঢাকা, বাংলাদেশ।
-                    ওয়েব ডেভেলপমেন্ট, রিঅ্যাক্ট, লারাভেল এবং আমার লার্নিং জার্নি নিয়ে লিখছি।
-                  </p>
-                  <div className="flex flex-wrap items-center gap-3 mt-4">
-                    <Link
-                      href="/bn"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-indigo-300 transition-all shadow-sm group"
-                    >
-                      পোর্টফোলিও দেখুন 
-                      <span className="group-hover:translate-x-1 transition-transform">→</span>
-                    </Link>
-                    <a
-                      href="https://medium.com/@zahidhasantonmoy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="মিডিয়াম প্রোফাইল"
-                      title="মিডিয়ামে আর্টিকেল পড়ুন"
-                      className="p-2.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-green-500 hover:border-green-400 transition-all shadow-sm"
-                    >
-                      <FaMedium size={16} />
-                    </a>
-                    <a
-                      href="https://dev.to/zahidhasantonmoy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="DEV.to প্রোফাইল"
-                      title="DEV.to প্রোফাইল"
-                      className="p-2.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-indigo-400 hover:border-indigo-400 transition-all shadow-sm"
-                    >
-                      <FaDev size={16} />
-                    </a>
-                    <a
-                      href="https://github.com/zahidhasantonmoy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="গিটহাব প্রোফাইল"
-                      title="গিটহাব প্রোফাইল"
-                      className="p-2.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:border-gray-400 transition-all shadow-sm"
-                    >
-                      <FaGithub size={16} />
-                    </a>
-                    <a
-                      href="https://buymeacoffee.com/zahidhasantonmoy"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="Buy Me a Coffee"
-                      title="Buy Me a Coffee-তে সাপোর্ট করুন"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-700/40 text-xs font-semibold hover:shadow-md hover:scale-105 transition-all shadow-sm"
-                    >
-                      <FaCoffee size={14} />
-                      <span>সাপোর্ট করুন</span>
-                    </a>
+                <BlogInteractions slug={slug} />
+              </div>
+
+              {/* Next / Previous Article Navigation */}
+              <PostNavigation prev={adjacent.prev} next={adjacent.next} lang="bn" />
+              
+              {/* Premium Author Card */}
+              <div className="mt-12 p-8 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
+                
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-3xl shadow-lg ring-4 ring-white dark:ring-gray-900 flex-shrink-0">
+                    Z
+                  </div>
+                  <div className="text-center sm:text-left">
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">জাহিদ হাসান তন্ময়</p>
+                    <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400 mt-1 mb-3 uppercase tracking-wide">সফটওয়্যার ডেভেলপার</p>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                      MERN ফুল-স্ট্যাক ডেভেলপার এবং AI এজেন্ট ডেভেলপার, ঢাকা, বাংলাদেশ।
+                      ওয়েব ডেভেলপমেন্ট, রিঅ্যাক্ট, লারাভেল এবং আমার লার্নিং জার্নি নিয়ে লিখছি।
+                    </p>
+                    <div className="flex flex-wrap items-center gap-3 mt-4">
+                      <Link
+                        href="/bn"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-semibold text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-indigo-300 transition-all shadow-sm group"
+                      >
+                        পোর্টফোলিও দেখুন 
+                        <span className="group-hover:translate-x-1 transition-transform">→</span>
+                      </Link>
+                      <a
+                        href="https://medium.com/@zahidhasantonmoy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="মিডিয়াম প্রোফাইল"
+                        title="মিডিয়ামে আর্টিকেল পড়ুন"
+                        className="p-2.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-green-500 hover:border-green-400 transition-all shadow-sm"
+                      >
+                        <FaMedium size={16} />
+                      </a>
+                      <a
+                        href="https://dev.to/zahidhasantonmoy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="DEV.to প্রোফাইল"
+                        title="DEV.to প্রোফাইল"
+                        className="p-2.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-indigo-400 hover:border-indigo-400 transition-all shadow-sm"
+                      >
+                        <FaDev size={16} />
+                      </a>
+                      <a
+                        href="https://github.com/zahidhasantonmoy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="গিটহাব প্রোফাইল"
+                        title="গিটহাব প্রোফাইল"
+                        className="p-2.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:border-gray-400 transition-all shadow-sm"
+                      >
+                        <FaGithub size={16} />
+                      </a>
+                      <a
+                        href="https://buymeacoffee.com/zahidhasantonmoy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Buy Me a Coffee"
+                        title="Buy Me a Coffee-তে সাপোর্ট করুন"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-700/40 text-xs font-semibold hover:shadow-md hover:scale-105 transition-all shadow-sm"
+                      >
+                        <FaCoffee size={14} />
+                        <span>সাপোর্ট করুন</span>
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-center">
-              <Link href="/bn/blog" className="text-sm font-medium text-indigo-500 hover:text-indigo-400 transition flex items-center gap-2">
-                ← সকল পোস্টে ফিরে যান
-              </Link>
-            </div>
-          </article>
+              
+              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-center">
+                <Link href="/bn/blog" className="text-sm font-medium text-indigo-500 hover:text-indigo-400 transition flex items-center gap-2">
+                  ← সকল পোস্টে ফিরে যান
+                </Link>
+              </div>
+            </article>
 
-          {/* Table of Contents Desktop Sidebar */}
-          <aside className="hidden lg:block w-72 flex-shrink-0 sticky top-24 self-start space-y-6">
-            <TableOfContents content={post.content_bn ?? ""} lang="bn" />
-          </aside>
-        </div>
+            {/* Right Multi-Widget Desktop Sidebar */}
+            <aside className="hidden lg:block w-72 xl:w-80 flex-shrink-0 sticky top-28 self-start space-y-6">
+              <TableOfContents content={post.content_bn ?? ""} lang="bn" />
+              <AuthorMiniCard lang="bn" />
+              {related.length > 0 && <SidebarRelatedPosts posts={related} lang="bn" />}
+            </aside>
+          </div>
+        </BlogReaderProvider>
+
+        {/* Related Posts Bottom Section */}
+        {related.length > 0 && (
+          <section className="max-w-6xl mx-auto px-4 pb-20">
+            <RelatedPosts posts={related} lang="bn" />
+          </section>
+        )}
       </main>
     </>
   );

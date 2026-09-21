@@ -99,28 +99,40 @@ export function slugifyHeading(text: string): string {
     .trim();
 }
 
+import { useBlogReader } from "./BlogReaderContext";
+
 export default function ArticleContent({ content }: ArticleContentProps) {
+  const { fontSize } = useBlogReader();
+
   if (!content) {
     return (
       <p className="text-gray-500 italic">Content not available.</p>
     );
   }
 
+  const proseSize = {
+    sm: "prose-sm",
+    base: "prose-base",
+    lg: "prose-lg",
+    xl: "prose-xl",
+  }[fontSize] || "prose-lg";
+
   return (
-    <div className="prose prose-gray dark:prose-invert max-w-none
-      prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
-      prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
+    <div className={`prose prose-gray dark:prose-invert max-w-none ${proseSize}
+      transition-all duration-200
+      prose-headings:font-extrabold prose-headings:text-gray-900 dark:prose-headings:text-white prose-headings:tracking-tight
+      prose-h1:text-3xl md:prose-h1:text-4xl prose-h2:text-2xl md:prose-h2:text-3xl prose-h3:text-xl md:prose-h3:text-2xl
       prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed
-      prose-a:text-indigo-600 dark:prose-a:text-indigo-400 prose-a:no-underline hover:prose-a:underline
-      prose-strong:text-gray-900 dark:prose-strong:text-white
+      prose-a:text-indigo-600 dark:prose-a:text-indigo-400 prose-a:font-medium hover:prose-a:underline hover:prose-a:text-indigo-500
+      prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-bold
       prose-code:text-indigo-700 dark:prose-code:text-indigo-300
-      prose-code:bg-indigo-50 dark:prose-code:bg-indigo-950/50
-      prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+      prose-code:bg-indigo-50 dark:prose-code:bg-indigo-950/60
+      prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-[0.9em] prose-code:font-mono
       prose-pre:bg-transparent prose-pre:p-0 prose-pre:m-0
-      prose-blockquote:border-l-indigo-500 prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400
-      prose-img:rounded-xl prose-img:shadow-md
-      prose-table:text-sm prose-th:text-gray-900 dark:prose-th:text-white
-      prose-li:text-gray-700 dark:prose-li:text-gray-300">
+      prose-blockquote:border-l-4 prose-blockquote:border-l-indigo-500 prose-blockquote:bg-indigo-50/30 dark:prose-blockquote:bg-indigo-950/20 prose-blockquote:py-2 prose-blockquote:px-5 prose-blockquote:rounded-r-xl prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300 prose-blockquote:not-italic
+      prose-img:rounded-2xl prose-img:shadow-lg prose-img:border prose-img:border-gray-200 dark:prose-img:border-gray-800
+      prose-table:text-sm prose-th:text-gray-900 dark:prose-th:text-white prose-th:font-bold
+      prose-li:text-gray-700 dark:prose-li:text-gray-300`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeSanitize, rehypeHighlight]}
@@ -128,12 +140,12 @@ export default function ArticleContent({ content }: ArticleContentProps) {
           h2: ({ children, ...props }) => {
             const rawText = extractText(children);
             const id = slugifyHeading(rawText);
-            return <h2 id={id} className="scroll-mt-24" {...props}>{children}</h2>;
+            return <h2 id={id} className="scroll-mt-28" {...props}>{children}</h2>;
           },
           h3: ({ children, ...props }) => {
             const rawText = extractText(children);
             const id = slugifyHeading(rawText);
-            return <h3 id={id} className="scroll-mt-24" {...props}>{children}</h3>;
+            return <h3 id={id} className="scroll-mt-28" {...props}>{children}</h3>;
           },
           pre: PreBlock,
         }}
