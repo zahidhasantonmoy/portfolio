@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { GoogleGenAI } from "@google/genai";
 import profileData from "@/data/data.json";
@@ -632,7 +632,14 @@ export async function POST(req: Request) {
     // 1. PRIMARY ENGINE: GOOGLE GEMINI API
     // ─────────────────────────────────────────────────────────────
     if (geminiKey) {
-      const geminiModels = ["gemini-2.0-flash-lite", "gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-flash-8b"];
+      const geminiModels = [
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-3.8-flash",
+        "gemini-3.5-flash-lite",
+        "gemini-2.0-flash",
+        "gemini-2.0-flash-lite",
+      ];
 
       for (const model of geminiModels) {
         try {

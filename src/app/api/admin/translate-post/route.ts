@@ -80,7 +80,7 @@ You must separate your output using EXACTLY these three section delimiters so th
       prompt,
       systemInstruction,
       false, // Text mode with delimiters avoids JSON parsing & control character crashes
-      provider && provider !== "auto" ? provider : "gemini"
+      provider || "auto"
     );
 
     if (!text || !text.trim()) {

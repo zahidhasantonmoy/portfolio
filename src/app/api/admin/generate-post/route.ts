@@ -116,7 +116,7 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
       prompt,
       "You are an expert full-stack developer and technical content creator. Return ONLY valid JSON matching the exact schema provided.",
       true,
-      provider || "gemini"
+      provider || "auto"
     );
 
     if (!text) {
