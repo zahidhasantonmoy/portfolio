@@ -55,6 +55,8 @@ export default function PostEditor({
   const [translating, setTranslating] = useState(false);
   const [generatingMeta, setGeneratingMeta] = useState(false);
   const [generatingImage, setGeneratingImage] = useState(false);
+  const [generatingImagePrompt, setGeneratingImagePrompt] = useState(false);
+  const [autoOptimizingSEO, setAutoOptimizingSEO] = useState(false);
   const [imagePrompt, setImagePrompt] = useState("");
   const [imageModel, setImageModel] = useState("Gemini 3.6 Flash");
   const [preferredProvider, setPreferredProvider] = useState("auto");
@@ -462,6 +464,96 @@ export default function PostEditor({
     } finally {
       toast.dismiss(loadingToast);
       setGeneratingImage(false);
+    }
+  }
+
+  async function handleGenerateImagePrompt() {
+    if (!form.title_en && !form.content_en) {
+      toast.error("Please enter English Title or Content first so AI knows what prompt to generate.");
+      return;
+    }
+
+    setGeneratingImagePrompt(true);
+    const toastId = toast.loading("💡 Generating AI image prompt...");
+
+    try {
+      const res = await fetch("/api/admin/generate-image-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: form.title_en,
+          content: form.content_en,
+          provider: preferredProvider,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate prompt");
+
+      setImagePrompt(data.prompt);
+      toast.success("💡 Prompt generated! You can edit or click 'Generate Image'.", { id: toastId });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to generate prompt", { id: toastId });
+    } finally {
+      setGeneratingImagePrompt(false);
+    }
+  }
+
+  async function handleAutoOptimizeSEO() {
+    if (!form.title_en.trim() || !form.content_en.trim()) {
+      toast.error("Please enter English Title and Content first to auto-optimize SEO.");
+      return;
+    }
+
+    setAutoOptimizingSEO(true);
+    const toastId = toast.loading("🚀 Auto-optimizing SEO & GEO metadata with AI...");
+
+    try {
+      const res = await fetch("/api/admin/generate-seo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: form.title_en,
+          content: form.content_en,
+          provider: preferredProvider,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to auto-optimize SEO");
+
+      // Auto-extract clean excerpt if missing
+      const autoExcerptEn = form.excerpt_en || data.meta_desc_en || form.content_en.slice(0, 155).trim();
+      const autoExcerptBn = form.excerpt_bn || data.meta_desc_bn || "";
+
+      // Auto-generate slug if missing
+      const autoSlug =
+        form.slug ||
+        form.title_en
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")
+          .trim();
+
+      setForm((prev) => ({
+        ...prev,
+        seo_title_en: data.seo_title_en || prev.seo_title_en,
+        meta_desc_en: data.meta_desc_en || prev.meta_desc_en,
+        seo_title_bn: data.seo_title_bn || prev.seo_title_bn,
+        meta_desc_bn: data.meta_desc_bn || prev.meta_desc_bn,
+        excerpt_en: autoExcerptEn,
+        excerpt_bn: autoExcerptBn || prev.excerpt_bn,
+        slug: autoSlug,
+      }));
+
+      setCompletedTasks((prev) => ({ ...prev, seo: true, meta: true }));
+      toast.success("🎉 SEO & GEO metadata auto-optimized to 95+ score!", { id: toastId });
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Auto-optimization failed", { id: toastId });
+    } finally {
+      setAutoOptimizingSEO(false);
+      fetchQuotas();
     }
   }
 
@@ -926,7 +1018,16 @@ export default function PostEditor({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={handleAutoOptimizeSEO}
+              disabled={autoOptimizingSEO || !form.title_en}
+              className="px-3.5 py-1.5 text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg transition font-bold flex items-center gap-1.5 shadow-sm shadow-emerald-900/40 disabled:opacity-50 active:scale-95"
+              title="1-Click Auto Optimize SEO & GEO score with AI"
+            >
+              <span>{autoOptimizingSEO ? "✨ Optimizing..." : "✨ Auto Optimize SEO"}</span>
+            </button>
             <button
               type="button"
               onClick={() => setShowSeoDetails(!showSeoDetails)}
@@ -1281,9 +1382,18 @@ export default function PostEditor({
                 type="text"
                 value={imagePrompt}
                 onChange={(e) => setImagePrompt(e.target.value)}
-                placeholder="Enter prompt (optional) or leave blank for auto-generation..."
+                placeholder="Enter prompt, or click 'Generate Prompt' to create with AI..."
                 className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-teal-500"
               />
+              <button
+                type="button"
+                onClick={handleGenerateImagePrompt}
+                disabled={generatingImagePrompt || (!form.title_en && !form.content_en)}
+                className="px-3.5 py-2 bg-teal-800/50 hover:bg-teal-700/70 text-teal-200 border border-teal-600/50 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap disabled:opacity-50 flex items-center gap-1.5"
+                title="Generate an AI visual prompt based on your post content"
+              >
+                <span>{generatingImagePrompt ? "Generating..." : "💡 Generate Prompt"}</span>
+              </button>
               <select
                 value={imageModel}
                 onChange={(e) => setImageModel(e.target.value)}

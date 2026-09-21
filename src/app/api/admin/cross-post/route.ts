@@ -39,6 +39,10 @@ export async function POST(request: Request) {
       return await crossPostToDevTo({ title, content, tags, canonicalUrl, coverImage, description });
     }
 
+    if (platform === "medium") {
+      return await crossPostToMedium({ title, content, tags, canonicalUrl });
+    }
+
     return NextResponse.json({ error: `Unsupported platform: ${platform}` }, { status: 400 });
 
   } catch (err: unknown) {
@@ -137,5 +141,94 @@ async function crossPostToDevTo({
     url: data.url,
     status: data.published ? "published" : "draft",
     title: data.title,
+  });
+}
+
+// ─────────────────────────────────────────
+// Medium Integration
+// Docs: https://github.com/Medium/medium-api-docs
+// ─────────────────────────────────────────
+async function crossPostToMedium({
+  title,
+  content,
+  tags,
+  canonicalUrl,
+}: {
+  title: string;
+  content: string;
+  tags: string[];
+  canonicalUrl?: string;
+}) {
+  const token = process.env.MEDIUM_INTEGRATION_TOKEN;
+  if (!token) {
+    return NextResponse.json(
+      {
+        error:
+          "MEDIUM_INTEGRATION_TOKEN is not configured in .env.local. You can generate an Integration Token in your Medium Settings -> Security and apps -> Integration tokens.",
+        needsToken: true,
+      },
+      { status: 400 }
+    );
+  }
+
+  // 1. Get current user's authorId
+  const meRes = await fetch("https://api.medium.com/v1/me", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "Accept-Charset": "utf-8",
+    },
+  });
+
+  const meData = await meRes.json();
+  if (!meRes.ok || !meData?.data?.id) {
+    const errorMsg = meData?.errors?.[0]?.message || "Failed to authenticate with Medium using your token.";
+    return NextResponse.json({ error: errorMsg }, { status: 401 });
+  }
+
+  const authorId = meData.data.id;
+
+  // Append canonical backlink if not present
+  let bodyContent = content;
+  if (canonicalUrl && !bodyContent.includes(canonicalUrl)) {
+    bodyContent = `${bodyContent.trimEnd()}
+
+---
+
+*This article was originally published on [**Zahid Hasan Tonmoy's Portfolio**](${canonicalUrl}).*`;
+  }
+
+  // 2. Post article to Medium as draft
+  const postRes = await fetch(`https://api.medium.com/v1/users/${authorId}/posts`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "Accept-Charset": "utf-8",
+    },
+    body: JSON.stringify({
+      title,
+      contentFormat: "markdown",
+      content: bodyContent,
+      tags: tags.slice(0, 5),
+      canonicalUrl: canonicalUrl || undefined,
+      publishStatus: "draft",
+    }),
+  });
+
+  const postData = await postRes.json();
+  if (!postRes.ok) {
+    const errorMsg = postData?.errors?.[0]?.message || "Medium post creation failed.";
+    return NextResponse.json({ error: errorMsg }, { status: postRes.status });
+  }
+
+  return NextResponse.json({
+    success: true,
+    platform: "medium",
+    id: postData.data.id,
+    url: postData.data.url,
+    status: postData.data.publishStatus,
+    title: postData.data.title,
   });
 }
