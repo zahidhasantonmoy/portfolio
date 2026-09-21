@@ -19,8 +19,10 @@ import {
   FaEdit,
   FaFilter,
   FaDownload,
+  FaDatabase,
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi2";
+import BackupModal from "./BackupModal";
 
 export interface PostAnalyticsItem {
   id: string;
@@ -95,6 +97,7 @@ export default function AnalyticsClient({
   const [typeFilter, setTypeFilter] = useState<"all" | "blog" | "journal">("all");
   const [sortBy, setSortBy] = useState<"views" | "likes" | "date">("views");
   const [activityTab, setActivityTab] = useState<"messages" | "subscribers">("messages");
+  const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -159,15 +162,16 @@ export default function AnalyticsClient({
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-          <a
-            href="/api/admin/backup"
-            download="zahid-portfolio-backup.json"
+          <button
+            type="button"
+            onClick={() => setIsBackupModalOpen(true)}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-gray-900 hover:bg-gray-800 text-emerald-400 hover:text-emerald-300 border border-emerald-500/20 hover:border-emerald-500/40 transition active:scale-95 shadow-sm"
-            title="Download complete database JSON backup"
+            title="Backup, Restore & Cloud Snapshots"
           >
-            <FaDownload className="text-xs" />
-            <span>Export Backup</span>
-          </a>
+            <FaDatabase className="text-xs" />
+            <span>Backup &amp; Restore</span>
+          </button>
+
 
           <button
             type="button"
@@ -631,6 +635,16 @@ export default function AnalyticsClient({
           </div>
         )}
       </div>
+
+      {/* Backup, Restore & Cloudinary Snapshot Modal */}
+      <BackupModal
+        isOpen={isBackupModalOpen}
+        onClose={() => setIsBackupModalOpen(false)}
+        onRestoreSuccess={() => {
+          router.refresh();
+        }}
+      />
     </div>
   );
 }
+
