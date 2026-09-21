@@ -819,47 +819,77 @@ export default function PostEditor({
   }
 
   const EXAMPLE_JSON_STRUCTURE = `{
-  "slug": "example-technical-topic",
-  "blog_url": "https://zahidhasantonmoy.vercel.app/blog/example-technical-topic",
-  "bangla": {
-    "title": "বাংলা ব্লগের শিরোনাম",
-    "article": "সম্পূর্ণ বাংলা article"
+  "slug": "mastering-autonomous-ai-agents",
+  "canonical_url": "https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents",
+  "language_alternate": {
+    "en": "https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents",
+    "bn": "https://zahidhasantonmoy.vercel.app/bn/blog/mastering-autonomous-ai-agents"
   },
+  "published_date": "${new Date().toISOString().split("T")[0]}",
+  "updated_date": "${new Date().toISOString().split("T")[0]}",
+  "author": "Zahid Hasan Tonmoy",
+  "status": "draft",
+  "category": "ai-agent-development",
+  "tags": [ "ai-agent", "nextjs", "react", "typescript" ],
+  "reading_time_minutes": 5,
   "english": {
-    "title": "English Blog Title",
-    "article": "Complete English article"
+    "title": "Mastering Autonomous AI Agents with Next.js 14 and LangChain",
+    "article": "# Mastering Autonomous AI Agents\\n\\nAutonomous agents represent the next major evolution in full-stack web engineering...\\n\\n## Frequently Asked Questions\\n\\n### What are autonomous AI agents?\\nAutonomous agents are software systems powered by LLMs that observe an environment, make iterative decisions, and take actions using tools.\\n\\n### Can I run AI agents with Next.js server actions?\\nYes, server actions provide secure server-side execution environments with streaming support."
   },
+  "bangla": {
+    "title": "নেক্সট জেএস ও ল্যাংচেইন দিয়ে স্বয়ংক্রিয় এআই এজেন্ট ডেভেলপমেন্ট",
+    "article": "# অটোনোমাস এআই এজেন্ট ডেভেলপমেন্ট\\n\\nওয়েব ডেভেলপমেন্ট ও আর্টিফিশিয়াল ইন্টেলিজেন্সের সমন্বয়ে আধুনিক সফটওয়্যার আর্কিটেকচার...\\n\\n## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)\\n\\n### অটোনোমাস এআই এজেন্ট কী?\\nঅটোনোমাস এআই এজেন্ট হলো এমন একটি ইন্টেলিজেন্ট সিস্টেম যা মানুষের সরাসরি হস্তক্ষেপ ছাড়াই বিভিন্ন টুলস ব্যবহার করে কাজ সম্পন্ন করতে পারে।\\n\\n### নেক্সট জেএস দিয়ে কি এআই এজেন্ট বানানো সম্ভব?\\nহ্যাঁ, Next.js Server Actions ও Streaming API ব্যবহার করে খুব সহজেই হাই-পারফরম্যান্স এআই এজেন্ট তৈরি করা যায়।"
+  },
+  "faq": [
+    {
+      "question_en": "What are autonomous AI agents?",
+      "answer_en": "Autonomous agents are software systems powered by LLMs that observe an environment, make iterative decisions, and take actions using tools.",
+      "question_bn": "অটোনোমাস এআই এজেন্ট কী?",
+      "answer_bn": "অটোনোমাস এআই এজেন্ট হলো এমন একটি ইন্টেলিজেন্ট সিস্টেম যা মানুষের সরাসরি হস্তক্ষেপ ছাড়াই বিভিন্ন টুলস ব্যবহার করে কাজ সম্পন্ন করতে পারে।"
+    },
+    {
+      "question_en": "Can I run AI agents with Next.js server actions?",
+      "answer_en": "Yes, server actions provide secure server-side execution environments with streaming support.",
+      "question_bn": "নেক্সট জেএস দিয়ে কি এআই এজেন্ট বানানো সম্ভব?",
+      "answer_bn": "হ্যাঁ, Next.js Server Actions ও Streaming API ব্যবহার করে খুব সহজেই হাই-পারফরম্যান্স এআই এজেন্ট তৈরি করা যায়।"
+    }
+  ],
   "excerpt": {
-    "english": "Short English excerpt",
-    "bangla": "সংক্ষিপ্ত বাংলা সারসংক্ষেপ"
+    "english": "A comprehensive deep dive into building autonomous AI agents with Next.js, LangChain, and modern full-stack architectures.",
+    "bangla": "নেক্সট জেএস এবং ল্যাংচেইন আর্কিটেকচার ব্যবহার করে স্বয়ংক্রিয় এআই এজেন্ট ও ফুল-স্ট্যাক প্রজেক্ট তৈরির পূর্ণাঙ্গ গাইড।"
   },
   "seo": {
-    "meta_description_bn": "বাংলা Meta Description",
-    "seo_title_bn": "বাংলা SEO Title",
-    "meta_description_en": "English Meta Description, maximum 160 characters",
-    "seo_title_en": "English SEO Title",
-    "primary_keyword": "primary keyword",
-    "secondary_keywords": [ "keyword 1", "keyword 2" ],
-    "search_intent": "informational"
+    "meta_description_bn": "নেক্সট জেএস এবং ল্যাংচেইন দিয়ে স্বয়ংক্রিয় এআই এজেন্ট তৈরির সম্পূর্ণ হ্যান্ডস-অন গাইড।",
+    "seo_title_bn": "নেক্সট জেএস ও ল্যাংচেইন দিয়ে এআই এজেন্ট ডেভেলপমেন্ট",
+    "meta_description_en": "Learn how to architect, develop, and deploy production-grade autonomous AI agents using Next.js 14 and LangChain.",
+    "seo_title_en": "Mastering Autonomous AI Agents with Next.js 14",
+    "primary_keyword": "AI Agents Next.js",
+    "secondary_keywords": [ "Next.js AI", "LangChain", "Autonomous Agents", "MERN Stack" ],
+    "search_intent": "tutorial"
   },
   "social": {
-    "linkedin_post": "Complete LinkedIn post",
-    "linkedin_hashtags": [ "#Laravel", "#PHP", "#WebDevelopment" ],
-    "devto_title": "DEV.to title",
-    "devto_article": "Complete DEV.to article",
-    "devto_tags": [ "laravel", "php", "webdev" ]
+    "linkedin_post": "🚀 Deep Dive: How to architect autonomous AI agents using Next.js 14, streaming UI, and LangChain...",
+    "linkedin_hashtags": [ "#WebDev", "#Nextjs", "#AIAgents", "#LangChain", "#FullStack" ],
+    "devto_title": "Mastering Autonomous AI Agents with Next.js 14 and LangChain",
+    "devto_article": "Complete DEV.to formatted markdown article...",
+    "devto_tags": [ "ai", "nextjs", "javascript", "webdev" ]
   },
   "thumbnail": {
-    "prompt": "Complete AI image-generation prompt",
-    "text": "Short thumbnail text",
+    "prompt": "Futuristic developer workstation with holographic AI agent neural lattice, glowing neon cyan and purple data highways, ultra-detailed 3D glassmorphism, 16:9 cinematic ratio, no text",
+    "text": "AI Agents in Next.js",
     "aspect_ratio": "16:9"
   },
+  "og_image": "https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents/opengraph-image",
+  "word_count": {
+    "english": 650,
+    "bangla": 600
+  },
   "links": {
-    "github": null,
-    "portfolio": null
+    "github": "https://github.com/zahidhasantonmoy",
+    "portfolio": "https://zahidhasantonmoy.vercel.app"
   },
   "branding": {
-    "angle": "Short personal-branding angle"
+    "angle": "Specializing in bleeding-edge AI integration and scalable full-stack web applications."
   }
 }`;
 
@@ -1802,9 +1832,23 @@ export default function PostEditor({
                     handleJsonInputChange(EXAMPLE_JSON_STRUCTURE);
                     toast.success("✨ Sample JSON template loaded!");
                   }}
-                  className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-indigo-300 rounded-lg border border-gray-700 transition flex items-center gap-1.5"
+                  className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-indigo-300 rounded-lg border border-gray-700 transition flex items-center gap-1.5 cursor-pointer"
                 >
                   ✨ Load Template
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(EXAMPLE_JSON_STRUCTURE);
+                      toast.success("📋 Updated JSON format copied to clipboard!");
+                    } catch {
+                      toast.error("Failed to copy to clipboard.");
+                    }
+                  }}
+                  className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-purple-300 rounded-lg border border-gray-700 transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  📋 Copy Template
                 </button>
                 {jsonInput && (
                   <button
