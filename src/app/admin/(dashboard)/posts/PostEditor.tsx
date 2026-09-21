@@ -810,13 +810,12 @@ export default function PostEditor({
       }));
 
       toast.success(`✅ Posted to DEV.to as ${data.status}! Opening...`);
-      window.open(data.url, "_blank", "noopener");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "DEV.to cross-post failed");
     } finally {
       setCrossPosting((p) => ({ ...p, devto: false }));
     }
-  }
+  };
 
   const EXAMPLE_JSON_STRUCTURE = `{
   "slug": "mastering-autonomous-ai-agents",
@@ -831,14 +830,14 @@ export default function PostEditor({
   "status": "draft",
   "category": "ai-agent-development",
   "tags": [ "ai-agent", "nextjs", "react", "typescript" ],
-  "reading_time_minutes": 5,
+  "reading_time_minutes": 8,
   "english": {
     "title": "Mastering Autonomous AI Agents with Next.js 14 and LangChain",
-    "article": "# Mastering Autonomous AI Agents\\n\\nAutonomous agents represent the next major evolution in full-stack web engineering...\\n\\n## Frequently Asked Questions\\n\\n### What are autonomous AI agents?\\nAutonomous agents are software systems powered by LLMs that observe an environment, make iterative decisions, and take actions using tools.\\n\\n### Can I run AI agents with Next.js server actions?\\nYes, server actions provide secure server-side execution environments with streaming support."
+    "article": "# Mastering Autonomous AI Agents with Next.js 14 and LangChain\\n\\nAutonomous agents represent the next major evolution in full-stack web engineering. Rather than traditional static handlers, an autonomous agent continuously observes its state, plans multi-step tool interactions, and executes decisions using LLMs.\\n\\n## Architectural Overview\\n\\nIn a modern Next.js 14 App Router architecture, the agent execution loop runs inside a secure server action or Route Handler:\\n\\n\`\`\`typescript\\n// src/lib/agent/executor.ts\\nimport { ChatOpenAI } from '@langchain/openai';\\nimport { AgentExecutor, createOpenAIToolsAgent } from 'langchain/agents';\\nimport { pull } from 'langchain/hub';\\nimport { searchTool, databaseTool } from './tools';\\n\\nexport async function runAgentWorkflow(userGoal: string) {\\n  const llm = new ChatOpenAI({ modelName: 'gpt-4o', temperature: 0 });\\n  const tools = [searchTool, databaseTool];\\n  const prompt = await pull<any>('hwchase17/openai-tools-agent');\\n\\n  const agent = await createOpenAIToolsAgent({ llm, tools, prompt });\\n  const executor = new AgentExecutor({ agent, tools, verbose: true });\\n\\n  return await executor.invoke({ input: userGoal });\\n}\\n\`\`\`\\n\\n## Streaming Real-Time Tool Invocations to the UI\\n\\nTo provide a seamless client experience, we stream agent thoughts and tool outputs directly into React components:\\n\\n\`\`\`tsx\\n// src/components/AgentFeed.tsx\\n'use client';\\nimport { useChat } from 'ai/react';\\n\\nexport default function AgentFeed() {\\n  const { messages, input, handleInputChange, handleSubmit } = useChat();\\n  return (\\n    <div className=\\\"max-w-2xl mx-auto p-6 space-y-4\\\">\\n      {messages.map((m) => (\\n        <div key={m.id} className={m.role === 'user' ? 'text-indigo-600' : 'text-gray-200'}>\\n          {m.content}\\n        </div>\\n      ))}\\n    </div>\\n  );\\n}\\n\`\`\`\\n\\n## Frequently Asked Questions\\n\\n### What are autonomous AI agents?\\nAutonomous agents are software systems powered by LLMs that observe an environment, make iterative decisions, and take actions using tools.\\n\\n### Can I run AI agents with Next.js server actions?\\nYes, server actions provide secure server-side execution environments with streaming support."
   },
   "bangla": {
     "title": "নেক্সট জেএস ও ল্যাংচেইন দিয়ে স্বয়ংক্রিয় এআই এজেন্ট ডেভেলপমেন্ট",
-    "article": "# অটোনোমাস এআই এজেন্ট ডেভেলপমেন্ট\\n\\nওয়েব ডেভেলপমেন্ট ও আর্টিফিশিয়াল ইন্টেলিজেন্সের সমন্বয়ে আধুনিক সফটওয়্যার আর্কিটেকচার...\\n\\n## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)\\n\\n### অটোনোমাস এআই এজেন্ট কী?\\nঅটোনোমাস এআই এজেন্ট হলো এমন একটি ইন্টেলিজেন্ট সিস্টেম যা মানুষের সরাসরি হস্তক্ষেপ ছাড়াই বিভিন্ন টুলস ব্যবহার করে কাজ সম্পন্ন করতে পারে।\\n\\n### নেক্সট জেএস দিয়ে কি এআই এজেন্ট বানানো সম্ভব?\\nহ্যাঁ, Next.js Server Actions ও Streaming API ব্যবহার করে খুব সহজেই হাই-পারফরম্যান্স এআই এজেন্ট তৈরি করা যায়।"
+    "article": "# অটোনোমাস এআই এজেন্ট ডেভেলপমেন্ট\\n\\nওয়েব ডেভেলপমেন্ট ও আর্টিফিশিয়াল ইন্টেলিজেন্সের সমন্বয়ে আধুনিক সফটওয়্যার আর্কিটেকচার দ্রুত পরিবর্তিত হচ্ছে।\\n\\n## আর্কিটেকচার ও মূল কনসেপ্ট\\n\\nNext.js 14 App Router-এ সিকিউর সার্ভার অ্যাকশনের মাধ্যমে এআই এজেন্টের টুল কলিং লজিক রান করা যায়:\\n\\n\`\`\`typescript\\n// src/lib/agent/executor.ts\\nimport { ChatOpenAI } from '@langchain/openai';\\nimport { AgentExecutor, createOpenAIToolsAgent } from 'langchain/agents';\\nimport { pull } from 'langchain/hub';\\n\\nexport async function runAgentWorkflow(userGoal: string) {\\n  const llm = new ChatOpenAI({ modelName: 'gpt-4o', temperature: 0 });\\n  const prompt = await pull<any>('hwchase17/openai-tools-agent');\\n  const agent = await createOpenAIToolsAgent({ llm, tools: [], prompt });\\n  return new AgentExecutor({ agent, tools: [] });\\n}\\n\`\`\`\\n\\n## ক্লায়েন্টে লাইভ স্ট্রিমিং ইন্টারফেস\\n\\nইউজারদের কাছে রিয়েল-টাইম আউটপুট দেখানোর জন্য আমরা রিয়্যাক্ট কম্পোনেন্ট ব্যবহার করি:\\n\\n\`\`\`tsx\\n// src/components/AgentFeed.tsx\\n'use client';\\nimport { useChat } from 'ai/react';\\n\\nexport default function AgentFeed() {\\n  const { messages } = useChat();\\n  return (\\n    <div className=\\\"space-y-3\\\">\\n      {messages.map((m) => (\\n        <p key={m.id}>{m.content}</p>\\n      ))}\\n    </div>\\n  );\\n}\\n\`\`\`\\n\\n## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)\\n\\n### অটোনোমাস এআই এজেন্ট কী?\\nঅটোনোমাস এআই এজেন্ট হলো এমন একটি ইন্টেলিজেন্ট সিস্টেম যা মানুষের সরাসরি হস্তক্ষেপ ছাড়াই বিভিন্ন টুলস ব্যবহার করে কাজ সম্পন্ন করতে পারে।\\n\\n### নেক্সট জেএস দিয়ে কি এআই এজেন্ট বানানো সম্ভব?\\nহ্যাঁ, Next.js Server Actions ও Streaming API ব্যবহার করে খুব সহজেই হাই-পারফরম্যান্স এআই এজেন্ট তৈরি করা যায়।"
   },
   "faq": [
     {
@@ -863,8 +862,12 @@ export default function PostEditor({
     "seo_title_bn": "নেক্সট জেএস ও ল্যাংচেইন দিয়ে এআই এজেন্ট ডেভেলপমেন্ট",
     "meta_description_en": "Learn how to architect, develop, and deploy production-grade autonomous AI agents using Next.js 14 and LangChain.",
     "seo_title_en": "Mastering Autonomous AI Agents with Next.js 14",
-    "primary_keyword": "AI Agents Next.js",
-    "secondary_keywords": [ "Next.js AI", "LangChain", "Autonomous Agents", "MERN Stack" ],
+    "primary_keyword_en": "How to build AI Agents with Next.js",
+    "secondary_keywords_en": [ "LangChain autonomous agent architecture", "Next.js AI streaming tool calling", "production AI workflows" ],
+    "primary_keyword_bn": "নেক্সট জেএস দিয়ে এআই এজেন্ট তৈরি",
+    "secondary_keywords_bn": [ "স্বয়ংক্রিয় এআই এজেন্ট টিউটোরিয়াল", "ল্যাংচেইন বাংলা", "নেক্সট জেএস এআই ইন্টিগ্রেশন" ],
+    "primary_keyword": "How to build AI Agents with Next.js",
+    "secondary_keywords": [ "LangChain autonomous agent architecture", "Next.js AI streaming tool calling", "production AI workflows" ],
     "search_intent": "tutorial"
   },
   "social": {
@@ -881,8 +884,8 @@ export default function PostEditor({
   },
   "og_image": "https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents/opengraph-image",
   "word_count": {
-    "english": 650,
-    "bangla": 600
+    "english": 1450,
+    "bangla": 1380
   },
   "links": {
     "github": "https://github.com/zahidhasantonmoy",
@@ -976,12 +979,16 @@ export default function PostEditor({
         }
       }
 
-      // Match tags
+      // Match tags with English and Bengali keywords
       const importedKeywords: string[] = [
         ...(Array.isArray(data.tags) ? data.tags : []),
         ...(Array.isArray(data.social?.devto_tags) ? data.social.devto_tags : []),
+        ...(Array.isArray(data.seo?.secondary_keywords_en) ? data.seo.secondary_keywords_en : []),
         ...(Array.isArray(data.seo?.secondary_keywords) ? data.seo.secondary_keywords : []),
+        ...(Array.isArray(data.seo?.secondary_keywords_bn) ? data.seo.secondary_keywords_bn : []),
+        ...(data.seo?.primary_keyword_en ? [data.seo.primary_keyword_en] : []),
         ...(data.seo?.primary_keyword ? [data.seo.primary_keyword] : []),
+        ...(data.seo?.primary_keyword_bn ? [data.seo.primary_keyword_bn] : []),
       ].map((k: string) => String(k).toLowerCase().trim().replace(/^#/, ""));
 
       const matchedTagIds: string[] = [];
@@ -1949,8 +1956,8 @@ export default function PostEditor({
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
                     : "bg-gray-800/40 border-gray-700/40 text-gray-500"
                 }`}>
-                  <span>🔍 SEO Meta</span>
-                  <span>{parsedJsonData.seo ? "✓ Ready" : "—"}</span>
+                  <span>🔍 SEO & Keywords</span>
+                  <span>{parsedJsonData.seo?.primary_keyword_bn ? "✓ EN & BN" : parsedJsonData.seo ? "✓ Ready" : "—"}</span>
                 </div>
 
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${

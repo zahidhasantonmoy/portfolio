@@ -47,7 +47,7 @@ REQUIREMENTS:
 9. "tags": Array of 3-5 lowercase relevant tags (e.g. ["nextjs", "react", "typescript", "ai-agent"]).
 10. "english":
    - "title": Catchy, SEO-optimized English title.
-   - "article": Full, in-depth technical article formatted in Markdown (headings H2/H3, bullet points, real code examples with syntax highlighting, best practices, at least 500-750 words).
+   - "article": Full, authoritative, in-depth technical article formatted in Markdown (clear H2/H3 headings, actionable technical insights, architectural explanations, best practices, at least 1,200 to 1,800 words). MUST contain real, production-ready code blocks with syntax highlighting (\`\`\`tsx or \`\`\`typescript) demonstrating step-by-step implementation, configuration, and practical usage (not generic pseudo-code).
    - At the end of the article, include:
      ## Frequently Asked Questions
      ### Question 1?
@@ -56,7 +56,7 @@ REQUIREMENTS:
      Answer 2...
 11. "bangla":
    - "title": প্রাসঙ্গিক এবং আকর্ষণীয় বাংলা শিরোনাম।
-   - "article": সম্পূর্ণ বিস্তারিত প্র্যাকটিক্যাল বাংলা আর্টিকেল (Markdown ফরম্যাটে, সহজবোধ্য ও প্রফেশনাল বাংলা ভাষা, কোড এক্সাম্পল সহ)।
+   - "article": সম্পূর্ণ বিস্তারিত প্র্যাকটিক্যাল বাংলা আর্টিকেল (Markdown ফরম্যাটে, সহজবোধ্য ও প্রফেশনাল বাংলা ভাষা, অন্তত ১২০০-১৮০০ শব্দ)। আর্টিকেলে প্র্যাকটিক্যাল কোড এক্সাম্পল ও সিনট্যাক্স হাইলাইটিং (\`\`\`tsx বা \`\`\`typescript) সহ বাস্তবসম্মত ইমপ্লিমেন্টেশন কোড ও ব্যাখ্যা থাকতে হবে।
    - আর্টিকেলের শেষে যোগ করুন:
      ## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)
      ### প্রশ্ন ১?
@@ -80,9 +80,13 @@ REQUIREMENTS:
    - "seo_title_bn": বাংলা এসইও টাইটেল (max 60 chars).
    - "meta_description_en": English meta description (max 160 chars).
    - "seo_title_en": English SEO title (max 60 chars).
-   - "primary_keyword": Target primary keyword.
-   - "secondary_keywords": Array of 3-5 relevant keywords.
-   - "search_intent": "informational" or "tutorial".
+   - "primary_keyword_en": Natural human search query (e.g. "How to build AI Agents with Next.js" or "Next.js AI Agents Tutorial") matching real search intent. Avoid unnatural robotic sequences like "AI Agents Next.js".
+   - "secondary_keywords_en": Array of 3-5 distinct semantic variants (e.g. ["LangChain autonomous agent architecture", "Next.js AI streaming tool calling", "production AI workflows"]) that support the topic WITHOUT repeating or cannibalizing the primary keyword phrase.
+   - "primary_keyword_bn": প্রাকৃতিক ও জনপ্রিয় বাংলা সার্চ কোয়েরি (যেমন: "নেক্সট জেএস দিয়ে এআই এজেন্ট তৈরি" বা "অটোনোমাস এআই এজেন্ট টিউটোরিয়াল")।
+   - "secondary_keywords_bn": ৩-৪টি স্বতন্ত্র বাংলা সার্চ টার্ম (যেমন: ["স্বয়ংক্রিয় এআই এজেন্ট টিউটোরিয়াল", "ল্যাংচেইন বাংলা", "নেক্সট জেএস এআই ইন্টিগ্রেশন"])।
+   - "primary_keyword": Matches primary_keyword_en.
+   - "secondary_keywords": Matches secondary_keywords_en.
+   - "search_intent": "tutorial" or "guide".
 15. "social":
    - "linkedin_post": Engaging, professional LinkedIn post summary with key takeaways and hook.
    - "linkedin_hashtags": Array of 4-6 relevant hashtags (e.g. ["#WebDev", "#Nextjs", "#React"]).
@@ -136,9 +140,13 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
     "seo_title_bn": "string",
     "meta_description_en": "string",
     "seo_title_en": "string",
+    "primary_keyword_en": "string",
+    "secondary_keywords_en": ["string"],
+    "primary_keyword_bn": "string",
+    "secondary_keywords_bn": ["string"],
     "primary_keyword": "string",
     "secondary_keywords": ["string"],
-    "search_intent": "informational"
+    "search_intent": "tutorial"
   },
   "social": {
     "linkedin_post": "string",
@@ -183,7 +191,7 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
 
     const result = JSON.parse(cleanedText);
 
-    // Safeguard & guarantee all 8 SEO/GEO attributes
+    // Safeguard & guarantee all SEO/GEO attributes
     const slug = result.slug || "post-" + Date.now();
     result.slug = slug;
     result.canonical_url = result.canonical_url || `https://zahidhasantonmoy.vercel.app/blog/${slug}`;
@@ -196,6 +204,19 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
     result.author = result.author || "Zahid Hasan Tonmoy";
     result.status = result.status || "draft";
     result.og_image = result.og_image || `https://zahidhasantonmoy.vercel.app/blog/${slug}/opengraph-image`;
+
+    if (!result.seo) result.seo = {};
+    const primaryEn = result.seo.primary_keyword_en || result.seo.primary_keyword || targetTopic;
+    result.seo.primary_keyword_en = primaryEn;
+    result.seo.primary_keyword = primaryEn;
+    result.seo.primary_keyword_bn = result.seo.primary_keyword_bn || (result.bangla?.title || "ওয়েব ডেভেলপমেন্ট");
+    if (!Array.isArray(result.seo.secondary_keywords_en)) {
+      result.seo.secondary_keywords_en = result.seo.secondary_keywords || ["Next.js", "React", "AI Agent"];
+    }
+    result.seo.secondary_keywords = result.seo.secondary_keywords_en;
+    if (!Array.isArray(result.seo.secondary_keywords_bn)) {
+      result.seo.secondary_keywords_bn = ["নেক্সট জেএস", "প্রোগ্রামিং টিউটোরিয়াল", "এআই এজেন্ট"];
+    }
 
     // Compute word count & reading time
     const enWords = result.english?.article ? result.english.article.trim().split(/\s+/).length : 0;
