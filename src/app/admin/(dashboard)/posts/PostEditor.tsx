@@ -866,13 +866,13 @@ export default function PostEditor({
     "secondary_keywords_en": [ "LangChain autonomous agent architecture", "Next.js AI streaming tool calling", "production AI workflows" ],
     "primary_keyword_bn": "নেক্সট জেএস দিয়ে এআই এজেন্ট তৈরি",
     "secondary_keywords_bn": [ "স্বয়ংক্রিয় এআই এজেন্ট টিউটোরিয়াল", "ল্যাংচেইন বাংলা", "নেক্সট জেএস এআই ইন্টিগ্রেশন" ],
-    "primary_keyword": "How to build AI Agents with Next.js",
-    "secondary_keywords": [ "LangChain autonomous agent architecture", "Next.js AI streaming tool calling", "production AI workflows" ],
     "search_intent": "tutorial"
   },
   "social": {
-    "linkedin_post": "🚀 Deep Dive: How to architect autonomous AI agents using Next.js 14, streaming UI, and LangChain...",
-    "linkedin_hashtags": [ "#WebDev", "#Nextjs", "#AIAgents", "#LangChain", "#FullStack" ],
+    "linkedin_post_en": "🚀 Deep Dive: How to architect autonomous AI agents using Next.js 14, streaming UI, and LangChain...\\n\\nKey takeaways:\\n1. Server Actions for safe tool execution\\n2. Real-time token streaming with AI SDK\\n3. Resilience and self-healing memory\\n\\nRead the full guide: https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents",
+    "linkedin_hashtags_en": [ "#WebDev", "#Nextjs", "#AIAgents", "#LangChain", "#FullStack" ],
+    "linkedin_post_bn": "🚀 নেক্সট জেএস ১৪ এবং ল্যাংচেইন দিয়ে অটোনোমাস এআই এজেন্ট আর্কিটেকচার তৈরি করার প্র্যাকটিক্যাল গাইড!\\n\\nমূল আলোচ্য বিষয়:\\n১. সার্ভার অ্যাকশন ও টুল কলিং সিকিউরিটি\\n২. রিয়্যাক্ট ক্লায়েন্টে রিয়েল-টাইম লাইভ স্ট্রিমিং\\n৩. মেমোরি পারসিস্টেন্স ও ফলব্যাক হ্যান্ডলিং\\n\\nসম্পূর্ণ বাংলা আর্টিকেলটি পড়ুন: https://zahidhasantonmoy.vercel.app/bn/blog/mastering-autonomous-ai-agents",
+    "linkedin_hashtags_bn": [ "#ওয়েবডেভেলপমেন্ট", "#নেক্সটজেএস", "#প্রোগ্রামিং", "#বাংলাটিউটোরিয়াল", "#TechBangladesh" ],
     "devto_title": "Mastering Autonomous AI Agents with Next.js 14 and LangChain",
     "devto_article": "Complete DEV.to formatted markdown article...",
     "devto_tags": [ "ai", "nextjs", "javascript", "webdev" ]
@@ -2014,14 +2014,33 @@ export default function PostEditor({
                   <span>{parsedJsonData.faq?.length ? `✓ ${parsedJsonData.faq.length} Q&As` : "—"}</span>
                 </div>
 
-                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
-                  parsedJsonData.word_count || parsedJsonData.reading_time_minutes
-                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
-                }`}>
-                  <span>📊 Word Count</span>
-                  <span>{parsedJsonData.word_count?.english ? `${parsedJsonData.word_count.english}w (en)` : parsedJsonData.reading_time_minutes ? `${parsedJsonData.reading_time_minutes} min` : "—"}</span>
-                </div>
+                {(() => {
+                  const enWords = parsedJsonData.english?.article
+                    ? parsedJsonData.english.article.trim().split(/\s+/).filter(Boolean).length
+                    : (parsedJsonData.word_count?.english || 0);
+                  const bnWords = parsedJsonData.bangla?.article
+                    ? parsedJsonData.bangla.article.trim().split(/\s+/).filter(Boolean).length
+                    : (parsedJsonData.word_count?.bangla || 0);
+                  const meetsTarget = enWords >= 1200 && bnWords >= 1200;
+                  const hasWords = enWords > 0 || bnWords > 0;
+
+                  return (
+                    <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                      !hasWords
+                        ? "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                        : meetsTarget
+                        ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                        : "bg-amber-950/20 border-amber-500/30 text-amber-300"
+                    }`}>
+                      <span>📊 Word Count</span>
+                      <span className="font-mono text-[11px]">
+                        {hasWords
+                          ? `${enWords} EN / ${bnWords} BN ${meetsTarget ? "✓ (1.2k+)" : "⚠ (<1.2k)"}`
+                          : "—"}
+                      </span>
+                    </div>
+                  );
+                })()}
 
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.branding?.angle
@@ -2065,34 +2084,72 @@ export default function PostEditor({
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* LinkedIn Box */}
-                {parsedJsonData.social.linkedin_post && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {/* LinkedIn English Box */}
+                {(parsedJsonData.social.linkedin_post_en || parsedJsonData.social.linkedin_post) && (
                   <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-blue-400 flex items-center gap-1.5">
                         <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                        LinkedIn Post
+                        LinkedIn (English)
                       </span>
                       <button
                         type="button"
                         onClick={() => {
-                          const hashtags = Array.isArray(parsedJsonData.social.linkedin_hashtags)
-                            ? "\n\n" + parsedJsonData.social.linkedin_hashtags.join(" ")
-                            : "";
-                          navigator.clipboard.writeText(parsedJsonData.social.linkedin_post + hashtags);
-                          toast.success("📋 Copied LinkedIn post!");
+                          const postText = parsedJsonData.social.linkedin_post_en || parsedJsonData.social.linkedin_post;
+                          const tags = Array.isArray(parsedJsonData.social.linkedin_hashtags_en)
+                            ? parsedJsonData.social.linkedin_hashtags_en
+                            : Array.isArray(parsedJsonData.social.linkedin_hashtags)
+                            ? parsedJsonData.social.linkedin_hashtags
+                            : [];
+                          const hashtags = tags.length > 0 ? "\n\n" + tags.join(" ") : "";
+                          navigator.clipboard.writeText(postText + hashtags);
+                          toast.success("📋 Copied English LinkedIn post!");
                         }}
                         className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-blue-300 rounded border border-gray-700 transition cursor-pointer"
                       >
-                        Copy Post
+                        Copy EN
                       </button>
                     </div>
                     <p className="text-xs text-gray-300 whitespace-pre-wrap font-sans bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto">
-                      {parsedJsonData.social.linkedin_post}
-                      {Array.isArray(parsedJsonData.social.linkedin_hashtags) && (
+                      {parsedJsonData.social.linkedin_post_en || parsedJsonData.social.linkedin_post}
+                      {(Array.isArray(parsedJsonData.social.linkedin_hashtags_en) || Array.isArray(parsedJsonData.social.linkedin_hashtags)) && (
                         <span className="block mt-2 text-blue-400 font-medium">
-                          {parsedJsonData.social.linkedin_hashtags.join(" ")}
+                          {(parsedJsonData.social.linkedin_hashtags_en || parsedJsonData.social.linkedin_hashtags).join(" ")}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                )}
+
+                {/* LinkedIn Bengali Box */}
+                {parsedJsonData.social.linkedin_post_bn && (
+                  <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                        LinkedIn (বাংলা)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const tags = Array.isArray(parsedJsonData.social.linkedin_hashtags_bn)
+                            ? parsedJsonData.social.linkedin_hashtags_bn
+                            : [];
+                          const hashtags = tags.length > 0 ? "\n\n" + tags.join(" ") : "";
+                          navigator.clipboard.writeText(parsedJsonData.social.linkedin_post_bn + hashtags);
+                          toast.success("📋 Copied Bengali LinkedIn post!");
+                        }}
+                        className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-emerald-300 rounded border border-gray-700 transition cursor-pointer"
+                      >
+                        Copy BN
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-300 whitespace-pre-wrap font-sans bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto">
+                      {parsedJsonData.social.linkedin_post_bn}
+                      {Array.isArray(parsedJsonData.social.linkedin_hashtags_bn) && (
+                        <span className="block mt-2 text-emerald-400 font-medium">
+                          {parsedJsonData.social.linkedin_hashtags_bn.join(" ")}
                         </span>
                       )}
                     </p>

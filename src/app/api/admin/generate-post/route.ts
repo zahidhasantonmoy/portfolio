@@ -84,12 +84,12 @@ REQUIREMENTS:
    - "secondary_keywords_en": Array of 3-5 distinct semantic variants (e.g. ["LangChain autonomous agent architecture", "Next.js AI streaming tool calling", "production AI workflows"]) that support the topic WITHOUT repeating or cannibalizing the primary keyword phrase.
    - "primary_keyword_bn": প্রাকৃতিক ও জনপ্রিয় বাংলা সার্চ কোয়েরি (যেমন: "নেক্সট জেএস দিয়ে এআই এজেন্ট তৈরি" বা "অটোনোমাস এআই এজেন্ট টিউটোরিয়াল")।
    - "secondary_keywords_bn": ৩-৪টি স্বতন্ত্র বাংলা সার্চ টার্ম (যেমন: ["স্বয়ংক্রিয় এআই এজেন্ট টিউটোরিয়াল", "ল্যাংচেইন বাংলা", "নেক্সট জেএস এআই ইন্টিগ্রেশন"])।
-   - "primary_keyword": Matches primary_keyword_en.
-   - "secondary_keywords": Matches secondary_keywords_en.
    - "search_intent": "tutorial" or "guide".
 15. "social":
-   - "linkedin_post": Engaging, professional LinkedIn post summary with key takeaways and hook.
-   - "linkedin_hashtags": Array of 4-6 relevant hashtags (e.g. ["#WebDev", "#Nextjs", "#React"]).
+   - "linkedin_post_en": Engaging, professional LinkedIn post summary in English with key takeaways, hook, and code insight.
+   - "linkedin_hashtags_en": Array of 4-6 relevant English hashtags (e.g. ["#WebDev", "#Nextjs", "#React"]).
+   - "linkedin_post_bn": বাংলাদেশি ও বাংলাভাষী অডিয়েন্সের জন্য প্রাঞ্জল ও আকর্ষণীয় বাংলা লিঙ্কডইন পোস্ট (hook, key takeaways, এবং portfolio link সহ)।
+   - "linkedin_hashtags_bn": ৪-৬টি প্রাসঙ্গিক বাংলা ও আন্তর্জাতিক হ্যাশট্যাগ (যেমন: ["#ওয়েবডেভেলপমেন্ট", "#নেক্সটজেএস", "#প্রোগ্রামিং", "#TechBangladesh"]).
    - "devto_title": Catchy title for DEV.to cross-posting.
    - "devto_article": Full DEV.to formatted markdown article.
    - "devto_tags": Array of 3-4 lowercase tags (e.g. ["webdev", "javascript", "react"]).
@@ -144,13 +144,13 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
     "secondary_keywords_en": ["string"],
     "primary_keyword_bn": "string",
     "secondary_keywords_bn": ["string"],
-    "primary_keyword": "string",
-    "secondary_keywords": ["string"],
     "search_intent": "tutorial"
   },
   "social": {
-    "linkedin_post": "string",
-    "linkedin_hashtags": ["string"],
+    "linkedin_post_en": "string",
+    "linkedin_hashtags_en": ["string"],
+    "linkedin_post_bn": "string",
+    "linkedin_hashtags_bn": ["string"],
     "devto_title": "string",
     "devto_article": "string",
     "devto_tags": ["string"]
@@ -208,24 +208,56 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
     if (!result.seo) result.seo = {};
     const primaryEn = result.seo.primary_keyword_en || result.seo.primary_keyword || targetTopic;
     result.seo.primary_keyword_en = primaryEn;
-    result.seo.primary_keyword = primaryEn;
     result.seo.primary_keyword_bn = result.seo.primary_keyword_bn || (result.bangla?.title || "ওয়েব ডেভেলপমেন্ট");
     if (!Array.isArray(result.seo.secondary_keywords_en)) {
       result.seo.secondary_keywords_en = result.seo.secondary_keywords || ["Next.js", "React", "AI Agent"];
     }
-    result.seo.secondary_keywords = result.seo.secondary_keywords_en;
     if (!Array.isArray(result.seo.secondary_keywords_bn)) {
       result.seo.secondary_keywords_bn = ["নেক্সট জেএস", "প্রোগ্রামিং টিউটোরিয়াল", "এআই এজেন্ট"];
     }
+    // Remove legacy un-suffixed duplicates from output to keep schema clean
+    delete (result.seo as any).primary_keyword;
+    delete (result.seo as any).secondary_keywords;
+
+    // Normalize social fields for both English and Bangla LinkedIn posts
+    if (!result.social) result.social = {};
+    const linkedInEn = result.social.linkedin_post_en || result.social.linkedin_post || "";
+    result.social.linkedin_post_en = linkedInEn;
+    result.social.linkedin_post = linkedInEn; // backwards compatibility
+    const hashEn = Array.isArray(result.social.linkedin_hashtags_en)
+      ? result.social.linkedin_hashtags_en
+      : Array.isArray(result.social.linkedin_hashtags)
+      ? result.social.linkedin_hashtags
+      : ["#WebDev", "#Nextjs", "#React"];
+    result.social.linkedin_hashtags_en = hashEn;
+    result.social.linkedin_hashtags = hashEn; // backwards compatibility
+
+    if (!result.social.linkedin_post_bn) {
+      result.social.linkedin_post_bn = `🚀 নতুন টেকনিক্যাল আর্টিকেল: ${result.bangla?.title || targetTopic}\n\n${result.excerpt?.bangla || ""}\n\n🔗 সম্পূর্ণ আর্টিকেলটি পড়ুন: https://zahidhasantonmoy.vercel.app/bn/blog/${slug}`;
+    }
+    if (!Array.isArray(result.social.linkedin_hashtags_bn)) {
+      result.social.linkedin_hashtags_bn = ["#প্রোগ্রামিং", "#ওয়েবডেভেলপমেন্ট", "#নেক্সটজেএস", "#TechBangladesh"];
+    }
 
     // Compute word count & reading time
-    const enWords = result.english?.article ? result.english.article.trim().split(/\s+/).length : 0;
-    const bnWords = result.bangla?.article ? result.bangla.article.trim().split(/\s+/).length : 0;
+    const enWords = result.english?.article ? result.english.article.trim().split(/\s+/).filter(Boolean).length : 0;
+    const bnWords = result.bangla?.article ? result.bangla.article.trim().split(/\s+/).filter(Boolean).length : 0;
     result.word_count = {
       english: enWords,
       bangla: bnWords,
     };
     result.reading_time_minutes = Math.max(1, Math.ceil(enWords / 200));
+
+    // Word count target validation status (target: 1,200 - 1,800 words)
+    result.word_count_status = {
+      target_min: 1200,
+      target_max: 1800,
+      english_meets_target: enWords >= 1200,
+      bangla_meets_target: bnWords >= 1200,
+      notice: enWords < 1200 || bnWords < 1200
+        ? `Warning: Content word count is below the recommended 1,200-word target (EN: ${enWords}, BN: ${bnWords}).`
+        : "Success: Content length meets the 1,200-1,800 word guideline."
+    };
 
     return NextResponse.json(result);
   } catch (error: any) {

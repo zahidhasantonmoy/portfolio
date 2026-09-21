@@ -325,8 +325,8 @@ export function extractFaqsFromMarkdown(markdown: string): FAQItem[] {
 
   const faqs: FAQItem[] = [];
 
-  // Match the FAQ section header
-  const faqHeaderRegex = /##\s+(?:Frequently Asked Questions|FAQs?|FAQ|প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী|সাধারণ জিজ্ঞাসা|প্রশ্নোত্তর)([\s\S]*?)(?=(?:^##\s+)|$)/im;
+  // Match the FAQ section header (supports ## FAQ, ## Frequently Asked Questions, ## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ), etc.)
+  const faqHeaderRegex = /##\s+[^\n\r]*(?:Frequently Asked Questions|FAQs?|FAQ|প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী|সাধারণ জিজ্ঞাসা|প্রশ্নোত্তর)[^\n\r]*(?:\r?\n)+([\s\S]*?)(?=(?:^##\s+)|$)/im;
   const match = markdown.match(faqHeaderRegex);
   const faqSection = match ? match[1] : markdown;
 
