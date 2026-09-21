@@ -10,7 +10,7 @@ export async function generateContentWithFallback(
   preferredProvider: 'auto' | 'openrouter' | 'gemini' | 'groq' = 'auto'
 ): Promise<string> {
   const openRouterKey = process.env.OPENROUTER_API_KEY;
-  const geminiKey = process.env.GEMINI_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
   const groqKey = process.env.GROQ_API_KEY;
 
   let lastError: any = null;
@@ -52,10 +52,10 @@ export async function generateContentWithFallback(
     try {
       const ai = new GoogleGenAI({ apiKey: geminiKey });
       const models = [
-        "gemini-2.0-flash-lite", // 30 RPM, 1,500/day
-        "gemini-1.5-flash",      // 15 RPM, 1,500/day
-        "gemini-2.0-flash",      // 15 RPM, 1,500/day
-        "gemini-1.5-flash-8b",   // 15 RPM, 1,500/day
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash",
+        "gemini-2.0-flash-lite",
       ];
       
       for (const model of models) {

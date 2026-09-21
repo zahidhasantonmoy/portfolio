@@ -625,6 +625,7 @@ export default function PostEditor({
       return;
     }
     setTranslating(true);
+    const toastId = toast.loading("Translating Title, Excerpt & Content to Bengali with AI...");
     try {
       const res = await fetch("/api/admin/translate-post", {
         method: "POST",
@@ -647,9 +648,10 @@ export default function PostEditor({
         content_bn: data.content_bn || prev.content_bn,
       }));
       setCompletedTasks(prev => ({ ...prev, translate: true }));
-      toast.success("✨ Auto-translated successfully!");
+      toast.success("✨ Translated to Bengali! Switched to বাংলা tab.", { id: toastId });
+      setActiveTab("bangla");
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Translation failed");
+      toast.error(err instanceof Error ? err.message : "Translation failed", { id: toastId });
     } finally {
       setTranslating(false);
       fetchQuotas();
@@ -1239,7 +1241,36 @@ export default function PostEditor({
       {/* ── Bangla Tab ── */}
       {activeTab === "bangla" && (
         <div className="space-y-5">
-          <div className="bg-blue-900/20 border border-blue-800/50 rounded-lg px-4 py-3 text-blue-300 text-sm">
+          {/* Quick Auto-Translate Action Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-blue-950/60 to-indigo-950/60 border border-blue-500/30 rounded-xl p-4">
+            <div>
+              <p className="text-sm font-semibold text-white flex items-center gap-2">
+                <span>🌐</span> Auto-Translate from English
+              </p>
+              <p className="text-xs text-blue-300/80 mt-0.5">
+                Automatically translates your English Title, Excerpt, and Content into natural Bengali with 1 click.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleAutoTranslate}
+              disabled={translating || !form.title_en.trim()}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition shadow-md shadow-blue-600/30 flex items-center gap-2 shrink-0 disabled:opacity-50 active:scale-95"
+            >
+              {translating ? (
+                <>
+                  <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Translating...</span>
+                </>
+              ) : (
+                <>
+                  <span>🌐 Auto-Translate to Bengali</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          <div className="bg-gray-900/60 border border-gray-800 rounded-lg px-4 py-2.5 text-gray-400 text-xs">
             💡 বাংলা content না থাকলেও চলবে। English version-ই default হিসেবে দেখাবে।
           </div>
 
