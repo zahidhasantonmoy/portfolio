@@ -15,47 +15,14 @@ export async function generateContentWithFallback(
 
   let lastError: any = null;
 
-  // 1. Try OpenRouter first (Fast, cheap, wide model selection)
-  if (openRouterKey && (preferredProvider === 'auto' || preferredProvider === 'openrouter')) {
-    try {
-      const openai = new OpenAI({
-        baseURL: "https://openrouter.ai/api/v1",
-        apiKey: openRouterKey,
-      });
-
-      const messages: any[] = [];
-      if (systemInstruction) {
-        messages.push({ role: "system", content: systemInstruction });
-      }
-      messages.push({ role: "user", content: prompt });
-
-      // Llama 3 or Haiku are good choices, we can use a fast model.
-      const response = await openai.chat.completions.create({
-        model: "meta-llama/llama-3.3-70b-instruct", // High quality open model
-        messages,
-        response_format: isJsonMode ? { type: "json_object" } : undefined,
-      });
-
-      if (response.choices[0]?.message?.content) {
-        return response.choices[0].message.content;
-      }
-    } catch (err: any) {
-      console.warn("[OpenRouter] Failed or Rate Limited:", err?.message);
-      lastError = err;
-    }
-  }
-
-  if (preferredProvider === 'openrouter') throw new Error('OpenRouter failed: ' + (lastError?.message || 'Unknown error'));
-
-  // 2. Try Gemini (Fallback)
+  // 1. Try Gemini first (Fastest response time ~1.5s, native multilingual Bengali support)
   if (geminiKey && (preferredProvider === 'auto' || preferredProvider === 'gemini')) {
     try {
       const ai = new GoogleGenAI({ apiKey: geminiKey });
       const models = [
-        "gemini-2.5-flash",
         "gemini-2.0-flash",
-        "gemini-1.5-flash",
         "gemini-2.0-flash-lite",
+        "gemini-1.5-flash",
       ];
       
       for (const model of models) {
@@ -84,7 +51,7 @@ export async function generateContentWithFallback(
 
   if (preferredProvider === 'gemini') throw new Error('Gemini failed: ' + (lastError?.message || 'Unknown error'));
 
-  // 3. Try Groq (Last Resort)
+  // 2. Try Groq (Ultra-fast inference ~1s)
   if (groqKey && (preferredProvider === 'auto' || preferredProvider === 'groq')) {
     try {
       const groq = new OpenAI({
@@ -99,7 +66,7 @@ export async function generateContentWithFallback(
       messages.push({ role: "user", content: prompt });
 
       const response = await groq.chat.completions.create({
-        model: "llama-3.1-8b-instant", // 14,400 Requests/Day
+        model: "llama-3.3-70b-versatile",
         messages,
         response_format: isJsonMode ? { type: "json_object" } : undefined,
       });
@@ -112,6 +79,39 @@ export async function generateContentWithFallback(
       lastError = err;
     }
   }
+
+  if (preferredProvider === 'groq') throw new Error('Groq failed: ' + (lastError?.message || 'Unknown error'));
+
+  // 3. Try OpenRouter (Fallback)
+  if (openRouterKey && (preferredProvider === 'auto' || preferredProvider === 'openrouter')) {
+    try {
+      const openai = new OpenAI({
+        baseURL: "https://openrouter.ai/api/v1",
+        apiKey: openRouterKey,
+      });
+
+      const messages: any[] = [];
+      if (systemInstruction) {
+        messages.push({ role: "system", content: systemInstruction });
+      }
+      messages.push({ role: "user", content: prompt });
+
+      const response = await openai.chat.completions.create({
+        model: "meta-llama/llama-3.3-70b-instruct",
+        messages,
+        response_format: isJsonMode ? { type: "json_object" } : undefined,
+      });
+
+      if (response.choices[0]?.message?.content) {
+        return response.choices[0].message.content;
+      }
+    } catch (err: any) {
+      console.warn("[OpenRouter] Failed or Rate Limited:", err?.message);
+      lastError = err;
+    }
+  }
+
+  if (preferredProvider === 'openrouter') throw new Error('OpenRouter failed: ' + (lastError?.message || 'Unknown error'));
 
   throw new Error(
     "Quota exceeded on all providers or no valid API keys found. Please check your AI API limits."

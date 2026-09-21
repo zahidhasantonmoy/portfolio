@@ -638,7 +638,20 @@ export default function PostEditor({
         }),
       });
 
-      const data = await res.json();
+      const textResponse = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(textResponse);
+      } catch {
+        let msg = "Server error occurred during translation.";
+        if (textResponse.includes("FUNCTION_INVOCATION_TIMEOUT") || textResponse.includes("timeout")) {
+          msg = "Translation timed out. The content may be too long for a single request.";
+        } else if (textResponse.includes("An error occurred")) {
+          msg = "Serverless limit reached. Please ensure GEMINI_API_KEY is configured in Vercel settings.";
+        }
+        throw new Error(msg);
+      }
+
       if (!res.ok) throw new Error(data.error || "Failed to translate");
 
       setForm((prev) => ({

@@ -50,7 +50,7 @@ ${title_en}
 
 ${cleanExcerpt ? `English Excerpt:\n${cleanExcerpt}\n` : ""}
 English Markdown Content:
-${cleanContent.slice(0, 15000)}
+${cleanContent.slice(0, 8000)}
 `;
 
     const systemInstruction = `
@@ -80,7 +80,7 @@ You must separate your output using EXACTLY these three section delimiters so th
       prompt,
       systemInstruction,
       false, // Text mode with delimiters avoids JSON parsing & control character crashes
-      provider || "auto"
+      provider && provider !== "auto" ? provider : "gemini"
     );
 
     if (!text || !text.trim()) {
