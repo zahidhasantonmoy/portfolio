@@ -62,7 +62,13 @@ export default function PostEditor({
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [scheduleDate, setScheduleDate] = useState("");
   const [imagePrompt, setImagePrompt] = useState("");
-  const [imageModel, setImageModel] = useState("Gemini 3.6 Flash");
+  const [imageModel, setImageModel] = useState("Flux Pro (1280x720)");
+  const [imageStyle, setImageStyle] = useState("auto");
+  const [promptMeta, setPromptMeta] = useState<{
+    theme?: string;
+    color_palette?: string;
+    concept?: string;
+  } | null>(null);
   const [preferredProvider, setPreferredProvider] = useState("auto");
   
   const [completedTasks, setCompletedTasks] = useState({
@@ -467,22 +473,30 @@ export default function PostEditor({
   }
 
   async function handleGenerateImage() {
-    if (!form.content_en) {
-      toast.error("Please add some English content first so AI understands what image to generate.");
+    if (!form.content_en && !imagePrompt) {
+      toast.error("Please enter English content or an image prompt first.");
       return;
     }
     
     setGeneratingImage(true);
-    const loadingToast = toast.loading("🎨 Generating image... This can take up to 30 seconds.");
+    const loadingToast = toast.loading("🎨 Generating 16:9 cover image with AI (Flux)...");
     
     try {
+      const selectedCategory = categories.find((c) => c.id === form.category_id)?.name_en || "";
+      const selectedTags = tags.filter((t) => form.tag_ids.includes(t.id)).map((t) => t.name_en);
+
       const res = await fetch("/api/admin/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: imagePrompt,
-          postDetails: `Title: ${form.title_en}\n\nContent: ${form.content_en}`,
+          title: form.title_en,
+          category: selectedCategory,
+          tags: selectedTags,
+          postDetails: `Title: ${form.title_en}\nCategory: ${selectedCategory}\nTags: ${selectedTags.join(", ")}\nExcerpt: ${form.excerpt_en}\n\nContent: ${form.content_en}`,
           modelName: imageModel,
+          style: imageStyle,
+          provider: preferredProvider,
         }),
       });
       
@@ -496,7 +510,7 @@ export default function PostEditor({
       }
       
       setCompletedTasks(prev => ({ ...prev, image: true }));
-      toast.success("Image generated successfully!");
+      toast.success("Cover image generated and attached successfully!");
     } catch (err: any) {
       console.error(err);
       toast.error("Generation failed: " + err.message);
@@ -508,20 +522,27 @@ export default function PostEditor({
 
   async function handleGenerateImagePrompt() {
     if (!form.title_en && !form.content_en) {
-      toast.error("Please enter English Title or Content first so AI knows what prompt to generate.");
+      toast.error("Please enter English Title or Content first so AI can analyze the post topic.");
       return;
     }
 
     setGeneratingImagePrompt(true);
-    const toastId = toast.loading("💡 Generating AI image prompt...");
+    const toastId = toast.loading("💡 Analyzing post & generating topic-focused prompt...");
 
     try {
+      const selectedCategory = categories.find((c) => c.id === form.category_id)?.name_en || "";
+      const selectedTags = tags.filter((t) => form.tag_ids.includes(t.id)).map((t) => t.name_en);
+
       const res = await fetch("/api/admin/generate-image-prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: form.title_en,
+          excerpt: form.excerpt_en,
           content: form.content_en,
+          category: selectedCategory,
+          tags: selectedTags,
+          style: imageStyle,
           provider: preferredProvider,
         }),
       });
@@ -530,7 +551,14 @@ export default function PostEditor({
       if (!res.ok) throw new Error(data.error || "Failed to generate prompt");
 
       setImagePrompt(data.prompt);
-      toast.success("💡 Prompt generated! You can edit or click 'Generate Image'.", { id: toastId });
+      if (data.theme || data.color_palette || data.concept) {
+        setPromptMeta({
+          theme: data.theme,
+          color_palette: data.color_palette,
+          concept: data.concept,
+        });
+      }
+      toast.success("💡 Post-tailored prompt generated! Click 'Generate Image' to create.", { id: toastId });
     } catch (err: any) {
       toast.error(err.message || "Failed to generate prompt", { id: toastId });
     } finally {
@@ -1474,53 +1502,97 @@ export default function PostEditor({
           
           {/* Action 4: Image Generation */}
           <div className="flex flex-col gap-4 bg-teal-900/20 border border-teal-800/50 p-4 rounded-xl">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <h4 className="text-sm font-semibold text-teal-300">
-                  Generate Thumbnail / Cover Image
-                  {completedTasks.image && <span className="ml-2 text-[10px] text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded-full border border-emerald-800/50">✅ Completed</span>}
+                <h4 className="text-sm font-semibold text-teal-300 flex items-center gap-2">
+                  <span>🎨 Generate Thumbnail / Cover Image (16:9 Widescreen)</span>
+                  {completedTasks.image && (
+                    <span className="text-[10px] text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded-full border border-emerald-800/50">
+                      ✅ Completed
+                    </span>
+                  )}
                 </h4>
-                <p className="text-xs text-teal-400/80 mt-1">Leave prompt empty to auto-generate based on post content.</p>
+                <p className="text-xs text-teal-400/80 mt-1">
+                  AI analyzes your post&apos;s title, tech stack, and content to create a topic-specific 16:9 cover image with no text.
+                </p>
+              </div>
+
+              {/* Style / Theme Preset Selector */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-teal-300/80 whitespace-nowrap">Theme Style:</span>
+                <select
+                  value={imageStyle}
+                  onChange={(e) => setImageStyle(e.target.value)}
+                  className="px-2.5 py-1.5 bg-gray-900 border border-teal-700/60 rounded-lg text-teal-200 text-xs focus:outline-none focus:border-teal-400"
+                >
+                  <option value="auto">🎯 Topic-Adaptive (Recommended)</option>
+                  <option value="isometric">📐 3D Isometric Tech Art</option>
+                  <option value="cybernetic">🌌 Cybernetic Neon & Matrix</option>
+                  <option value="glassmorphism">🎨 Minimalist Glassmorphic UI</option>
+                  <option value="photorealistic">📸 Photorealistic Studio Tech</option>
+                  <option value="illustration">🖌️ Modern Digital Tech Illustration</option>
+                </select>
               </div>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2.5">
               <input
                 type="text"
                 value={imagePrompt}
                 onChange={(e) => setImagePrompt(e.target.value)}
-                placeholder="Enter prompt, or click 'Generate Prompt' to create with AI..."
-                className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-teal-500"
+                placeholder="Click 'Generate Prompt' to analyze this post and craft a focused prompt..."
+                className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-teal-500 placeholder:text-gray-500"
               />
               <button
                 type="button"
                 onClick={handleGenerateImagePrompt}
                 disabled={generatingImagePrompt || (!form.title_en && !form.content_en)}
-                className="px-3.5 py-2 bg-teal-800/50 hover:bg-teal-700/70 text-teal-200 border border-teal-600/50 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap disabled:opacity-50 flex items-center gap-1.5"
-                title="Generate an AI visual prompt based on your post content"
+                className="px-3.5 py-2 bg-teal-800/60 hover:bg-teal-700/80 text-teal-100 border border-teal-600/60 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+                title="AI analyzes your post topic, category, tags, and theme to generate a tailored visual prompt"
               >
-                <span>{generatingImagePrompt ? "Generating..." : "💡 Generate Prompt"}</span>
+                <span>{generatingImagePrompt ? "Analyzing..." : "💡 Generate Prompt"}</span>
               </button>
               <select
                 value={imageModel}
                 onChange={(e) => setImageModel(e.target.value)}
-                className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-teal-500"
+                className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-xs focus:outline-none focus:border-teal-500"
               >
-                <option value="Gemini 3.8 Flash">Gemini 3.8 Flash</option>
-                <option value="Gemini 3.6 Flash">Gemini 3.6 Flash</option>
-                <option value="Gemini 3.5 Flash Lite">Gemini 3.5 Flash Lite</option>
-                <option value="Gemini 3.1 Flash Lite">Gemini 3.1 Flash Lite</option>
-                <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
+                <option value="Flux Pro (1280x720)">Flux Pro (16:9 HD)</option>
+                <option value="Pollinations High-Res">Pollinations (1280x720)</option>
               </select>
               <button
                 type="button"
                 onClick={handleGenerateImage}
-                disabled={generatingImage}
-                className="px-4 py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap disabled:opacity-50"
+                disabled={generatingImage || (!form.content_en && !imagePrompt)}
+                className="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-sm font-semibold rounded-lg transition-all whitespace-nowrap disabled:opacity-50 flex items-center gap-1.5 shadow-md shadow-teal-900/30"
               >
-                {generatingImage ? "Generating..." : "🎨 Generate Image"}
+                <span>{generatingImage ? "Generating..." : "🎨 Generate Image"}</span>
               </button>
             </div>
+
+            {/* Post-Tailored Visual Metadata Banner */}
+            {promptMeta && (
+              <div className="flex flex-wrap items-center gap-2 p-3 bg-teal-950/60 border border-teal-800/60 rounded-lg text-xs animate-in fade-in duration-300">
+                {promptMeta.theme && (
+                  <span className="bg-teal-900/70 text-teal-200 px-2.5 py-1 rounded-md border border-teal-700/60 font-medium flex items-center gap-1">
+                    <span>🎯</span> <strong>Theme:</strong> {promptMeta.theme}
+                  </span>
+                )}
+                {promptMeta.color_palette && (
+                  <span className="bg-cyan-900/70 text-cyan-200 px-2.5 py-1 rounded-md border border-cyan-700/60 font-medium flex items-center gap-1">
+                    <span>🎨</span> <strong>Palette:</strong> {promptMeta.color_palette}
+                  </span>
+                )}
+                {promptMeta.concept && (
+                  <span className="text-teal-300/90 italic flex-1 min-w-[220px]">
+                    💡 {promptMeta.concept}
+                  </span>
+                )}
+                <span className="text-[11px] text-teal-400/80 ml-auto font-mono bg-black/40 px-2 py-0.5 rounded border border-teal-800/40">
+                  📐 16:9 (1280x720) • No Text
+                </span>
+              </div>
+            )}
           </div>
           
           {/* Action 5: Auto Post Generation */}

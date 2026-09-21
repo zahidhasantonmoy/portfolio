@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { GoogleGenAI } from "@google/genai";
+import { generateContentWithFallback } from "@/lib/ai";
 import { v2 as cloudinary } from "cloudinary";
 
 export const maxDuration = 60; // 60 seconds for image generation & upload
@@ -19,67 +19,57 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: "GEMINI_API_KEY is not configured." },
-      { status: 500 }
-    );
-  }
-
-  const ai = new GoogleGenAI({ apiKey });
-
   try {
-    const { prompt, postDetails, modelName } = await request.json();
+    const { prompt, postDetails, title, category, tags, style, provider } = await request.json();
 
-    let finalPrompt = prompt;
+    let finalPrompt = (prompt || "").trim();
 
-    // If no explicit prompt is provided, use the post details to auto-generate a good prompt
-    if (!finalPrompt || finalPrompt.trim() === "") {
-      if (!postDetails || postDetails.trim() === "") {
+    // If no explicit prompt is provided, use the post details to auto-generate a tailored prompt
+    if (!finalPrompt) {
+      if (!postDetails && !title) {
         return NextResponse.json(
           { error: "Either a Prompt or Post Details must be provided to generate an image." },
           { status: 400 }
         );
       }
 
-      let mappedModel = "gemini-3.8-flash";
-      if (modelName === "Gemini 2.5 Flash") mappedModel = "gemini-2.5-flash";
-      else if (modelName === "Gemini 3.1 Flash Lite") mappedModel = "gemini-3.1-flash-lite";
-      else if (modelName === "Gemini 3.5 Flash Lite") mappedModel = "gemini-3.5-flash-lite";
+      const promptInput = `
+POST DETAILS TO VISUALIZE:
+- Title: ${title || "Technical Blog Article"}
+${category ? `- Category: ${category}` : ""}
+${tags ? `- Tags / Tech Stack: ${Array.isArray(tags) ? tags.join(", ") : tags}` : ""}
+- Post Excerpt & Content:
+${(postDetails || "").substring(0, 2000)}
 
-      const modelsToTry = [mappedModel, "gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-3.6-flash"];
-      let textResponse = null;
+REQUESTED ART STYLE: ${style && style !== "auto" ? style : "contextual-adaptive"}
+`;
 
-      for (let i = 0; i < modelsToTry.length; i++) {
-        try {
-          textResponse = await ai.models.generateContent({
-            model: modelsToTry[i],
-            contents: `You are an expert prompt engineer for AI image generation. 
-            Create a concise, highly descriptive, and visual prompt (max 50 words) to generate a thumbnail image for the following blog post or newsletter.
-            Make it suitable for a developer or tech blog. Do not include any text in the image.
-            
-            Content: ${postDetails.substring(0, 2000)}`,
-          });
-          
-          if (textResponse && textResponse.text) {
-            break;
-          }
-        } catch (err: any) {
-          console.warn(`Image prompt generation with ${modelsToTry[i]} failed:`, err.message);
-          if (i === modelsToTry.length - 1) {
-            throw err;
-          }
-        }
+      const systemInstruction = `You are a world-class Art Director and AI Image Prompt Engineer.
+Analyze the provided blog post topic and generate a single, highly visual, stunning prompt (40-50 words) for a 16:9 widescreen blog cover thumbnail (Flux / Midjourney).
+Rules:
+- Capture the EXACT technical domain (e.g. cloud infrastructure, holographic UI, database schemas, cryptographic cyber defense, neural network lattices, hardware PCB). Never generate generic workspace/laptop scenes.
+- 16:9 widescreen composition (1280x720), cinematic volumetric lighting, 8k render, octane render.
+- ABSOLUTELY NO TEXT, NO LETTERS, NO WORDS, NO WATERMARKS. Pure visual storytelling only.
+Output ONLY the raw visual prompt string with no quotes or formatting.`;
+
+      try {
+        finalPrompt = await generateContentWithFallback(
+          promptInput,
+          systemInstruction,
+          false,
+          provider || "auto"
+        );
+        finalPrompt = finalPrompt.replace(/^["']|["']$/g, "").trim();
+      } catch (err: any) {
+        console.warn("Fallback prompt generation failed:", err?.message);
+        finalPrompt = `Futuristic high-tech visual metaphor of ${title || "modern software engineering"}, 16:9 widescreen cover banner, glowing cinematic volumetric lighting, 8k resolution, octane render, digital art, no text`;
       }
-
-      finalPrompt = textResponse?.text || "A modern software development workspace, abstract tech background, high quality, digital art.";
     }
 
-    // Call Pollinations.ai for image generation (Free, no API key needed, high quality)
+    // Call Pollinations.ai for image generation (1280x720 16:9 ratio with Flux model, no logo)
     const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
       finalPrompt
-    )}?width=1280&height=720&nologo=true`;
+    )}?width=1280&height=720&nologo=true&model=flux&seed=${Date.now()}`;
     
     const imageRes = await fetch(pollinationsUrl);
     if (!imageRes.ok) {
