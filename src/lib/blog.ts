@@ -308,3 +308,84 @@ export async function getAdjacentPosts(
   }
 }
 
+// ─── FAQ Schema & Extraction for GEO / AI Overviews ───────────────────────────
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+/**
+ * Extracts FAQ pairs from Markdown content.
+ * Looks for ## Frequently Asked Questions / ## FAQ / ## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী
+ * followed by ### Question headings or **Q:** bullet points.
+ */
+export function extractFaqsFromMarkdown(markdown: string): FAQItem[] {
+  if (!markdown) return [];
+
+  const faqs: FAQItem[] = [];
+
+  // Match the FAQ section header
+  const faqHeaderRegex = /##\s+(?:Frequently Asked Questions|FAQs?|FAQ|প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী|সাধারণ জিজ্ঞাসা|প্রশ্নোত্তর)([\s\S]*?)(?=(?:^##\s+)|$)/im;
+  const match = markdown.match(faqHeaderRegex);
+  const faqSection = match ? match[1] : markdown;
+
+  // Pattern 1: Heading 3 or 4 questions (### Question? followed by answer)
+  const headingQuestionRegex = /###+\s+(?:Q\d*[:.-]?\s*)?([^\n\r]+?)(?:\r?\n)+([\s\S]*?)(?=(?:^###+\s+)|(?:^##\s+)|$)/gim;
+  let qMatch;
+  while ((qMatch = headingQuestionRegex.exec(faqSection)) !== null) {
+    const question = qMatch[1].trim().replace(/^[*_]+|[*_]+$/g, "");
+    const rawAnswer = qMatch[2].trim();
+    // Clean basic markdown from answer for clean schema text
+    const cleanAnswer = rawAnswer
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // Strip links
+      .replace(/[*_`#]/g, "") // Strip formatting chars
+      .replace(/\n\s*\n/g, " ") // Collapse newlines
+      .trim();
+
+    if (question && cleanAnswer && question.length > 5 && cleanAnswer.length > 10) {
+      faqs.push({ question, answer: cleanAnswer });
+    }
+  }
+
+  // Pattern 2: Bold Q: / A: format (**Q:** ... **A:** ...)
+  if (faqs.length === 0) {
+    const qaBlockRegex = /(?:\*\*Q[:.-]?\s*|\*\*প্রশ্ন[:.-]?\s*)([^\*\n]+?)\*\*(?:\r?\n|\s+)+(?:\*\*A[:.-]?\s*|\*\*উত্তর[:.-]?\s*|A:\s*|উত্তর:\s*)([\s\S]*?)(?=(?:\*\*Q[:.-]?)|(?:\*\*প্রশ্ন[:.-]?)|(?:^##)|$)/gi;
+    let qaMatch;
+    while ((qaMatch = qaBlockRegex.exec(faqSection)) !== null) {
+      const question = qaMatch[1].trim();
+      const rawAnswer = qaMatch[2].trim();
+      const cleanAnswer = rawAnswer
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+        .replace(/[*_`#]/g, "")
+        .replace(/\n\s*\n/g, " ")
+        .trim();
+
+      if (question && cleanAnswer) {
+        faqs.push({ question, answer: cleanAnswer });
+      }
+    }
+  }
+
+  return faqs;
+}
+
+/**
+ * Builds Schema.org FAQPage structured data from FAQ items.
+ */
+export function generateFaqSchema(faqs: FAQItem[]) {
+  if (!faqs || faqs.length === 0) return null;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+}

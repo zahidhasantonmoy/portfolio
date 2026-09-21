@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
 import { CldUploadWidget } from "next-cloudinary";
-import type { Post } from "@/types/blog";
+import type { Post, PostFormData } from "@/types/blog";
 import SerpPreviewModal from "@/components/admin/SerpPreviewModal";
 
 // Markdown editor — dynamically imported to avoid SSR issues
@@ -112,6 +112,7 @@ export default function PostEditor({
       : "",
     is_featured: post?.is_featured ?? false,
     tag_ids: selectedTagIds,
+    read_time_min: post?.read_time_min ?? 3,
   });
 
   const [pingingIndex, setPingingIndex] = useState(false);
@@ -890,6 +891,10 @@ export default function PostEditor({
       const data = JSON.parse(raw.trim());
 
       let parsedSlug = data.slug || "";
+      if (!parsedSlug && data.canonical_url) {
+        const parts = String(data.canonical_url).split("/blog/");
+        if (parts[1]) parsedSlug = parts[1].replace(/\/$/, "");
+      }
       if (!parsedSlug && data.blog_url) {
         const parts = String(data.blog_url).split("/blog/");
         if (parts[1]) parsedSlug = parts[1].replace(/\/$/, "");
@@ -899,12 +904,22 @@ export default function PostEditor({
       }
 
       const title_en = data.english?.title || data.title_en || "";
-      const content_en = data.english?.article || data.english?.content || data.content_en || "";
+      let content_en = data.english?.article || data.english?.content || data.content_en || "";
       const excerpt_en = data.excerpt?.english || data.excerpt?.en || data.excerpt_en || "";
 
       const title_bn = data.bangla?.title || data.title_bn || "";
-      const content_bn = data.bangla?.article || data.bangla?.content || data.content_bn || "";
+      let content_bn = data.bangla?.article || data.bangla?.content || data.content_bn || "";
       const excerpt_bn = data.excerpt?.bangla || data.excerpt?.bn || data.excerpt_bn || "";
+
+      // FAQ section auto-integration if not already in markdown
+      if (Array.isArray(data.faq) && data.faq.length > 0) {
+        if (content_en && !content_en.includes("Frequently Asked Questions") && !content_en.includes("## FAQ")) {
+          content_en += "\n\n## Frequently Asked Questions\n\n" + data.faq.map((f: any) => `### ${f.question_en || f.question || ""}\n${f.answer_en || f.answer || ""}`).join("\n\n");
+        }
+        if (content_bn && !content_bn.includes("প্রশ্নাবলী") && !content_bn.includes("FAQ")) {
+          content_bn += "\n\n## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)\n\n" + data.faq.map((f: any) => `### ${f.question_bn || f.question_en || f.question || ""}\n${f.answer_bn || f.answer_en || f.answer || ""}`).join("\n\n");
+        }
+      }
 
       const seo_title_en = data.seo?.seo_title_en || title_en;
       const seo_title_bn = data.seo?.seo_title_bn || title_bn;
@@ -915,8 +930,25 @@ export default function PostEditor({
         setImagePrompt(data.thumbnail.prompt);
       }
 
+      // Match category
+      let matchedCategoryId: string | undefined = undefined;
+      if (data.category && categories && categories.length > 0) {
+        const catQuery = String(data.category).toLowerCase().trim();
+        const matchedCategory = categories.find(
+          (c) =>
+            c.slug.toLowerCase() === catQuery ||
+            c.name_en.toLowerCase() === catQuery ||
+            c.name_en.toLowerCase().includes(catQuery) ||
+            catQuery.includes(c.slug.toLowerCase())
+        );
+        if (matchedCategory) {
+          matchedCategoryId = matchedCategory.id;
+        }
+      }
+
       // Match tags
       const importedKeywords: string[] = [
+        ...(Array.isArray(data.tags) ? data.tags : []),
         ...(Array.isArray(data.social?.devto_tags) ? data.social.devto_tags : []),
         ...(Array.isArray(data.seo?.secondary_keywords) ? data.seo.secondary_keywords : []),
         ...(data.seo?.primary_keyword ? [data.seo.primary_keyword] : []),
@@ -937,6 +969,10 @@ export default function PostEditor({
         });
       }
 
+      const readTime = Number(data.reading_time_minutes || data.read_time_min) || (content_en ? Math.max(1, Math.ceil(content_en.trim().split(/\s+/).length / 200)) : undefined);
+      const postStatus = (data.status === "draft" || data.status === "published" || data.status === "scheduled") ? data.status : undefined;
+      const publishedAt = data.published_date || data.published_at || undefined;
+
       setForm((prev) => ({
         ...prev,
         slug: parsedSlug || prev.slug,
@@ -950,7 +986,11 @@ export default function PostEditor({
         seo_title_bn: seo_title_bn || prev.seo_title_bn,
         meta_desc_en: meta_desc_en || prev.meta_desc_en,
         meta_desc_bn: meta_desc_bn || prev.meta_desc_bn,
+        category_id: matchedCategoryId ?? prev.category_id,
         tag_ids: matchedTagIds.length > 0 ? Array.from(new Set([...prev.tag_ids, ...matchedTagIds])) : prev.tag_ids,
+        read_time_min: readTime ?? prev.read_time_min,
+        status: postStatus ?? prev.status,
+        published_at: publishedAt ?? prev.published_at,
       }));
 
       setParsedJsonData(data);
@@ -1885,6 +1925,51 @@ export default function PostEditor({
                 }`}>
                   <span>📱 Social Media</span>
                   <span>{parsedJsonData.social ? "✓ Ready" : "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.canonical_url || parsedJsonData.language_alternate
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>🌐 Canonical & hreflang</span>
+                  <span>{parsedJsonData.canonical_url ? "✓ Set" : "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.published_date || parsedJsonData.published_at
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>📅 Published Date</span>
+                  <span>{parsedJsonData.published_date || parsedJsonData.published_at || "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.category || (parsedJsonData.tags && parsedJsonData.tags.length > 0)
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>🏷️ Category & Tags</span>
+                  <span>{parsedJsonData.category ? "✓ Matched" : parsedJsonData.tags?.length ? `${parsedJsonData.tags.length} Tags` : "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  Array.isArray(parsedJsonData.faq) && parsedJsonData.faq.length > 0
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>❓ FAQ Schema (GEO)</span>
+                  <span>{parsedJsonData.faq?.length ? `✓ ${parsedJsonData.faq.length} Q&As` : "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.word_count || parsedJsonData.reading_time_minutes
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>📊 Word Count</span>
+                  <span>{parsedJsonData.word_count?.english ? `${parsedJsonData.word_count.english}w (en)` : parsedJsonData.reading_time_minutes ? `${parsedJsonData.reading_time_minutes} min` : "—"}</span>
                 </div>
 
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${

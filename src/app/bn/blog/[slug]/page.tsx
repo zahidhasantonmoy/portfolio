@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getPostBySlug, getAdjacentPosts, getRelatedPosts } from "@/lib/blog";
+import { getPostBySlug, getAdjacentPosts, getRelatedPosts, extractFaqsFromMarkdown, generateFaqSchema } from "@/lib/blog";
 import ArticleContent from "@/components/blog/ArticleContent";
+import ArticleCTA from "@/components/blog/ArticleCTA";
 import ShareButtons from "@/components/blog/ShareButtons";
 import { FaRegClock, FaRegCalendarAlt, FaGithub, FaLinkedin, FaMedium, FaDev, FaCoffee } from "react-icons/fa";
 import ReadingProgressBar from "@/components/blog/ReadingProgressBar";
@@ -56,6 +57,7 @@ export async function generateMetadata({
       languages: {
         bn: `${base}/bn/blog/${slug}`,
         en: `${base}/blog/${slug}`,
+        "x-default": `${base}/blog/${slug}`,
       },
     },
   };
@@ -172,6 +174,9 @@ export default async function BnBlogPostPage({
       : ["বাংলা ব্লগ", "প্রোগ্রামিং", "জাহিদ হাসান তন্ময়"],
   };
 
+  const faqs = extractFaqsFromMarkdown(post.content_bn ?? "");
+  const faqSchema = generateFaqSchema(faqs);
+
   return (
     <>
       <ReadingProgressBar />
@@ -183,6 +188,12 @@ export default async function BnBlogPostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
       <main className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a]">
         {/* Premium Hero Section */}
         <div className="relative w-full h-[60vh] min-h-[400px] flex items-end justify-center overflow-hidden">
@@ -304,6 +315,9 @@ export default async function BnBlogPostPage({
               <div className="w-full my-6">
                 <ArticleContent content={post.content_bn ?? ""} />
               </div>
+
+              {/* End-of-post High-Converting Freelance & AI Client CTA */}
+              <ArticleCTA lang="bn" />
 
               {/* Bottom Claps & Feedback Bar */}
               <div className="mt-10 p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 flex flex-col sm:flex-row items-center justify-between gap-4">

@@ -2,8 +2,9 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { FaRegCalendarAlt, FaRegClock, FaGithub, FaLinkedin, FaMedium, FaDev, FaCoffee } from "react-icons/fa";
 import Link from "next/link";
-import { getPostBySlug, getRelatedPosts, getAllPostSlugs, getAdjacentPosts } from "@/lib/blog";
+import { getPostBySlug, getRelatedPosts, getAllPostSlugs, getAdjacentPosts, extractFaqsFromMarkdown, generateFaqSchema } from "@/lib/blog";
 import ArticleContent from "@/components/blog/ArticleContent";
+import ArticleCTA from "@/components/blog/ArticleCTA";
 import RelatedPosts from "@/components/blog/RelatedPosts";
 import ShareButtons from "@/components/blog/ShareButtons";
 import BlogInteractions from "@/components/blog/BlogInteractions";
@@ -61,6 +62,7 @@ export async function generateMetadata({
       languages: {
         en: `${base}/blog/${slug}`,
         ...(post.title_bn ? { bn: `${base}/bn/blog/${slug}` } : {}),
+        "x-default": `${base}/blog/${slug}`,
       },
     },
   };
@@ -176,6 +178,9 @@ export default async function BlogPostPage({
       : ["Web Development", "Zahid Hasan Tonmoy"],
   };
 
+  const faqs = extractFaqsFromMarkdown(post.content_en ?? "");
+  const faqSchema = generateFaqSchema(faqs);
+
   return (
     <>
       <ReadingProgressBar />
@@ -187,6 +192,12 @@ export default async function BlogPostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
 
       <main className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a]">
         {/* Premium Hero Section */}
@@ -311,6 +322,9 @@ export default async function BlogPostPage({
               <div className="w-full my-6">
                 <ArticleContent content={post.content_en ?? ""} />
               </div>
+
+              {/* End-of-post High-Converting Freelance & AI Client CTA */}
+              <ArticleCTA lang="en" />
 
               {/* Bottom Claps & Feedback Bar */}
               <div className="mt-10 p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 flex flex-col sm:flex-row items-center justify-between gap-4">
