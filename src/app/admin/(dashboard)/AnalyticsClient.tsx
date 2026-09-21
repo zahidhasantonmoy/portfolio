@@ -18,6 +18,7 @@ import {
   FaExternalLinkAlt,
   FaEdit,
   FaFilter,
+  FaDownload,
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi2";
 
@@ -157,7 +158,17 @@ export default function AnalyticsClient({
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          <a
+            href="/api/admin/backup"
+            download="zahid-portfolio-backup.json"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-gray-900 hover:bg-gray-800 text-emerald-400 hover:text-emerald-300 border border-emerald-500/20 hover:border-emerald-500/40 transition active:scale-95 shadow-sm"
+            title="Download complete database JSON backup"
+          >
+            <FaDownload className="text-xs" />
+            <span>Export Backup</span>
+          </a>
+
           <button
             type="button"
             onClick={handleRefresh}

@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
 import { CldUploadWidget } from "next-cloudinary";
 import type { Post } from "@/types/blog";
+import SerpPreviewModal from "@/components/admin/SerpPreviewModal";
 
 // Markdown editor — dynamically imported to avoid SSR issues
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
@@ -57,6 +58,7 @@ export default function PostEditor({
   const [generatingImage, setGeneratingImage] = useState(false);
   const [generatingImagePrompt, setGeneratingImagePrompt] = useState(false);
   const [autoOptimizingSEO, setAutoOptimizingSEO] = useState(false);
+  const [showSerpPreview, setShowSerpPreview] = useState(false);
   const [imagePrompt, setImagePrompt] = useState("");
   const [imageModel, setImageModel] = useState("Gemini 3.6 Flash");
   const [preferredProvider, setPreferredProvider] = useState("auto");
@@ -1043,6 +1045,14 @@ export default function PostEditor({
             >
               <span>{pingingIndex ? "⚡ Pinging..." : "⚡ Ping Google"}</span>
             </button>
+            <button
+              type="button"
+              onClick={() => setShowSerpPreview(true)}
+              className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-cyan-300 border border-cyan-500/30 rounded-lg transition font-medium flex items-center gap-1.5 active:scale-95"
+              title="Preview Google SERP and Social Card snippet"
+            >
+              <span>🔍 Preview SERP</span>
+            </button>
           </div>
         </div>
 
@@ -1986,6 +1996,18 @@ export default function PostEditor({
           </button>
         </div>
       </div>
+
+      {/* Google SERP & Social Preview Modal */}
+      <SerpPreviewModal
+        isOpen={showSerpPreview}
+        onClose={() => setShowSerpPreview(false)}
+        title={form.title_en}
+        seoTitle={form.seo_title_en}
+        metaDescription={form.meta_desc_en}
+        slug={form.slug}
+        coverImage={form.cover_image_url}
+        publishDate={form.published_at}
+      />
     </div>
   );
 }
