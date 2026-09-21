@@ -865,7 +865,7 @@ export default function PostEditor({
     "primary_keyword_en": "How to build AI Agents with Next.js",
     "secondary_keywords_en": [ "LangChain autonomous agent architecture", "Next.js AI streaming tool calling", "production AI workflows" ],
     "primary_keyword_bn": "নেক্সট জেএস দিয়ে এআই এজেন্ট তৈরি",
-    "secondary_keywords_bn": [ "স্বয়ংক্রিয় এআই এজেন্ট টিউটোরিয়াল", "ল্যাংচেইন বাংলা", "নেক্সট জেএস এআই ইন্টিগ্রেশন" ],
+    "secondary_keywords_bn": [ "স্বয়ংক্রিয় এআই এজেন্ট টিউটোরিয়াল", "ল্যাংচেইন দিয়ে এআই এজেন্ট", "নেক্সট জেএস টিউটোরিয়াল বাংলা" ],
     "search_intent": "tutorial"
   },
   "social": {
@@ -882,6 +882,8 @@ export default function PostEditor({
     "text": "AI Agents in Next.js",
     "aspect_ratio": "16:9"
   },
+  "og_image_en": "https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents/opengraph-image",
+  "og_image_bn": "https://zahidhasantonmoy.vercel.app/bn/blog/mastering-autonomous-ai-agents/opengraph-image",
   "og_image": "https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents/opengraph-image",
   "word_count": {
     "english": 1450,
@@ -1985,6 +1987,15 @@ export default function PostEditor({
                 }`}>
                   <span>🌐 Canonical & hreflang</span>
                   <span>{parsedJsonData.canonical_url ? "✓ Set" : "—"}</span>
+                </div>
+
+                <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
+                  parsedJsonData.og_image_bn || parsedJsonData.og_image_en || parsedJsonData.og_image
+                    ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
+                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                }`}>
+                  <span>🖼️ Dynamic OG Cards</span>
+                  <span>{parsedJsonData.og_image_bn ? "✓ EN & BN" : parsedJsonData.og_image_en || parsedJsonData.og_image ? "✓ Set" : "—"}</span>
                 </div>
 
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${

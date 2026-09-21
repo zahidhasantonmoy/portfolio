@@ -83,7 +83,7 @@ REQUIREMENTS:
    - "primary_keyword_en": Natural human search query (e.g. "How to build AI Agents with Next.js" or "Next.js AI Agents Tutorial") matching real search intent. Avoid unnatural robotic sequences like "AI Agents Next.js".
    - "secondary_keywords_en": Array of 3-5 distinct semantic variants (e.g. ["LangChain autonomous agent architecture", "Next.js AI streaming tool calling", "production AI workflows"]) that support the topic WITHOUT repeating or cannibalizing the primary keyword phrase.
    - "primary_keyword_bn": প্রাকৃতিক ও জনপ্রিয় বাংলা সার্চ কোয়েরি (যেমন: "নেক্সট জেএস দিয়ে এআই এজেন্ট তৈরি" বা "অটোনোমাস এআই এজেন্ট টিউটোরিয়াল")।
-   - "secondary_keywords_bn": ৩-৪টি স্বতন্ত্র বাংলা সার্চ টার্ম (যেমন: ["স্বয়ংক্রিয় এআই এজেন্ট টিউটোরিয়াল", "ল্যাংচেইন বাংলা", "নেক্সট জেএস এআই ইন্টিগ্রেশন"])।
+   - "secondary_keywords_bn": ৩-৪টি স্বতন্ত্র বাংলা সার্চ টার্ম (যেমন: ["স্বয়ংক্রিয় এআই এজেন্ট টিউটোরিয়াল", "ল্যাংচেইন দিয়ে এআই এজেন্ট", "নেক্সট জেএস টিউটোরিয়াল বাংলা"])। অকেজো বা কৃত্রিম "শব্দ + বাংলা" ফরম্যাট (যেমন: "ল্যাংচেইন বাংলা") পরিহার করে ব্যবহারকারীর সার্চ ইনটেন্ট অনুযায়ী সম্পূর্ণ অর্থপূর্ণ ও স্বাভাবিক বাংলা সার্চ ফ্রেজ লিখুন।
    - "search_intent": "tutorial" or "guide".
 15. "social":
    - "linkedin_post_en": Engaging, professional LinkedIn post summary in English with key takeaways, hook, and code insight.
@@ -97,8 +97,9 @@ REQUIREMENTS:
    - "prompt": Ultra-detailed prompt for AI cover image generation (16:9, modern dev workspace, cyberpunk/glassmorphism aesthetic).
    - "text": Punchy 2-4 word text for thumbnail overlay.
    - "aspect_ratio": "16:9".
-17. "og_image": "https://zahidhasantonmoy.vercel.app/blog/" + slug + "/opengraph-image".
-18. "branding":
+17. "og_image_en": "https://zahidhasantonmoy.vercel.app/blog/" + slug + "/opengraph-image".
+18. "og_image_bn": "https://zahidhasantonmoy.vercel.app/bn/blog/" + slug + "/opengraph-image".
+19. "branding":
    - "angle": 1-sentence personal developer branding angle highlighting engineering excellence.
 
 STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown code fences around root):
@@ -160,6 +161,8 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
     "text": "string",
     "aspect_ratio": "16:9"
   },
+  "og_image_en": "string",
+  "og_image_bn": "string",
   "og_image": "string",
   "links": {
     "github": "https://github.com/zahidhasantonmoy",
@@ -203,7 +206,12 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
     result.updated_date = result.updated_date || todayDate;
     result.author = result.author || "Zahid Hasan Tonmoy";
     result.status = result.status || "draft";
-    result.og_image = result.og_image || `https://zahidhasantonmoy.vercel.app/blog/${slug}/opengraph-image`;
+
+    const ogEn = result.og_image_en || result.og_image || `https://zahidhasantonmoy.vercel.app/blog/${slug}/opengraph-image`;
+    const ogBn = result.og_image_bn || `https://zahidhasantonmoy.vercel.app/bn/blog/${slug}/opengraph-image`;
+    result.og_image_en = ogEn;
+    result.og_image_bn = ogBn;
+    result.og_image = ogEn;
 
     if (!result.seo) result.seo = {};
     const primaryEn = result.seo.primary_keyword_en || result.seo.primary_keyword || targetTopic;
@@ -213,7 +221,7 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
       result.seo.secondary_keywords_en = result.seo.secondary_keywords || ["Next.js", "React", "AI Agent"];
     }
     if (!Array.isArray(result.seo.secondary_keywords_bn)) {
-      result.seo.secondary_keywords_bn = ["নেক্সট জেএস", "প্রোগ্রামিং টিউটোরিয়াল", "এআই এজেন্ট"];
+      result.seo.secondary_keywords_bn = ["নেক্সট জেএস টিউটোরিয়াল বাংলা", "ল্যাংচেইন দিয়ে এআই এজেন্ট", "স্বয়ংক্রিয় এআই এজেন্ট তৈরি"];
     }
     // Remove legacy un-suffixed duplicates from output to keep schema clean
     delete (result.seo as any).primary_keyword;
