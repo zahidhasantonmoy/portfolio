@@ -59,6 +59,8 @@ export default function PostEditor({
   const [generatingImagePrompt, setGeneratingImagePrompt] = useState(false);
   const [autoOptimizingSEO, setAutoOptimizingSEO] = useState(false);
   const [showSerpPreview, setShowSerpPreview] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState("");
   const [imagePrompt, setImagePrompt] = useState("");
   const [imageModel, setImageModel] = useState("Gemini 3.6 Flash");
   const [preferredProvider, setPreferredProvider] = useState("auto");
@@ -265,7 +267,7 @@ export default function PostEditor({
     }
   };
 
-  async function handleSave(newStatus?: "draft" | "published") {
+  async function handleSave(newStatus?: "draft" | "published" | "scheduled", dateOverride?: string) {
     setSaving(true);
 
     if (!form.title_en.trim()) {
@@ -279,13 +281,29 @@ export default function PostEditor({
       return;
     }
 
+    const finalStatus = newStatus ?? form.status;
+    const finalDate = dateOverride || form.published_at;
+
+    if (finalStatus === "scheduled") {
+      if (!finalDate) {
+        toast.error("Please pick a future publish date & time to schedule.");
+        setSaving(false);
+        return;
+      }
+      if (new Date(finalDate).getTime() <= Date.now()) {
+        toast.error("Scheduled date must be in the future.");
+        setSaving(false);
+        return;
+      }
+    }
+
     const payload = {
       ...form,
-      status: newStatus ?? form.status,
-      published_at: (newStatus === "published" || form.status === "published") && !form.published_at
+      status: finalStatus,
+      published_at: (finalStatus === "published" && !finalDate)
         ? new Date().toISOString()
-        : form.published_at
-          ? new Date(form.published_at).toISOString()
+        : finalDate
+          ? new Date(finalDate).toISOString()
           : null,
       category_id: form.category_id || null,
     };
@@ -305,7 +323,11 @@ export default function PostEditor({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Save failed");
 
-      toast.success("Saved successfully!");
+      if (finalStatus === "scheduled") {
+        toast.success(`Post scheduled for ${new Date(finalDate!).toLocaleDateString([], { month: "short", day: "numeric" })} at ${new Date(finalDate!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}! ⏰`);
+      } else {
+        toast.success("Saved successfully!");
+      }
 
       if (mode === "create") {
         router.push(`/admin/posts/${data.post.id}/edit`);
@@ -317,6 +339,21 @@ export default function PostEditor({
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handleScheduleSubmit(selectedDatetime: string) {
+    if (!selectedDatetime) {
+      toast.error("Please select a date and time");
+      return;
+    }
+    const targetTime = new Date(selectedDatetime).getTime();
+    if (targetTime <= Date.now()) {
+      toast.error("Scheduled date must be in the future");
+      return;
+    }
+    setForm((prev) => ({ ...prev, status: "scheduled", published_at: selectedDatetime }));
+    setShowScheduleModal(false);
+    await handleSave("scheduled", selectedDatetime);
   }
 
   async function handleDelete() {
@@ -899,12 +936,14 @@ export default function PostEditor({
           </span>
           <span className={`text-xs px-2.5 py-1 rounded-full capitalize font-medium ${
             form.status === "published"
-              ? "bg-emerald-900/40 text-emerald-400"
+              ? "bg-emerald-900/40 text-emerald-400 border border-emerald-500/30"
               : form.status === "scheduled"
-              ? "bg-blue-900/40 text-blue-400"
-              : "bg-yellow-900/40 text-yellow-400"
+              ? "bg-blue-900/40 text-blue-400 border border-blue-500/30"
+              : "bg-yellow-900/40 text-yellow-400 border border-yellow-500/30"
           }`}>
-            {form.status}
+            {form.status === "scheduled" && form.published_at
+              ? `⏰ Scheduled: ${new Date(form.published_at).toLocaleDateString([], { month: "short", day: "numeric" })} at ${new Date(form.published_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+              : form.status}
           </span>
           <button
             type="button"
@@ -961,16 +1000,30 @@ export default function PostEditor({
             </button>
           )}
           <button
+            type="button"
             onClick={() => handleSave("draft")}
             disabled={saving}
-            className="px-4 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition disabled:opacity-50"
+            className="px-3.5 py-1.5 text-xs sm:text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition disabled:opacity-50"
           >
             Save Draft
           </button>
           <button
+            type="button"
+            onClick={() => {
+              setScheduleDate(form.published_at || "");
+              setShowScheduleModal(true);
+            }}
+            disabled={saving}
+            className="px-3.5 py-1.5 text-xs sm:text-sm bg-blue-600/25 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 rounded-lg transition disabled:opacity-50 font-medium flex items-center gap-1.5"
+            title="Schedule post for future publication"
+          >
+            <span>⏰ Schedule</span>
+          </button>
+          <button
+            type="button"
             onClick={() => handleSave("published")}
             disabled={saving}
-            className="px-4 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition disabled:opacity-50 font-medium"
+            className="px-4 py-1.5 text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition disabled:opacity-50 font-medium"
           >
             {saving ? "Saving..." : "Publish"}
           </button>
@@ -1979,20 +2032,33 @@ export default function PostEditor({
         >
           ← Back
         </button>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <button
+            type="button"
             onClick={() => handleSave("draft")}
             disabled={saving}
-            className="px-5 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition disabled:opacity-50"
+            className="px-4 py-2 text-xs sm:text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition disabled:opacity-50"
           >
             Save as Draft
           </button>
           <button
+            type="button"
+            onClick={() => {
+              setScheduleDate(form.published_at || "");
+              setShowScheduleModal(true);
+            }}
+            disabled={saving}
+            className="px-4 py-2 text-xs sm:text-sm bg-blue-600/25 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 rounded-lg transition disabled:opacity-50 font-medium flex items-center gap-1.5"
+          >
+            <span>⏰ Schedule</span>
+          </button>
+          <button
+            type="button"
             onClick={() => handleSave("published")}
             disabled={saving}
-            className="px-5 py-2 text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition disabled:opacity-50 font-medium"
+            className="px-5 py-2 text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition disabled:opacity-50 font-semibold"
           >
-            {saving ? "Saving..." : mode === "edit" ? "Update" : "Publish"}
+            {saving ? "Saving..." : mode === "edit" ? "Update" : "Publish Now"}
           </button>
         </div>
       </div>
@@ -2008,6 +2074,116 @@ export default function PostEditor({
         coverImage={form.cover_image_url}
         publishDate={form.published_at}
       />
+
+      {/* Schedule Post Modal */}
+      {showScheduleModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setShowScheduleModal(false)}
+        >
+          <div
+            className="bg-gray-900 border border-gray-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <span className="text-blue-400">⏰</span> Schedule Article Publication
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowScheduleModal(false)}
+                className="text-gray-400 hover:text-white text-xs"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-400">
+              Pick a future date and time. The post will remain private and automatically go live on your blog and RSS feed when this time arrives.
+            </p>
+
+            {/* Quick Presets */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Quick Presets</label>
+              <div className="grid grid-cols-2 gap-2">
+                {(() => {
+                  const now = new Date();
+
+                  const tomorrow10 = new Date(now);
+                  tomorrow10.setDate(tomorrow10.getDate() + 1);
+                  tomorrow10.setHours(10, 0, 0, 0);
+
+                  const in2Days10 = new Date(now);
+                  in2Days10.setDate(in2Days10.getDate() + 2);
+                  in2Days10.setHours(10, 0, 0, 0);
+
+                  const in3DaysEvening = new Date(now);
+                  in3DaysEvening.setDate(in3DaysEvening.getDate() + 3);
+                  in3DaysEvening.setHours(19, 0, 0, 0);
+
+                  const nextWeekend = new Date(now);
+                  const daysUntilSunday = (7 - nextWeekend.getDay()) % 7 || 7;
+                  nextWeekend.setDate(nextWeekend.getDate() + daysUntilSunday);
+                  nextWeekend.setHours(20, 0, 0, 0);
+
+                  const formatForInput = (d: Date) => {
+                    const pad = (n: number) => n.toString().padStart(2, "0");
+                    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                  };
+
+                  return [
+                    { label: "Tomorrow at 10 AM", dt: formatForInput(tomorrow10) },
+                    { label: "In 2 Days at 10 AM", dt: formatForInput(in2Days10) },
+                    { label: "In 3 Days at 7 PM", dt: formatForInput(in3DaysEvening) },
+                    { label: "Next Sunday 8 PM", dt: formatForInput(nextWeekend) },
+                  ].map((p) => (
+                    <button
+                      key={p.label}
+                      type="button"
+                      onClick={() => setScheduleDate(p.dt)}
+                      className={`px-3 py-2 text-xs rounded-xl border text-left transition ${
+                        scheduleDate === p.dt
+                          ? "bg-blue-600/30 border-blue-500 text-white font-semibold"
+                          : "bg-gray-800/60 border-gray-700/60 text-gray-300 hover:bg-gray-800"
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  ));
+                })()}
+              </div>
+            </div>
+
+            {/* Custom Datetime Input */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Custom Date &amp; Time</label>
+              <input
+                type="datetime-local"
+                value={scheduleDate}
+                onChange={(e) => setScheduleDate(e.target.value)}
+                className="w-full bg-gray-950 border border-gray-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowScheduleModal(false)}
+                className="px-4 py-2 rounded-xl text-xs font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleScheduleSubmit(scheduleDate)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 transition shadow-md shadow-blue-600/30"
+              >
+                Confirm Schedule ⏰
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
