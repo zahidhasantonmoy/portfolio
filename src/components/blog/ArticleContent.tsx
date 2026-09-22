@@ -27,6 +27,13 @@ function MermaidDiagram({ chart }: { chart: string }) {
   const [error, setError] = useState<boolean>(false);
   const chartId = useMemo(() => `mermaid-${Math.random().toString(36).substring(2, 9)}`, []);
 
+  // Calculate deterministic estimated height based on diagram complexity to eliminate CLS (Cumulative Layout Shift)
+  const estimatedHeight = useMemo(() => {
+    const rawLines = chart.split("\n").filter((l) => l.trim().length > 0 && !l.trim().startsWith("%%"));
+    // Diagrams typically need ~36px per node/connection line, bounded between 240px and 460px
+    return Math.min(Math.max(rawLines.length * 36, 240), 460);
+  }, [chart]);
+
   useEffect(() => {
     let isMounted = true;
     async function renderChart() {
@@ -78,28 +85,33 @@ function MermaidDiagram({ chart }: { chart: string }) {
         </span>
       </div>
 
-      {svg ? (
-        <div
-          className="w-full overflow-x-auto flex justify-center py-2 [&_svg]:max-w-full [&_svg]:h-auto"
-          dangerouslySetInnerHTML={{ __html: svg }}
-        />
-      ) : error ? (
-        <div className="rounded-xl border border-amber-900/30 bg-amber-950/20 p-4 text-xs font-mono text-gray-300">
-          <p className="text-amber-400 mb-2 font-semibold">Diagram representation:</p>
-          <pre className="overflow-x-auto"><code>{chart}</code></pre>
-        </div>
-      ) : (
-        /* SSR & Pre-hydration fallback: crawlers and non-JS engines read this complete graph directly from raw HTML */
-        <div className="py-2">
-          <div className="flex items-center gap-2 mb-3 text-xs text-indigo-300/80">
-            <span className="inline-block w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-            <span>Interactive diagram rendering...</span>
+      <div
+        className="w-full flex items-center justify-center transition-all duration-300"
+        style={{ minHeight: `${estimatedHeight}px` }}
+      >
+        {svg ? (
+          <div
+            className="w-full overflow-x-auto flex justify-center py-2 [&_svg]:max-w-full [&_svg]:h-auto transition-opacity duration-300"
+            dangerouslySetInnerHTML={{ __html: svg }}
+          />
+        ) : error ? (
+          <div className="w-full rounded-xl border border-amber-900/30 bg-amber-950/20 p-4 text-xs font-mono text-gray-300">
+            <p className="text-amber-400 mb-2 font-semibold">Diagram representation:</p>
+            <pre className="overflow-x-auto"><code>{chart}</code></pre>
           </div>
-          <pre className="overflow-x-auto text-xs font-mono text-indigo-200/90 bg-black/40 p-4 rounded-xl border border-indigo-900/30">
-            <code>{chart}</code>
-          </pre>
-        </div>
-      )}
+        ) : (
+          /* SSR & Pre-hydration fallback: crawlers and non-JS engines read this complete graph directly from raw HTML */
+          <div className="w-full py-2 flex flex-col justify-center">
+            <div className="flex items-center gap-2 mb-3 text-xs text-indigo-300/80">
+              <span className="inline-block w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+              <span>Interactive diagram rendering...</span>
+            </div>
+            <pre className="overflow-x-auto text-xs font-mono text-indigo-200/90 bg-black/40 p-4 rounded-xl border border-indigo-900/30">
+              <code>{chart}</code>
+            </pre>
+          </div>
+        )}
+      </div>
 
       {/* Accessible semantic caption and noscript fallback for non-JS AI crawlers (ChatGPT, Perplexity, Claude, Googlebot) */}
       <figcaption className="sr-only">
