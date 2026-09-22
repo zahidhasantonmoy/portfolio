@@ -141,8 +141,20 @@ function adjustScheduleTime(hoursToAdd: number, baseDateStr?: string): string {
   return formatForDatetimeInput(start);
 }
 
-type TabType = "english" | "bangla" | "ai" | "json" | "settings";
+type TabType = "english" | "bangla" | "ai" | "social" | "json" | "settings";
 
+export interface SocialData {
+  linkedin_post?: string;
+  linkedin_hashtags?: string[];
+  linkedin_post_en?: string;
+  linkedin_hashtags_en?: string[];
+  linkedin_post_bn?: string;
+  linkedin_hashtags_bn?: string[];
+  devto_title?: string;
+  devto_article?: string;
+  devto_tags?: string[];
+  twitter_post?: string;
+}
 
 export default function PostEditor({
   post,
@@ -192,8 +204,40 @@ export default function PostEditor({
   const [parsedJsonData, setParsedJsonData] = useState<any>(null);
   const [jsonError, setJsonError] = useState<string | null>(null);
 
-  // Content Images state (Multi-image diagrams & flowcharts)
-  const [contentImages, setContentImages] = useState<ContentImage[]>([]);
+  // Social Media & Syndication state (Permanent & Persistent)
+  const [socialData, setSocialData] = useState<SocialData | null>(null);
+  const [generatingSocial, setGeneratingSocial] = useState(false);
+
+  // Dedicated Content Images state (img-1, img-2 default slots)
+  const defaultContentImages: ContentImage[] = useMemo(
+    () => [
+      {
+        id: "img-1",
+        placement_marker: "{{IMAGE:img-1}}",
+        prompt: "",
+        alt_en: "",
+        alt_bn: "",
+        caption_en: "",
+        caption_bn: "",
+        url: null,
+        status: "pending",
+      },
+      {
+        id: "img-2",
+        placement_marker: "{{IMAGE:img-2}}",
+        prompt: "",
+        alt_en: "",
+        alt_bn: "",
+        caption_en: "",
+        caption_bn: "",
+        url: null,
+        status: "pending",
+      },
+    ],
+    []
+  );
+
+  const [contentImages, setContentImages] = useState<ContentImage[]>(defaultContentImages);
   const [generatingContentImageId, setGeneratingContentImageId] = useState<string | null>(null);
   const [generatingAllContentImages, setGeneratingAllContentImages] = useState(false);
 
@@ -353,6 +397,91 @@ export default function PostEditor({
     }));
   }
 
+  // LocalStorage persistence helpers for social data & content images
+  const getStorageKey = useCallback(
+    (type: "social" | "images") => {
+      const idKey = post?.id || form.slug || "new_post";
+      return `portfolio_post_${type}_${idKey}`;
+    },
+    [post?.id, form.slug]
+  );
+
+  const saveSocialToStorage = useCallback(
+    (data: SocialData | null) => {
+      if (typeof window === "undefined") return;
+      try {
+        if (data) {
+          localStorage.setItem(getStorageKey("social"), JSON.stringify(data));
+        }
+      } catch (e) {
+        console.warn("Failed to save social data to localStorage:", e);
+      }
+    },
+    [getStorageKey]
+  );
+
+  const saveImagesToStorage = useCallback(
+    (images: ContentImage[]) => {
+      if (typeof window === "undefined") return;
+      try {
+        if (images && images.length > 0) {
+          localStorage.setItem(getStorageKey("images"), JSON.stringify(images));
+        }
+      } catch (e) {
+        console.warn("Failed to save content images to localStorage:", e);
+      }
+    },
+    [getStorageKey]
+  );
+
+  // Restore saved social data and images from localStorage on load
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const keySocial = getStorageKey("social");
+      const savedSocial = localStorage.getItem(keySocial);
+      if (savedSocial) {
+        const parsed = JSON.parse(savedSocial);
+        if (parsed && typeof parsed === "object") {
+          setSocialData((prev) => prev ?? parsed);
+        }
+      }
+
+      const keyImages = getStorageKey("images");
+      const savedImages = localStorage.getItem(keyImages);
+      if (savedImages) {
+        const parsed = JSON.parse(savedImages);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setContentImages((prev) => {
+            const merged = [...parsed];
+            if (!merged.some((i) => i.id === "img-1")) {
+              merged.unshift(defaultContentImages[0]);
+            }
+            if (!merged.some((i) => i.id === "img-2")) {
+              merged.splice(1, 0, defaultContentImages[1]);
+            }
+            return merged;
+          });
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to load draft assets from localStorage:", e);
+    }
+  }, [getStorageKey, defaultContentImages]);
+
+  // Sync state changes to storage
+  useEffect(() => {
+    if (socialData) {
+      saveSocialToStorage(socialData);
+    }
+  }, [socialData, saveSocialToStorage]);
+
+  useEffect(() => {
+    if (contentImages.length > 0) {
+      saveImagesToStorage(contentImages);
+    }
+  }, [contentImages, saveImagesToStorage]);
+
   const handleUploadAndInsertImage = async (file: File, field: "content_en" | "content_bn") => {
     if (!file.type.startsWith("image/")) {
       toast.error("Only image files can be uploaded");
@@ -378,6 +507,211 @@ export default function PostEditor({
       toast.success("Image uploaded and inserted into markdown! 🖼️", { id: toastId });
     } catch (err: any) {
       toast.error(err.message || "Failed to upload image", { id: toastId });
+    }
+  };
+
+  // Dedicated Cloudinary direct upload for content images
+  const handleUploadContentImage = async (file: File, imgId: string) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only image files are allowed");
+      return;
+    }
+    const toastId = toast.loading(`Uploading image for ${imgId} to Cloudinary...`);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/admin/upload-image", {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+
+      setContentImages((prev) => {
+        const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[^\w\s-]/g, "");
+        const updated = prev.map((item) =>
+          item.id === imgId
+            ? {
+                ...item,
+                url: data.url,
+                status: "completed" as const,
+                alt_en: item.alt_en || cleanName,
+                alt_bn: item.alt_bn || form.title_bn || "পোস্টের ছবি",
+              }
+            : item
+        );
+        saveImagesToStorage(updated);
+        return updated;
+      });
+      toast.success(`🎉 ${imgId} uploaded successfully!`, { id: toastId });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload image", { id: toastId });
+    }
+  };
+
+  // Dedicated Cover Image direct upload
+  const handleUploadCoverImage = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only image files are allowed");
+      return;
+    }
+    const toastId = toast.loading("Uploading cover image to Cloudinary...");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/admin/upload-image", {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Upload failed");
+
+      setForm((prev) => ({ ...prev, cover_image_url: data.url }));
+      toast.success("🎉 Cover image uploaded successfully!", { id: toastId });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload image", { id: toastId });
+    }
+  };
+
+  // Smart image insertion into English or Bangla markdown
+  const insertImageIntoContent = (
+    img: {
+      id: string;
+      url?: string | null;
+      alt_en?: string;
+      alt_bn?: string;
+      caption_en?: string;
+      caption_bn?: string;
+      placement_marker?: string;
+    },
+    lang: "en" | "bn"
+  ) => {
+    if (!img.url) {
+      toast.error(`Please upload or generate ${img.id} first before inserting.`);
+      return;
+    }
+
+    const field = lang === "en" ? "content_en" : "content_bn";
+    const currentContent = form[field] || "";
+    const marker = img.placement_marker || `{{IMAGE:${img.id}}}`;
+    const alt =
+      (lang === "en" ? img.alt_en : img.alt_bn) ||
+      (lang === "en" ? form.title_en : form.title_bn) ||
+      img.id;
+    const caption = lang === "en" ? img.caption_en : img.caption_bn;
+    const md = `\n\n![${alt}](${img.url}${caption ? ` "${caption}"` : ""})\n\n`;
+
+    // Case 1: The marker {{IMAGE:img-N}} exists in the text -> replace it
+    if (currentContent.includes(marker)) {
+      const escapedMarker = marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const updated = currentContent.replace(new RegExp(escapedMarker, "g"), md);
+      setForm((prev) => ({ ...prev, [field]: updated }));
+      toast.success(`✨ Replaced marker ${marker} in ${lang === "en" ? "English" : "বাংলা"} article!`);
+      return;
+    }
+
+    // Case 2: If image is already in content by URL, inform user
+    if (currentContent.includes(img.url)) {
+      toast(`Visual ${img.id} is already in the ${lang === "en" ? "English" : "বাংলা"} article!`, { icon: "ℹ️" });
+      return;
+    }
+
+    // Case 3: Marker NOT found -> smartly insert after a relevant section or append cleanly
+    const headerRegex = /^##\s+.+$/gm;
+    const matches = Array.from(currentContent.matchAll(headerRegex));
+
+    let insertPos = -1;
+    if (img.id === "img-1" && matches.length >= 1) {
+      const match = matches[0];
+      const nextBreak = currentContent.indexOf("\n\n", (match.index || 0) + match[0].length);
+      insertPos = nextBreak !== -1 ? nextBreak : (match.index || 0) + match[0].length;
+    } else if (img.id === "img-2" && matches.length >= 2) {
+      const match = matches[1];
+      const nextBreak = currentContent.indexOf("\n\n", (match.index || 0) + match[0].length);
+      insertPos = nextBreak !== -1 ? nextBreak : (match.index || 0) + match[0].length;
+    }
+
+    if (insertPos !== -1) {
+      const updated = currentContent.slice(0, insertPos) + md + currentContent.slice(insertPos);
+      setForm((prev) => ({ ...prev, [field]: updated }));
+      toast.success(`✨ Inserted ${img.id} after section in ${lang === "en" ? "English" : "বাংলা"} article!`);
+    } else {
+      const updated = currentContent.trim() ? `${currentContent.trim()}${md}` : md.trim();
+      setForm((prev) => ({ ...prev, [field]: updated }));
+      toast.success(`✨ Added ${img.id} to ${lang === "en" ? "English" : "বাংলা"} article!`);
+    }
+  };
+
+  // Smart cover image insertion at top of article
+  const insertCoverIntoContent = (lang: "en" | "bn") => {
+    if (!form.cover_image_url) {
+      toast.error("Please upload or generate a cover image first.");
+      return;
+    }
+    const field = lang === "en" ? "content_en" : "content_bn";
+    const current = form[field] || "";
+    const alt = (lang === "en" ? form.title_en : form.title_bn) || "Cover Image";
+    const md = `![${alt}](${form.cover_image_url})\n\n`;
+
+    if (current.includes(form.cover_image_url)) {
+      toast("Cover image is already inside this article!", { icon: "ℹ️" });
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, [field]: md + current }));
+    toast.success(`✨ Inserted cover image at top of ${lang === "en" ? "English" : "বাংলা"} article!`);
+  };
+
+  // 1-Click AI Social Posts Generator
+  const handleGenerateSocial = async () => {
+    if (!form.title_en.trim() || !form.content_en.trim()) {
+      toast.error("Please enter English Title and Content first to generate social posts.");
+      return;
+    }
+
+    setGeneratingSocial(true);
+    const toastId = toast.loading("🤖 Generating high-engagement social posts with AI...");
+
+    try {
+      const selectedTags = tags.filter((t) => form.tag_ids.includes(t.id)).map((t) => t.name_en);
+      const res = await fetch("/api/admin/generate-social", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: form.title_en,
+          content: form.content_en,
+          slug: form.slug,
+          tags: selectedTags,
+          provider: preferredProvider,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate social posts");
+
+      let linkedinBn = socialData?.linkedin_post_bn || "";
+      if (!linkedinBn && (form.title_bn || form.content_bn)) {
+        linkedinBn = `🚀 ${form.title_bn || form.title_en}\n\n${form.excerpt_bn || "আমাদের নতুন ব্লগে বিস্তারিত পড়ুন।"}\n\n🔗 সম্পূর্ণ আর্টিকেলটি পড়ুন: https://zahidhasantonmoy.vercel.app/bn/blog/${form.slug || ""}\n\n#বাংলা #প্রোগ্রামিং #ওয়েবডেভেলপমেন্ট #TechBangladesh`;
+      }
+
+      const newSocial: SocialData = {
+        linkedin_post_en: data.linkedin?.post || "",
+        linkedin_hashtags_en: Array.isArray(data.linkedin?.hashtags) ? data.linkedin.hashtags : [],
+        linkedin_post_bn: linkedinBn,
+        linkedin_hashtags_bn: socialData?.linkedin_hashtags_bn?.length ? socialData.linkedin_hashtags_bn : ["#বাংলা", "#প্রোগ্রামিং", "#ওয়েবডেভেলপমেন্ট", "#TechBangladesh"],
+        devto_title: data.devto?.title || form.title_en,
+        devto_article: data.devto?.article || form.content_en,
+        devto_tags: Array.isArray(data.devto?.tags) ? data.devto.tags : [],
+        twitter_post: data.twitter?.tweet || (Array.isArray(data.twitter?.thread) ? data.twitter.thread.join("\n\n") : ""),
+      };
+
+      setSocialData(newSocial);
+      saveSocialToStorage(newSocial);
+      toast.success("🎉 Viral social media posts generated successfully!", { id: toastId });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to generate social posts", { id: toastId });
+    } finally {
+      setGeneratingSocial(false);
     }
   };
 
@@ -443,7 +777,16 @@ export default function PostEditor({
         toast.success("Saved successfully!");
       }
 
-      if (mode === "create") {
+      if (mode === "create" && data?.post?.id) {
+        // Transfer draft localStorage keys to the newly created post ID
+        try {
+          if (socialData) {
+            localStorage.setItem(`portfolio_post_social_${data.post.id}`, JSON.stringify(socialData));
+          }
+          if (contentImages && contentImages.length > 0) {
+            localStorage.setItem(`portfolio_post_images_${data.post.id}`, JSON.stringify(contentImages));
+          }
+        } catch {}
         router.push(`/admin/posts/${data.post.id}/edit`);
       } else {
         router.refresh();
@@ -1070,15 +1413,22 @@ export default function PostEditor({
       return;
     }
 
-    // Build tags from the JSON social data if available, else use empty array
-    const devtoTags: string[] = parsedJsonData?.social?.devto_tags ?? [];
+    // Build tags from socialData or parsedJsonData
+    const devtoTags: string[] =
+      socialData?.devto_tags?.length
+        ? socialData.devto_tags
+        : (parsedJsonData?.social?.devto_tags ?? []);
 
-    // Use the DEV.to article from JSON if it exists (better formatted), else use the raw content
+    // Use the DEV.to article from socialData or JSON if it exists, else use raw content
     const articleContent: string =
-      parsedJsonData?.social?.devto_article?.trim() || content;
+      socialData?.devto_article?.trim() ||
+      parsedJsonData?.social?.devto_article?.trim() ||
+      content;
 
     const devtoTitle: string =
-      parsedJsonData?.social?.devto_title?.trim() || title;
+      socialData?.devto_title?.trim() ||
+      parsedJsonData?.social?.devto_title?.trim() ||
+      title;
 
     // Canonical URL keeps SEO juice on your portfolio
     const canonicalUrl = form.slug
@@ -1138,12 +1488,34 @@ export default function PostEditor({
   "reading_time_minutes": 8,
   "english": {
     "title": "Mastering Autonomous AI Agents with Next.js 14 and LangChain",
-    "article": "# Mastering Autonomous AI Agents with Next.js 14 and LangChain\\n\\nAutonomous agents represent the next major evolution in full-stack web engineering. Rather than traditional static handlers, an autonomous agent continuously observes its state, plans multi-step tool interactions, and executes decisions using LLMs.\\n\\n## Architectural Overview\\n\\nIn a modern Next.js 14 App Router architecture, the agent execution loop runs inside a secure server action or Route Handler:\\n\\n\`\`\`typescript\\n// src/lib/agent/executor.ts\\nimport { ChatOpenAI } from '@langchain/openai';\\nimport { AgentExecutor, createOpenAIToolsAgent } from 'langchain/agents';\\nimport { pull } from 'langchain/hub';\\nimport { searchTool, databaseTool } from './tools';\\n\\nexport async function runAgentWorkflow(userGoal: string) {\\n  const llm = new ChatOpenAI({ modelName: 'gpt-4o', temperature: 0 });\\n  const tools = [searchTool, databaseTool];\\n  const prompt = await pull<any>('hwchase17/openai-tools-agent');\\n\\n  const agent = await createOpenAIToolsAgent({ llm, tools, prompt });\\n  const executor = new AgentExecutor({ agent, tools, verbose: true });\\n\\n  return await executor.invoke({ input: userGoal });\\n}\\n\`\`\`\\n\\n## Streaming Real-Time Tool Invocations to the UI\\n\\nTo provide a seamless client experience, we stream agent thoughts and tool outputs directly into React components:\\n\\n\`\`\`tsx\\n// src/components/AgentFeed.tsx\\n'use client';\\nimport { useChat } from 'ai/react';\\n\\nexport default function AgentFeed() {\\n  const { messages, input, handleInputChange, handleSubmit } = useChat();\\n  return (\\n    <div className=\\\"max-w-2xl mx-auto p-6 space-y-4\\\">\\n      {messages.map((m) => (\\n        <div key={m.id} className={m.role === 'user' ? 'text-indigo-600' : 'text-gray-200'}>\\n          {m.content}\\n        </div>\\n      ))}\\n    </div>\\n  );\\n}\\n\`\`\`\\n\\n## Frequently Asked Questions\\n\\n### What are autonomous AI agents?\\nAutonomous agents are software systems powered by LLMs that observe an environment, make iterative decisions, and take actions using tools.\\n\\n### Can I run AI agents with Next.js server actions?\\nYes, server actions provide secure server-side execution environments with streaming support."
+    "article": "# Mastering Autonomous AI Agents with Next.js 14 and LangChain\\n\\nAutonomous agents represent the next major evolution in full-stack web engineering. Rather than traditional static handlers, an autonomous agent continuously observes its state, plans multi-step tool interactions, and executes decisions using LLMs.\\n\\n## Architectural Overview\\n\\n{{IMAGE:img-1}}\\n\\nIn a modern Next.js 14 App Router architecture, the agent execution loop runs inside a secure server action or Route Handler:\\n\\n\`\`\`typescript\\n// src/lib/agent/executor.ts\\nimport { ChatOpenAI } from '@langchain/openai';\\nimport { AgentExecutor, createOpenAIToolsAgent } from 'langchain/agents';\\nimport { pull } from 'langchain/hub';\\nimport { searchTool, databaseTool } from './tools';\\n\\nexport async function runAgentWorkflow(userGoal: string) {\\n  const llm = new ChatOpenAI({ modelName: 'gpt-4o', temperature: 0 });\\n  const tools = [searchTool, databaseTool];\\n  const prompt = await pull<any>('hwchase17/openai-tools-agent');\\n\\n  const agent = await createOpenAIToolsAgent({ llm, tools, prompt });\\n  const executor = new AgentExecutor({ agent, tools, verbose: true });\\n\\n  return await executor.invoke({ input: userGoal });\\n}\\n\`\`\`\\n\\n## Streaming Real-Time Tool Invocations to the UI\\n\\n{{IMAGE:img-2}}\\n\\nTo provide a seamless client experience, we stream agent thoughts and tool outputs directly into React components:\\n\\n\`\`\`tsx\\n// src/components/AgentFeed.tsx\\n'use client';\\nimport { useChat } from 'ai/react';\\n\\nexport default function AgentFeed() {\\n  const { messages, input, handleInputChange, handleSubmit } = useChat();\\n  return (\\n    <div className=\\\"max-w-2xl mx-auto p-6 space-y-4\\\">\\n      {messages.map((m) => (\\n        <div key={m.id} className={m.role === 'user' ? 'text-indigo-600' : 'text-gray-200'}>\\n          {m.content}\\n        </div>\\n      ))}\\n    </div>\\n  );\\n}\\n\`\`\`\\n\\n## Frequently Asked Questions\\n\\n### What are autonomous AI agents?\\nAutonomous agents are software systems powered by LLMs that observe an environment, make iterative decisions, and take actions using tools.\\n\\n### Can I run AI agents with Next.js server actions?\\nYes, server actions provide secure server-side execution environments with streaming support."
   },
   "bangla": {
     "title": "নেক্সট জেএস ও ল্যাংচেইন দিয়ে স্বয়ংক্রিয় এআই এজেন্ট ডেভেলপমেন্ট",
-    "article": "# অটোনোমাস এআই এজেন্ট ডেভেলপমেন্ট\\n\\nওয়েব ডেভেলপমেন্ট ও আর্টিফিশিয়াল ইন্টেলিজেন্সের সমন্বয়ে আধুনিক সফটওয়্যার আর্কিটেকচার দ্রুত পরিবর্তিত হচ্ছে।\\n\\n## আর্কিটেকচার ও মূল কনসেপ্ট\\n\\nNext.js 14 App Router-এ সিকিউর সার্ভার অ্যাকশনের মাধ্যমে এআই এজেন্টের টুল কলিং লজিক রান করা যায়:\\n\\n\`\`\`typescript\\n// src/lib/agent/executor.ts\\nimport { ChatOpenAI } from '@langchain/openai';\\nimport { AgentExecutor, createOpenAIToolsAgent } from 'langchain/agents';\\nimport { pull } from 'langchain/hub';\\n\\nexport async function runAgentWorkflow(userGoal: string) {\\n  const llm = new ChatOpenAI({ modelName: 'gpt-4o', temperature: 0 });\\n  const prompt = await pull<any>('hwchase17/openai-tools-agent');\\n  const agent = await createOpenAIToolsAgent({ llm, tools: [], prompt });\\n  return new AgentExecutor({ agent, tools: [] });\\n}\\n\`\`\`\\n\\n## ক্লায়েন্টে লাইভ স্ট্রিমিং ইন্টারফেস\\n\\nইউজারদের কাছে রিয়েল-টাইম আউটপুট দেখানোর জন্য আমরা রিয়্যাক্ট কম্পোনেন্ট ব্যবহার করি:\\n\\n\`\`\`tsx\\n// src/components/AgentFeed.tsx\\n'use client';\\nimport { useChat } from 'ai/react';\\n\\nexport default function AgentFeed() {\\n  const { messages } = useChat();\\n  return (\\n    <div className=\\\"space-y-3\\\">\\n      {messages.map((m) => (\\n        <p key={m.id}>{m.content}</p>\\n      ))}\\n    </div>\\n  );\\n}\\n\`\`\`\\n\\n## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)\\n\\n### অটোনোমাস এআই এজেন্ট কী?\\nঅটোনোমাস এআই এজেন্ট হলো এমন একটি ইন্টেলিজেন্ট সিস্টেম যা মানুষের সরাসরি হস্তক্ষেপ ছাড়াই বিভিন্ন টুলস ব্যবহার করে কাজ সম্পন্ন করতে পারে।\\n\\n### নেক্সট জেএস দিয়ে কি এআই এজেন্ট বানানো সম্ভব?\\nহ্যাঁ, Next.js Server Actions ও Streaming API ব্যবহার করে খুব সহজেই হাই-পারফরম্যান্স এআই এজেন্ট তৈরি করা যায়।"
+    "article": "# অটোনোমাস এআই এজেন্ট ডেভেলপমেন্ট\\n\\nওয়েব ডেভেলপমেন্ট ও আর্টিফিশিয়াল ইন্টেলিজেন্সের সমন্বয়ে আধুনিক সফটওয়্যার আর্কিটেকচার দ্রুত পরিবর্তিত হচ্ছে।\\n\\n## আর্কিটেকচার ও মূল কনসেপ্ট\\n\\n{{IMAGE:img-1}}\\n\\nNext.js 14 App Router-এ সিকিউর সার্ভার অ্যাকশনের মাধ্যমে এআই এজেন্টের টুল কলিং লজিক রান করা যায়:\\n\\n\`\`\`typescript\\n// src/lib/agent/executor.ts\\nimport { ChatOpenAI } from '@langchain/openai';\\nimport { AgentExecutor, createOpenAIToolsAgent } from 'langchain/agents';\\nimport { pull } from 'langchain/hub';\\n\\nexport async function runAgentWorkflow(userGoal: string) {\\n  const llm = new ChatOpenAI({ modelName: 'gpt-4o', temperature: 0 });\\n  const prompt = await pull<any>('hwchase17/openai-tools-agent');\\n  const agent = await createOpenAIToolsAgent({ llm, tools: [], prompt });\\n  return new AgentExecutor({ agent, tools: [] });\\n}\\n\`\`\`\\n\\n## ক্লায়েন্টে লাইভ স্ট্রিমিং ইন্টারফেস\\n\\n{{IMAGE:img-2}}\\n\\nইউজারদের কাছে রিয়েল-টাইম আউটপুট দেখানোর জন্য আমরা রিয়্যাক্ট কম্পোনেন্ট ব্যবহার করি:\\n\\n\`\`\`tsx\\n// src/components/AgentFeed.tsx\\n'use client';\\nimport { useChat } from 'ai/react';\\n\\nexport default function AgentFeed() {\\n  const { messages } = useChat();\\n  return (\\n    <div className=\\\"space-y-3\\\">\\n      {messages.map((m) => (\\n        <p key={m.id}>{m.content}</p>\\n      ))}\\n    </div>\\n  );\\n}\\n\`\`\`\\n\\n## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)\\n\\n### অটোনোমাস এআই এজেন্ট কী?\\nঅটোনোমাস এআই এজেন্ট হলো এমন একটি ইন্টেলিজেন্ট সিস্টেম যা মানুষের সরাসরি হস্তক্ষেপ ছাড়াই বিভিন্ন টুলস ব্যবহার করে কাজ সম্পন্ন করতে পারে।\\n\\n### নেক্সট জেএস দিয়ে কি এআই এজেন্ট বানানো সম্ভব?\\nহ্যাঁ, Next.js Server Actions ও Streaming API ব্যবহার করে খুব সহজেই হাই-পারফরম্যান্স এআই এজেন্ট তৈরি করা যায়।"
   },
+  "content_images": [
+    {
+      "id": "img-1",
+      "placement_marker": "{{IMAGE:img-1}}",
+      "prompt": "Technical architecture diagram illustrating distributed autonomous AI agent execution loop with server actions and LLM tools, glassmorphism cyberpunk neon aesthetic, cyan and purple palette, 16:9 widescreen, octane render, no text",
+      "alt_en": "Autonomous AI Agent Workflow Architecture Diagram",
+      "alt_bn": "অটোনোমাস এআই এজেন্ট আর্কিটেকচার ডায়াগ্রাম",
+      "caption_en": "Figure 1: High-level Agent Execution Lifecycle",
+      "caption_bn": "চিত্র ১: এজেন্টের লাইফসাইকেল ডায়াগ্রাম",
+      "url": null
+    },
+    {
+      "id": "img-2",
+      "placement_marker": "{{IMAGE:img-2}}",
+      "prompt": "Interactive UI data stream pipeline visualization connecting frontend components to AI agent thoughts, glowing glassmorphic nodes, dark violet background, 16:9 widescreen, octane render, no text",
+      "alt_en": "Real-time Streaming UI Architecture",
+      "alt_bn": "রিয়েল-টাইম স্ট্রিমিং ইউআই আর্কিটেকচার",
+      "caption_en": "Figure 2: Streaming Agent Thoughts to UI",
+      "caption_bn": "চিত্র ২: ফ্রন্টএন্ডে লাইভ স্ট্রিমিং আর্কিটেকচার",
+      "url": null
+    }
+  ],
   "faq": [
     {
       "question_en": "What are autonomous AI agents?",
@@ -1270,19 +1642,40 @@ export default function PostEditor({
       }
 
       if (Array.isArray(data.content_images) && data.content_images.length > 0) {
-        setContentImages(
-          data.content_images.map((img: any, idx: number) => ({
-            id: img.id || `img-${idx + 1}`,
-            placement_marker: img.placement_marker || `{{IMAGE:${img.id || `img-${idx + 1}`}}}`,
-            prompt: img.prompt || "",
-            alt_en: img.alt_en || "",
-            alt_bn: img.alt_bn || "",
-            caption_en: img.caption_en || "",
-            caption_bn: img.caption_bn || "",
-            url: img.url || null,
-            status: img.url ? "completed" : "pending",
-          }))
-        );
+        const importedImages = data.content_images.map((img: any, idx: number) => ({
+          id: img.id || `img-${idx + 1}`,
+          placement_marker: img.placement_marker || `{{IMAGE:${img.id || `img-${idx + 1}`}}}`,
+          prompt: img.prompt || "",
+          alt_en: img.alt_en || "",
+          alt_bn: img.alt_bn || "",
+          caption_en: img.caption_en || "",
+          caption_bn: img.caption_bn || "",
+          url: img.url || null,
+          status: img.url ? "completed" : "pending",
+        }));
+        setContentImages(importedImages);
+        saveImagesToStorage(importedImages);
+      }
+
+      // Sync imported social data to persistent social state & localStorage
+      if (data.social) {
+        const s = data.social;
+        const mappedSocial: SocialData = {
+          linkedin_post_en: s.linkedin_post_en || s.linkedin_post || "",
+          linkedin_hashtags_en: Array.isArray(s.linkedin_hashtags_en)
+            ? s.linkedin_hashtags_en
+            : Array.isArray(s.linkedin_hashtags)
+            ? s.linkedin_hashtags
+            : [],
+          linkedin_post_bn: s.linkedin_post_bn || "",
+          linkedin_hashtags_bn: Array.isArray(s.linkedin_hashtags_bn) ? s.linkedin_hashtags_bn : [],
+          devto_title: s.devto_title || title_en,
+          devto_article: s.devto_article || content_en,
+          devto_tags: Array.isArray(s.devto_tags) ? s.devto_tags : [],
+          twitter_post: s.twitter_post || "",
+        };
+        setSocialData(mappedSocial);
+        saveSocialToStorage(mappedSocial);
       }
 
       // Match category
@@ -1390,6 +1783,7 @@ export default function PostEditor({
     { id: "english", label: "🇬🇧 English" },
     { id: "bangla", label: "🇧🇩 বাংলা" },
     { id: "ai", label: "✨ AI Assistant" },
+    { id: "social", label: "📱 Social & Cross-Post" },
     { id: "json", label: "📥 JSON Import" },
     { id: "settings", label: "⚙️ Settings" },
   ];
@@ -1718,6 +2112,96 @@ export default function PostEditor({
                 />
               </label>
             </div>
+
+            {/* Quick Image Insertion Bar */}
+            <div className="flex flex-wrap items-center gap-2 p-2.5 bg-gray-950/80 border border-gray-800 rounded-lg mb-2 text-xs">
+              <span className="font-semibold text-gray-400 flex items-center gap-1">
+                <span>🖼️</span> Quick Visuals:
+              </span>
+
+              {/* Cover Pill */}
+              <button
+                type="button"
+                onClick={() => insertCoverIntoContent("en")}
+                className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
+                  form.cover_image_url
+                    ? "bg-indigo-950/70 border-indigo-700/60 text-indigo-200 hover:bg-indigo-900/80 cursor-pointer"
+                    : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
+                }`}
+                title={form.cover_image_url ? "Insert Cover image at top" : "No cover image uploaded yet"}
+              >
+                <span className={`w-2 h-2 rounded-full ${form.cover_image_url ? "bg-emerald-400" : "bg-gray-600"}`} />
+                <span>Cover Image</span>
+              </button>
+
+              {/* Image 1 Pill */}
+              {contentImages.find((i) => i.id === "img-1") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const img1 = contentImages.find((i) => i.id === "img-1");
+                    if (img1) insertImageIntoContent(img1, "en");
+                  }}
+                  className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
+                    contentImages.find((i) => i.id === "img-1")?.url
+                      ? "bg-purple-950/70 border-purple-700/60 text-purple-200 hover:bg-purple-900/80 cursor-pointer"
+                      : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
+                  }`}
+                  title={contentImages.find((i) => i.id === "img-1")?.url ? "Insert Image 1 into English" : "Image 1 not uploaded yet"}
+                >
+                  <span className={`w-2 h-2 rounded-full ${contentImages.find((i) => i.id === "img-1")?.url ? "bg-emerald-400" : "bg-gray-600"}`} />
+                  <span>Image 1 (img-1)</span>
+                </button>
+              )}
+
+              {/* Image 2 Pill */}
+              {contentImages.find((i) => i.id === "img-2") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const img2 = contentImages.find((i) => i.id === "img-2");
+                    if (img2) insertImageIntoContent(img2, "en");
+                  }}
+                  className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
+                    contentImages.find((i) => i.id === "img-2")?.url
+                      ? "bg-purple-950/70 border-purple-700/60 text-purple-200 hover:bg-purple-900/80 cursor-pointer"
+                      : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
+                  }`}
+                  title={contentImages.find((i) => i.id === "img-2")?.url ? "Insert Image 2 into English" : "Image 2 not uploaded yet"}
+                >
+                  <span className={`w-2 h-2 rounded-full ${contentImages.find((i) => i.id === "img-2")?.url ? "bg-emerald-400" : "bg-gray-600"}`} />
+                  <span>Image 2 (img-2)</span>
+                </button>
+              )}
+
+              {/* Image 3 Pill if exists */}
+              {contentImages.find((i) => i.id === "img-3") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const img3 = contentImages.find((i) => i.id === "img-3");
+                    if (img3) insertImageIntoContent(img3, "en");
+                  }}
+                  className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
+                    contentImages.find((i) => i.id === "img-3")?.url
+                      ? "bg-purple-950/70 border-purple-700/60 text-purple-200 hover:bg-purple-900/80 cursor-pointer"
+                      : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${contentImages.find((i) => i.id === "img-3")?.url ? "bg-emerald-400" : "bg-gray-600"}`} />
+                  <span>Image 3 (img-3)</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("ai")}
+                className="text-xs text-indigo-400 hover:text-indigo-300 underline font-medium ml-auto"
+              >
+                Visual Studio →
+              </button>
+            </div>
+
             <p className="text-xs text-gray-500 mb-2">💡 Tip: Paste screenshots (Ctrl+V) or drag & drop images directly here!</p>
             <MDEditor
               value={form.content_en}
@@ -1830,6 +2314,96 @@ export default function PostEditor({
                 />
               </label>
             </div>
+
+            {/* Quick Image Insertion Bar (Bangla) */}
+            <div className="flex flex-wrap items-center gap-2 p-2.5 bg-gray-950/80 border border-gray-800 rounded-lg mb-2 text-xs">
+              <span className="font-semibold text-gray-400 flex items-center gap-1">
+                <span>🖼️</span> ভিজ্যুয়াল ইনসার্ট:
+              </span>
+
+              {/* Cover Pill */}
+              <button
+                type="button"
+                onClick={() => insertCoverIntoContent("bn")}
+                className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
+                  form.cover_image_url
+                    ? "bg-indigo-950/70 border-indigo-700/60 text-indigo-200 hover:bg-indigo-900/80 cursor-pointer"
+                    : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
+                }`}
+                title={form.cover_image_url ? "বাংলা আর্টিকেলের শীর্ষে কভার ইমেজ যুক্ত করুন" : "কভার ইমেজ আপলোড করা হয়নি"}
+              >
+                <span className={`w-2 h-2 rounded-full ${form.cover_image_url ? "bg-emerald-400" : "bg-gray-600"}`} />
+                <span>কভার ইমেজ</span>
+              </button>
+
+              {/* Image 1 Pill */}
+              {contentImages.find((i) => i.id === "img-1") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const img1 = contentImages.find((i) => i.id === "img-1");
+                    if (img1) insertImageIntoContent(img1, "bn");
+                  }}
+                  className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
+                    contentImages.find((i) => i.id === "img-1")?.url
+                      ? "bg-emerald-950/70 border-emerald-700/60 text-emerald-200 hover:bg-emerald-900/80 cursor-pointer"
+                      : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
+                  }`}
+                  title={contentImages.find((i) => i.id === "img-1")?.url ? "বাংলা আর্টিকেলে ইমেজ ১ বসান" : "ইমেজ ১ তৈরি বা আপলোড করা হয়নি"}
+                >
+                  <span className={`w-2 h-2 rounded-full ${contentImages.find((i) => i.id === "img-1")?.url ? "bg-emerald-400" : "bg-gray-600"}`} />
+                  <span>ইমেজ ১ (img-1)</span>
+                </button>
+              )}
+
+              {/* Image 2 Pill */}
+              {contentImages.find((i) => i.id === "img-2") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const img2 = contentImages.find((i) => i.id === "img-2");
+                    if (img2) insertImageIntoContent(img2, "bn");
+                  }}
+                  className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
+                    contentImages.find((i) => i.id === "img-2")?.url
+                      ? "bg-emerald-950/70 border-emerald-700/60 text-emerald-200 hover:bg-emerald-900/80 cursor-pointer"
+                      : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
+                  }`}
+                  title={contentImages.find((i) => i.id === "img-2")?.url ? "বাংলা আর্টিকেলে ইমেজ ২ বসান" : "ইমেজ ২ তৈরি বা আপলোড করা হয়নি"}
+                >
+                  <span className={`w-2 h-2 rounded-full ${contentImages.find((i) => i.id === "img-2")?.url ? "bg-emerald-400" : "bg-gray-600"}`} />
+                  <span>ইমেজ ২ (img-2)</span>
+                </button>
+              )}
+
+              {/* Image 3 Pill if exists */}
+              {contentImages.find((i) => i.id === "img-3") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const img3 = contentImages.find((i) => i.id === "img-3");
+                    if (img3) insertImageIntoContent(img3, "bn");
+                  }}
+                  className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
+                    contentImages.find((i) => i.id === "img-3")?.url
+                      ? "bg-emerald-950/70 border-emerald-700/60 text-emerald-200 hover:bg-emerald-900/80 cursor-pointer"
+                      : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${contentImages.find((i) => i.id === "img-3")?.url ? "bg-emerald-400" : "bg-gray-600"}`} />
+                  <span>ইমেজ ৩ (img-3)</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("ai")}
+                className="text-xs text-emerald-400 hover:text-emerald-300 underline font-medium ml-auto"
+              >
+                ভিজ্যুয়াল স্টুডিও →
+              </button>
+            </div>
+
             <MDEditor
               value={form.content_bn}
               onChange={(val) => setForm({ ...form, content_bn: val ?? "" })}
@@ -2043,6 +2617,68 @@ export default function PostEditor({
                 </span>
               </div>
             )}
+            {/* Cover Image Preview & Dedicated Actions */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 bg-teal-950/40 border border-teal-800/40 rounded-lg">
+              <div className="flex items-center gap-3">
+                {form.cover_image_url ? (
+                  <div className="relative w-28 h-16 rounded-md overflow-hidden border border-teal-700/60 bg-black shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={form.cover_image_url} alt="Cover Preview" className="w-full h-full object-cover" />
+                    <a
+                      href={form.cover_image_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute bottom-0.5 right-0.5 text-[9px] bg-black/80 text-white px-1 py-0.2 rounded font-mono"
+                    >
+                      ↗
+                    </a>
+                  </div>
+                ) : (
+                  <div className="w-28 h-16 rounded-md border border-dashed border-teal-800/60 bg-teal-950/20 flex flex-col items-center justify-center text-[10px] text-teal-400 shrink-0">
+                    <span>🖼️ No Cover</span>
+                  </div>
+                )}
+                <div>
+                  <span className="text-xs font-semibold text-teal-200 block">Dedicated Cover / Thumbnail</span>
+                  <span className="text-[11px] text-gray-400 font-mono">
+                    {form.cover_image_url ? form.cover_image_url.slice(0, 45) + "..." : "Upload or generate AI cover"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <label className="cursor-pointer px-3 py-1.5 bg-teal-800/70 hover:bg-teal-700 text-teal-100 text-xs font-semibold rounded-lg border border-teal-600/50 flex items-center gap-1.5 transition shadow-sm">
+                  <span>📁 Direct Upload</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleUploadCoverImage(file);
+                    }}
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => insertCoverIntoContent("en")}
+                  disabled={!form.cover_image_url}
+                  className="px-2.5 py-1.5 bg-blue-950/80 hover:bg-blue-900 text-blue-200 border border-blue-700/60 text-xs font-medium rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+                >
+                  <span>🇬🇧 Insert in EN Top</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => insertCoverIntoContent("bn")}
+                  disabled={!form.cover_image_url}
+                  className="px-2.5 py-1.5 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-200 border border-emerald-700/60 text-xs font-medium rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+                >
+                  <span>🇧🇩 Insert in BN Top</span>
+                </button>
+              </div>
+            </div>
           </div>
           
           {/* Content Images (Multi-visual diagrams & flowcharts) */}
@@ -2052,7 +2688,7 @@ export default function PostEditor({
                 <div className="flex items-center gap-2">
                   <span className="text-base">🖼️</span>
                   <h4 className="text-sm font-bold text-indigo-200">
-                    Article Visuals & Diagrams
+                    Dedicated Article Visuals &amp; Diagrams
                   </h4>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-900/60 text-indigo-300 border border-indigo-700/50">
                     {contentImages.length} Visual{contentImages.length !== 1 ? "s" : ""}
@@ -2064,11 +2700,38 @@ export default function PostEditor({
                   )}
                 </div>
                 <p className="text-xs text-indigo-300/80 mt-1">
-                  Concept diagrams, architecture charts & before/after flows placed at <code className="text-indigo-200 bg-black/40 px-1 py-0.5 rounded">{"{{IMAGE:img-N}}"}</code> in article markdown.
+                  Dedicated slots for <code className="text-indigo-200 bg-black/40 px-1 py-0.5 rounded">img-1</code>, <code className="text-indigo-200 bg-black/40 px-1 py-0.5 rounded">img-2</code>, etc. with 1-click upload, AI generation, and insertion into English &amp; বাংলা articles.
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextNum = contentImages.length + 1;
+                    const newId = `img-${nextNum}`;
+                    const newSlot: ContentImage = {
+                      id: newId,
+                      placement_marker: `{{IMAGE:${newId}}}`,
+                      prompt: "",
+                      alt_en: "",
+                      alt_bn: "",
+                      caption_en: "",
+                      caption_bn: "",
+                      url: null,
+                      status: "pending",
+                    };
+                    const updated = [...contentImages, newSlot];
+                    setContentImages(updated);
+                    saveImagesToStorage(updated);
+                    toast.success(`Added dedicated slot ${newId}!`);
+                  }}
+                  className="px-2.5 py-1.5 bg-indigo-900/60 hover:bg-indigo-800 text-indigo-300 border border-indigo-700/60 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                  title="Add another dedicated visual slot (e.g. img-3)"
+                >
+                  <span>+ Add Image Slot</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={handleDetectImageMarkersFromContent}
@@ -2095,9 +2758,9 @@ export default function PostEditor({
                       onClick={() => handleReplaceImageMarkers()}
                       disabled={!contentImages.some((img) => img.url)}
                       className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
-                      title="Replace {{IMAGE:img-N}} markers with Markdown ![alt](url) tags in both English and Bangla content"
+                      title="Insert or replace all visuals into both English and Bangla content"
                     >
-                      <span>🔄 Replace in Content</span>
+                      <span>🔄 Insert All in Content</span>
                     </button>
                   </>
                 )}
@@ -2108,28 +2771,30 @@ export default function PostEditor({
             {contentImages.length === 0 ? (
               <div className="py-6 px-4 text-center rounded-lg border border-dashed border-indigo-800/40 bg-black/20">
                 <p className="text-xs text-gray-400">
-                  No content diagrams detected yet. Generate a post using the AI Auto Post Generator below, or click{" "}
+                  No content diagrams configured yet. Click{" "}
                   <button
                     type="button"
-                    onClick={handleDetectImageMarkersFromContent}
+                    onClick={() => {
+                      setContentImages(defaultContentImages);
+                      saveImagesToStorage(defaultContentImages);
+                    }}
                     className="text-indigo-400 hover:underline font-medium"
                   >
-                    Scan Markers
-                  </button>{" "}
-                  if you have <code className="text-indigo-300">{"{{IMAGE:img-1}}"}</code> in your markdown.
+                    Reset Default Slots (img-1, img-2)
+                  </button>.
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {contentImages.map((img, idx) => (
                   <div
                     key={img.id || idx}
-                    className="p-3.5 bg-gray-900/90 border border-gray-800 rounded-xl flex flex-col md:flex-row gap-3 items-start relative group hover:border-indigo-700/50 transition-colors"
+                    className="p-4 bg-gray-900/90 border border-gray-800 rounded-xl flex flex-col md:flex-row gap-4 items-start relative group hover:border-indigo-700/50 transition-colors shadow-sm"
                   >
-                    {/* Left: Preview or Placeholder */}
-                    <div className="w-full md:w-44 shrink-0">
+                    {/* Left: Preview, Direct Upload, AI Generate, and Insert Buttons */}
+                    <div className="w-full md:w-48 shrink-0">
                       {img.url ? (
-                        <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-700 bg-black">
+                        <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-700 bg-black shadow-inner">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={img.url}
@@ -2147,35 +2812,64 @@ export default function PostEditor({
                         </div>
                       ) : (
                         <div className="aspect-video rounded-lg border border-dashed border-indigo-900/60 bg-indigo-950/20 flex flex-col items-center justify-center p-2 text-center text-xs text-indigo-400">
-                          <span className="text-lg mb-0.5">🖼️</span>
-                          <span className="font-mono text-[11px] font-semibold">{img.id}</span>
-                          <span className="text-[9px] text-gray-500">16:9 • Glassmorphism</span>
+                          <span className="text-xl mb-0.5">🖼️</span>
+                          <span className="font-mono text-xs font-bold text-indigo-300">
+                            {img.id === "img-1" ? "Image 1" : img.id === "img-2" ? "Image 2" : img.id}
+                          </span>
+                          <span className="text-[10px] text-gray-400">16:9 • No Text</span>
                         </div>
                       )}
 
-                      <div className="mt-2 flex flex-col gap-1">
+                      <div className="mt-2.5 flex flex-col gap-1.5">
+                        {/* Direct File Upload button */}
+                        <label className="w-full py-1.5 px-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm">
+                          <span>📁 Direct Upload</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleUploadContentImage(file, img.id);
+                            }}
+                          />
+                        </label>
+
+                        {/* AI Generate button */}
                         <button
                           type="button"
                           onClick={() => handleGenerateContentImage(img)}
                           disabled={generatingContentImageId === img.id || generatingAllContentImages}
-                          className="w-full py-1.5 px-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-1 shadow-sm"
+                          className="w-full py-1.5 px-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-1 shadow-sm cursor-pointer"
                         >
                           {generatingContentImageId === img.id ? (
                             <span>Generating...</span>
                           ) : (
-                            <span>{img.url ? "🎨 Re-Generate" : "🎨 Generate"}</span>
+                            <span>{img.url ? "🎨 Re-Generate AI" : "🎨 AI Generate"}</span>
                           )}
                         </button>
 
-                        {img.url && (
-                          <button
-                            type="button"
-                            onClick={() => handleReplaceImageMarkers(img.id)}
-                            className="w-full py-1 px-2 bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-700/50 text-[11px] font-medium rounded-lg transition-colors flex items-center justify-center gap-1"
-                          >
-                            <span>Insert {img.id}</span>
-                          </button>
-                        )}
+                        {/* Dedicated Insert into English button */}
+                        <button
+                          type="button"
+                          onClick={() => insertImageIntoContent(img, "en")}
+                          disabled={!img.url}
+                          className="w-full py-1.5 px-2 bg-blue-950/70 hover:bg-blue-900/80 text-blue-200 border border-blue-700/60 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                          title="Insert or replace into English article markdown"
+                        >
+                          <span>🇬🇧 Insert into English</span>
+                        </button>
+
+                        {/* Dedicated Insert into Bangla button */}
+                        <button
+                          type="button"
+                          onClick={() => insertImageIntoContent(img, "bn")}
+                          disabled={!img.url}
+                          className="w-full py-1.5 px-2 bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-200 border border-emerald-700/60 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                          title="Insert or replace into Bangla article markdown"
+                        >
+                          <span>🇧🇩 Insert into বাংলা</span>
+                        </button>
                       </div>
                     </div>
 
@@ -2183,22 +2877,38 @@ export default function PostEditor({
                     <div className="flex-1 w-full space-y-2">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-bold text-indigo-300 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-800/60">
-                            {img.placement_marker || `{{IMAGE:${img.id}}}`}
+                          <span className="text-xs font-bold text-white bg-indigo-950/80 px-2.5 py-1 rounded-md border border-indigo-700/60">
+                            {img.id === "img-1"
+                              ? "⭐ Dedicated Slot 1 (Image 1)"
+                              : img.id === "img-2"
+                              ? "⭐ Dedicated Slot 2 (Image 2)"
+                              : `🖼️ Dedicated Slot (${img.id})`}
                           </span>
-                          <span className="text-[10px] text-gray-400 font-mono">
-                            Naming: <span className="text-gray-300 font-semibold">{form.slug || "slug"}-{img.id}.png</span>
+                          <span className="text-[10px] font-mono text-gray-400">
+                            Marker: <code className="text-indigo-300 font-semibold">{img.placement_marker || `{{IMAGE:${img.id}}}`}</code>
                           </span>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => setContentImages((prev) => prev.filter((item) => item.id !== img.id))}
-                          className="text-gray-500 hover:text-red-400 text-xs transition-colors p-1"
-                          title="Remove this visual"
-                        >
-                          ✕ Remove
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-gray-400 font-mono">
+                            Naming: <span className="text-gray-300 font-semibold">{form.slug || "slug"}-{img.id}.png</span>
+                          </span>
+
+                          {idx >= 2 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = contentImages.filter((item) => item.id !== img.id);
+                                setContentImages(updated);
+                                saveImagesToStorage(updated);
+                              }}
+                              className="text-gray-500 hover:text-red-400 text-xs transition-colors p-1"
+                              title="Remove this extra slot"
+                            >
+                              ✕ Remove
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       {/* Prompt */}
@@ -2688,128 +3398,132 @@ export default function PostEditor({
           </div>
 
           {/* Social Syndication Companion Card (LinkedIn & Dev.to) */}
-          {parsedJsonData?.social && (
-            <div className="mt-8 border border-gray-800 bg-gray-900/60 rounded-2xl p-6 space-y-6">
-              <div>
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <span>📱 Social Media & Cross-Posting Content</span>
-                  <span className="text-[11px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">
-                    Ready to Copy
-                  </span>
-                </h3>
-                <p className="text-xs text-gray-400 mt-1">
-                  The JSON contains pre-formatted social media posts. You can copy them with one click below:
-                </p>
-              </div>
+          {(socialData || parsedJsonData?.social) && (() => {
+            const activeSocial = socialData || parsedJsonData?.social;
+            const linkedInPostEn = activeSocial?.linkedin_post_en || activeSocial?.linkedin_post;
+            const linkedInTagsEn = Array.isArray(activeSocial?.linkedin_hashtags_en)
+              ? activeSocial.linkedin_hashtags_en
+              : Array.isArray(activeSocial?.linkedin_hashtags)
+              ? activeSocial.linkedin_hashtags
+              : [];
+            const linkedInPostBn = activeSocial?.linkedin_post_bn;
+            const linkedInTagsBn = Array.isArray(activeSocial?.linkedin_hashtags_bn)
+              ? activeSocial.linkedin_hashtags_bn
+              : [];
+            const devtoArticle = activeSocial?.devto_article;
+            const devtoTitle = activeSocial?.devto_title;
+            const devtoTags = Array.isArray(activeSocial?.devto_tags) ? activeSocial.devto_tags : [];
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {/* LinkedIn English Box */}
-                {(parsedJsonData.social.linkedin_post_en || parsedJsonData.social.linkedin_post) && (
-                  <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-blue-400 flex items-center gap-1.5">
-                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                        LinkedIn (English)
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const postText = parsedJsonData.social.linkedin_post_en || parsedJsonData.social.linkedin_post;
-                          const tags = Array.isArray(parsedJsonData.social.linkedin_hashtags_en)
-                            ? parsedJsonData.social.linkedin_hashtags_en
-                            : Array.isArray(parsedJsonData.social.linkedin_hashtags)
-                            ? parsedJsonData.social.linkedin_hashtags
-                            : [];
-                          const hashtags = tags.length > 0 ? "\n\n" + tags.join(" ") : "";
-                          navigator.clipboard.writeText(postText + hashtags);
-                          toast.success("📋 Copied English LinkedIn post!");
-                        }}
-                        className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-blue-300 rounded border border-gray-700 transition cursor-pointer"
-                      >
-                        Copy EN
-                      </button>
-                    </div>
-                    <p className="text-xs text-gray-300 whitespace-pre-wrap font-sans bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto">
-                      {parsedJsonData.social.linkedin_post_en || parsedJsonData.social.linkedin_post}
-                      {(Array.isArray(parsedJsonData.social.linkedin_hashtags_en) || Array.isArray(parsedJsonData.social.linkedin_hashtags)) && (
-                        <span className="block mt-2 text-blue-400 font-medium">
-                          {(parsedJsonData.social.linkedin_hashtags_en || parsedJsonData.social.linkedin_hashtags).join(" ")}
+            return (
+              <div className="mt-8 border border-gray-800 bg-gray-900/60 rounded-2xl p-6 space-y-6">
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <span>📱 Social Media & Cross-Posting Content</span>
+                    <span className="text-[11px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">
+                      Ready to Copy
+                    </span>
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Pre-formatted social media posts from your JSON or AI generator:
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {/* LinkedIn English Box */}
+                  {linkedInPostEn && (
+                    <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-blue-400 flex items-center gap-1.5">
+                          <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                          LinkedIn (English)
                         </span>
-                      )}
-                    </p>
-                  </div>
-                )}
-
-                {/* LinkedIn Bengali Box */}
-                {parsedJsonData.social.linkedin_post_bn && (
-                  <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
-                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                        LinkedIn (বাংলা)
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const tags = Array.isArray(parsedJsonData.social.linkedin_hashtags_bn)
-                            ? parsedJsonData.social.linkedin_hashtags_bn
-                            : [];
-                          const hashtags = tags.length > 0 ? "\n\n" + tags.join(" ") : "";
-                          navigator.clipboard.writeText(parsedJsonData.social.linkedin_post_bn + hashtags);
-                          toast.success("📋 Copied Bengali LinkedIn post!");
-                        }}
-                        className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-emerald-300 rounded border border-gray-700 transition cursor-pointer"
-                      >
-                        Copy BN
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const hashtags = linkedInTagsEn.length > 0 ? "\n\n" + linkedInTagsEn.join(" ") : "";
+                            navigator.clipboard.writeText(linkedInPostEn + hashtags);
+                            toast.success("📋 Copied English LinkedIn post!");
+                          }}
+                          className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-blue-300 rounded border border-gray-700 transition cursor-pointer"
+                        >
+                          Copy EN
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-300 whitespace-pre-wrap font-sans bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto">
+                        {linkedInPostEn}
+                        {linkedInTagsEn.length > 0 && (
+                          <span className="block mt-2 text-blue-400 font-medium">
+                            {linkedInTagsEn.join(" ")}
+                          </span>
+                        )}
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-300 whitespace-pre-wrap font-sans bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto">
-                      {parsedJsonData.social.linkedin_post_bn}
-                      {Array.isArray(parsedJsonData.social.linkedin_hashtags_bn) && (
-                        <span className="block mt-2 text-emerald-400 font-medium">
-                          {parsedJsonData.social.linkedin_hashtags_bn.join(" ")}
+                  )}
+
+                  {/* LinkedIn Bengali Box */}
+                  {linkedInPostBn && (
+                    <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                          <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                          LinkedIn (বাংলা)
                         </span>
-                      )}
-                    </p>
-                  </div>
-                )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const hashtags = linkedInTagsBn.length > 0 ? "\n\n" + linkedInTagsBn.join(" ") : "";
+                            navigator.clipboard.writeText(linkedInPostBn + hashtags);
+                            toast.success("📋 Copied Bengali LinkedIn post!");
+                          }}
+                          className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-emerald-300 rounded border border-gray-700 transition cursor-pointer"
+                        >
+                          Copy BN
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-300 whitespace-pre-wrap font-sans bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto">
+                        {linkedInPostBn}
+                        {linkedInTagsBn.length > 0 && (
+                          <span className="block mt-2 text-emerald-400 font-medium">
+                            {linkedInTagsBn.join(" ")}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  )}
 
-                {/* DEV.to Box */}
-                {parsedJsonData.social.devto_article && (
-                  <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-gray-200 flex items-center gap-1.5">
-                        <span className="font-bold border border-gray-600 px-1 py-0.2 rounded text-[10px]">DEV</span>
-                        DEV.to Article
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const tagsHeader = Array.isArray(parsedJsonData.social.devto_tags)
-                            ? `Tags: ${parsedJsonData.social.devto_tags.join(", ")}\n\n`
-                            : "";
-                          const titleHeader = parsedJsonData.social.devto_title
-                            ? `# ${parsedJsonData.social.devto_title}\n\n`
-                            : "";
-                          navigator.clipboard.writeText(titleHeader + tagsHeader + parsedJsonData.social.devto_article);
-                          toast.success("📋 Copied DEV.to article!");
-                        }}
-                        className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-gray-200 rounded border border-gray-700 transition cursor-pointer"
-                      >
-                        Copy Article
-                      </button>
+                  {/* DEV.to Box */}
+                  {devtoArticle && (
+                    <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-gray-200 flex items-center gap-1.5">
+                          <span className="font-bold border border-gray-600 px-1 py-0.2 rounded text-[10px]">DEV</span>
+                          DEV.to Article
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const tagsHeader = devtoTags.length > 0 ? `Tags: ${devtoTags.join(", ")}\n\n` : "";
+                            const titleHeader = devtoTitle ? `# ${devtoTitle}\n\n` : "";
+                            navigator.clipboard.writeText(titleHeader + tagsHeader + devtoArticle);
+                            toast.success("📋 Copied DEV.to article!");
+                          }}
+                          className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-gray-200 rounded border border-gray-700 transition cursor-pointer"
+                        >
+                          Copy Article
+                        </button>
+                      </div>
+                      <div className="text-xs text-gray-300 bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto space-y-2 font-mono">
+                        {devtoTitle && (
+                          <p className="font-bold text-white font-sans">{devtoTitle}</p>
+                        )}
+                        <p className="whitespace-pre-wrap">{devtoArticle.slice(0, 300)}...</p>
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-300 bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto space-y-2 font-mono">
-                      {parsedJsonData.social.devto_title && (
-                        <p className="font-bold text-white font-sans">{parsedJsonData.social.devto_title}</p>
-                      )}
-                      <p className="whitespace-pre-wrap">{parsedJsonData.social.devto_article.slice(0, 300)}...</p>
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* ── DEV.to 1-Click Cross-Posting Card ── always visible in JSON tab ── */}
           <div className="mt-6 border border-gray-700/80 bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl p-6">
@@ -2822,8 +3536,8 @@ export default function PostEditor({
                   <h3 className="text-sm font-bold text-white">1-Click Post to DEV.to</h3>
                   <p className="text-xs text-gray-400 mt-0.5">
                     Posts as <span className="text-yellow-400 font-medium">Draft</span> with canonical URL pointing to your portfolio — SEO safe.
-                    {parsedJsonData?.social?.devto_article && (
-                      <span className="ml-1 text-emerald-400">✓ DEV.to article from JSON ready</span>
+                    {(socialData?.devto_article || parsedJsonData?.social?.devto_article) && (
+                      <span className="ml-1 text-emerald-400">✓ DEV.to article ready</span>
                     )}
                   </p>
                 </div>
@@ -2880,6 +3594,472 @@ export default function PostEditor({
                 </p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Social Media & Cross-Posting Studio Tab (Always Accessible & Persistent) ── */}
+      {activeTab === "social" && (
+        <div className="space-y-6">
+          {/* Hero Banner */}
+          <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-indigo-950/40 border border-gray-800 rounded-2xl p-5 sm:p-6 shadow-xl">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                  📱
+                </div>
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-base font-bold text-white tracking-tight">
+                      Social Media &amp; Cross-Posting Studio
+                    </h3>
+                    <span className="text-[11px] bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-medium">
+                      Permanent &amp; Auto-Saved
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-400 max-w-2xl leading-relaxed">
+                    Generate high-conversion viral hooks and syndication content for LinkedIn, DEV.to, and Twitter / X. 
+                    Everything you see or edit here is permanently preserved in drafts and will not disappear when saving.
+                  </p>
+                  
+                  {/* Status overview badges */}
+                  <div className="flex flex-wrap items-center gap-2 pt-2 text-[11px]">
+                    <span className={`px-2 py-0.5 rounded border font-mono ${
+                      socialData?.linkedin_post_en || socialData?.linkedin_post
+                        ? "bg-blue-950/40 border-blue-500/40 text-blue-300"
+                        : "bg-gray-800/50 border-gray-700/50 text-gray-500"
+                    }`}>
+                      LinkedIn EN: {socialData?.linkedin_post_en || socialData?.linkedin_post ? "✓ Ready" : "Empty"}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded border font-mono ${
+                      socialData?.linkedin_post_bn
+                        ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-300"
+                        : "bg-gray-800/50 border-gray-700/50 text-gray-500"
+                    }`}>
+                      LinkedIn BN: {socialData?.linkedin_post_bn ? "✓ Ready" : "Empty"}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded border font-mono ${
+                      socialData?.devto_article
+                        ? "bg-purple-950/40 border-purple-500/40 text-purple-300"
+                        : "bg-gray-800/50 border-gray-700/50 text-gray-500"
+                    }`}>
+                      DEV.to: {socialData?.devto_article ? "✓ Ready" : "Empty"}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded border font-mono ${
+                      socialData?.twitter_post
+                        ? "bg-sky-950/40 border-sky-500/40 text-sky-300"
+                        : "bg-gray-800/50 border-gray-700/50 text-gray-500"
+                    }`}>
+                      Twitter/X: {socialData?.twitter_post ? "✓ Ready" : "Empty"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleGenerateSocial}
+                  disabled={generatingSocial || !form.title_en.trim() || !form.content_en.trim()}
+                  className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {generatingSocial ? (
+                    <>
+                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Generating Social Posts...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>⚡ Generate Social with AI</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("json")}
+                  className="px-3 py-2 bg-gray-800/80 hover:bg-gray-700 text-gray-300 border border-gray-700 text-xs font-medium rounded-xl transition text-center"
+                >
+                  📥 Import from JSON
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Social Platform Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* 1. LinkedIn English Card */}
+            <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 space-y-4 shadow-sm flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-3 border-b border-gray-800">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">LinkedIn (English)</h4>
+                      <span className="text-[10px] text-gray-400">Viral hook + takeaways + canonical CTA</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const postText = socialData?.linkedin_post_en || socialData?.linkedin_post || "";
+                      const tags = socialData?.linkedin_hashtags_en || [];
+                      const full = postText + (tags.length > 0 ? "\n\n" + tags.join(" ") : "");
+                      if (!full.trim()) {
+                        toast.error("LinkedIn English copy is empty.");
+                        return;
+                      }
+                      navigator.clipboard.writeText(full);
+                      toast.success("📋 Copied LinkedIn English post!");
+                    }}
+                    className="px-3 py-1.5 bg-blue-950/60 hover:bg-blue-900/80 text-blue-300 border border-blue-700/50 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <span>📋 Copy EN</span>
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-300 flex justify-between">
+                    <span>Post Content</span>
+                    <span className="text-[10px] text-gray-500 font-mono">
+                      {(socialData?.linkedin_post_en || socialData?.linkedin_post || "").length} chars
+                    </span>
+                  </label>
+                  <textarea
+                    rows={8}
+                    value={socialData?.linkedin_post_en || socialData?.linkedin_post || ""}
+                    onChange={(e) => {
+                      const updated: SocialData = {
+                        ...(socialData || {}),
+                        linkedin_post_en: e.target.value,
+                      };
+                      setSocialData(updated);
+                      saveSocialToStorage(updated);
+                    }}
+                    placeholder="Hook: Most engineers struggle with X...\n\nHere are 3 architectural patterns that fix it:\n\n1. Pattern A...\n\nRead the complete article: https://..."
+                    className="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-sans leading-relaxed resize-y"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-300 flex justify-between">
+                    <span>Hashtags</span>
+                    <span className="text-[10px] text-gray-500">Space or comma separated</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={(socialData?.linkedin_hashtags_en || []).join(" ")}
+                    onChange={(e) => {
+                      const tags = e.target.value.split(/[\s,]+/).filter(Boolean).map((t) => (t.startsWith("#") ? t : `#${t}`));
+                      const updated: SocialData = {
+                        ...(socialData || {}),
+                        linkedin_hashtags_en: tags,
+                      };
+                      setSocialData(updated);
+                      saveSocialToStorage(updated);
+                    }}
+                    placeholder="#WebDev #React #SoftwareEngineering #Performance"
+                    className="w-full px-3 py-2 bg-gray-950 border border-gray-800 rounded-lg text-xs text-blue-300 font-mono placeholder-gray-600 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 2. LinkedIn Bengali Card */}
+            <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 space-y-4 shadow-sm flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-3 border-b border-gray-800">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">LinkedIn (বাংলা)</h4>
+                      <span className="text-[10px] text-gray-400">লোকাল কমিউনিটি ও বাংলা পাঠকদের জন্য</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const postText = socialData?.linkedin_post_bn || "";
+                      const tags = socialData?.linkedin_hashtags_bn || [];
+                      const full = postText + (tags.length > 0 ? "\n\n" + tags.join(" ") : "");
+                      if (!full.trim()) {
+                        toast.error("LinkedIn বাংলা পোস্ট এখনো খালি।");
+                        return;
+                      }
+                      navigator.clipboard.writeText(full);
+                      toast.success("📋 Copied LinkedIn Bengali post!");
+                    }}
+                    className="px-3 py-1.5 bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-700/50 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <span>📋 Copy BN</span>
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-300 flex justify-between">
+                    <span>পোস্টের বিষয়বস্তু (Bengali Content)</span>
+                    <span className="text-[10px] text-gray-500 font-mono">
+                      {(socialData?.linkedin_post_bn || "").length} chars
+                    </span>
+                  </label>
+                  <textarea
+                    rows={8}
+                    value={socialData?.linkedin_post_bn || ""}
+                    onChange={(e) => {
+                      const updated: SocialData = {
+                        ...(socialData || {}),
+                        linkedin_post_bn: e.target.value,
+                      };
+                      setSocialData(updated);
+                      saveSocialToStorage(updated);
+                    }}
+                    placeholder="🚀 নতুন ব্লগ আর্টিকেলে জেনে নিন কীভাবে...\n\nআজকের আলোচনায় আমরা বিস্তারিত তুলে ধরেছি...\n\n🔗 সম্পূর্ণ আর্টিকেলটি পড়ুন: https://..."
+                    className="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-sans leading-relaxed resize-y"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-300 flex justify-between">
+                    <span>বাংলা হ্যাশট্যাগ</span>
+                    <span className="text-[10px] text-gray-500">স্পেস দিয়ে আলাদা করুন</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={(socialData?.linkedin_hashtags_bn || []).join(" ")}
+                    onChange={(e) => {
+                      const tags = e.target.value.split(/[\s,]+/).filter(Boolean).map((t) => (t.startsWith("#") ? t : `#${t}`));
+                      const updated: SocialData = {
+                        ...(socialData || {}),
+                        linkedin_hashtags_bn: tags,
+                      };
+                      setSocialData(updated);
+                      saveSocialToStorage(updated);
+                    }}
+                    placeholder="#বাংলা #প্রোগ্রামিং #ওয়েবডেভেলপমেন্ট #TechBangladesh"
+                    className="w-full px-3 py-2 bg-gray-950 border border-gray-800 rounded-lg text-xs text-emerald-300 font-mono placeholder-gray-600 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Twitter / X Card */}
+            <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 space-y-4 shadow-sm flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-3 border-b border-gray-800">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold text-xs">
+                      𝕏
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">Twitter / X Post &amp; Thread</h4>
+                      <span className="text-[10px] text-gray-400">Under 280 chars or full thread breakdown</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const tweet = socialData?.twitter_post || "";
+                      if (!tweet.trim()) {
+                        toast.error("Twitter / X post is empty.");
+                        return;
+                      }
+                      navigator.clipboard.writeText(tweet);
+                      toast.success("📋 Copied Twitter post!");
+                    }}
+                    className="px-3 py-1.5 bg-sky-950/60 hover:bg-sky-900/80 text-sky-300 border border-sky-700/50 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <span>📋 Copy Tweet</span>
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <label className="font-medium text-gray-300">Tweet Text</label>
+                    {(() => {
+                      const len = (socialData?.twitter_post || "").length;
+                      const isSingleTweet = len <= 280;
+                      return (
+                        <span className={`font-mono text-[11px] px-2 py-0.5 rounded ${
+                          len === 0
+                            ? "text-gray-500"
+                            : isSingleTweet
+                            ? "bg-emerald-950/40 text-emerald-400 border border-emerald-500/30"
+                            : "bg-purple-950/40 text-purple-300 border border-purple-500/30"
+                        }`}>
+                          {len} chars {len > 0 && (isSingleTweet ? "(Single Tweet ✓)" : "(Thread format)")}
+                        </span>
+                      );
+                    })()}
+                  </div>
+                  <textarea
+                    rows={7}
+                    value={socialData?.twitter_post || ""}
+                    onChange={(e) => {
+                      const updated: SocialData = {
+                        ...(socialData || {}),
+                        twitter_post: e.target.value,
+                      };
+                      setSocialData(updated);
+                      saveSocialToStorage(updated);
+                    }}
+                    placeholder="Most devs don't realize this about system architecture...\n\nHere is how to structure scalable systems 🧵👇"
+                    className="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-sans leading-relaxed resize-y"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 4. DEV.to Article & 1-Click Publishing Card */}
+            <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 space-y-4 shadow-sm flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-3 border-b border-gray-800">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-gray-800 text-white flex items-center justify-center font-bold text-[10px] border border-gray-700">
+                      DEV
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">DEV.to Syndication</h4>
+                      <span className="text-[10px] text-gray-400">Ready formatted with canonical attribution</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const title = socialData?.devto_title || form.title_en;
+                      const tags = socialData?.devto_tags || [];
+                      const article = socialData?.devto_article || form.content_en;
+                      const tagsHeader = tags.length > 0 ? `Tags: ${tags.join(", ")}\n\n` : "";
+                      const titleHeader = title ? `# ${title}\n\n` : "";
+                      const full = titleHeader + tagsHeader + article;
+                      if (!full.trim()) {
+                        toast.error("DEV.to content is empty.");
+                        return;
+                      }
+                      navigator.clipboard.writeText(full);
+                      toast.success("📋 Copied DEV.to article!");
+                    }}
+                    className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <span>📋 Copy Article</span>
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-300">DEV.to Article Title</label>
+                  <input
+                    type="text"
+                    value={socialData?.devto_title || form.title_en || ""}
+                    onChange={(e) => {
+                      const updated: SocialData = {
+                        ...(socialData || {}),
+                        devto_title: e.target.value,
+                      };
+                      setSocialData(updated);
+                      saveSocialToStorage(updated);
+                    }}
+                    placeholder="Engaging article title for DEV.to community"
+                    className="w-full px-3 py-2 bg-gray-950 border border-gray-800 rounded-lg text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-300 flex justify-between">
+                    <span>Tags (max 4, lowercase)</span>
+                    <span className="text-[10px] text-gray-500">Comma separated</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={(socialData?.devto_tags || []).join(", ")}
+                    onChange={(e) => {
+                      const tags = e.target.value.split(",").map((s) => s.trim().toLowerCase().replace(/^#/, "")).filter(Boolean);
+                      const updated: SocialData = {
+                        ...(socialData || {}),
+                        devto_tags: tags,
+                      };
+                      setSocialData(updated);
+                      saveSocialToStorage(updated);
+                    }}
+                    placeholder="webdev, javascript, react, architecture"
+                    className="w-full px-3 py-2 bg-gray-950 border border-gray-800 rounded-lg text-xs text-indigo-300 font-mono placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-gray-300 flex justify-between">
+                    <span>DEV Markdown Body</span>
+                    <span className="text-[10px] text-gray-500 font-mono">
+                      {(socialData?.devto_article || form.content_en || "").length} chars
+                    </span>
+                  </label>
+                  <textarea
+                    rows={6}
+                    value={socialData?.devto_article || form.content_en || ""}
+                    onChange={(e) => {
+                      const updated: SocialData = {
+                        ...(socialData || {}),
+                        devto_article: e.target.value,
+                      };
+                      setSocialData(updated);
+                      saveSocialToStorage(updated);
+                    }}
+                    placeholder="DEV.to markdown body..."
+                    className="w-full px-3.5 py-2 bg-gray-950 border border-gray-800 rounded-xl text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono leading-relaxed resize-y"
+                  />
+                </div>
+
+                {/* 1-Click Publisher */}
+                <div className="pt-3 border-t border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <div className="text-[11px] text-gray-400">
+                    {crossPostResult.devto ? (
+                      <span className="text-emerald-400 font-medium flex items-center gap-1">
+                        ✓ Published on DEV.to!
+                      </span>
+                    ) : (
+                      <span>Saves as Draft on DEV.to with canonical link</span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {crossPostResult.devto && (
+                      <a
+                        href={crossPostResult.devto.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-indigo-400 hover:underline font-medium"
+                      >
+                        Open DEV.to →
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleCrossPost}
+                      disabled={crossPosting.devto || !form.title_en.trim() || !form.content_en.trim()}
+                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    >
+                      {crossPosting.devto ? (
+                        <>
+                          <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>Publishing…</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>📤 1-Click Post to DEV.to</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
