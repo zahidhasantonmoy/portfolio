@@ -264,35 +264,65 @@ export default function RootLayout({
                   "name": "Flexpath",
                   "description": "Gig economy mobile app for Bangladesh built with Flutter and Supabase.",
                   "url": "https://github.com/zahidhasantonmoy/Flexpath",
-                  "applicationCategory": "BusinessApplication"
+                  "applicationCategory": "BusinessApplication",
+                  "operatingSystem": "Android, iOS, Web Browser",
+                  "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                  }
                 },
                 {
                   "@type": "SoftwareApplication",
                   "name": "Gold Price Predictor",
                   "description": "ML regression app predicting gold prices with R² ≈ 0.9999.",
                   "url": "https://gold-price-predictor-2f1h.onrender.com/",
-                  "applicationCategory": "FinanceApplication"
+                  "applicationCategory": "FinanceApplication",
+                  "operatingSystem": "Web Browser",
+                  "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                  }
                 },
                 {
                   "@type": "SoftwareApplication",
                   "name": "Curious Cart BD",
                   "description": "Full-stack Next.js e-commerce platform.",
                   "url": "https://curiouscart.vercel.app/",
-                  "applicationCategory": "ShoppingApplication"
+                  "applicationCategory": "ShoppingApplication",
+                  "operatingSystem": "Web Browser",
+                  "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                  }
                 },
                 {
                   "@type": "SoftwareApplication",
                   "name": "LocalDrop Pro",
                   "description": "P2P WebRTC file sharing PWA with end-to-end AES-GCM encryption.",
                   "url": "https://localdrop-one.vercel.app/",
-                  "applicationCategory": "UtilitiesApplication"
+                  "applicationCategory": "UtilitiesApplication",
+                  "operatingSystem": "Web Browser, Windows, macOS, Linux, Android, iOS",
+                  "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                  }
                 },
                 {
                   "@type": "SoftwareApplication",
                   "name": "Vortex Shield",
                   "description": "Cybersecurity file encryption suite with AES-GCM and Argon2id.",
                   "url": "https://protocolzero.vercel.app/",
-                  "applicationCategory": "SecurityApplication"
+                  "applicationCategory": "SecurityApplication",
+                  "operatingSystem": "Web Browser, Windows, macOS, Linux",
+                  "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                  }
                 }
               ],
 
