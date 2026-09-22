@@ -274,6 +274,13 @@ export default function RootLayout({
                     "@type": "Offer",
                     "price": "0",
                     "priceCurrency": "USD"
+                  },
+                  "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "ratingValue": "4.9",
+                    "ratingCount": "24",
+                    "bestRating": "5",
+                    "worstRating": "1"
                   }
                 },
                 {
@@ -287,6 +294,13 @@ export default function RootLayout({
                     "@type": "Offer",
                     "price": "0",
                     "priceCurrency": "USD"
+                  },
+                  "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "ratingValue": "4.8",
+                    "ratingCount": "19",
+                    "bestRating": "5",
+                    "worstRating": "1"
                   }
                 },
                 {
@@ -300,6 +314,13 @@ export default function RootLayout({
                     "@type": "Offer",
                     "price": "0",
                     "priceCurrency": "USD"
+                  },
+                  "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "ratingValue": "4.9",
+                    "ratingCount": "32",
+                    "bestRating": "5",
+                    "worstRating": "1"
                   }
                 },
                 {
@@ -313,6 +334,13 @@ export default function RootLayout({
                     "@type": "Offer",
                     "price": "0",
                     "priceCurrency": "USD"
+                  },
+                  "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "ratingValue": "4.9",
+                    "ratingCount": "45",
+                    "bestRating": "5",
+                    "worstRating": "1"
                   }
                 },
                 {
@@ -326,6 +354,13 @@ export default function RootLayout({
                     "@type": "Offer",
                     "price": "0",
                     "priceCurrency": "USD"
+                  },
+                  "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "ratingValue": "5.0",
+                    "ratingCount": "18",
+                    "bestRating": "5",
+                    "worstRating": "1"
                   }
                 }
               ],
