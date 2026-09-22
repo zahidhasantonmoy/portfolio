@@ -77,7 +77,9 @@ export default function LinksPage() {
       },
       address: {
         "@type": "PostalAddress",
+        streetAddress: "Mirpur",
         addressLocality: "Dhaka",
+        postalCode: "1216",
         addressCountry: "Bangladesh",
       },
       sameAs: [

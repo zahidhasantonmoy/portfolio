@@ -160,8 +160,10 @@ export default function RootLayout({
               // ── Location ───────────────────────────────────────────────
               "address": {
                 "@type": "PostalAddress",
+                "streetAddress": "Mirpur",
                 "addressLocality": "Dhaka",
                 "addressRegion": "Dhaka Division",
+                "postalCode": "1216",
                 "addressCountry": "BD"
               },
               "homeLocation": {
@@ -195,7 +197,9 @@ export default function RootLayout({
                   "sameAs": "https://www.bubt.edu.bd",
                   "address": {
                     "@type": "PostalAddress",
+                    "streetAddress": "Rupnagar R/A, Mirpur-2",
                     "addressLocality": "Dhaka",
+                    "postalCode": "1216",
                     "addressCountry": "BD"
                   }
                 },
@@ -433,8 +437,10 @@ export default function RootLayout({
               "priceRange": "$$",
               "address": {
                 "@type": "PostalAddress",
+                "streetAddress": "Mirpur",
                 "addressLocality": "Dhaka",
                 "addressRegion": "Dhaka Division",
+                "postalCode": "1216",
                 "addressCountry": "BD"
               },
               "geo": {
