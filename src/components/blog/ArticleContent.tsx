@@ -258,6 +258,13 @@ export default function ArticleContent({ content }: ArticleContentProps) {
             const id = slugifyHeading(rawText);
             return <h3 id={id} className="scroll-mt-28" {...props}>{children}</h3>;
           },
+          table: ({ children, ...props }: any) => (
+            <div className="w-full my-6 overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800 text-sm" {...props}>
+                {children}
+              </table>
+            </div>
+          ),
           pre: PreBlock,
           img: ({ src, alt, title, ...props }: any) => {
             return (

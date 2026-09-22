@@ -92,7 +92,7 @@ const Hero = ({ name, title }: HeroProps) => {
       id="home"
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className="relative h-screen flex items-center justify-center text-center overflow-hidden bg-gradient-to-br from-gray-950 via-purple-950 to-blue-950"
+      className="relative min-h-screen py-24 sm:py-28 md:py-0 flex items-center justify-center text-center overflow-hidden bg-gradient-to-br from-gray-950 via-purple-950 to-blue-950"
     >
       {/* Dynamic Background Elements */}
       <div className="absolute inset-0 z-0">
@@ -180,13 +180,12 @@ const Hero = ({ name, title }: HeroProps) => {
         initial="hidden"
         animate="visible"
       >
-        {/* Profile image — fixed 208×208 container, no layout shift */}
-        <motion.div variants={itemVariants} className="mb-6 relative w-52 h-52 rounded-full overflow-hidden flex-shrink-0">
+        <motion.div variants={itemVariants} className="mb-5 sm:mb-6 relative w-36 h-36 sm:w-52 sm:h-52 rounded-full overflow-hidden flex-shrink-0">
           <Image
             src="/images/profile.jpg"
             alt="Zahid Hasan Tonmoy — profile photo"
             fill
-            sizes="208px"
+            sizes="(max-width: 640px) 144px, 208px"
             priority
             className="object-cover transform hover:scale-105 transition-transform duration-300 ease-in-out"
           />
@@ -221,7 +220,7 @@ const Hero = ({ name, title }: HeroProps) => {
           zero-width element that later expands.
         */}
         <motion.h1
-          className="text-6xl md:text-8xl font-extrabold mb-2 drop-shadow-lg relative w-full text-center"
+          className="text-4xl sm:text-6xl md:text-8xl font-extrabold mb-2 drop-shadow-lg relative w-full text-center tracking-tight"
           variants={heroItemVariants}
         >
           {/* Invisible spacer — reserves the final width/height from first paint */}
@@ -241,7 +240,7 @@ const Hero = ({ name, title }: HeroProps) => {
           The live TypewriterText then renders on top at the same fixed size.
         */}
         <motion.div
-          className="text-2xl md:text-4xl font-light leading-relaxed mb-8 text-gray-300"
+          className="text-lg sm:text-2xl md:text-4xl font-light leading-relaxed mb-6 sm:mb-8 text-gray-300"
           variants={heroItemVariants}
         >
           <span className="relative inline-block">
@@ -269,7 +268,7 @@ const Hero = ({ name, title }: HeroProps) => {
         </motion.div>
 
         <motion.div
-          className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 mb-8"
+          className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 mb-8 w-full max-w-xs sm:max-w-none"
           variants={containerVariants}
         >
           <motion.a
@@ -305,7 +304,7 @@ const Hero = ({ name, title }: HeroProps) => {
 
         {/* Social icon links — aria-label added for accessibility (#3) */}
         <motion.div
-          className="flex space-x-6"
+          className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 max-w-full px-2"
           variants={containerVariants}
         >
           <motion.a
