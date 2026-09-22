@@ -110,6 +110,9 @@ export default function ArticleContent({ content }: ArticleContentProps) {
     );
   }
 
+  // Gracefully filter out any unreplaced image markers so live readers never see raw tag codes
+  const displayContent = content.replace(/\{\{IMAGE:[^}]+\}\}\s*\n?/gi, "");
+
   const proseSize = {
     sm: "prose-sm",
     base: "prose-base",
@@ -171,7 +174,7 @@ export default function ArticleContent({ content }: ArticleContentProps) {
           },
         }}
       >
-        {content}
+        {displayContent}
       </ReactMarkdown>
     </div>
   );

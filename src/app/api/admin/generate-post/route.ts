@@ -48,6 +48,7 @@ REQUIREMENTS:
 10. "english":
    - "title": Catchy, SEO-optimized English title.
    - "article": Full, authoritative, in-depth technical article formatted in Markdown (clear H2/H3 headings, actionable technical insights, architectural explanations, best practices, at least 1,200 to 1,800 words). MUST contain real, production-ready code blocks with syntax highlighting (\`\`\`tsx or \`\`\`typescript) demonstrating step-by-step implementation, configuration, and practical usage (not generic pseudo-code).
+   - Visual placement markers: Insert placement markers like {{IMAGE:img-1}}, {{IMAGE:img-2}} at specific locations where an architecture diagram, flow chart, or before/after visual genuinely enhances understanding (limit 2-3 max).
    - At the end of the article, include:
      ## Frequently Asked Questions
      ### Question 1?
@@ -57,6 +58,7 @@ REQUIREMENTS:
 11. "bangla":
    - "title": প্রাসঙ্গিক এবং আকর্ষণীয় বাংলা শিরোনাম।
    - "article": সম্পূর্ণ বিস্তারিত প্র্যাকটিক্যাল বাংলা আর্টিকেল (Markdown ফরম্যাটে, সহজবোধ্য ও প্রফেশনাল বাংলা ভাষা, অন্তত ১২০০-১৮০০ শব্দ)। আর্টিকেলে প্র্যাকটিক্যাল কোড এক্সাম্পল ও সিনট্যাক্স হাইলাইটিং (\`\`\`tsx বা \`\`\`typescript) সহ বাস্তবসম্মত ইমপ্লিমেন্টেশন কোড ও ব্যাখ্যা থাকতে হবে।
+   - ভিজ্যুয়াল প্লেসমেন্ট মার্কার: আর্টিকেলের ধারণাগতভাবে উপযুক্ত অংশে (আর্কিটেকচার ডায়াগ্রাম বা ফ্লোচার্ট) সরাসরি {{IMAGE:img-1}}, {{IMAGE:img-2}} মার্কার বসিয়ে দিন (সর্বোচ্চ ২-৩টি)।
    - আর্টিকেলের শেষে যোগ করুন:
      ## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)
      ### প্রশ্ন ১?
@@ -94,12 +96,27 @@ REQUIREMENTS:
    - "devto_article": Full DEV.to formatted markdown article.
    - "devto_tags": Array of 3-4 lowercase tags (e.g. ["webdev", "javascript", "react"]).
 16. "thumbnail":
-   - "prompt": Ultra-detailed prompt for AI cover image generation (16:9, modern dev workspace, cyberpunk/glassmorphism aesthetic).
+   - "prompt": Ultra-detailed prompt for AI cover image generation (16:9, modern dev workspace, glassmorphism, cyan and purple neon palette, volumetric lighting, 8k render, octane render, no text).
    - "text": Punchy 2-4 word text for thumbnail overlay.
    - "aspect_ratio": "16:9".
-17. "og_image_en": "https://zahidhasantonmoy.vercel.app/blog/" + slug + "/opengraph-image".
-18. "og_image_bn": "https://zahidhasantonmoy.vercel.app/bn/blog/" + slug + "/opengraph-image".
-19. "branding":
+17. "content_images": (optional, use sparingly, maximum 2-3 images per post — do NOT decorate every section)
+   If a concept genuinely benefits from a visual (architecture diagram, system flowchart, component lifecycle, before/after comparison), insert a marker {{IMAGE:img-N}} at that exact point in the article and add a matching entry:
+   [
+     {
+       "id": "img-1",
+       "placement_marker": "{{IMAGE:img-1}}",
+       "prompt": "Detailed AI image-generation prompt in the SAME visual style as thumbnail.prompt (glassmorphism, cyan/purple glowing palette, 16:9 widescreen, octane render, no text unless labeled diagram)",
+       "alt_en": "Descriptive English alt text explaining the diagram concept",
+       "alt_bn": "ডায়াগ্রামের প্রাসঙ্গিক বাংলা অল্ট টেক্সট",
+       "caption_en": "Optional short English caption",
+       "caption_bn": "ঐচ্ছিক সংক্ষিপ্ত বাংলা ক্যাপশন",
+       "url": null
+     }
+   ]
+   * Style Consistency Rule: Every content image prompt must repeat the cohesive aesthetic base of thumbnail.prompt (glassmorphism, glowing cyan/purple palette, 16:9 widescreen, modern high-tech ambiance, no text).
+18. "og_image_en": "https://zahidhasantonmoy.vercel.app/blog/" + slug + "/opengraph-image".
+19. "og_image_bn": "https://zahidhasantonmoy.vercel.app/bn/blog/" + slug + "/opengraph-image".
+20. "branding":
    - "angle": 1-sentence personal developer branding angle highlighting engineering excellence.
 
 STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown code fences around root):
@@ -124,6 +141,18 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
     "title": "string",
     "article": "string"
   },
+  "content_images": [
+    {
+      "id": "img-1",
+      "placement_marker": "{{IMAGE:img-1}}",
+      "prompt": "string",
+      "alt_en": "string",
+      "alt_bn": "string",
+      "caption_en": "string",
+      "caption_bn": "string",
+      "url": null
+    }
+  ],
   "faq": [
     {
       "question_en": "string",
@@ -244,6 +273,29 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
     }
     if (!Array.isArray(result.social.linkedin_hashtags_bn)) {
       result.social.linkedin_hashtags_bn = ["#প্রোগ্রামিং", "#ওয়েবডেভেলপমেন্ট", "#নেক্সটজেএস", "#TechBangladesh"];
+    }
+
+    // Process and normalize content_images (cap at 3 max)
+    if (Array.isArray(result.content_images)) {
+      result.content_images = result.content_images
+        .slice(0, 3)
+        .map((img: any, idx: number) => {
+          const id = img.id || `img-${idx + 1}`;
+          const marker = `{{IMAGE:${id}}}`;
+          return {
+            id,
+            placement_marker: marker,
+            prompt: typeof img.prompt === "string" ? img.prompt.trim() : "",
+            alt_en: typeof img.alt_en === "string" ? img.alt_en.trim() : `Diagram illustrating ${targetTopic}`,
+            alt_bn: typeof img.alt_bn === "string" ? img.alt_bn.trim() : `${targetTopic}-এর আর্কিটেকচার ডায়াগ্রাম`,
+            caption_en: typeof img.caption_en === "string" ? img.caption_en.trim() : "",
+            caption_bn: typeof img.caption_bn === "string" ? img.caption_bn.trim() : "",
+            url: null,
+            status: "pending",
+          };
+        });
+    } else {
+      result.content_images = [];
     }
 
     // Compute word count & reading time

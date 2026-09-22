@@ -1,7 +1,7 @@
 import HomePageContent from "./home-page-content";
 import { sql } from "@/lib/db";
 
-export const revalidate = 300; // Cache for 5 minutes
+export const revalidate = 60; // Cache for 60 seconds
 
 export default async function Home() {
   const [projects, skills] = await Promise.all([

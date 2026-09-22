@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getPublishedPosts, getCategories } from "@/lib/blog";
 import LiveBlogList from "@/components/blog/LiveBlogList";
 
-export const revalidate = 300; // ISR — 5 minutes
+export const revalidate = 60; // ISR — 60 seconds for fast scheduled post publication
 
 export const metadata: Metadata = {
   title: "Blog | Zahid Hasan Tonmoy - MERN, AI & Web Engineering",

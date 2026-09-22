@@ -17,7 +17,7 @@ import AuthorMiniCard from "@/components/blog/AuthorMiniCard";
 import SidebarRelatedPosts from "@/components/blog/SidebarRelatedPosts";
 import { BlogReaderProvider } from "@/components/blog/BlogReaderContext";
 
-export const revalidate = 300;
+export const revalidate = 60; // ISR — 60 seconds
 
 export async function generateStaticParams() {
   const slugs = await getAllPostSlugs();

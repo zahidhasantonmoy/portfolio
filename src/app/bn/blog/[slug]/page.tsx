@@ -17,7 +17,7 @@ import SidebarRelatedPosts from "@/components/blog/SidebarRelatedPosts";
 import RelatedPosts from "@/components/blog/RelatedPosts";
 import { BlogReaderProvider } from "@/components/blog/BlogReaderContext";
 
-export const revalidate = 300;
+export const revalidate = 60; // ISR — 60 seconds
 
 export async function generateMetadata({
   params,

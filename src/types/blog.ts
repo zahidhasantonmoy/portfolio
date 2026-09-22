@@ -99,4 +99,18 @@ export interface PostFormData {
   published_at?: string;
   is_featured?: boolean;
   read_time_min?: number;
+  content_images?: ContentImage[];
+}
+
+// ─── Content Image (Multi-image article visuals) ──────────────────────────────
+export interface ContentImage {
+  id: string;                      // e.g. "img-1", "img-2"
+  placement_marker: string;        // e.g. "{{IMAGE:img-1}}"
+  prompt: string;                  // AI generation prompt
+  alt_en: string;                  // English alt text for diagrams
+  alt_bn: string;                  // Bangla alt text
+  caption_en?: string;             // Optional English caption
+  caption_bn?: string;             // Optional Bangla caption
+  url?: string | null;             // Generated image URL
+  status?: "pending" | "generating" | "completed" | "failed";
 }

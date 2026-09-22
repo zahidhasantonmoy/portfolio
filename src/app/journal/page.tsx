@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getJournalEntries } from "@/lib/blog";
 import type { LogMood } from "@/types/blog";
 
-export const revalidate = 300;
+export const revalidate = 60; // ISR — 60 seconds
 
 export const metadata: Metadata = {
   title: "Dev Journal | Zahid Hasan Tonmoy",

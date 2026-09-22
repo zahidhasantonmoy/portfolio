@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
 import { CldUploadWidget } from "next-cloudinary";
-import type { Post, PostFormData } from "@/types/blog";
+import type { Post, PostFormData, ContentImage } from "@/types/blog";
 import SerpPreviewModal from "@/components/admin/SerpPreviewModal";
 
 // Markdown editor — dynamically imported to avoid SSR issues
@@ -191,6 +191,11 @@ export default function PostEditor({
   const [jsonInput, setJsonInput] = useState("");
   const [parsedJsonData, setParsedJsonData] = useState<any>(null);
   const [jsonError, setJsonError] = useState<string | null>(null);
+
+  // Content Images state (Multi-image diagrams & flowcharts)
+  const [contentImages, setContentImages] = useState<ContentImage[]>([]);
+  const [generatingContentImageId, setGeneratingContentImageId] = useState<string | null>(null);
+  const [generatingAllContentImages, setGeneratingAllContentImages] = useState(false);
 
   // Form state
   const [form, setForm] = useState({
@@ -605,6 +610,9 @@ export default function PostEditor({
           title: form.title_en,
           category: selectedCategory,
           tags: selectedTags,
+          slug: form.slug || slugify(form.title_en),
+          imageId: "thumbnail",
+          imageType: "thumbnail",
           postDetails: `Title: ${form.title_en}\nCategory: ${selectedCategory}\nTags: ${selectedTags.join(", ")}\nExcerpt: ${form.excerpt_en}\n\nContent: ${form.content_en}`,
           modelName: imageModel,
           style: imageStyle,
@@ -629,6 +637,165 @@ export default function PostEditor({
     } finally {
       toast.dismiss(loadingToast);
       setGeneratingImage(false);
+    }
+  }
+
+  async function handleGenerateContentImage(img: ContentImage) {
+    if (!img.prompt && !form.title_en) {
+      toast.error("An image prompt or post title is required to generate this diagram.");
+      return;
+    }
+
+    setGeneratingContentImageId(img.id);
+    const toastId = toast.loading(`🎨 Generating ${img.id} visual (${img.alt_en || "diagram"})...`);
+
+    try {
+      const selectedCategory = categories.find((c) => c.id === form.category_id)?.name_en || "";
+      const selectedTags = tags.filter((t) => form.tag_ids.includes(t.id)).map((t) => t.name_en);
+
+      const res = await fetch("/api/admin/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: img.prompt,
+          title: form.title_en,
+          slug: form.slug || slugify(form.title_en),
+          imageId: img.id,
+          imageType: "content",
+          category: selectedCategory,
+          tags: selectedTags,
+          style: imageStyle,
+          provider: preferredProvider,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate visual");
+
+      setContentImages((prev) =>
+        prev.map((item) =>
+          item.id === img.id ? { ...item, url: data.url, status: "completed" } : item
+        )
+      );
+
+      toast.success(`✨ Visual ${img.id} generated successfully!`);
+    } catch (err: any) {
+      toast.error(err?.message || "Visual generation failed");
+    } finally {
+      toast.dismiss(toastId);
+      setGeneratingContentImageId(null);
+    }
+  }
+
+  async function handleGenerateAllContentImages() {
+    const pendingImages = contentImages.filter((img) => !img.url);
+    if (!pendingImages.length) {
+      toast("All detected visuals already have images generated!", { icon: "ℹ️" });
+      return;
+    }
+
+    setGeneratingAllContentImages(true);
+    let successCount = 0;
+
+    for (const img of pendingImages) {
+      try {
+        await handleGenerateContentImage(img);
+        successCount++;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    setGeneratingAllContentImages(false);
+    toast.success(`🎉 Generated ${successCount} content diagram(s)!`);
+  }
+
+  function handleReplaceImageMarkers(targetId?: string) {
+    const imagesToProcess = targetId
+      ? contentImages.filter((img) => img.id === targetId && img.url)
+      : contentImages.filter((img) => img.url);
+
+    if (!imagesToProcess.length) {
+      toast.error("No generated images available to insert into the markdown text.");
+      return;
+    }
+
+    let updatedEn = form.content_en;
+    let updatedBn = form.content_bn;
+    let replacedCount = 0;
+
+    for (const img of imagesToProcess) {
+      const marker = img.placement_marker || `{{IMAGE:${img.id}}}`;
+      const escapedMarker = marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(escapedMarker, "g");
+
+      const mdEn = `\n\n![${img.alt_en || img.caption_en || form.title_en}](${img.url}${img.caption_en ? ` "${img.caption_en}"` : ""})\n\n`;
+      const mdBn = `\n\n![${img.alt_bn || img.caption_bn || form.title_bn || form.title_en}](${img.url}${img.caption_bn ? ` "${img.caption_bn}"` : ""})\n\n`;
+
+      if (updatedEn.includes(marker)) {
+        updatedEn = updatedEn.replace(regex, mdEn);
+        replacedCount++;
+      }
+      if (updatedBn.includes(marker)) {
+        updatedBn = updatedBn.replace(regex, mdBn);
+      }
+    }
+
+    if (replacedCount === 0) {
+      toast("No matching markers found in the article text. They may have already been replaced!", { icon: "ℹ️" });
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      content_en: updatedEn,
+      content_bn: updatedBn,
+    }));
+
+    toast.success(`✨ Replaced ${replacedCount} image marker(s) with Markdown tags in both English and বাংলা articles!`);
+  }
+
+  function handleDetectImageMarkersFromContent() {
+    const regex = /\{\{IMAGE:(img-[0-9a-zA-Z_-]+)\}\}/g;
+    const foundMarkers = new Set<string>();
+    let match;
+
+    while ((match = regex.exec(form.content_en)) !== null) {
+      foundMarkers.add(match[1]);
+    }
+    while ((match = regex.exec(form.content_bn)) !== null) {
+      foundMarkers.add(match[1]);
+    }
+
+    if (foundMarkers.size === 0) {
+      toast("No {{IMAGE:img-N}} markers detected in the content.", { icon: "ℹ️" });
+      return;
+    }
+
+    const existingIds = new Set(contentImages.map((i) => i.id));
+    const newItems: ContentImage[] = [];
+
+    foundMarkers.forEach((id) => {
+      if (!existingIds.has(id)) {
+        newItems.push({
+          id,
+          placement_marker: `{{IMAGE:${id}}}`,
+          prompt: `Technical architecture diagram illustrating ${form.title_en || "the system workflow"}, glassmorphism cyberpunk neon aesthetic, cyan and purple palette, 16:9 widescreen, octane render, no text`,
+          alt_en: `Diagram for ${form.title_en || "article concept"}`,
+          alt_bn: `${form.title_bn || form.title_en || "আর্টিকেলের ডায়াগ্রাম"}`,
+          caption_en: "",
+          caption_bn: "",
+          url: null,
+          status: "pending",
+        });
+      }
+    });
+
+    if (newItems.length > 0) {
+      setContentImages((prev) => [...prev, ...newItems]);
+      toast.success(`Detected and registered ${newItems.length} new image marker(s)!`);
+    } else {
+      toast(`All ${foundMarkers.size} detected markers are already in the list.`, { icon: "ℹ️" });
     }
   }
 
@@ -1073,6 +1240,22 @@ export default function PostEditor({
 
       if (data.thumbnail?.prompt) {
         setImagePrompt(data.thumbnail.prompt);
+      }
+
+      if (Array.isArray(data.content_images) && data.content_images.length > 0) {
+        setContentImages(
+          data.content_images.map((img: any, idx: number) => ({
+            id: img.id || `img-${idx + 1}`,
+            placement_marker: img.placement_marker || `{{IMAGE:${img.id || `img-${idx + 1}`}}}`,
+            prompt: img.prompt || "",
+            alt_en: img.alt_en || "",
+            alt_bn: img.alt_bn || "",
+            caption_en: img.caption_en || "",
+            caption_bn: img.caption_bn || "",
+            url: img.url || null,
+            status: img.url ? "completed" : "pending",
+          }))
+        );
       }
 
       // Match category
@@ -1831,6 +2014,242 @@ export default function PostEditor({
                 <span className="text-[11px] text-teal-400/80 ml-auto font-mono bg-black/40 px-2 py-0.5 rounded border border-teal-800/40">
                   📐 16:9 (1280x720) • No Text
                 </span>
+              </div>
+            )}
+          </div>
+          
+          {/* Content Images (Multi-visual diagrams & flowcharts) */}
+          <div className="flex flex-col gap-4 bg-gradient-to-b from-indigo-950/30 to-purple-950/20 border border-indigo-800/40 p-4 rounded-xl shadow-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-indigo-800/40">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🖼️</span>
+                  <h4 className="text-sm font-bold text-indigo-200">
+                    Article Visuals & Diagrams
+                  </h4>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-900/60 text-indigo-300 border border-indigo-700/50">
+                    {contentImages.length} Visual{contentImages.length !== 1 ? "s" : ""}
+                  </span>
+                  {contentImages.some((img) => img.url) && (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-900/40 text-emerald-300 border border-emerald-700/40">
+                      {contentImages.filter((img) => img.url).length} Ready
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-indigo-300/80 mt-1">
+                  Concept diagrams, architecture charts & before/after flows placed at <code className="text-indigo-200 bg-black/40 px-1 py-0.5 rounded">{"{{IMAGE:img-N}}"}</code> in article markdown.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleDetectImageMarkersFromContent}
+                  className="px-2.5 py-1.5 bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700 text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
+                  title="Scan article content for {{IMAGE:img-N}} markers and add to this list"
+                >
+                  <span>🔍 Scan Markers</span>
+                </button>
+
+                {contentImages.length > 0 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleGenerateAllContentImages}
+                      disabled={generatingAllContentImages || contentImages.every((img) => img.url)}
+                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+                      title="Generate all pending visuals sequentially"
+                    >
+                      <span>{generatingAllContentImages ? "Generating All..." : "⚡ Generate All"}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleReplaceImageMarkers()}
+                      disabled={!contentImages.some((img) => img.url)}
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+                      title="Replace {{IMAGE:img-N}} markers with Markdown ![alt](url) tags in both English and Bangla content"
+                    >
+                      <span>🔄 Replace in Content</span>
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* List of Content Images */}
+            {contentImages.length === 0 ? (
+              <div className="py-6 px-4 text-center rounded-lg border border-dashed border-indigo-800/40 bg-black/20">
+                <p className="text-xs text-gray-400">
+                  No content diagrams detected yet. Generate a post using the AI Auto Post Generator below, or click{" "}
+                  <button
+                    type="button"
+                    onClick={handleDetectImageMarkersFromContent}
+                    className="text-indigo-400 hover:underline font-medium"
+                  >
+                    Scan Markers
+                  </button>{" "}
+                  if you have <code className="text-indigo-300">{"{{IMAGE:img-1}}"}</code> in your markdown.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {contentImages.map((img, idx) => (
+                  <div
+                    key={img.id || idx}
+                    className="p-3.5 bg-gray-900/90 border border-gray-800 rounded-xl flex flex-col md:flex-row gap-3 items-start relative group hover:border-indigo-700/50 transition-colors"
+                  >
+                    {/* Left: Preview or Placeholder */}
+                    <div className="w-full md:w-44 shrink-0">
+                      {img.url ? (
+                        <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-700 bg-black">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={img.url}
+                            alt={img.alt_en || img.id}
+                            className="w-full h-full object-cover"
+                          />
+                          <a
+                            href={img.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="absolute bottom-1 right-1 text-[10px] bg-black/80 hover:bg-black text-white px-1.5 py-0.5 rounded font-mono"
+                          >
+                            Open ↗
+                          </a>
+                        </div>
+                      ) : (
+                        <div className="aspect-video rounded-lg border border-dashed border-indigo-900/60 bg-indigo-950/20 flex flex-col items-center justify-center p-2 text-center text-xs text-indigo-400">
+                          <span className="text-lg mb-0.5">🖼️</span>
+                          <span className="font-mono text-[11px] font-semibold">{img.id}</span>
+                          <span className="text-[9px] text-gray-500">16:9 • Glassmorphism</span>
+                        </div>
+                      )}
+
+                      <div className="mt-2 flex flex-col gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleGenerateContentImage(img)}
+                          disabled={generatingContentImageId === img.id || generatingAllContentImages}
+                          className="w-full py-1.5 px-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-1 shadow-sm"
+                        >
+                          {generatingContentImageId === img.id ? (
+                            <span>Generating...</span>
+                          ) : (
+                            <span>{img.url ? "🎨 Re-Generate" : "🎨 Generate"}</span>
+                          )}
+                        </button>
+
+                        {img.url && (
+                          <button
+                            type="button"
+                            onClick={() => handleReplaceImageMarkers(img.id)}
+                            className="w-full py-1 px-2 bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-700/50 text-[11px] font-medium rounded-lg transition-colors flex items-center justify-center gap-1"
+                          >
+                            <span>Insert {img.id}</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Right: Details & Editable fields */}
+                    <div className="flex-1 w-full space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-indigo-300 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-800/60">
+                            {img.placement_marker || `{{IMAGE:${img.id}}}`}
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-mono">
+                            Naming: <span className="text-gray-300 font-semibold">{form.slug || "slug"}-{img.id}.png</span>
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setContentImages((prev) => prev.filter((item) => item.id !== img.id))}
+                          className="text-gray-500 hover:text-red-400 text-xs transition-colors p-1"
+                          title="Remove this visual"
+                        >
+                          ✕ Remove
+                        </button>
+                      </div>
+
+                      {/* Prompt */}
+                      <div>
+                        <label className="block text-[11px] font-medium text-gray-400 mb-1">
+                          Visual Prompt (Glassmorphism / Cyan-Purple Style):
+                        </label>
+                        <textarea
+                          value={img.prompt}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setContentImages((prev) =>
+                              prev.map((item) => (item.id === img.id ? { ...item, prompt: val } : item))
+                            );
+                          }}
+                          rows={2}
+                          placeholder="Detailed prompt for diagram generation..."
+                          className="w-full px-3 py-1.5 bg-black/40 border border-gray-800 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-indigo-500 resize-none"
+                        />
+                      </div>
+
+                      {/* Bilingual Alt & Captions */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] font-medium text-gray-400 mb-0.5">
+                            Alt Text (English)
+                          </label>
+                          <input
+                            type="text"
+                            value={img.alt_en}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setContentImages((prev) =>
+                                prev.map((item) => (item.id === img.id ? { ...item, alt_en: val } : item))
+                              );
+                            }}
+                            placeholder="Diagram explaining flow..."
+                            className="w-full px-2.5 py-1 bg-black/40 border border-gray-800 rounded text-white text-xs focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-medium text-gray-400 mb-0.5">
+                            Alt Text (বাংলা)
+                          </label>
+                          <input
+                            type="text"
+                            value={img.alt_bn}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setContentImages((prev) =>
+                                prev.map((item) => (item.id === img.id ? { ...item, alt_bn: val } : item))
+                              );
+                            }}
+                            placeholder="ডায়াগ্রামের বাংলা বিবরণ..."
+                            className="w-full px-2.5 py-1 bg-black/40 border border-gray-800 rounded text-white text-xs focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+
+                      {/* URL input if manual link / Cloudinary */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <input
+                          type="url"
+                          value={img.url || ""}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setContentImages((prev) =>
+                              prev.map((item) => (item.id === img.id ? { ...item, url: val || null, status: val ? "completed" : "pending" } : item))
+                            );
+                          }}
+                          placeholder="Image URL (auto-filled on generation or paste Cloudinary URL)..."
+                          className="flex-1 px-2.5 py-1 bg-black/40 border border-gray-800 rounded text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

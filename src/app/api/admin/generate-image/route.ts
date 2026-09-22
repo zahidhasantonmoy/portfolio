@@ -20,7 +20,29 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { prompt, postDetails, title, category, tags, style, provider } = await request.json();
+    const {
+      prompt,
+      postDetails,
+      title,
+      category,
+      tags,
+      style,
+      provider,
+      slug,
+      imageId,
+      filename,
+      imageType = "thumbnail",
+    } = await request.json();
+
+    // Determine clean filename matching the naming convention: {slug}-thumbnail or {slug}-img-N
+    let safeFilename: string | undefined = undefined;
+    if (filename) {
+      safeFilename = filename.replace(/[^a-zA-Z0-9_-]/g, "");
+    } else if (slug) {
+      const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "");
+      const cleanId = (imageId || (imageType === "content" ? "img-1" : "thumbnail")).toLowerCase().replace(/[^a-z0-9-]/g, "");
+      safeFilename = `${cleanSlug}-${cleanId}`;
+    }
 
     let finalPrompt = (prompt || "").trim();
 
@@ -81,6 +103,7 @@ Output ONLY the raw visual prompt string with no quotes or formatting.`;
       return NextResponse.json({
         url: pollinationsUrl,
         promptUsed: finalPrompt,
+        filename: safeFilename ? `${safeFilename}.png` : undefined,
       });
     }
 
@@ -88,14 +111,23 @@ Output ONLY the raw visual prompt string with no quotes or formatting.`;
     const buffer = Buffer.from(arrayBuffer);
     const base64Image = buffer.toString("base64");
 
-    // Upload to Cloudinary
+    // Upload to Cloudinary with consistent naming convention: {slug}-thumbnail or {slug}-img-N
+    const targetFolder = imageType === "content" ? "portfolio/content-images" : "portfolio/ai-thumbnails";
+    const uploadOptions: Record<string, any> = {
+      folder: targetFolder,
+      upload_preset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "portfolio_preset",
+      overwrite: true,
+      resource_type: "image",
+    };
+
+    if (safeFilename) {
+      uploadOptions.public_id = safeFilename;
+    }
+
     const uploadResponse = await new Promise((resolve, reject) => {
       cloudinary.uploader.upload(
         `data:image/jpeg;base64,${base64Image}`,
-        {
-          folder: "portfolio/ai-thumbnails",
-          upload_preset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "portfolio_preset",
-        },
+        uploadOptions,
         (error, result) => {
           if (error) reject(error);
           else resolve(result);
@@ -106,6 +138,7 @@ Output ONLY the raw visual prompt string with no quotes or formatting.`;
     return NextResponse.json({
       url: (uploadResponse as any).secure_url,
       promptUsed: finalPrompt,
+      filename: safeFilename ? `${safeFilename}.png` : undefined,
     });
   } catch (error: any) {
     console.error("Generate Image Error:", error);

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getPublishedPosts, getCategories } from "@/lib/blog";
 import LiveBlogList from "@/components/blog/LiveBlogList";
 
-export const revalidate = 300;
+export const revalidate = 60; // ISR — 60 seconds
 
 export const metadata: Metadata = {
   title: "বাংলা টেক ব্লগ | জাহিদ হাসান তন্ময় - MERN ও AI ইঞ্জিনিয়ারিং",

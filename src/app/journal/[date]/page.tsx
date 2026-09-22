@@ -5,7 +5,7 @@ import { getJournalEntryByDate } from "@/lib/blog";
 import ArticleContent from "@/components/blog/ArticleContent";
 import type { LogMood } from "@/types/blog";
 
-export const revalidate = 300;
+export const revalidate = 60; // ISR — 60 seconds
 
 const MOOD_CONFIG: Record<LogMood, { emoji: string; label: string }> = {
   productive: { emoji: "🚀", label: "Productive day" },
