@@ -48,6 +48,7 @@ REQUIREMENTS:
 10. "english":
    - "title": Catchy, SEO-optimized English title.
    - "article": Full, authoritative, in-depth technical article formatted in Markdown (clear H2/H3 headings, actionable technical insights, architectural explanations, best practices, at least 1,200 to 1,800 words). MUST contain real, production-ready code blocks with syntax highlighting (\`\`\`tsx or \`\`\`typescript) demonstrating step-by-step implementation, configuration, and practical usage (not generic pseudo-code).
+   - Mermaid Diagrams & GEO Visibility Rule: When illustrating system architecture, sequence flows, or data pipelines, use native Markdown \`\`\`mermaid code blocks. CRITICAL: Immediately beneath every \`\`\`mermaid block, you MUST provide a concise 1-2 sentence plain-text architecture flow summary prefixed with '*Architecture Flow Summary:*' (e.g. '*Architecture Flow Summary: Client Request → Next.js Route Handler → LangChain Orchestrator → Tool Execution → Streamed Response.*'). This ensures non-JS AI search engines and crawler bots (ChatGPT, Perplexity, ClaudeBot) extract and index the complete semantic flow directly from raw HTML.
    - Visual placement markers: Insert placement markers like {{IMAGE:img-1}}, {{IMAGE:img-2}} at specific locations where an architecture diagram, flow chart, or before/after visual genuinely enhances understanding (limit 2-3 max).
    - At the end of the article, include:
      ## Frequently Asked Questions
@@ -58,6 +59,7 @@ REQUIREMENTS:
 11. "bangla":
    - "title": প্রাসঙ্গিক এবং আকর্ষণীয় বাংলা শিরোনাম।
    - "article": সম্পূর্ণ বিস্তারিত প্র্যাকটিক্যাল বাংলা আর্টিকেল (Markdown ফরম্যাটে, সহজবোধ্য ও প্রফেশনাল বাংলা ভাষা, অন্তত ১২০০-১৮০০ শব্দ)। আর্টিকেলে প্র্যাকটিক্যাল কোড এক্সাম্পল ও সিনট্যাক্স হাইলাইটিং (\`\`\`tsx বা \`\`\`typescript) সহ বাস্তবসম্মত ইমপ্লিমেন্টেশন কোড ও ব্যাখ্যা থাকতে হবে।
+   - Mermaid ডায়াগ্রাম ও GEO নিয়ম: আর্কিটেকচার, ডেটা পাইপলাইন বা সিকোয়েন্স ফ্লো বোঝাতে নেটিভ Markdown \`\`\`mermaid ব্লক ব্যবহার করুন। ক্রলার ও GEO (ChatGPT, Perplexity, ClaudeBot)-এর দৃশ্যমানতার জন্য প্রতিটা \`\`\`mermaid ব্লকের ঠিক নিচেই বাধ্যতামূলকভাবে ১-২ লাইনের সহজবোধ্য প্লেইন-টেক্সট আর্কিটেকচার ফ্লো সামারি দিন (যেমন: '*আর্কিটেকচার ফ্লো সামারি: ক্লায়েন্ট রিকোয়েস্ট → নেক্সট জেএস এপিআই রুট → ল্যাংচেইন এজেন্ট → টুল এক্সেকিউশন → স্ট্রিমড রেসপন্স।*')।
    - ভিজ্যুয়াল প্লেসমেন্ট মার্কার: আর্টিকেলের ধারণাগতভাবে উপযুক্ত অংশে (আর্কিটেকচার ডায়াগ্রাম বা ফ্লোচার্ট) সরাসরি {{IMAGE:img-1}}, {{IMAGE:img-2}} মার্কার বসিয়ে দিন (সর্বোচ্চ ২-৩টি)।
    - আর্টিকেলের শেষে যোগ করুন:
      ## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)
@@ -113,7 +115,7 @@ REQUIREMENTS:
        "url": null
      }
    ]
-   * Important Distinction: If a concept requires exact labeled boxes, arrows, sequence lifelines, or class models, use native Markdown \`\`\`mermaid diagrams directly in the article body (which renders as sharp interactive vector SVG with 100% accurate labels). Keep content_images strictly for atmospheric, conceptual 16:9 art without any text.
+   * Important Distinction: If a concept requires exact labeled boxes, arrows, sequence lifelines, or class models, use native Markdown \`\`\`mermaid diagrams directly in the article body (which renders as sharp interactive vector SVG with 100% accurate labels). Immediately follow every \`\`\`mermaid diagram with an italicized '*Architecture Flow Summary: ...*' plain-text sentence for GEO crawlers. Keep content_images strictly for atmospheric, conceptual 16:9 art without any text.
 18. "og_image_en": "https://zahidhasantonmoy.vercel.app/blog/" + slug + "/opengraph-image".
 19. "og_image_bn": "https://zahidhasantonmoy.vercel.app/bn/blog/" + slug + "/opengraph-image".
 20. "branding":

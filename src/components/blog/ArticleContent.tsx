@@ -64,36 +64,52 @@ function MermaidDiagram({ chart }: { chart: string }) {
     };
   }, [chart, chartId]);
 
-  if (error || !svg) {
-    if (error) {
-      return (
-        <div className="my-6 rounded-xl border border-gray-800 bg-[#0d1117] p-4 text-xs font-mono text-gray-300">
-          <p className="text-amber-400 mb-2 font-semibold">Diagram representation:</p>
-          <pre className="overflow-x-auto">{chart}</pre>
-        </div>
-      );
-    }
-    return (
-      <div className="my-6 flex items-center justify-center p-8 rounded-xl border border-indigo-900/40 bg-indigo-950/20 text-xs text-indigo-300 animate-pulse">
-        <span>⚡ Rendering architecture diagram...</span>
-      </div>
-    );
-  }
-
   return (
-    <figure className="my-8 rounded-2xl border border-indigo-900/40 bg-[#0d1117]/90 p-4 md:p-6 shadow-2xl overflow-hidden">
+    <figure
+      className="my-8 rounded-2xl border border-indigo-900/40 bg-[#0d1117]/90 p-4 md:p-6 shadow-2xl overflow-hidden"
+      aria-label="System Architecture Diagram"
+    >
       <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-800 text-xs text-gray-400 font-mono select-none">
         <span className="flex items-center gap-1.5 text-indigo-300 font-medium">
           <span>📊</span> Architecture Diagram
         </span>
         <span className="text-[10px] bg-indigo-950 text-indigo-400 px-2 py-0.5 rounded border border-indigo-800/60 font-semibold uppercase">
-          Mermaid SVG
+          {svg ? "Mermaid SVG" : "Architecture Flow"}
         </span>
       </div>
-      <div
-        className="w-full overflow-x-auto flex justify-center py-2 [&_svg]:max-w-full [&_svg]:h-auto"
-        dangerouslySetInnerHTML={{ __html: svg }}
-      />
+
+      {svg ? (
+        <div
+          className="w-full overflow-x-auto flex justify-center py-2 [&_svg]:max-w-full [&_svg]:h-auto"
+          dangerouslySetInnerHTML={{ __html: svg }}
+        />
+      ) : error ? (
+        <div className="rounded-xl border border-amber-900/30 bg-amber-950/20 p-4 text-xs font-mono text-gray-300">
+          <p className="text-amber-400 mb-2 font-semibold">Diagram representation:</p>
+          <pre className="overflow-x-auto"><code>{chart}</code></pre>
+        </div>
+      ) : (
+        /* SSR & Pre-hydration fallback: crawlers and non-JS engines read this complete graph directly from raw HTML */
+        <div className="py-2">
+          <div className="flex items-center gap-2 mb-3 text-xs text-indigo-300/80">
+            <span className="inline-block w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+            <span>Interactive diagram rendering...</span>
+          </div>
+          <pre className="overflow-x-auto text-xs font-mono text-indigo-200/90 bg-black/40 p-4 rounded-xl border border-indigo-900/30">
+            <code>{chart}</code>
+          </pre>
+        </div>
+      )}
+
+      {/* Accessible semantic caption and noscript fallback for non-JS AI crawlers (ChatGPT, Perplexity, Claude, Googlebot) */}
+      <figcaption className="sr-only">
+        System architecture specification and node flow: {chart}
+      </figcaption>
+      <noscript>
+        <pre className="overflow-x-auto text-xs font-mono text-gray-300 bg-gray-950 p-4 rounded-xl mt-3">
+          <code>{chart}</code>
+        </pre>
+      </noscript>
     </figure>
   );
 }
