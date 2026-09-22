@@ -141,7 +141,15 @@ function adjustScheduleTime(hoursToAdd: number, baseDateStr?: string): string {
   return formatForDatetimeInput(start);
 }
 
-type TabType = "english" | "bangla" | "ai" | "social" | "json" | "settings";
+type TabType = "english" | "bangla" | "media" | "ai" | "social" | "json" | "settings";
+
+export interface PostMediaAsset {
+  id: string;
+  name: string;
+  url: string;
+  size?: number;
+  uploadedAt: string;
+}
 
 export interface SocialData {
   linkedin_post?: string;
@@ -240,6 +248,12 @@ export default function PostEditor({
   const [contentImages, setContentImages] = useState<ContentImage[]>(defaultContentImages);
   const [generatingContentImageId, setGeneratingContentImageId] = useState<string | null>(null);
   const [generatingAllContentImages, setGeneratingAllContentImages] = useState(false);
+
+  // Post Media Assets state (Permanent tray for all post images)
+  const [mediaAssets, setMediaAssets] = useState<PostMediaAsset[]>([]);
+  const [bulkUploading, setBulkUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
+  const [isMediaDrawerOpen, setIsMediaDrawerOpen] = useState(true);
 
   // Form state
   const [form, setForm] = useState({
@@ -397,9 +411,9 @@ export default function PostEditor({
     }));
   }
 
-  // LocalStorage persistence helpers for social data & content images
+  // LocalStorage persistence helpers for social data, content images & media assets
   const getStorageKey = useCallback(
-    (type: "social" | "images") => {
+    (type: "social" | "images" | "media") => {
       const idKey = post?.id || form.slug || "new_post";
       return `portfolio_post_${type}_${idKey}`;
     },
@@ -434,7 +448,21 @@ export default function PostEditor({
     [getStorageKey]
   );
 
-  // Restore saved social data and images from localStorage on load
+  const saveMediaAssetsToStorage = useCallback(
+    (assets: PostMediaAsset[]) => {
+      if (typeof window === "undefined") return;
+      try {
+        if (assets && assets.length > 0) {
+          localStorage.setItem(getStorageKey("media"), JSON.stringify(assets));
+        }
+      } catch (e) {
+        console.warn("Failed to save media assets to localStorage:", e);
+      }
+    },
+    [getStorageKey]
+  );
+
+  // Restore saved social data, images, and media assets from localStorage on load
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -464,10 +492,34 @@ export default function PostEditor({
           });
         }
       }
+
+      const keyMedia = getStorageKey("media");
+      const savedMedia = localStorage.getItem(keyMedia);
+      let initialAssets: PostMediaAsset[] = [];
+      if (savedMedia) {
+        const parsed = JSON.parse(savedMedia);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          initialAssets = parsed;
+        }
+      }
+
+      // Automatically include existing post cover if not in list
+      if (post?.cover_image_url && !initialAssets.some((a) => a.url === post.cover_image_url)) {
+        initialAssets.unshift({
+          id: `cover-initial-${post.id || "post"}`,
+          name: "Cover / Thumbnail",
+          url: post.cover_image_url,
+          uploadedAt: new Date().toISOString(),
+        });
+      }
+
+      if (initialAssets.length > 0) {
+        setMediaAssets(initialAssets);
+      }
     } catch (e) {
       console.warn("Failed to load draft assets from localStorage:", e);
     }
-  }, [getStorageKey, defaultContentImages]);
+  }, [getStorageKey, defaultContentImages, post?.cover_image_url, post?.id]);
 
   // Sync state changes to storage
   useEffect(() => {
@@ -481,6 +533,29 @@ export default function PostEditor({
       saveImagesToStorage(contentImages);
     }
   }, [contentImages, saveImagesToStorage]);
+
+  useEffect(() => {
+    if (mediaAssets.length > 0) {
+      saveMediaAssetsToStorage(mediaAssets);
+    }
+  }, [mediaAssets, saveMediaAssetsToStorage]);
+
+  // Helper to record any uploaded image into the post's media assets tray
+  const recordNewMediaAsset = (file: { name: string; size?: number }, url: string) => {
+    const asset: PostMediaAsset = {
+      id: `asset-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      name: file.name,
+      url,
+      size: file.size,
+      uploadedAt: new Date().toISOString(),
+    };
+    setMediaAssets((prev) => {
+      const updated = [asset, ...prev.filter((p) => p.url !== url)];
+      saveMediaAssetsToStorage(updated);
+      return updated;
+    });
+    return asset;
+  };
 
   const handleUploadAndInsertImage = async (file: File, field: "content_en" | "content_bn") => {
     if (!file.type.startsWith("image/")) {
@@ -497,6 +572,8 @@ export default function PostEditor({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Upload failed");
+
+      recordNewMediaAsset(file, data.url);
 
       const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[^\w\s-]/g, "");
       const markdownImage = `\n\n![${cleanName}](${data.url})\n\n`;
@@ -526,6 +603,8 @@ export default function PostEditor({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Upload failed");
+
+      recordNewMediaAsset(file, data.url);
 
       setContentImages((prev) => {
         const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[^\w\s-]/g, "");
@@ -566,11 +645,154 @@ export default function PostEditor({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Upload failed");
 
+      recordNewMediaAsset(file, data.url);
+
       setForm((prev) => ({ ...prev, cover_image_url: data.url }));
       toast.success("🎉 Cover image uploaded successfully!", { id: toastId });
     } catch (err: any) {
       toast.error(err.message || "Failed to upload image", { id: toastId });
     }
+  };
+
+  // Batch / Multi-file image upload
+  const handleBulkUpload = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (fileArray.length === 0) {
+      toast.error("Please select valid image files (PNG, JPG, WebP).");
+      return;
+    }
+
+    setBulkUploading(true);
+    const total = fileArray.length;
+    let successCount = 0;
+    const newAssets: PostMediaAsset[] = [];
+
+    const toastId = toast.loading(`Uploading ${total} image${total > 1 ? "s" : ""} to Cloudinary...`);
+
+    for (let i = 0; i < total; i++) {
+      const file = fileArray[i];
+      setUploadProgress(`Uploading ${i + 1} of ${total}: ${file.name}`);
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/admin/upload-image", {
+          method: "POST",
+          body: fd,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Upload failed");
+
+        const asset: PostMediaAsset = {
+          id: `asset-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+          name: file.name,
+          url: data.url,
+          size: file.size,
+          uploadedAt: new Date().toISOString(),
+        };
+        newAssets.push(asset);
+        successCount++;
+      } catch (err: any) {
+        console.error(`Failed to upload ${file.name}:`, err);
+      }
+    }
+
+    if (newAssets.length > 0) {
+      setMediaAssets((prev) => {
+        const combined = [...newAssets, ...prev.filter((p) => !newAssets.some((n) => n.url === p.url))];
+        saveMediaAssetsToStorage(combined);
+        return combined;
+      });
+
+      // Smart auto-assignment for unconfigured slots
+      let assetIdx = 0;
+      if (!form.cover_image_url && newAssets[assetIdx]) {
+        setForm((prev) => ({ ...prev, cover_image_url: newAssets[assetIdx].url }));
+        toast(`🖼️ Set "${newAssets[assetIdx].name}" as Cover Image!`);
+        assetIdx++;
+      }
+      if (newAssets[assetIdx]) {
+        setContentImages((prev) => {
+          const updated = [...prev];
+          const slot1 = updated.find((i) => i.id === "img-1");
+          if (slot1 && !slot1.url) {
+            slot1.url = newAssets[assetIdx].url;
+            slot1.status = "completed";
+            slot1.alt_en = newAssets[assetIdx].name.replace(/\.[^/.]+$/, "");
+            slot1.alt_bn = form.title_bn || "চিত্র ১";
+            toast(`1️⃣ Set "${newAssets[assetIdx].name}" as Image 1!`);
+            assetIdx++;
+          }
+          if (newAssets[assetIdx]) {
+            const slot2 = updated.find((i) => i.id === "img-2");
+            if (slot2 && !slot2.url) {
+              slot2.url = newAssets[assetIdx].url;
+              slot2.status = "completed";
+              slot2.alt_en = newAssets[assetIdx].name.replace(/\.[^/.]+$/, "");
+              slot2.alt_bn = form.title_bn || "চিত্র ২";
+              toast(`2️⃣ Set "${newAssets[assetIdx].name}" as Image 2!`);
+              assetIdx++;
+            }
+          }
+          saveImagesToStorage(updated);
+          return updated;
+        });
+      }
+
+      toast.success(`🎉 Uploaded ${successCount} of ${total} images!`, { id: toastId });
+    } else {
+      toast.error("Failed to upload images.", { id: toastId });
+    }
+
+    setBulkUploading(false);
+    setUploadProgress(null);
+  };
+
+  // Assign any asset from tray to Cover
+  const assignAssetToCover = (asset: PostMediaAsset) => {
+    setForm((prev) => ({ ...prev, cover_image_url: asset.url }));
+    toast.success(`🖼️ Set "${asset.name}" as Cover Image!`);
+  };
+
+  // Assign any asset from tray to a dedicated slot (img-1, img-2, etc.)
+  const assignAssetToSlot = (asset: PostMediaAsset, slotId: string) => {
+    setContentImages((prev) => {
+      const cleanName = asset.name.replace(/\.[^/.]+$/, "").replace(/[^\w\s-]/g, "");
+      const updated = prev.map((item) =>
+        item.id === slotId
+          ? {
+              ...item,
+              url: asset.url,
+              status: "completed" as const,
+              alt_en: item.alt_en || cleanName,
+              alt_bn: item.alt_bn || form.title_bn || "পোস্টের ছবি",
+            }
+          : item
+      );
+      saveImagesToStorage(updated);
+      return updated;
+    });
+    toast.success(`✨ Set "${asset.name}" as ${slotId === "img-1" ? "Image 1" : slotId === "img-2" ? "Image 2" : slotId}!`);
+  };
+
+  // Direct insert asset into English or Bangla markdown
+  const insertAssetIntoContent = (asset: PostMediaAsset, lang: "en" | "bn") => {
+    const field = lang === "en" ? "content_en" : "content_bn";
+    const current = form[field] || "";
+    const cleanName = asset.name.replace(/\.[^/.]+$/, "").replace(/[^\w\s-]/g, " ");
+    const md = `\n\n![${cleanName}](${asset.url})\n\n`;
+
+    setForm((prev) => ({ ...prev, [field]: prev[field] ? prev[field] + md : md.trim() }));
+    toast.success(`📝 Inserted "${asset.name}" into ${lang === "en" ? "English" : "বাংলা"} article!`);
+  };
+
+  // Remove asset from post media gallery
+  const removeMediaAsset = (assetId: string) => {
+    setMediaAssets((prev) => {
+      const updated = prev.filter((a) => a.id !== assetId);
+      saveMediaAssetsToStorage(updated);
+      return updated;
+    });
+    toast.success("Removed image from gallery tray.");
   };
 
   // Smart image insertion into English or Bangla markdown
@@ -786,6 +1008,9 @@ export default function PostEditor({
           if (contentImages && contentImages.length > 0) {
             localStorage.setItem(`portfolio_post_images_${data.post.id}`, JSON.stringify(contentImages));
           }
+          if (mediaAssets && mediaAssets.length > 0) {
+            localStorage.setItem(`portfolio_post_media_${data.post.id}`, JSON.stringify(mediaAssets));
+          }
         } catch {}
         router.push(`/admin/posts/${data.post.id}/edit`);
       } else {
@@ -968,6 +1193,7 @@ export default function PostEditor({
       if (!res.ok) throw new Error(data.error || "Failed to generate image");
       
       setForm((prev) => ({ ...prev, cover_image_url: data.url }));
+      recordNewMediaAsset({ name: `AI Cover (${form.slug || "post"}.png)` }, data.url);
       if (data.promptUsed && !imagePrompt) {
         setImagePrompt(data.promptUsed);
       }
@@ -1023,6 +1249,8 @@ export default function PostEditor({
           item.id === img.id ? { ...item, url: data.url, status: "completed" } : item
         )
       );
+
+      recordNewMediaAsset({ name: `AI ${img.id} (${form.slug || "post"}-${img.id}.png)` }, data.url);
 
       if (!silent) toast.success(`✨ Visual ${img.id} generated successfully!`);
       return data.url;
@@ -1779,9 +2007,483 @@ export default function PostEditor({
     }
   };
 
+  const renderMediaHub = (currentLang?: "en" | "bn", isDedicatedTab?: boolean) => {
+    const coverAsset = mediaAssets.find((m) => m.url === form.cover_image_url);
+    const img1 = contentImages.find((i) => i.id === "img-1");
+    const img1Asset = mediaAssets.find((m) => m.url === img1?.url);
+    const img2 = contentImages.find((i) => i.id === "img-2");
+    const img2Asset = mediaAssets.find((m) => m.url === img2?.url);
+
+    return (
+      <div
+        className={`border rounded-2xl transition-all shadow-md ${
+          isDedicatedTab
+            ? "p-6 bg-gray-900/90 border-gray-800 space-y-6"
+            : "p-4 bg-gray-950/80 border-gray-800/90 space-y-4 mb-4"
+        }`}
+      >
+        {/* Header Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-800/70">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg shrink-0">
+              🖼️
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm font-bold text-white tracking-tight">
+                  {isDedicatedTab ? "Dedicated Post Media & Visuals Studio" : "Post Media & Image Upload Hub"}
+                </h4>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-950/80 text-indigo-300 border border-indigo-700/50">
+                  {mediaAssets.length} Image{mediaAssets.length !== 1 ? "s" : ""}
+                </span>
+                {bulkUploading && (
+                  <span className="text-[10px] font-medium text-amber-400 bg-amber-950/60 border border-amber-600/40 px-2 py-0.5 rounded-full animate-pulse flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                    <span>{uploadProgress || "Uploading..."}</span>
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {isDedicatedTab
+                  ? "Upload all images at once. Preview files, inspect filenames, and 1-click assign to Cover, Image 1, Image 2, or insert into articles."
+                  : "Upload all images at once or assign Cover, Image 1 & Image 2 without leaving this tab."}
+              </p>
+            </div>
+          </div>
+
+          {/* Quick Action Upload Buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Batch Upload Button */}
+            <label className="cursor-pointer px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold rounded-lg shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50">
+              <span>📁 Batch Upload Images</span>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                disabled={bulkUploading}
+                onChange={(e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    handleBulkUpload(e.target.files);
+                    e.target.value = "";
+                  }
+                }}
+              />
+            </label>
+
+            {/* Direct Cover Upload */}
+            <label className="cursor-pointer px-3 py-1.5 bg-amber-950/70 hover:bg-amber-900/80 text-amber-200 border border-amber-700/60 text-xs font-medium rounded-lg transition-colors flex items-center gap-1">
+              <span>🖼️ Upload Cover</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleUploadCoverImage(file);
+                    e.target.value = "";
+                  }
+                }}
+              />
+            </label>
+
+            {/* Direct Slot 1 Upload */}
+            <label className="cursor-pointer px-3 py-1.5 bg-indigo-950/70 hover:bg-indigo-900/80 text-indigo-200 border border-indigo-700/60 text-xs font-medium rounded-lg transition-colors flex items-center gap-1">
+              <span>1️⃣ Upload img-1</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleUploadContentImage(file, "img-1");
+                    e.target.value = "";
+                  }
+                }}
+              />
+            </label>
+
+            {/* Direct Slot 2 Upload */}
+            <label className="cursor-pointer px-3 py-1.5 bg-purple-950/70 hover:bg-purple-900/80 text-purple-200 border border-purple-700/60 text-xs font-medium rounded-lg transition-colors flex items-center gap-1">
+              <span>2️⃣ Upload img-2</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    handleUploadContentImage(file, "img-2");
+                    e.target.value = "";
+                  }
+                }}
+              />
+            </label>
+
+            {!isDedicatedTab && (
+              <button
+                type="button"
+                onClick={() => setIsMediaDrawerOpen(!isMediaDrawerOpen)}
+                className="px-2.5 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 text-xs rounded-lg transition ml-auto cursor-pointer"
+                title={isMediaDrawerOpen ? "Collapse image tray" : "Expand image tray"}
+              >
+                {isMediaDrawerOpen ? "▲ Hide Tray" : `▼ Show Tray (${mediaAssets.length})`}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Content Body (shown always if isDedicatedTab, or if isMediaDrawerOpen) */}
+        {(isDedicatedTab || isMediaDrawerOpen) && (
+          <div className="space-y-4">
+            {/* Quick Slot Status Bar */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Cover Status Card */}
+              <div className="p-3 bg-gray-900/70 border border-gray-800 rounded-xl flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {form.cover_image_url ? (
+                    <div className="w-14 h-10 rounded-md overflow-hidden bg-black border border-amber-500/40 shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={form.cover_image_url} alt="Cover" className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-14 h-10 rounded-md border border-dashed border-gray-700 bg-black/40 flex items-center justify-center text-[10px] text-gray-500 shrink-0">
+                      Empty
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <span className="text-xs font-bold text-white block truncate">
+                      ⭐ Cover / Thumbnail
+                    </span>
+                    <span className="text-[10px] text-gray-400 block truncate font-mono">
+                      {coverAsset ? coverAsset.name : form.cover_image_url ? "Cover Set ✓" : "Not configured"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0">
+                  {form.cover_image_url && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => insertCoverIntoContent(currentLang || "en")}
+                        className="px-2 py-1 bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/50 rounded text-[10px] font-semibold transition cursor-pointer"
+                        title="Insert at top of active article"
+                      >
+                        Insert
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setForm((p) => ({ ...p, cover_image_url: "" }))}
+                        className="text-gray-500 hover:text-red-400 p-1 text-xs transition cursor-pointer"
+                        title="Clear cover image"
+                      >
+                        ✕
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Slot 1 Status Card */}
+              <div className="p-3 bg-gray-900/70 border border-gray-800 rounded-xl flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {img1?.url ? (
+                    <div className="w-14 h-10 rounded-md overflow-hidden bg-black border border-indigo-500/40 shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img1.url} alt="img-1" className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-14 h-10 rounded-md border border-dashed border-gray-700 bg-black/40 flex items-center justify-center text-[10px] text-gray-500 shrink-0">
+                      Empty
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <span className="text-xs font-bold text-white block truncate">
+                      1️⃣ Image 1 (img-1)
+                    </span>
+                    <span className="text-[10px] text-gray-400 block truncate font-mono">
+                      {img1Asset ? img1Asset.name : img1?.url ? "Image 1 Set ✓" : "{{IMAGE:img-1}}"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0">
+                  {img1?.url && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => insertImageIntoContent(img1, currentLang || "en")}
+                        className="px-2 py-1 bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/50 rounded text-[10px] font-semibold transition cursor-pointer"
+                        title="Insert Image 1 into active article"
+                      >
+                        Insert
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setContentImages((prev) =>
+                            prev.map((item) => (item.id === "img-1" ? { ...item, url: null, status: "pending" } : item))
+                          );
+                        }}
+                        className="text-gray-500 hover:text-red-400 p-1 text-xs transition cursor-pointer"
+                        title="Clear Image 1 slot"
+                      >
+                        ✕
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Slot 2 Status Card */}
+              <div className="p-3 bg-gray-900/70 border border-gray-800 rounded-xl flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {img2?.url ? (
+                    <div className="w-14 h-10 rounded-md overflow-hidden bg-black border border-purple-500/40 shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img2.url} alt="img-2" className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-14 h-10 rounded-md border border-dashed border-gray-700 bg-black/40 flex items-center justify-center text-[10px] text-gray-500 shrink-0">
+                      Empty
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <span className="text-xs font-bold text-white block truncate">
+                      2️⃣ Image 2 (img-2)
+                    </span>
+                    <span className="text-[10px] text-gray-400 block truncate font-mono">
+                      {img2Asset ? img2Asset.name : img2?.url ? "Image 2 Set ✓" : "{{IMAGE:img-2}}"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0">
+                  {img2?.url && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => insertImageIntoContent(img2, currentLang || "en")}
+                        className="px-2 py-1 bg-purple-950/80 hover:bg-purple-900 text-purple-300 border border-purple-700/50 rounded text-[10px] font-semibold transition cursor-pointer"
+                        title="Insert Image 2 into active article"
+                      >
+                        Insert
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setContentImages((prev) =>
+                            prev.map((item) => (item.id === "img-2" ? { ...item, url: null, status: "pending" } : item))
+                          );
+                        }}
+                        className="text-gray-500 hover:text-red-400 p-1 text-xs transition cursor-pointer"
+                        title="Clear Image 2 slot"
+                      >
+                        ✕
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Drag & Drop Batch Upload Dropzone */}
+            <div
+              onDrop={(e) => {
+                e.preventDefault();
+                if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+                  handleBulkUpload(e.dataTransfer.files);
+                }
+              }}
+              onDragOver={(e) => e.preventDefault()}
+              className="border-2 border-dashed border-indigo-800/40 hover:border-indigo-600/80 rounded-xl p-4 bg-indigo-950/10 hover:bg-indigo-950/20 transition-all text-center flex flex-col items-center justify-center gap-1.5 group cursor-pointer"
+              onClick={() => {
+                const el = document.getElementById(
+                  isDedicatedTab ? "bulk-upload-media-tab" : `bulk-upload-${currentLang || "tray"}`
+                );
+                if (el) el.click();
+              }}
+            >
+              <input
+                id={isDedicatedTab ? "bulk-upload-media-tab" : `bulk-upload-${currentLang || "tray"}`}
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                disabled={bulkUploading}
+                onChange={(e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    handleBulkUpload(e.target.files);
+                    e.target.value = "";
+                  }
+                }}
+              />
+              <div className="w-8 h-8 rounded-full bg-indigo-600/10 text-indigo-400 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
+                📤
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-white">
+                  Drop multiple images here, or <span className="text-indigo-400 underline">browse files to batch upload</span>
+                </p>
+                <p className="text-[11px] text-gray-400 mt-0.5">
+                  Upload Cover, Diagram 1, Diagram 2, or screenshots all at once.
+                </p>
+              </div>
+            </div>
+
+            {/* Uploaded Gallery Grid */}
+            {mediaAssets.length === 0 ? (
+              <div className="py-5 px-4 text-center rounded-xl border border-gray-800/80 bg-black/20 text-gray-500 text-xs">
+                <span>📁 No images uploaded yet. Upload images above to see previews, filenames, and selection buttons.</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                {mediaAssets.map((asset) => {
+                  const isCover = form.cover_image_url === asset.url;
+                  const isImg1 = contentImages.find((i) => i.id === "img-1")?.url === asset.url;
+                  const isImg2 = contentImages.find((i) => i.id === "img-2")?.url === asset.url;
+
+                  return (
+                    <div
+                      key={asset.id}
+                      className="bg-gray-950/90 border border-gray-800 hover:border-gray-700 rounded-xl p-3 flex flex-col justify-between space-y-2.5 transition shadow-sm group"
+                    >
+                      {/* Image Preview & Zoom Link */}
+                      <div className="relative aspect-video rounded-lg overflow-hidden bg-black border border-gray-800">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={asset.url} alt={asset.name} className="w-full h-full object-cover" />
+                        <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-black/80 text-gray-200 border border-white/10">
+                          {isCover ? "⭐ Cover" : isImg1 ? "1️⃣ img-1" : isImg2 ? "2️⃣ img-2" : "🖼️ Image"}
+                        </span>
+                        <a
+                          href={asset.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="absolute top-1 right-1 p-1 bg-black/70 hover:bg-black text-gray-300 rounded text-[10px]"
+                          title="Open full image"
+                        >
+                          ↗
+                        </a>
+                      </div>
+
+                      {/* File Name & Details */}
+                      <div>
+                        <p className="text-xs font-bold text-white truncate font-mono" title={asset.name}>
+                          {asset.name}
+                        </p>
+                        <p className="text-[10px] text-gray-500 font-mono mt-0.5">
+                          {asset.size ? `${(asset.size / 1024).toFixed(0)} KB • ` : ""}
+                          {new Date(asset.uploadedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </p>
+                      </div>
+
+                      {/* Dedicated Select / Assign Actions */}
+                      <div className="space-y-1.5 pt-1.5 border-t border-gray-900">
+                        {/* Assignment Buttons */}
+                        <div className="grid grid-cols-3 gap-1">
+                          <button
+                            type="button"
+                            onClick={() => assignAssetToCover(asset)}
+                            className={`px-1.5 py-1 rounded text-[10px] font-bold border transition text-center cursor-pointer ${
+                              isCover
+                                ? "bg-amber-950/80 border-amber-500/60 text-amber-300"
+                                : "bg-gray-900 border-gray-800 hover:border-amber-500/40 text-gray-300 hover:text-amber-200"
+                            }`}
+                            title="Set this image as Cover / Thumbnail"
+                          >
+                            {isCover ? "✓ Cover" : "⭐ Cover"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => assignAssetToSlot(asset, "img-1")}
+                            className={`px-1.5 py-1 rounded text-[10px] font-bold border transition text-center cursor-pointer ${
+                              isImg1
+                                ? "bg-indigo-950/80 border-indigo-500/60 text-indigo-300"
+                                : "bg-gray-900 border-gray-800 hover:border-indigo-500/40 text-gray-300 hover:text-indigo-200"
+                            }`}
+                            title="Assign to Image 1 (img-1) slot"
+                          >
+                            {isImg1 ? "✓ img-1" : "1️⃣ img-1"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => assignAssetToSlot(asset, "img-2")}
+                            className={`px-1.5 py-1 rounded text-[10px] font-bold border transition text-center cursor-pointer ${
+                              isImg2
+                                ? "bg-purple-950/80 border-purple-500/60 text-purple-300"
+                                : "bg-gray-900 border-gray-800 hover:border-purple-500/40 text-gray-300 hover:text-purple-200"
+                            }`}
+                            title="Assign to Image 2 (img-2) slot"
+                          >
+                            {isImg2 ? "✓ img-2" : "2️⃣ img-2"}
+                          </button>
+                        </div>
+
+                        {/* Direct Insertion Buttons */}
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => insertAssetIntoContent(asset, "en")}
+                            className="px-2 py-1 bg-blue-950/60 hover:bg-blue-900 text-blue-200 border border-blue-800/50 rounded text-[11px] font-medium transition flex items-center justify-center gap-1 cursor-pointer"
+                            title="Insert into English markdown at cursor or end"
+                          >
+                            <span>🇬🇧 Insert EN</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => insertAssetIntoContent(asset, "bn")}
+                            className="px-2 py-1 bg-emerald-950/60 hover:bg-emerald-900 text-emerald-200 border border-emerald-800/50 rounded text-[11px] font-medium transition flex items-center justify-center gap-1 cursor-pointer"
+                            title="Insert into Bangla markdown at cursor or end"
+                          >
+                            <span>🇧🇩 Insert BN</span>
+                          </button>
+                        </div>
+
+                        {/* Copy Tag & Delete */}
+                        <div className="flex items-center justify-between pt-1 text-[10px]">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const alt = asset.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+                              navigator.clipboard.writeText(`![${alt}](${asset.url})`);
+                              toast.success("📋 Copied markdown tag!");
+                            }}
+                            className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                          >
+                            <span>📋 Copy MD</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => removeMediaAsset(asset.id)}
+                            className="text-gray-500 hover:text-red-400 transition cursor-pointer"
+                            title="Remove from post media tray"
+                          >
+                            ✕ Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const tabs: { id: TabType; label: string }[] = [
     { id: "english", label: "🇬🇧 English" },
     { id: "bangla", label: "🇧🇩 বাংলা" },
+    { id: "media", label: "🖼️ Media & Uploads" },
     { id: "ai", label: "✨ AI Assistant" },
     { id: "social", label: "📱 Social & Cross-Post" },
     { id: "json", label: "📥 JSON Import" },
@@ -2113,94 +2815,8 @@ export default function PostEditor({
               </label>
             </div>
 
-            {/* Quick Image Insertion Bar */}
-            <div className="flex flex-wrap items-center gap-2 p-2.5 bg-gray-950/80 border border-gray-800 rounded-lg mb-2 text-xs">
-              <span className="font-semibold text-gray-400 flex items-center gap-1">
-                <span>🖼️</span> Quick Visuals:
-              </span>
-
-              {/* Cover Pill */}
-              <button
-                type="button"
-                onClick={() => insertCoverIntoContent("en")}
-                className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
-                  form.cover_image_url
-                    ? "bg-indigo-950/70 border-indigo-700/60 text-indigo-200 hover:bg-indigo-900/80 cursor-pointer"
-                    : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
-                }`}
-                title={form.cover_image_url ? "Insert Cover image at top" : "No cover image uploaded yet"}
-              >
-                <span className={`w-2 h-2 rounded-full ${form.cover_image_url ? "bg-emerald-400" : "bg-gray-600"}`} />
-                <span>Cover Image</span>
-              </button>
-
-              {/* Image 1 Pill */}
-              {contentImages.find((i) => i.id === "img-1") && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const img1 = contentImages.find((i) => i.id === "img-1");
-                    if (img1) insertImageIntoContent(img1, "en");
-                  }}
-                  className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
-                    contentImages.find((i) => i.id === "img-1")?.url
-                      ? "bg-purple-950/70 border-purple-700/60 text-purple-200 hover:bg-purple-900/80 cursor-pointer"
-                      : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
-                  }`}
-                  title={contentImages.find((i) => i.id === "img-1")?.url ? "Insert Image 1 into English" : "Image 1 not uploaded yet"}
-                >
-                  <span className={`w-2 h-2 rounded-full ${contentImages.find((i) => i.id === "img-1")?.url ? "bg-emerald-400" : "bg-gray-600"}`} />
-                  <span>Image 1 (img-1)</span>
-                </button>
-              )}
-
-              {/* Image 2 Pill */}
-              {contentImages.find((i) => i.id === "img-2") && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const img2 = contentImages.find((i) => i.id === "img-2");
-                    if (img2) insertImageIntoContent(img2, "en");
-                  }}
-                  className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
-                    contentImages.find((i) => i.id === "img-2")?.url
-                      ? "bg-purple-950/70 border-purple-700/60 text-purple-200 hover:bg-purple-900/80 cursor-pointer"
-                      : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
-                  }`}
-                  title={contentImages.find((i) => i.id === "img-2")?.url ? "Insert Image 2 into English" : "Image 2 not uploaded yet"}
-                >
-                  <span className={`w-2 h-2 rounded-full ${contentImages.find((i) => i.id === "img-2")?.url ? "bg-emerald-400" : "bg-gray-600"}`} />
-                  <span>Image 2 (img-2)</span>
-                </button>
-              )}
-
-              {/* Image 3 Pill if exists */}
-              {contentImages.find((i) => i.id === "img-3") && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const img3 = contentImages.find((i) => i.id === "img-3");
-                    if (img3) insertImageIntoContent(img3, "en");
-                  }}
-                  className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
-                    contentImages.find((i) => i.id === "img-3")?.url
-                      ? "bg-purple-950/70 border-purple-700/60 text-purple-200 hover:bg-purple-900/80 cursor-pointer"
-                      : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
-                  }`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${contentImages.find((i) => i.id === "img-3")?.url ? "bg-emerald-400" : "bg-gray-600"}`} />
-                  <span>Image 3 (img-3)</span>
-                </button>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("ai")}
-                className="text-xs text-indigo-400 hover:text-indigo-300 underline font-medium ml-auto"
-              >
-                Visual Studio →
-              </button>
-            </div>
+            {/* Post Media Hub & Direct Uploader */}
+            {renderMediaHub("en", false)}
 
             <p className="text-xs text-gray-500 mb-2">💡 Tip: Paste screenshots (Ctrl+V) or drag & drop images directly here!</p>
             <MDEditor
@@ -2315,94 +2931,8 @@ export default function PostEditor({
               </label>
             </div>
 
-            {/* Quick Image Insertion Bar (Bangla) */}
-            <div className="flex flex-wrap items-center gap-2 p-2.5 bg-gray-950/80 border border-gray-800 rounded-lg mb-2 text-xs">
-              <span className="font-semibold text-gray-400 flex items-center gap-1">
-                <span>🖼️</span> ভিজ্যুয়াল ইনসার্ট:
-              </span>
-
-              {/* Cover Pill */}
-              <button
-                type="button"
-                onClick={() => insertCoverIntoContent("bn")}
-                className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
-                  form.cover_image_url
-                    ? "bg-indigo-950/70 border-indigo-700/60 text-indigo-200 hover:bg-indigo-900/80 cursor-pointer"
-                    : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
-                }`}
-                title={form.cover_image_url ? "বাংলা আর্টিকেলের শীর্ষে কভার ইমেজ যুক্ত করুন" : "কভার ইমেজ আপলোড করা হয়নি"}
-              >
-                <span className={`w-2 h-2 rounded-full ${form.cover_image_url ? "bg-emerald-400" : "bg-gray-600"}`} />
-                <span>কভার ইমেজ</span>
-              </button>
-
-              {/* Image 1 Pill */}
-              {contentImages.find((i) => i.id === "img-1") && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const img1 = contentImages.find((i) => i.id === "img-1");
-                    if (img1) insertImageIntoContent(img1, "bn");
-                  }}
-                  className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
-                    contentImages.find((i) => i.id === "img-1")?.url
-                      ? "bg-emerald-950/70 border-emerald-700/60 text-emerald-200 hover:bg-emerald-900/80 cursor-pointer"
-                      : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
-                  }`}
-                  title={contentImages.find((i) => i.id === "img-1")?.url ? "বাংলা আর্টিকেলে ইমেজ ১ বসান" : "ইমেজ ১ তৈরি বা আপলোড করা হয়নি"}
-                >
-                  <span className={`w-2 h-2 rounded-full ${contentImages.find((i) => i.id === "img-1")?.url ? "bg-emerald-400" : "bg-gray-600"}`} />
-                  <span>ইমেজ ১ (img-1)</span>
-                </button>
-              )}
-
-              {/* Image 2 Pill */}
-              {contentImages.find((i) => i.id === "img-2") && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const img2 = contentImages.find((i) => i.id === "img-2");
-                    if (img2) insertImageIntoContent(img2, "bn");
-                  }}
-                  className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
-                    contentImages.find((i) => i.id === "img-2")?.url
-                      ? "bg-emerald-950/70 border-emerald-700/60 text-emerald-200 hover:bg-emerald-900/80 cursor-pointer"
-                      : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
-                  }`}
-                  title={contentImages.find((i) => i.id === "img-2")?.url ? "বাংলা আর্টিকেলে ইমেজ ২ বসান" : "ইমেজ ২ তৈরি বা আপলোড করা হয়নি"}
-                >
-                  <span className={`w-2 h-2 rounded-full ${contentImages.find((i) => i.id === "img-2")?.url ? "bg-emerald-400" : "bg-gray-600"}`} />
-                  <span>ইমেজ ২ (img-2)</span>
-                </button>
-              )}
-
-              {/* Image 3 Pill if exists */}
-              {contentImages.find((i) => i.id === "img-3") && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const img3 = contentImages.find((i) => i.id === "img-3");
-                    if (img3) insertImageIntoContent(img3, "bn");
-                  }}
-                  className={`px-2.5 py-1 rounded-md border flex items-center gap-1.5 transition ${
-                    contentImages.find((i) => i.id === "img-3")?.url
-                      ? "bg-emerald-950/70 border-emerald-700/60 text-emerald-200 hover:bg-emerald-900/80 cursor-pointer"
-                      : "bg-gray-900 border-gray-800 text-gray-500 cursor-not-allowed opacity-60"
-                  }`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${contentImages.find((i) => i.id === "img-3")?.url ? "bg-emerald-400" : "bg-gray-600"}`} />
-                  <span>ইমেজ ৩ (img-3)</span>
-                </button>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("ai")}
-                className="text-xs text-emerald-400 hover:text-emerald-300 underline font-medium ml-auto"
-              >
-                ভিজ্যুয়াল স্টুডিও →
-              </button>
-            </div>
+            {/* Post Media Hub & Direct Uploader (Bangla) */}
+            {renderMediaHub("bn", false)}
 
             <MDEditor
               value={form.content_bn}
@@ -2411,6 +2941,13 @@ export default function PostEditor({
               preview="live"
             />
           </div>
+        </div>
+      )}
+
+      {/* ── Dedicated Media Hub & Batch Upload Studio Tab ── */}
+      {activeTab === "media" && (
+        <div className="space-y-6">
+          {renderMediaHub(undefined, true)}
         </div>
       )}
 
