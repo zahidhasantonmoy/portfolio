@@ -9,26 +9,21 @@ export const maxDuration = 60; // 60s max execution
 
 /**
  * Validates request authorization:
- * - Vercel Cron sends `Authorization: Bearer <CRON_SECRET>`
- * - External crons (cron-job.org / GitHub Actions) can send `x-cron-secret` header or `?secret=...`
- * - Logged-in admin sessions are also authorized
+ * - Recommended & Secure: Vercel Cron sends `Authorization: Bearer <CRON_SECRET>`
+ * - Custom Header: External crons (cron-job.org / GitHub Actions) can send `x-cron-secret`
+ * - Logged-in admin session (NextAuth) is also permitted
+ * - Query param (?secret=) is deprecated in production to prevent plain-text leak in server access logs & analytics
  */
 async function isAuthorized(req: Request): Promise<boolean> {
   const cronSecret = process.env.CRON_SECRET;
+  const isProd = process.env.NODE_ENV === "production";
 
-  // Check Bearer token / header
+  // Check Bearer token or custom header (most secure — no URL logging)
   const authHeader = req.headers.get("authorization");
   const xCronSecret = req.headers.get("x-cron-secret");
-  const { searchParams } = new URL(req.url);
-  const querySecret = searchParams.get("secret");
 
   if (cronSecret) {
-    if (authHeader === `Bearer ${cronSecret}` || xCronSecret === cronSecret || querySecret === cronSecret) {
-      return true;
-    }
-  } else {
-    // If no CRON_SECRET is configured, check if query matches NEXTAUTH_SECRET as fallback
-    if (process.env.NEXTAUTH_SECRET && querySecret === process.env.NEXTAUTH_SECRET) {
+    if (authHeader === `Bearer ${cronSecret}` || xCronSecret === cronSecret) {
       return true;
     }
   }
@@ -41,9 +36,15 @@ async function isAuthorized(req: Request): Promise<boolean> {
     // Session check failed or unauthenticated
   }
 
-  // In development, allow localhost without secret for testing convenience
-  if (process.env.NODE_ENV === "development") {
-    return true;
+  // In development only, allow localhost or dev query-secret for testing convenience
+  if (!isProd) {
+    const { searchParams } = new URL(req.url);
+    const querySecret = searchParams.get("secret");
+    if (cronSecret && querySecret === cronSecret) {
+      console.warn("[Cron Auth] Notice: Using query-param secret in development. In production, use 'Authorization: Bearer <CRON_SECRET>' or 'x-cron-secret' header.");
+      return true;
+    }
+    return true; // localhost convenience in dev
   }
 
   return false;

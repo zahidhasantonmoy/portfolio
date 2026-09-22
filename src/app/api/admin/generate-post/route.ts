@@ -100,20 +100,20 @@ REQUIREMENTS:
    - "text": Punchy 2-4 word text for thumbnail overlay.
    - "aspect_ratio": "16:9".
 17. "content_images": (optional, use sparingly, maximum 2-3 images per post — do NOT decorate every section)
-   If a concept genuinely benefits from a visual (architecture diagram, system flowchart, component lifecycle, before/after comparison), insert a marker {{IMAGE:img-N}} at that exact point in the article and add a matching entry:
+   For conceptual & architectural visual metaphors (e.g. distributed neural lattices, glowing cloud data pipelines, glassmorphism UI mockups), insert a marker {{IMAGE:img-N}} at that exact point in the article and add a matching entry:
    [
      {
        "id": "img-1",
        "placement_marker": "{{IMAGE:img-1}}",
-       "prompt": "Detailed AI image-generation prompt in the SAME visual style as thumbnail.prompt (glassmorphism, cyan/purple glowing palette, 16:9 widescreen, octane render, no text unless labeled diagram)",
-       "alt_en": "Descriptive English alt text explaining the diagram concept",
-       "alt_bn": "ডায়াগ্রামের প্রাসঙ্গিক বাংলা অল্ট টেক্সট",
+       "prompt": "Detailed AI image-generation prompt in the SAME visual style as thumbnail.prompt (glassmorphism, cyan/purple glowing palette, 16:9 widescreen, octane render, ABSOLUTELY NO TEXT, NO LETTERS, NO WORDS - pure visual metaphor)",
+       "alt_en": "Descriptive English alt text explaining the concept",
+       "alt_bn": "কনসেপ্টের প্রাসঙ্গিক বাংলা অল্ট টেক্সট",
        "caption_en": "Optional short English caption",
        "caption_bn": "ঐচ্ছিক সংক্ষিপ্ত বাংলা ক্যাপশন",
        "url": null
      }
    ]
-   * Style Consistency Rule: Every content image prompt must repeat the cohesive aesthetic base of thumbnail.prompt (glassmorphism, glowing cyan/purple palette, 16:9 widescreen, modern high-tech ambiance, no text).
+   * Important Distinction: If a concept requires exact labeled boxes, arrows, sequence lifelines, or class models, use native Markdown \`\`\`mermaid diagrams directly in the article body (which renders as sharp interactive vector SVG with 100% accurate labels). Keep content_images strictly for atmospheric, conceptual 16:9 art without any text.
 18. "og_image_en": "https://zahidhasantonmoy.vercel.app/blog/" + slug + "/opengraph-image".
 19. "og_image_bn": "https://zahidhasantonmoy.vercel.app/bn/blog/" + slug + "/opengraph-image".
 20. "branding":

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
@@ -22,6 +22,82 @@ function extractText(node: any): string {
   return "";
 }
 
+function MermaidDiagram({ chart }: { chart: string }) {
+  const [svg, setSvg] = useState<string>("");
+  const [error, setError] = useState<boolean>(false);
+  const chartId = useMemo(() => `mermaid-${Math.random().toString(36).substring(2, 9)}`, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function renderChart() {
+      try {
+        const mermaid = (await import("mermaid")).default;
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "dark",
+          themeVariables: {
+            primaryColor: "#6366f1",
+            primaryTextColor: "#ffffff",
+            primaryBorderColor: "#818cf8",
+            lineColor: "#38bdf8",
+            secondaryColor: "#a855f7",
+            tertiaryColor: "#1e1b4b",
+            background: "#0f172a",
+          },
+          securityLevel: "loose",
+        });
+
+        const { svg: renderedSvg } = await mermaid.render(chartId, chart);
+        if (isMounted) {
+          setSvg(renderedSvg);
+          setError(false);
+        }
+      } catch (err) {
+        console.warn("[Mermaid] Render failed:", err);
+        if (isMounted) setError(true);
+      }
+    }
+
+    renderChart();
+    return () => {
+      isMounted = false;
+    };
+  }, [chart, chartId]);
+
+  if (error || !svg) {
+    if (error) {
+      return (
+        <div className="my-6 rounded-xl border border-gray-800 bg-[#0d1117] p-4 text-xs font-mono text-gray-300">
+          <p className="text-amber-400 mb-2 font-semibold">Diagram representation:</p>
+          <pre className="overflow-x-auto">{chart}</pre>
+        </div>
+      );
+    }
+    return (
+      <div className="my-6 flex items-center justify-center p-8 rounded-xl border border-indigo-900/40 bg-indigo-950/20 text-xs text-indigo-300 animate-pulse">
+        <span>⚡ Rendering architecture diagram...</span>
+      </div>
+    );
+  }
+
+  return (
+    <figure className="my-8 rounded-2xl border border-indigo-900/40 bg-[#0d1117]/90 p-4 md:p-6 shadow-2xl overflow-hidden">
+      <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-800 text-xs text-gray-400 font-mono select-none">
+        <span className="flex items-center gap-1.5 text-indigo-300 font-medium">
+          <span>📊</span> Architecture Diagram
+        </span>
+        <span className="text-[10px] bg-indigo-950 text-indigo-400 px-2 py-0.5 rounded border border-indigo-800/60 font-semibold uppercase">
+          Mermaid SVG
+        </span>
+      </div>
+      <div
+        className="w-full overflow-x-auto flex justify-center py-2 [&_svg]:max-w-full [&_svg]:h-auto"
+        dangerouslySetInnerHTML={{ __html: svg }}
+      />
+    </figure>
+  );
+}
+
 function PreBlock({ children, ...props }: any) {
   const [copied, setCopied] = useState(false);
 
@@ -30,6 +106,10 @@ function PreBlock({ children, ...props }: any) {
   const className = codeChild?.props?.className || "";
   const match = /language-(\w+)/.exec(className);
   const language = match ? match[1] : "";
+
+  if (language === "mermaid") {
+    return <MermaidDiagram chart={rawCode.trim()} />;
+  }
 
   const handleCopy = async () => {
     try {

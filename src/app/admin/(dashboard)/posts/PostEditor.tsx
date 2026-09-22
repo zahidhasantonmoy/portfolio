@@ -640,14 +640,17 @@ export default function PostEditor({
     }
   }
 
-  async function handleGenerateContentImage(img: ContentImage) {
+  async function handleGenerateContentImage(img: ContentImage, silent = false) {
     if (!img.prompt && !form.title_en) {
-      toast.error("An image prompt or post title is required to generate this diagram.");
-      return;
+      if (!silent) toast.error("An image prompt or post title is required to generate this diagram.");
+      throw new Error("Missing prompt or title");
     }
 
     setGeneratingContentImageId(img.id);
-    const toastId = toast.loading(`🎨 Generating ${img.id} visual (${img.alt_en || "diagram"})...`);
+    let toastId: string | undefined = undefined;
+    if (!silent) {
+      toastId = toast.loading(`🎨 Generating ${img.id} visual (${img.alt_en || "diagram"})...`);
+    }
 
     try {
       const selectedCategory = categories.find((c) => c.id === form.category_id)?.name_en || "";
@@ -678,11 +681,13 @@ export default function PostEditor({
         )
       );
 
-      toast.success(`✨ Visual ${img.id} generated successfully!`);
+      if (!silent) toast.success(`✨ Visual ${img.id} generated successfully!`);
+      return data.url;
     } catch (err: any) {
-      toast.error(err?.message || "Visual generation failed");
+      if (!silent) toast.error(err?.message || "Visual generation failed");
+      throw err;
     } finally {
-      toast.dismiss(toastId);
+      if (toastId) toast.dismiss(toastId);
       setGeneratingContentImageId(null);
     }
   }
@@ -696,18 +701,40 @@ export default function PostEditor({
 
     setGeneratingAllContentImages(true);
     let successCount = 0;
+    const batchToast = toast.loading(`🎨 Starting batch generation for ${pendingImages.length} visual(s)...`);
 
-    for (const img of pendingImages) {
-      try {
-        await handleGenerateContentImage(img);
-        successCount++;
-      } catch (e) {
-        console.error(e);
+    for (let i = 0; i < pendingImages.length; i++) {
+      const img = pendingImages[i];
+
+      // Rate limit protection: polite 2s cooldown delay between consecutive requests
+      if (i > 0) {
+        toast.loading(`⏳ Rate limit cooldown (2s) before visual ${i + 1}/${pendingImages.length}...`, { id: batchToast });
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+
+      toast.loading(`🎨 Generating visual [${i + 1}/${pendingImages.length}]: ${img.id}...`, { id: batchToast });
+
+      let attempts = 0;
+      let success = false;
+      while (attempts < 2 && !success) {
+        attempts++;
+        try {
+          await handleGenerateContentImage(img, true);
+          success = true;
+          successCount++;
+        } catch (e: any) {
+          console.warn(`[Batch Generate] Attempt ${attempts} failed for ${img.id}:`, e?.message);
+          if (attempts < 2) {
+            // Wait 3s before retry
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+          }
+        }
       }
     }
 
+    toast.dismiss(batchToast);
     setGeneratingAllContentImages(false);
-    toast.success(`🎉 Generated ${successCount} content diagram(s)!`);
+    toast.success(`🎉 Batch complete! Generated ${successCount}/${pendingImages.length} visual(s) without rate-limit issues.`);
   }
 
   function handleReplaceImageMarkers(targetId?: string) {
