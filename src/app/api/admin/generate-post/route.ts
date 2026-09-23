@@ -3,8 +3,39 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { generateContentWithFallback } from "@/lib/ai";
 import { getPostBySlug } from "@/lib/blog";
+import { sql } from "@/lib/db";
 
 export const maxDuration = 60; // 60s for generating long content
+
+/**
+ * Generic DB lookup: dynamically resolves the genuine previous post title in Bangla by its slug.
+ * Operates purely on the provided slug without any hardcoded slug names or title values.
+ */
+async function resolvePreviousPostTitleFromDB(slug: string): Promise<string | null> {
+  if (!slug || typeof slug !== "string") return null;
+  const cleanSlug = slug.trim();
+  if (!cleanSlug) return null;
+
+  try {
+    // 1. Try resolving via getPostBySlug helper
+    const post = await getPostBySlug(cleanSlug);
+    if (post?.title_bn) {
+      return post.title_bn.trim();
+    }
+
+    // 2. Direct database query fallback across all post statuses (draft, scheduled, published)
+    const rows = await sql`
+      SELECT title_bn FROM posts WHERE slug = ${cleanSlug} LIMIT 1
+    `;
+    if (rows && rows.length > 0 && rows[0]?.title_bn) {
+      return (rows[0].title_bn as string).trim();
+    }
+  } catch (err) {
+    console.warn(`[generate-post] Generic DB lookup failed for slug "${cleanSlug}":`, err);
+  }
+
+  return null;
+}
 
 export async function POST(req: Request) {
   try {
@@ -31,23 +62,12 @@ export async function POST(req: Request) {
     const targetTopic = topic?.trim() || "Modern Web Development with Next.js, React, and Full Stack Architecture";
     const todayDate = new Date().toISOString().split("T")[0];
 
-    // Safely resolve genuine previous post title from DB without hallucination
-    const resolvedPrevSlug = incomingSeries?.prev_post_slug || prev_post_slug || null;
-    let resolvedPrevTitle = incomingSeries?.prev_post_title_bn || prev_post_title_bn || null;
+    // Safely resolve genuine previous post title from DB without hardcoded fallbacks
+    const resolvedPrevSlug = incomingSeries?.prev_post_slug?.trim() || prev_post_slug?.trim() || null;
+    let resolvedPrevTitle = incomingSeries?.prev_post_title_bn?.trim() || prev_post_title_bn?.trim() || null;
 
     if (resolvedPrevSlug && !resolvedPrevTitle) {
-      if (resolvedPrevSlug === "mastering-autonomous-ai-agents") {
-        resolvedPrevTitle = "নেক্সট জেএস ও ল্যাংচেইন দিয়ে স্বয়ংক্রিয় এআই এজেন্ট ডেভেলপমেন্ট";
-      } else {
-        try {
-          const prevPost = await getPostBySlug(resolvedPrevSlug);
-          if (prevPost?.title_bn) {
-            resolvedPrevTitle = prevPost.title_bn;
-          }
-        } catch (err) {
-          console.warn("[generate-post] DB lookup fallback for prev post:", err);
-        }
-      }
+      resolvedPrevTitle = await resolvePreviousPostTitleFromDB(resolvedPrevSlug);
     }
 
     const prompt = `
@@ -75,6 +95,8 @@ REQUIREMENTS:
 10. "english":
    - "title": Catchy, SEO-optimized English title.
    - "article": Full, authoritative, in-depth technical article formatted in Markdown (clear H2/H3 headings, actionable technical insights, architectural explanations, best practices, at least 1,200 to 1,800 words). MUST contain real, production-ready code blocks with syntax highlighting (\`\`\`tsx or \`\`\`typescript) demonstrating step-by-step implementation, configuration, and practical usage (not generic pseudo-code).
+   - Personal Engineering Anecdote: Include a genuine first-person narrative paragraph from Zahid's perspective (e.g. "When I was building a production web app, I initially attempted to let GPT-4 directly query and update database states...") detailing a real friction point where a passive LLM failed silently or looped, and how transitioning to an autonomous ReAct agent architecture resolved it.
+   - Dedicated Common Mistakes Section: MUST include a dedicated H2 section titled "## Common Mistakes When Transitioning from LLMs to AI Agents" detailing 3-4 specific engineering anti-patterns (e.g. infinite loops without iteration caps, schema-less tool calls, unhandled observation truncation, and swallowing runtime errors).
    - Mermaid Diagrams & GEO Visibility Rule: When illustrating system architecture, sequence flows, data pipelines, execution loops, or step-by-step processes, you MUST use native Markdown \`\`\`mermaid code blocks. CRITICAL: Immediately beneath every \`\`\`mermaid block, you MUST provide a concise 1-2 sentence plain-text architecture flow summary prefixed with '*Architecture Flow Summary:*' (e.g. '*Architecture Flow Summary: Client Request → Next.js Route Handler → LangChain Orchestrator → Tool Execution → Streamed Response.*'). This ensures non-JS AI search engines and crawler bots (ChatGPT, Perplexity, ClaudeBot) extract and index the complete semantic flow directly from raw HTML.
    - Visual placement markers: Insert placement markers like {{IMAGE:img-1}}, {{IMAGE:img-2}} ONLY where a purely decorative/atmospheric hero-style visual (NO flow, NO steps, NO lifecycle) genuinely adds mood or aesthetic value (limit 2 max). NEVER insert {{IMAGE:img-N}} to represent an architecture diagram, execution lifecycle, streaming pipeline, or data flow — those MUST be \`\`\`mermaid blocks.
    - At the end of the article, include:
@@ -86,8 +108,10 @@ REQUIREMENTS:
 11. "bangla":
    - "title": প্রাসঙ্গিক এবং আকর্ষণীয় বাংলা শিরোনাম।
    - "article": সম্পূর্ণ বিস্তারিত প্র্যাকটিক্যাল বাংলা আর্টিকেল (Markdown ফরম্যাটে, সহজবোধ্য ও প্রফেশনাল বাংলা ভাষা, অন্তত ১২০০-১৮০০ শব্দ)। আর্টিকেলে প্র্যাকটিক্যাল কোড এক্সাম্পল ও সিনট্যাক্স হাইলাইটিং (\`\`\`tsx বা \`\`\`typescript) সহ বাস্তবসম্মত ইমপ্লিমেন্টেশন কোড ও ব্যাখ্যা থাকতে হবে।
+   - ফার্স্ট-পারসন বাস্তব অভিজ্ঞতা (Personal Anecdote): জাহিদের প্রথম পুরুষের নিজস্ব বাস্তব কাজের অভিজ্ঞতা ("আমার একটি ফুল-স্ট্যাক প্রজেক্টে কাজ করার সময় সরাসরি এলএলএম দিয়ে ডাটাবেজ আপডেট করতে গিয়ে...", "আমি যখন প্রথম প্রডাকশনে এলএলএম ইন্টিগ্রেশন করি...")—যেখানে বাস্তব কোনো সমস্যার অভিজ্ঞতা শেয়ার করা হবে যা পাঠকের বিশ্বাসযোগ্যতা বৃদ্ধি করে।
+   - ডেডিকেটেড সাধারণ ভুল ও সতর্কতা সেকশন: বাধ্যতামূলকভাবে একটি H2 সেকশন রাখুন: "## সাধারণ ভুল ও সতর্কতা: এলএলএম থেকে এজেন্টে রূপান্তরের সময়" যেখানে ৩-৪টি বাস্তব কারিগরি অ্যান্টি-প্যাটার্ন (লুপ বাউন্ডারি না থাকা, আনভ্যালিডেটেড আর্গুমেন্ট, এরর ট্র্যাপ না করে হ্যালুসিনেশন চলতে দেওয়া) বিশ্লেষণ থাকবে।
    - Mermaid ডায়াগ্রাম ও GEO নিয়ম: আর্কিটেকচার, ডেটা পাইপলাইন বা সিকোয়েন্স ফ্লো বোঝাতে নেটিভ Markdown \`\`\`mermaid ব্লক ব্যবহার করুন। ক্রলার ও GEO (ChatGPT, Perplexity, ClaudeBot)-এর দৃশ্যমানতার জন্য প্রতিটা \`\`\`mermaid ব্লকের ঠিক নিচেই বাধ্যতামূলকভাবে ১-২ লাইনের সহজবোধ্য প্লেইন-টেক্সট আর্কিটেকচার ফ্লো সামারি দিন (যেমন: '*আর্কিটেকচার ফ্লো সামারি: ক্লায়েন্ট রিকোয়েস্ট → নেক্সট জেএস এপিআই রুট → ল্যাংচেইন এজেন্ট → টুল এক্সেকিউশন → স্ট্রিমড রেসপন্স।*')।
-   - ভিজ্যুয়াল প্লেসমেন্ট মার্কার: শুধুমাত্র পিউর ডেকোরেটিভ/অ্যাটমোসফেরিক ভিজ্যুয়ালের জন্য {{IMAGE:img-1}}, {{IMAGE:img-2}} মার্কার বসানো যাবে (সর্বোচ্চ ২টি)। আর্কিটেকচার ডায়াগ্রাম, ফ্লোচার্ট, এক্সিকিউশন লুপ বা ডেটা পাইপলাইন দেখানোর জন্য কখনো {{IMAGE}} মার্কার দেবেন না — সেগুলো অবশ্যই \\\`\\\`\\\`mermaid ব্লক হবে।
+   - ভিজ্যুয়াল প্লেসমেন্ট মার্কার: শুধুমাত্র পিউর ডেকোরেটিভ/অ্যাটমোসফেরিক ভিজ্যুয়ালের জন্য {{IMAGE:img-1}}, {{IMAGE:img-2}} মার্কার বসানো যাবে (সর্বোচ্চ ২টি)। আর্কিটেকচার ডায়াগ্রাম, ফ্লোচার্ট, এক্সিকিউশন লুপ বা ডেটা পাইপলাইন দেখানোর জন্য কখনো {{IMAGE}} মার্কার দেবেন না — সেগুলো অবশ্যই \`\`\`mermaid ব্লক হবে।
    - আর্টিকেলের শেষে যোগ করুন:
      ## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)
      ### প্রশ্ন ১?
@@ -154,8 +178,8 @@ REQUIREMENTS:
 21. "series": If the topic is part of an ongoing multi-part tutorial or educational series (e.g. AI Agent Series Post 2 of 5), provide series metadata; if standalone, set fields to null:
    - "index": integer (e.g. 2 for Post 2)
    - "total": integer (e.g. 5)
-   - "prev_post_slug": Slug of the previous post if index > 1 (e.g. "${resolvedPrevSlug || "mastering-autonomous-ai-agents"}"), else null
-   - "prev_post_title_bn": EXACT title of the previous post in Bangla (${resolvedPrevTitle ? `"${resolvedPrevTitle}"` : "only if explicitly known"}). STRICT RULE: NEVER fabricate or guess a title! If not explicitly verified, set this field to null.
+   - "prev_post_slug": Slug of the previous post if index > 1 (e.g. "${resolvedPrevSlug || "previous-post-slug"}"), else null
+   - "prev_post_title_bn": EXACT title of the previous post in Bangla (${resolvedPrevTitle ? `"${resolvedPrevTitle}"` : "resolved dynamically from database"}). STRICT RULE: NEVER fabricate, invent, or guess a title! If not explicitly known or verified, set this field to null.
 
 STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown code fences around root):
 {
@@ -212,7 +236,7 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
     "secondary_keywords_en": ["string"],
     "primary_keyword_bn": "string",
     "secondary_keywords_bn": ["string"],
-    "search_intent": "tutorial"
+    "search_intent": "comparison"
   },
   "social": {
     "linkedin_post_en": "string",
@@ -319,17 +343,19 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
       result.social.linkedin_hashtags_bn = ["#প্রোগ্রামিং", "#ওয়েবডেভেলপমেন্ট", "#নেক্সটজেএস", "#TechBangladesh"];
     }
 
-    // Normalize series field safely
+    // Normalize series field safely via dynamic DB resolution
     if (result.series && typeof result.series === "object") {
-      const seriesSlug = typeof result.series.prev_post_slug === "string" ? result.series.prev_post_slug : resolvedPrevSlug;
+      const seriesSlug = typeof result.series.prev_post_slug === "string" ? result.series.prev_post_slug.trim() : resolvedPrevSlug;
       let finalPrevTitle = resolvedPrevTitle;
-      if (!finalPrevTitle && seriesSlug === "mastering-autonomous-ai-agents") {
-        finalPrevTitle = "নেক্সট জেএস ও ল্যাংচেইন দিয়ে স্বয়ংক্রিয় এআই এজেন্ট ডেভেলপমেন্ট";
+
+      if (!finalPrevTitle && seriesSlug) {
+        finalPrevTitle = await resolvePreviousPostTitleFromDB(seriesSlug);
       }
+
       result.series = {
         index: typeof result.series.index === "number" ? result.series.index : null,
         total: typeof result.series.total === "number" ? result.series.total : null,
-        prev_post_title_bn: finalPrevTitle || (result.series.index && result.series.index > 1 ? resolvedPrevTitle : null),
+        prev_post_title_bn: finalPrevTitle || null,
         prev_post_slug: seriesSlug || null,
       };
     } else {
@@ -348,7 +374,7 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
     const validIntents = ["informational", "tutorial", "comparison", "transactional"];
     if (result.seo) {
       if (!validIntents.includes(result.seo.search_intent)) {
-        result.seo.search_intent = result.seo.search_intent === "guide" ? "tutorial" : "informational";
+        result.seo.search_intent = result.seo.search_intent === "guide" ? "tutorial" : "comparison";
       }
     }
 
@@ -405,7 +431,7 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
   } catch (error: any) {
     console.error("AI Post Generation Error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to generate post" },
+      { error: error.message || "Failed to generate blog post" },
       { status: 500 }
     );
   }
