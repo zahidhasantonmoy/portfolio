@@ -24,9 +24,7 @@ export async function generateMetadata({
   const base = "https://zahidhasantonmoy.vercel.app";
   const title = cs.seo.seo_title_en || `${cs.english.title} | Zahid Hasan Tonmoy`;
   const description = cs.seo.meta_description_en;
-  const ogImage = cs.thumbnail?.src
-    ? `${base}${cs.thumbnail.src}`
-    : `${base}/images/og-image.jpg`;
+  const dynamicOgImage = `${base}/work/${slug}/opengraph-image`;
 
   return {
     title,
@@ -41,7 +39,7 @@ export async function generateMetadata({
       authors: ["Zahid Hasan Tonmoy"],
       images: [
         {
-          url: ogImage,
+          url: dynamicOgImage,
           width: 1200,
           height: 630,
           alt: cs.thumbnail?.alt_en || title,
@@ -52,7 +50,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [ogImage],
+      images: [dynamicOgImage],
     },
     alternates: {
       canonical: `${base}/work/${slug}`,
