@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { generateContentWithFallback } from "@/lib/ai";
+import { getPostBySlug } from "@/lib/blog";
 
 export const maxDuration = 60; // 60s for generating long content
 
@@ -19,9 +20,35 @@ export async function POST(req: Request) {
       );
     }
 
-    const { topic, provider } = await req.json();
+    const {
+      topic,
+      provider,
+      series: incomingSeries,
+      prev_post_slug,
+      prev_post_title_bn,
+    } = await req.json();
+
     const targetTopic = topic?.trim() || "Modern Web Development with Next.js, React, and Full Stack Architecture";
     const todayDate = new Date().toISOString().split("T")[0];
+
+    // Safely resolve genuine previous post title from DB without hallucination
+    const resolvedPrevSlug = incomingSeries?.prev_post_slug || prev_post_slug || null;
+    let resolvedPrevTitle = incomingSeries?.prev_post_title_bn || prev_post_title_bn || null;
+
+    if (resolvedPrevSlug && !resolvedPrevTitle) {
+      if (resolvedPrevSlug === "mastering-autonomous-ai-agents") {
+        resolvedPrevTitle = "নেক্সট জেএস ও ল্যাংচেইন দিয়ে স্বয়ংক্রিয় এআই এজেন্ট ডেভেলপমেন্ট";
+      } else {
+        try {
+          const prevPost = await getPostBySlug(resolvedPrevSlug);
+          if (prevPost?.title_bn) {
+            resolvedPrevTitle = prevPost.title_bn;
+          }
+        } catch (err) {
+          console.warn("[generate-post] DB lookup fallback for prev post:", err);
+        }
+      }
+    }
 
     const prompt = `
 You are Zahid Hasan Tonmoy, a passionate MERN Full Stack Developer and AI Agent Developer based in Dhaka, Bangladesh (studying B.Sc. in CSE at BUBT).
@@ -43,7 +70,7 @@ REQUIREMENTS:
 5. "updated_date": "${todayDate}".
 6. "author": "Zahid Hasan Tonmoy".
 7. "status": "draft" (for editorial review).
-8. "category": A recommended category slug (e.g. "ai-agent-development", "react-nextjs", "web-development", "system-design", "database-engineering").
+8. "category": A recommended cluster category slug strictly using kebab-case (e.g. "ai-agent-fundamentals", "ai-agent-advanced", "react-nextjs", "web-development", "system-design", "database-engineering").
 9. "tags": Array of 3-5 lowercase relevant tags (e.g. ["nextjs", "react", "typescript", "ai-agent"]).
 10. "english":
    - "title": Catchy, SEO-optimized English title.
@@ -88,7 +115,7 @@ REQUIREMENTS:
    - "secondary_keywords_en": Array of 3-5 distinct semantic variants (e.g. ["LangChain autonomous agent architecture", "Next.js AI streaming tool calling", "production AI workflows"]) that support the topic WITHOUT repeating or cannibalizing the primary keyword phrase.
    - "primary_keyword_bn": প্রাকৃতিক ও জনপ্রিয় বাংলা সার্চ কোয়েরি (যেমন: "নেক্সট জেএস দিয়ে এআই এজেন্ট তৈরি" বা "অটোনোমাস এআই এজেন্ট টিউটোরিয়াল")।
    - "secondary_keywords_bn": ৩-৪টি স্বতন্ত্র বাংলা সার্চ টার্ম (যেমন: ["স্বয়ংক্রিয় এআই এজেন্ট টিউটোরিয়াল", "ল্যাংচেইন দিয়ে এআই এজেন্ট", "নেক্সট জেএস টিউটোরিয়াল বাংলা"])। অকেজো বা কৃত্রিম "শব্দ + বাংলা" ফরম্যাট (যেমন: "ল্যাংচেইন বাংলা") পরিহার করে ব্যবহারকারীর সার্চ ইনটেন্ট অনুযায়ী সম্পূর্ণ অর্থপূর্ণ ও স্বাভাবিক বাংলা সার্চ ফ্রেজ লিখুন।
-   - "search_intent": "tutorial" or "guide".
+   - "search_intent": Must be strictly one of: "informational" | "tutorial" | "comparison" | "transactional".
 15. "social":
    - "linkedin_post_en": Engaging, professional LinkedIn post summary in English with key takeaways, hook, and code insight.
    - "linkedin_hashtags_en": Array of 4-6 relevant English hashtags (e.g. ["#WebDev", "#Nextjs", "#React"]).
@@ -127,8 +154,8 @@ REQUIREMENTS:
 21. "series": If the topic is part of an ongoing multi-part tutorial or educational series (e.g. AI Agent Series Post 2 of 5), provide series metadata; if standalone, set fields to null:
    - "index": integer (e.g. 2 for Post 2)
    - "total": integer (e.g. 5)
-   - "prev_post_title_bn": Previous post title in Bangla if index > 1 (e.g. "অটোনোমাস এআই এজেন্ট কী এবং কেন এটি সফটওয়্যার ইঞ্জিনিয়ারিংয়ের ভবিষ্যৎ?"), else null
-   - "prev_post_slug": Previous post slug if index > 1 (e.g. "mastering-autonomous-ai-agents"), else null
+   - "prev_post_slug": Slug of the previous post if index > 1 (e.g. "${resolvedPrevSlug || "mastering-autonomous-ai-agents"}"), else null
+   - "prev_post_title_bn": EXACT title of the previous post in Bangla (${resolvedPrevTitle ? `"${resolvedPrevTitle}"` : "only if explicitly known"}). STRICT RULE: NEVER fabricate or guess a title! If not explicitly verified, set this field to null.
 
 STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown code fences around root):
 {
@@ -292,13 +319,18 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
       result.social.linkedin_hashtags_bn = ["#প্রোগ্রামিং", "#ওয়েবডেভেলপমেন্ট", "#নেক্সটজেএস", "#TechBangladesh"];
     }
 
-    // Normalize series field
+    // Normalize series field safely
     if (result.series && typeof result.series === "object") {
+      const seriesSlug = typeof result.series.prev_post_slug === "string" ? result.series.prev_post_slug : resolvedPrevSlug;
+      let finalPrevTitle = resolvedPrevTitle;
+      if (!finalPrevTitle && seriesSlug === "mastering-autonomous-ai-agents") {
+        finalPrevTitle = "নেক্সট জেএস ও ল্যাংচেইন দিয়ে স্বয়ংক্রিয় এআই এজেন্ট ডেভেলপমেন্ট";
+      }
       result.series = {
         index: typeof result.series.index === "number" ? result.series.index : null,
         total: typeof result.series.total === "number" ? result.series.total : null,
-        prev_post_title_bn: typeof result.series.prev_post_title_bn === "string" ? result.series.prev_post_title_bn : null,
-        prev_post_slug: typeof result.series.prev_post_slug === "string" ? result.series.prev_post_slug : null,
+        prev_post_title_bn: finalPrevTitle || (result.series.index && result.series.index > 1 ? resolvedPrevTitle : null),
+        prev_post_slug: seriesSlug || null,
       };
     } else {
       result.series = {
@@ -308,6 +340,23 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
         prev_post_slug: null,
       };
     }
+
+    // Standardize category taxonomy & search_intent enum
+    if (result.category === "ai-agent-development") {
+      result.category = "ai-agent-fundamentals";
+    }
+    const validIntents = ["informational", "tutorial", "comparison", "transactional"];
+    if (result.seo) {
+      if (!validIntents.includes(result.seo.search_intent)) {
+        result.seo.search_intent = result.seo.search_intent === "guide" ? "tutorial" : "informational";
+      }
+    }
+
+    // Ensure links are strictly populated
+    result.links = {
+      github: "https://github.com/zahidhasantonmoy",
+      portfolio: "https://zahidhasantonmoy.vercel.app",
+    };
 
     // Process and normalize content_images (cap at 2 max, strictly decorative)
     if (Array.isArray(result.content_images)) {
