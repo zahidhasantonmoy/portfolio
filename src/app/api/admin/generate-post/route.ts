@@ -48,8 +48,8 @@ REQUIREMENTS:
 10. "english":
    - "title": Catchy, SEO-optimized English title.
    - "article": Full, authoritative, in-depth technical article formatted in Markdown (clear H2/H3 headings, actionable technical insights, architectural explanations, best practices, at least 1,200 to 1,800 words). MUST contain real, production-ready code blocks with syntax highlighting (\`\`\`tsx or \`\`\`typescript) demonstrating step-by-step implementation, configuration, and practical usage (not generic pseudo-code).
-   - Mermaid Diagrams & GEO Visibility Rule: When illustrating system architecture, sequence flows, or data pipelines, use native Markdown \`\`\`mermaid code blocks. CRITICAL: Immediately beneath every \`\`\`mermaid block, you MUST provide a concise 1-2 sentence plain-text architecture flow summary prefixed with '*Architecture Flow Summary:*' (e.g. '*Architecture Flow Summary: Client Request → Next.js Route Handler → LangChain Orchestrator → Tool Execution → Streamed Response.*'). This ensures non-JS AI search engines and crawler bots (ChatGPT, Perplexity, ClaudeBot) extract and index the complete semantic flow directly from raw HTML.
-   - Visual placement markers: Insert placement markers like {{IMAGE:img-1}}, {{IMAGE:img-2}} at specific locations where an architecture diagram, flow chart, or before/after visual genuinely enhances understanding (limit 2-3 max).
+   - Mermaid Diagrams & GEO Visibility Rule: When illustrating system architecture, sequence flows, data pipelines, execution loops, or step-by-step processes, you MUST use native Markdown \`\`\`mermaid code blocks. CRITICAL: Immediately beneath every \`\`\`mermaid block, you MUST provide a concise 1-2 sentence plain-text architecture flow summary prefixed with '*Architecture Flow Summary:*' (e.g. '*Architecture Flow Summary: Client Request → Next.js Route Handler → LangChain Orchestrator → Tool Execution → Streamed Response.*'). This ensures non-JS AI search engines and crawler bots (ChatGPT, Perplexity, ClaudeBot) extract and index the complete semantic flow directly from raw HTML.
+   - Visual placement markers: Insert placement markers like {{IMAGE:img-1}}, {{IMAGE:img-2}} ONLY where a purely decorative/atmospheric hero-style visual (NO flow, NO steps, NO lifecycle) genuinely adds mood or aesthetic value (limit 2 max). NEVER insert {{IMAGE:img-N}} to represent an architecture diagram, execution lifecycle, streaming pipeline, or data flow — those MUST be \`\`\`mermaid blocks.
    - At the end of the article, include:
      ## Frequently Asked Questions
      ### Question 1?
@@ -60,7 +60,7 @@ REQUIREMENTS:
    - "title": প্রাসঙ্গিক এবং আকর্ষণীয় বাংলা শিরোনাম।
    - "article": সম্পূর্ণ বিস্তারিত প্র্যাকটিক্যাল বাংলা আর্টিকেল (Markdown ফরম্যাটে, সহজবোধ্য ও প্রফেশনাল বাংলা ভাষা, অন্তত ১২০০-১৮০০ শব্দ)। আর্টিকেলে প্র্যাকটিক্যাল কোড এক্সাম্পল ও সিনট্যাক্স হাইলাইটিং (\`\`\`tsx বা \`\`\`typescript) সহ বাস্তবসম্মত ইমপ্লিমেন্টেশন কোড ও ব্যাখ্যা থাকতে হবে।
    - Mermaid ডায়াগ্রাম ও GEO নিয়ম: আর্কিটেকচার, ডেটা পাইপলাইন বা সিকোয়েন্স ফ্লো বোঝাতে নেটিভ Markdown \`\`\`mermaid ব্লক ব্যবহার করুন। ক্রলার ও GEO (ChatGPT, Perplexity, ClaudeBot)-এর দৃশ্যমানতার জন্য প্রতিটা \`\`\`mermaid ব্লকের ঠিক নিচেই বাধ্যতামূলকভাবে ১-২ লাইনের সহজবোধ্য প্লেইন-টেক্সট আর্কিটেকচার ফ্লো সামারি দিন (যেমন: '*আর্কিটেকচার ফ্লো সামারি: ক্লায়েন্ট রিকোয়েস্ট → নেক্সট জেএস এপিআই রুট → ল্যাংচেইন এজেন্ট → টুল এক্সেকিউশন → স্ট্রিমড রেসপন্স।*')।
-   - ভিজ্যুয়াল প্লেসমেন্ট মার্কার: আর্টিকেলের ধারণাগতভাবে উপযুক্ত অংশে (আর্কিটেকচার ডায়াগ্রাম বা ফ্লোচার্ট) সরাসরি {{IMAGE:img-1}}, {{IMAGE:img-2}} মার্কার বসিয়ে দিন (সর্বোচ্চ ২-৩টি)।
+   - ভিজ্যুয়াল প্লেসমেন্ট মার্কার: শুধুমাত্র পিউর ডেকোরেটিভ/অ্যাটমোসফেরিক ভিজ্যুয়ালের জন্য {{IMAGE:img-1}}, {{IMAGE:img-2}} মার্কার বসানো যাবে (সর্বোচ্চ ২টি)। আর্কিটেকচার ডায়াগ্রাম, ফ্লোচার্ট, এক্সিকিউশন লুপ বা ডেটা পাইপলাইন দেখানোর জন্য কখনো {{IMAGE}} মার্কার দেবেন না — সেগুলো অবশ্যই \\\`\\\`\\\`mermaid ব্লক হবে।
    - আর্টিকেলের শেষে যোগ করুন:
      ## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)
      ### প্রশ্ন ১?
@@ -101,21 +101,25 @@ REQUIREMENTS:
    - "prompt": Ultra-detailed prompt for AI cover image generation (16:9, modern dev workspace, glassmorphism, cyan and purple neon palette, volumetric lighting, 8k render, octane render, no text).
    - "text": Punchy 2-4 word text for thumbnail overlay.
    - "aspect_ratio": "16:9".
-17. "content_images": (optional, use sparingly, maximum 2-3 images per post — do NOT decorate every section)
-   For conceptual & architectural visual metaphors (e.g. distributed neural lattices, glowing cloud data pipelines, glassmorphism UI mockups), insert a marker {{IMAGE:img-N}} at that exact point in the article and add a matching entry:
+17. "content_images": (OPTIONAL — maximum 2 images per post, use VERY sparingly — omit entirely if unsure)
+   ⚠️ STRICT RULE — content_images is ONLY for purely decorative, atmospheric, hero-style concept art with NO informational meaning.
+   ❌ NEVER put in content_images: execution lifecycle, streaming pipeline, agent flow, architecture overview, sequence diagram, data flow, step-by-step process — these MUST be \`\`\`mermaid blocks in the article body.
+   ✅ ALLOWED in content_images: "Abstract glowing distributed network of nodes" / "Futuristic dark workspace with neon code streams" / "Glassmorphism UI concept floating in space" — pure visual mood only.
+   ❌ NOT ALLOWED captions like: "Figure 1: Agent Execution Lifecycle" / "Streaming Architecture Diagram" / "High-level Workflow Overview" — if you need those, use \`\`\`mermaid instead.
+   If and only if a decorative visual is needed, insert {{IMAGE:img-N}} in the article and add a matching entry:
    [
      {
        "id": "img-1",
        "placement_marker": "{{IMAGE:img-1}}",
-       "prompt": "Detailed AI image-generation prompt in the SAME visual style as thumbnail.prompt (glassmorphism, cyan/purple glowing palette, 16:9 widescreen, octane render, ABSOLUTELY NO TEXT, NO LETTERS, NO WORDS - pure visual metaphor)",
-       "alt_en": "Descriptive English alt text explaining the concept",
-       "alt_bn": "কনসেপ্টের প্রাসঙ্গিক বাংলা অল্ট টেক্সট",
-       "caption_en": "Optional short English caption",
-       "caption_bn": "ঐচ্ছিক সংক্ষিপ্ত বাংলা ক্যাপশন",
+       "prompt": "Detailed AI image-generation prompt in the SAME visual style as thumbnail.prompt (glassmorphism, cyan/purple glowing palette, 16:9 widescreen, octane render, ABSOLUTELY NO TEXT, NO LETTERS, NO LABELS, NO ARROWS, NO WORDS — pure abstract visual metaphor only)",
+       "alt_en": "Descriptive English alt text of the VISUAL MOOD only (not a diagram description)",
+       "alt_bn": "ভিজ্যুয়াল মুড বর্ণনা করা বাংলা অল্ট টেক্সট (ডায়াগ্রাম বা ফ্লো নয়)",
+       "caption_en": "Short atmospheric caption (NOT a figure label like 'Figure 1: ...')",
+       "caption_bn": "সংক্ষিপ্ত অ্যাটমোসফেরিক ক্যাপশন (ফিগার লেবেল নয়)",
        "url": null
      }
    ]
-   * Important Distinction: If a concept requires exact labeled boxes, arrows, sequence lifelines, or class models, use native Markdown \`\`\`mermaid diagrams directly in the article body (which renders as sharp interactive vector SVG with 100% accurate labels). Immediately follow every \`\`\`mermaid diagram with an italicized '*Architecture Flow Summary: ...*' plain-text sentence for GEO crawlers. Keep content_images strictly for atmospheric, conceptual 16:9 art without any text.
+   For ALL flow, architecture, sequence, pipeline, lifecycle, data-movement, or process diagrams: use \`\`\`mermaid blocks in the article body. Follow every \`\`\`mermaid with '*Architecture Flow Summary: ...*' for GEO crawlers.
 18. "og_image_en": "https://zahidhasantonmoy.vercel.app/blog/" + slug + "/opengraph-image".
 19. "og_image_bn": "https://zahidhasantonmoy.vercel.app/bn/blog/" + slug + "/opengraph-image".
 20. "branding":
@@ -194,6 +198,12 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
   },
   "og_image_en": "string",
   "og_image_bn": "string",
+  "series": {
+    "index": null,
+    "total": null,
+    "prev_post_title_bn": null,
+    "prev_post_slug": null
+  },
   "links": {
     "github": "https://github.com/zahidhasantonmoy",
     "portfolio": "https://zahidhasantonmoy.vercel.app"
