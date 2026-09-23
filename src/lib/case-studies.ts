@@ -10,7 +10,9 @@ async function loadCaseStudiesFromDisk(): Promise<CaseStudy[]> {
   try {
     await fs.mkdir(CASE_STUDIES_DIR, { recursive: true });
     const entries = await fs.readdir(CASE_STUDIES_DIR);
-    const jsonFiles = entries.filter((file) => file.endsWith(".json"));
+    const jsonFiles = entries.filter(
+      (file) => file.endsWith(".json") && !file.startsWith("_") && !file.startsWith(".")
+    );
 
     const caseStudies: CaseStudy[] = [];
 

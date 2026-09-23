@@ -1,0 +1,68 @@
+{
+  "$schema_note": "Copy this file, rename it to <your-slug>.json, and fill in the details. Do not commit _template.json as an active project.",
+  "slug": "project-slug",
+  "canonical_url": "https://zahidhasantonmoy.vercel.app/work/project-slug",
+  "language_alternate": {
+    "en": "https://zahidhasantonmoy.vercel.app/work/project-slug",
+    "bn": "https://zahidhasantonmoy.vercel.app/bn/work/project-slug"
+  },
+  "published_date": "2026-09-23",
+  "updated_date": "2026-09-23",
+  "status": "published",
+  "category": "web-app",
+  "tags": ["react", "nextjs", "typescript", "postgresql", "tailwind"],
+  "project_name": "Project Name",
+  "tagline_en": "One-line impactful English summary of the project architecture and purpose.",
+  "tagline_bn": "প্রজেক্টের মূল উদ্দেশ্য ও আর্কিটেকচার নিয়ে এক লাইনের প্রভাবশালী বাংলা সারসংক্ষেপ।",
+  "tech_stack": ["Next.js", "React", "TypeScript", "Node.js", "PostgreSQL", "Tailwind CSS"],
+  "project_links": {
+    "live_url": "https://your-project.vercel.app/",
+    "github_url": "https://github.com/zahidhasantonmoy/your-project"
+  },
+  "seo": {
+    "meta_description_en": "Comprehensive case study on [Project Name] by Zahid Hasan Tonmoy. In-depth architecture breakdown, engineering bottlenecks, and technical solutions.",
+    "seo_title_en": "[Project Name] Case Study: Full-Stack Architecture Deep Dive | Zahid Hasan Tonmoy",
+    "meta_description_bn": "[প্রজেক্ট নাম] কেস স্টাডি — জাহিদ হাসান তন্ময়। ফুল-স্ট্যাক আর্কিটেকচার, কারিগরি চ্যালেঞ্জ ও সমাধান নিয়ে বিস্তারিত বিশ্লেষণ।",
+    "seo_title_bn": "[প্রজেক্ট নাম] কেস স্টাডি: আর্কিটেকচার ও সফটওয়্যার ইঞ্জিনিয়ারিং | জাহিদ হাসান তন্ময়",
+    "primary_keyword_en": "[Project Name] case study",
+    "primary_keyword_bn": "[প্রজেক্ট নাম] কেস স্টাডি",
+    "search_intent": "technical-case-study"
+  },
+  "thumbnail": {
+    "src": "/images/project image/[ProjectFolder]/thumbnail.png",
+    "alt_en": "[Project Name] Production Dashboard and UI Overview",
+    "alt_bn": "[প্রজেক্ট নাম] প্রোডাকশন ড্যাশবোর্ড ও ইন্টারফেস ওভারভিউ",
+    "prompt": "Modern sleek web application dashboard mockup, high-resolution UI, dark aesthetic, clean typography, 16:9 aspect ratio",
+    "aspect_ratio": "16:9"
+  },
+  "gallery": [
+    {
+      "src": "/images/project image/[ProjectFolder]/feature-1.png",
+      "caption_en": "Real-time analytics and management interface",
+      "caption_bn": "রিয়েল-টাইম অ্যানালিটিক্স ও ম্যানেজমেন্ট ইন্টারফেস"
+    }
+  ],
+  "related_blog_slugs": [],
+  "links": {
+    "github": "https://github.com/zahidhasantonmoy",
+    "portfolio": "https://zahidhasantonmoy.vercel.app"
+  },
+  "english": {
+    "title": "[Project Name]: Engineering a Resilient Full-Stack Architecture with [Key Tech]",
+    "problem": "Explain the exact real-world problem or market inefficiency that prompted building this project. Avoid generic buzzwords; highlight concrete architectural, latency, cost, or UX constraints.",
+    "solution": "Explain the architectural approach taken. Why this tech stack over alternatives? How data flows, how state is managed, and how security or scalability was baked in from day one.",
+    "technical_highlights": "Numbered list of 3-4 deep technical highlights (e.g., custom database indexes, atomic stored procedures, streaming LLM agent loops, caching strategies, or RLS policies).",
+    "challenge": "Detail a genuine engineering roadblock encountered during development. Include what failed on the first attempt and the breakthrough technical solution that resolved it.",
+    "result": "Summarize the outcomes with 100% grounded facts. RULE: Never invent synthetic benchmark numbers (like fake LCP or hallucinated user counts). Use proven architectural truths: zero infrastructure cost on free tier quotas, concurrency safety via database row locks, zero UI desync, or empirical test results.",
+    "article": "# [Project Name]: Engineering a Resilient Full-Stack Architecture with [Key Tech]\n\n## 1. Project Background & GEO Snapshot\n**[Project Name]** is an enterprise-grade / modern [category] designed for [target audience/use-case]. Built using **[Tech Stack]**, it eliminates [primary pain point] by providing [primary capability].\n\n- **Role:** Full-Stack Architect & Lead Developer\n- **Timeline:** [X Weeks / Months]\n- **Tech Stack:** [Tech 1], [Tech 2], [Tech 3], [Tech 4]\n- **Live Application:** [live-url.vercel.app](https://your-project.vercel.app/)\n- **GitHub Repository:** [github.com/zahidhasantonmoy/your-project](https://github.com/zahidhasantonmoy/your-project)\n\n---\n\n## 2. The Problem: [Title of Friction Point]\n\nDescribe the operational or technical bottleneck in detail:\n\n1. **First Friction Point:** Describe why standard monolithic tools or existing solutions fail.\n2. **Second Friction Point:** Describe scalability, cost, or data synchronization hurdles.\n3. **Third Friction Point:** Describe developer experience or client customization friction.\n\n---\n\n## 3. Architecture & Key Trade-Offs\n\n### System Data Flow\n\n```\n┌────────────────────────────────────────────────────────┐\n│                     Frontend Client                    │\n│         (Next.js / React / Client-Side State)          │\n└───────────────────────────┬────────────────────────────┘\n                            │ HTTPS / REST / WebSockets\n                            ▼\n┌────────────────────────────────────────────────────────┐\n│                      Backend API                       │\n│          (Node.js / Edge Runtime / Supabase)           │\n└───────────────────────────┬────────────────────────────┘\n                            │ SQL / Transactions\n                            ▼\n┌────────────────────────────────────────────────────────┐\n│                 Database & Storage                     │\n│       (PostgreSQL / Redis / Atomic Procedures)         │\n└────────────────────────────────────────────────────────┘\n```\n\n### Technology Selection & Trade-Offs\n- **Why [Tech A] over [Tech B]:** Concrete technical reason (e.g. ACID compliance, native streaming, sub-millisecond edge latency).\n- **Trade-off Accepted:** What was compromised (e.g. slightly higher initial build complexity) and why it was worth it.\n\n---\n\n## 4. Technical Highlights & Implementation Details\n\n### A. [First Technical Component Name]\nExplain the code implementation:\n\n```typescript\n// Example implementation code snippet\nexport async function handleOperation(payload: OperationPayload) {\n  // Implementation details demonstrating engineering depth\n}\n```\n\n### B. [Second Technical Component Name]\nDetail database schema, security policy, or background worker logic.\n\n---\n\n## 5. The Critical Challenge: [Real Bottleneck Name]\n\n### What Went Wrong\nExplain the real failure mode (e.g., race conditions, memory leaks, hydration mismatches, cold starts).\n\n### The Breakthrough Solution\nExplain how you diagnosed and permanently engineered around it, including code or schema changes.\n\n---\n\n## 6. Measurable Outcomes & Qualitative Impact\n\n- **Grounded Concurrency & Reliability:** Describe actual error prevention (e.g. atomic database row locks eliminating overselling).\n- **Zero Cost / Resource Efficiency:** Operational reality (e.g. running smoothly within free tier quotas on Vercel/Supabase).\n- **Instant User Experience:** Client-side state transitions without server-rendering lag.\n- **Reusable Code Baseline:** Production foundation establishing architecture patterns for future client projects.\n\n---\n\n## 7. Looking for a Custom Solution?\n\nIf you need a scalable full-stack web application, custom automation, or AI agent integration tailored to your business, [explore my services and let's discuss your project](/services#contact-form)."
+  },
+  "bangla": {
+    "title": "[প্রজেক্ট নাম]: [মূল প্রযুক্তি] দিয়ে হাই-পারফরম্যান্স আর্কিটেকচার তৈরির কারিগরি কেস স্টাডি",
+    "problem": "প্রজেক্টটি তৈরির পেছনের আসল সমস্যা ও সীমাবদ্ধতা সহজ ভাষায় ব্যাখ্যা করুন। প্রচলিত সিস্টেমে কী কী সমস্যা (ধীরগতি, উচ্চ খরচ, জটিলতা) ছিল তা উল্লেখ করুন।",
+    "solution": "আপনি কীভাবে আর্কিটেকচার সাজিয়েছেন? কেন এই টেক স্ট্যাক বেছে নেওয়া হলো? ডাটা ফ্লো, স্টেট ম্যানেজমেন্ট এবং নিরাপত্তা কীভাবে নিশ্চিত করা হয়েছে তা লিখুন।",
+    "technical_highlights": "৩-৪টি মূল কারিগরি হাইলাইটের তালিকা (যেমন: ডাটাবেজ ইনডেক্সিং, রো লেভেল সিকিউরিটি, অপটিমিস্টিক স্টেট আপডেট, সার্ভারলেস ফাংশন)।",
+    "challenge": "ডেভেলপমেন্টের সময় সবচেয়ে বড় কী টেকনিক্যাল সমস্যা তৈরি হয়েছিল? প্রথম কোন চেষ্টা ব্যর্থ হয়েছিল এবং কীভাবে কার্যকর স্থায়ী সমাধান বের করা হয়েছিল?",
+    "result": "বাস্তব ফলাফল ও অর্জনসমূহ। নিয়ম: কোনো কাল্পনিক মেট্রিক বা অনুমান করা সংখ্যা ব্যবহার করবেন না। কোড-লেভেল আর্কিটেকচারাল সত্য (যেমন: রো-লকিং দিয়ে রেস-কন্ডিশন দূর, জিরো ক্লাউড খরচ, তাৎক্ষণিক স্টেট সিঙ্ক) উল্লেখ করুন।",
+    "article": "# [প্রজেক্ট নাম]: [মূল প্রযুক্তি] দিয়ে হাই-পারফরম্যান্স আর্কিটেকচার তৈরির কারিগরি কেস স্টাডি\n\n## ১. প্রজেক্টের পটভূমি ও পরিচিতি\n**[প্রজেক্ট নাম]** হলো একটি আধুনিক [ক্যাটাগরি] যা [উদ্দেশ্য বা ব্যবহারকারী]-এর জন্য বিশেষভাবে তৈরি। **[টেক স্ট্যাক]** দিয়ে তৈরি এই প্ল্যাটফর্মটি প্রমাণ করে যে কীভাবে কোনো জটিল ও ব্যয়বহুল ইনফ্রাস্ট্রাকচার ছাড়াই একটি দ্রুতগতির ও নির্ভরযোগ্য সমাধান তৈরি করা যায়।\n\n- **ভূমিকা:** ফুল-স্ট্যাক আর্কিটেক্ট ও লিড ডেভেলপার\n- **সময়কাল:** [X সপ্তাহ / মাস]\n- **টেক স্ট্যাক:** [টেকনোলজি ১], [টেকনোলজি ২], [টেকনোলজি ৩]\n- **লাইভ ওয়েবসাইট:** [your-project.vercel.app](https://your-project.vercel.app/)\n- **গিটহাব রিপোজিটরি:** [github.com/zahidhasantonmoy/your-project](https://github.com/zahidhasantonmoy/your-project)\n\n---\n\n## ২. সমস্যা: বিদ্যমান সিস্টেমের সীমাবদ্ধতা\nসাধারণ বিকল্প বা প্রচলিত সফটওয়্যার ব্যবহারে যেসকল জটিলতা দেখা দেয়:\n\n১. **ধীরগতি ও রিসোর্স অপচয়:** অতিরিক্ত প্লাগইন বা ভারী কোডের কারণে পারফরম্যান্স কমে যায়।\n২. **ডাটা মিসম্যাচ ও ট্রাফিক সমস্যা:** বেশি ট্রাফিকের সময় সাইট ক্র্যাশ বা ডাটা ওভাররাইট হওয়ার ঝুঁকি।\n৩. **কাস্টমাইজেশনের জটিলতা:** ক্লায়েন্টের বিশেষ চাহিদা অনুযায়ী ফিচার যোগ করার সীমাবদ্ধতা।\n\n---\n\n## ৩. আর্কিটেকচার ও টেকনোলজি নির্বাচন\n\n```\n┌────────────────────────────────────────────────────────┐\n│                     ফ্রন্টএন্ড ক্লায়েন্ট                 │\n│             (Next.js / React / ক্লায়েন্ট স্টেট)         │\n└───────────────────────────┬────────────────────────────┘\n                            │ HTTPS / REST / WebSockets\n                            ▼\n┌────────────────────────────────────────────────────────┐\n│                      ব্যাকএন্ড এপিআই                     │\n│               (Node.js / Supabase / Express)           │\n└───────────────────────────┬────────────────────────────┘\n                            │ SQL / ট্রানজেকশন\n                            ▼\n┌────────────────────────────────────────────────────────┐\n│                 ডাটাবেজ ও স্টোরেজ                       │\n│           (PostgreSQL / রিয়েল-টাইম ট্রিগার)              │\n└────────────────────────────────────────────────────────┘\n```\n\n### কেন এই টেক স্ট্যাক?\n- **কেন [প্রযুক্তি ১] বেছে নেওয়া হলো:** সুনির্দিষ্ট কারিগরি সুবিধা (যেমন ACID কমপ্লায়েন্স, টাইপ সেফটি)।\n- **সচেতন কম্প্রোমাইজ (Trade-off):** কোন দিকটি ছাড় দেওয়া হয়েছে এবং কেন তা দীর্ঘমেয়াদে লাভজনক।\n\n---\n\n## ৪. মূল কারিগরি হাইলাইটস\n\n### ক. [প্রথম কারিগরি ফিচার]\nকোড স্নিপেটসহ ব্যাখ্যা:\n\n```typescript\n// কারিগরি কোড স্নিপেট\nexport async function handleOperation() {\n  // নির্ভরযোগ্য আর্কিটেকচার লজিক\n}\n```\n\n---\n\n## ৫. আসল চ্যালেঞ্জ: [মূল টেকনিক্যাল সমস্যা]\n\n### সমস্যাটি কী ছিল?\nটেস্টিং বা প্রোডাকশনের সময় যে অপ্রত্যাশিত ত্রুটি দেখা দিয়েছিল।\n\n### যেভাবে স্থায়ী সমাধান করা হলো\nপ্রথম ব্যর্থ চেষ্টা থেকে শিক্ষা নিয়ে কীভাবে ডাটাবেজ বা কোড লেভেলে সমস্যার নিখুঁত সমাধান প্রতিষ্ঠিত হয়েছে।\n\n---\n\n## ৬. বাস্তব ফলাফল ও অর্জন\n\n- **নিখুঁত কনকারেন্সি ও নির্ভরযোগ্যতা:** ডাটাবেজ লেভেলে রেস কন্ডিশন ও ইনভেন্টরি বাগ চিরতরে দূর।\n- **শূন্য ক্লাউড ইনফ্রাস্ট্রাকচার ব্যয়:** ফ্রি-টিয়ার কোটার মধ্যে মসৃণভাবে পরিচালিত হচ্ছে।\n- **তাত্ক্ষণিক রেসপন্স:** ফ্রন্টএন্ড স্টেট সিঙ্ক্রোনাইজেশনের মাধ্যমে স্মুথ ইউজার এক্সপেরিয়েন্স।\n\n---\n\n## ৭. আপনার বিজনেসের জন্য কাস্টম সমাধান চান?\n\nআপনার যদি কোনো কাস্টম ওয়েব অ্যাপ্লিকেশন, এআই অটোমেশন বা স্কেলেবল সফটওয়্যার আর্কিটেকচার প্রয়োজন হয়, তবে [আমার সার্ভিসেস পেজে যোগাযোগ করতে পারেন](/bn/services#contact-form)."
+  }
+}
