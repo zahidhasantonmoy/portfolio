@@ -1,4 +1,5 @@
 import { getAllPublishedPostsForSitemap } from "@/lib/blog";
+import { getAllCaseStudies } from "@/lib/case-studies";
 import type { MetadataRoute } from "next";
 
 export const revalidate = 3600; // 1 hour
@@ -11,12 +12,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: base, lastModified: new Date(), changeFrequency: "weekly", priority: 1.0 },
     { url: `${base}/services`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },
     { url: `${base}/bn/services`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },
+    { url: `${base}/work`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
+    { url: `${base}/bn/work`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
     { url: `${base}/links`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
     { url: `${base}/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
     { url: `${base}/bn/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
     { url: `${base}/journal`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
     { url: `${base}/newsletter`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
   ];
+
+  // Dynamic case studies
+  let caseStudyPages: MetadataRoute.Sitemap = [];
+  try {
+    const caseStudies = await getAllCaseStudies({ status: "published" });
+    caseStudyPages = caseStudies.flatMap((cs) => {
+      const lastMod = new Date(cs.updated_date || cs.published_date || new Date());
+      return [
+        {
+          url: `${base}/work/${cs.slug}`,
+          lastModified: lastMod,
+          changeFrequency: "monthly" as const,
+          priority: 0.8,
+        },
+        {
+          url: `${base}/bn/work/${cs.slug}`,
+          lastModified: lastMod,
+          changeFrequency: "monthly" as const,
+          priority: 0.8,
+        },
+      ];
+    });
+  } catch {
+    caseStudyPages = [];
+  }
 
   // Dynamic blog posts
   try {
@@ -46,9 +74,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       return pages;
     });
 
-    return [...staticPages, ...postPages];
+    return [...staticPages, ...caseStudyPages, ...postPages];
   } catch {
     // DB might not be configured yet
-    return staticPages;
+    return [...staticPages, ...caseStudyPages];
   }
 }

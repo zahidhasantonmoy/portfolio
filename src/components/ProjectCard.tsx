@@ -1,8 +1,13 @@
 'use client';
 
 import React, { useRef } from 'react';
+import Link from 'next/link';
 import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import Image from 'next/image';
+
+const CASE_STUDY_MAP: Record<string, string> = {
+  jerseyvault: "jerseyvault",
+};
 
 interface ProjectCardProps {
   title: string;
@@ -16,6 +21,8 @@ interface ProjectCardProps {
 
 const ProjectCard = ({ title, description, images, technologies, liveUrl, githubUrl, onClick }: ProjectCardProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const normalizedKey = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const caseStudySlug = CASE_STUDY_MAP[normalizedKey];
 
   // Motion values for the tilt effect
   const x = useMotionValue(0);
@@ -139,33 +146,44 @@ const ProjectCard = ({ title, description, images, technologies, liveUrl, github
           )}
         </div>
 
-        <div className="flex justify-between mt-auto">
-          {liveUrl && (
-            <motion.a
-              href={liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-auto pt-2">
+          {caseStudySlug && (
+            <Link
+              href={`/work/${caseStudySlug}`}
               onClick={(e) => e.stopPropagation()}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30"
+              className="px-3.5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-semibold rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all shadow-md shadow-indigo-500/20 inline-flex items-center gap-1.5"
             >
-              Live Demo
-            </motion.a>
+              Case Study
+            </Link>
           )}
-          {githubUrl && (
-            <motion.a
-              href={githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 bg-gray-700 text-white text-sm rounded-lg hover:bg-gray-600 transition-colors"
-            >
-              Code
-            </motion.a>
-          )}
+          <div className="flex items-center gap-2 ml-auto">
+            {liveUrl && (
+              <motion.a
+                href={liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+              >
+                Live Demo
+              </motion.a>
+            )}
+            {githubUrl && (
+              <motion.a
+                href={githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-3 py-2 bg-gray-700 text-white text-xs rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Code
+              </motion.a>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>

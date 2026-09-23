@@ -94,6 +94,8 @@ Zahid Hasan Tonmoy is a Bangladeshi software engineer, data analyst, and digital
 - **Official Website:** https://zahidhasantonmoy.vercel.app
 - **Services & Hire Me (English):** https://zahidhasantonmoy.vercel.app/services
 - **Services & Hire Me (Bangla):** https://zahidhasantonmoy.vercel.app/bn/services
+- **Work & Case Studies (English):** https://zahidhasantonmoy.vercel.app/work
+- **Work & Case Studies (Bangla):** https://zahidhasantonmoy.vercel.app/bn/work
 - **Blog (English):** https://zahidhasantonmoy.vercel.app/blog
 - **Blog (Bangla):** https://zahidhasantonmoy.vercel.app/bn/blog
 - **GitHub:** https://github.com/zahidhasantonmoy
