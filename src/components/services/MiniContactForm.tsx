@@ -52,7 +52,7 @@ export default function MiniContactForm({
         <div className="w-14 h-14 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
           <FaCheck className="text-emerald-400 text-xl" />
         </div>
-        <p className="font-bold text-gray-900 dark:text-white">{tx.formSent}</p>
+        <p className="font-bold" style={{ color: 'var(--text-primary)' }}>{tx.formSent}</p>
       </div>
     );
   }
@@ -61,7 +61,7 @@ export default function MiniContactForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+          <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-secondary)' }}>
             {tx.formName}
           </label>
           <input
@@ -70,11 +70,16 @@ export default function MiniContactForm({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={lang === "bn" ? "আপনার নাম" : "Your Name"}
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+            className="w-full px-4 py-2.5 rounded-xl text-sm transition focus:outline-none focus-ring"
+            style={{
+              background: 'var(--bg-base)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
+            }}
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+          <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-secondary)' }}>
             {tx.formEmail}
           </label>
           <input
@@ -83,12 +88,17 @@ export default function MiniContactForm({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+            className="w-full px-4 py-2.5 rounded-xl text-sm transition focus:outline-none focus-ring"
+            style={{
+              background: 'var(--bg-base)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
+            }}
           />
         </div>
       </div>
       <div>
-        <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+        <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-secondary)' }}>
           {tx.formMsg}
         </label>
         <textarea
@@ -97,14 +107,19 @@ export default function MiniContactForm({
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder={tx.formMsg}
-          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition resize-none"
+          className="w-full px-4 py-2.5 rounded-xl text-sm transition focus:outline-none focus-ring resize-none"
+          style={{
+            background: 'var(--bg-base)',
+            border: '1px solid var(--border)',
+            color: 'var(--text-primary)',
+          }}
         />
       </div>
       <button
         type="submit"
         id="services-mini-form-submit"
         disabled={loading}
-        className="w-full inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-600 text-white font-semibold text-sm shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/40 disabled:opacity-60 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] transition-all"
+        className="w-full btn-primary inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl font-semibold text-sm disabled:opacity-60 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] transition-all"
       >
         <FaPaperPlane className={loading ? "animate-bounce" : ""} />
         {loading ? "..." : tx.formBtn}

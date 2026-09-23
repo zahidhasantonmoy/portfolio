@@ -92,14 +92,17 @@ const ProjectCard = ({ title, description, images, technologies, liveUrl, github
         scale,
         transformStyle: "preserve-3d",
       }}
-      className="relative bg-white dark:bg-gray-800 rounded-xl rounded-tr-[30px] overflow-hidden shadow-xl cursor-pointer group perspective-1000 transform-gpu"
+      className="relative rounded-xl rounded-tr-[30px] overflow-hidden shadow-xl cursor-pointer group perspective-1000 transform-gpu hover:shadow-glow-sm transition-shadow duration-300"
       onClick={onClick}
     >
+      {/* Card background via inline style for token support */}
+      <div className="absolute inset-0" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }} />
+
       {/* Glare brightness layer */}
       <motion.div
         style={{
           opacity: glareOpacity,
-          background: `radial-gradient(circle at ${50}% ${50}%, rgba(255,255,255,0.8), transparent 60%)`, // Simpler radial glare
+          background: `radial-gradient(circle at ${50}% ${50}%, rgba(255,255,255,0.8), transparent 60%)`,
           left: glareX,
           top: glareY,
           translateX: '-50%',
@@ -127,31 +130,47 @@ const ProjectCard = ({ title, description, images, technologies, liveUrl, github
         </div>
       </div>
 
-      <div className="p-6 relative z-10 bg-white dark:bg-gray-800">
-        <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3 text-sm">
+      <div className="p-6 relative z-10" style={{ background: 'var(--bg-surface)' }}>
+        <p className="mb-4 line-clamp-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
           {description}
         </p>
 
+        {/* Tech tags — uniform bg-accent-primary/10 text-accent-primary */}
         <div className="flex flex-wrap gap-2 mb-4">
           {technologies.slice(0, 3).map((tech) => (
             <span
               key={tech}
-              className="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-md text-xs font-mono border border-blue-100 dark:border-blue-800"
+              className="px-2 py-1 rounded-md text-xs font-mono"
+              style={{
+                background: 'rgba(59, 130, 246, 0.1)',
+                color: 'var(--accent-primary)',
+                border: '1px solid rgba(59, 130, 246, 0.2)',
+              }}
             >
               {tech}
             </span>
           ))}
           {technologies.length > 3 && (
-            <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-500 text-xs rounded-md">+{technologies.length - 3}</span>
+            <span className="px-2 py-1 text-xs rounded-md" style={{ background: 'var(--bg-surface-hover)', color: 'var(--text-secondary)' }}>+{technologies.length - 3}</span>
           )}
         </div>
 
+        {/* Button hierarchy fix (per user spec):
+            - Live Demo → ONLY filled button (accent-primary)
+            - Case Study → outline/ghost button with accent-primary border and text
+            - Code → subtle secondary ghost button (text-secondary, subtle border)
+        */}
         <div className="flex flex-wrap items-center justify-between gap-2 mt-auto pt-2">
           {caseStudySlug && (
             <Link
               href={`/work/${caseStudySlug}`}
               onClick={(e) => e.stopPropagation()}
-              className="px-3.5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-semibold rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all shadow-md shadow-indigo-500/20 inline-flex items-center gap-1.5"
+              className="px-3.5 py-2 text-xs font-semibold rounded-lg inline-flex items-center gap-1.5 transition-all hover:scale-105 hover:bg-blue-500/10"
+              style={{
+                background: 'transparent',
+                color: 'var(--accent-primary)',
+                border: '1px solid var(--accent-primary)',
+              }}
             >
               Case Study
             </Link>
@@ -165,7 +184,7 @@ const ProjectCard = ({ title, description, images, technologies, liveUrl, github
                 onClick={(e) => e.stopPropagation()}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                className="btn-primary px-3 py-2 text-xs rounded-lg"
               >
                 Live Demo
               </motion.a>
@@ -178,7 +197,7 @@ const ProjectCard = ({ title, description, images, technologies, liveUrl, github
                 onClick={(e) => e.stopPropagation()}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-3 py-2 bg-gray-700 text-white text-xs rounded-lg hover:bg-gray-600 transition-colors"
+                className="btn-ghost px-3 py-2 text-xs rounded-lg"
               >
                 Code
               </motion.a>

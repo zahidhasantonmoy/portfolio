@@ -90,50 +90,54 @@ const Achievements = () => {
 
 
   return (
-    <section id="achievements" className="py-20 bg-gray-900 text-white relative">
+    <section id="achievements" className="py-20 relative" style={{ background: 'var(--bg-surface)' }}>
       <div className="container mx-auto px-6">
         <motion.h2
-          className="text-4xl font-bold text-center mb-16"
+          className="text-4xl font-bold text-center mb-16 gradient-text"
           initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
 
           transition={{ duration: 0.7 }}
           viewport={{ once: true }}
         >
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-            My Credentials
-          </span>
+          My Credentials
         </motion.h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {achievements.map((achievement, index) => (
             <motion.div
               key={index}
-              className="relative group bg-gray-800 rounded-xl overflow-hidden p-8 border border-gray-700 hover:border-blue-500/50 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10"
+              className="relative group rounded-xl overflow-hidden p-8 transition-all duration-300 hover:shadow-glow-sm"
+              style={{
+                background: 'var(--bg-base)',
+                border: '1px solid var(--border)',
+              }}
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              whileHover={{ y: -5 }}
+              whileHover={{ y: -5, borderColor: 'var(--accent-primary)' }}
             >
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-6xl">
                 🏆
               </div>
 
               <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4 text-blue-400">
+                <div className="flex items-center gap-3 mb-4" style={{ color: 'var(--accent-primary)' }}>
                   <span className="text-xl">🎖️</span>
                   {achievement.position && (
-                    <span className="text-sm font-semibold tracking-wider uppercase bg-blue-500/10 px-3 py-1 rounded-full">
+                    <span className="text-sm font-semibold tracking-wider uppercase px-3 py-1 rounded-full"
+                      style={{ background: 'rgba(59, 130, 246, 0.1)' }}
+                    >
                       {achievement.position}
                     </span>
                   )}
                 </div>
 
-                <h3 className="text-2xl font-bold text-white mb-6 group-hover:text-blue-400 transition-colors">
+                <h3 className="text-2xl font-bold mb-6 transition-colors" style={{ color: 'var(--text-primary)' }}>
                   {achievement.title}
                 </h3>
 
-                <div className="space-y-3 text-gray-300">
+                <div className="space-y-3" style={{ color: 'var(--text-secondary)' }}>
                   <div className="flex items-center gap-3">
                     <span className="w-5 text-center">🏷️</span>
                     <span className="text-sm">{achievement.category}</span>

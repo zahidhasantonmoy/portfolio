@@ -102,25 +102,38 @@ export default function ServicesView({ lang }: ServicesViewProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
       />
-      <main className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a]">
+      <main className="min-h-screen" style={{ background: "var(--bg-base)", color: "var(--text-primary)" }}>
         {/* ── Hero ── */}
         <section className="relative overflow-hidden pt-28 pb-20 px-4">
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
-            <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full bg-indigo-600/10 blur-[120px]" />
-            <div className="absolute -top-20 right-0 w-[400px] h-[400px] rounded-full bg-purple-600/10 blur-[100px]" />
+            <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full blur-[120px] opacity-15" style={{ background: 'var(--accent-primary)' }} />
+            <div className="absolute -top-20 right-0 w-[400px] h-[400px] rounded-full blur-[100px] opacity-15" style={{ background: 'var(--accent-secondary)' }} />
           </div>
           <div className="relative z-10 max-w-4xl mx-auto text-center">
             {/* Language Switcher Link (Crawlable SSR link) */}
             <Link
               href={tx.switchHref}
               id="lang-switch-btn"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition-all mb-5 shadow-sm"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all mb-5 shadow-sm hover:border-blue-500"
+              style={{
+                background: "var(--bg-surface)",
+                border: "1px solid var(--border)",
+                color: "var(--text-secondary)",
+              }}
               title={isBn ? "Switch to English" : "বাংলা সংস্করণে যান"}
             >
               <FaLanguage className="text-sm" /> {tx.switchLang}
             </Link>
 
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-sm font-semibold mb-6 shadow-sm">
+            {/* Availability Badge */}
+            <div
+              className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-sm border"
+              style={{
+                background: "rgba(34, 197, 94, 0.1)",
+                borderColor: "rgba(34, 197, 94, 0.3)",
+                color: "var(--success)",
+              }}
+            >
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
@@ -128,14 +141,14 @@ export default function ServicesView({ lang }: ServicesViewProps) {
               {tx.badge}
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6" style={{ color: "var(--text-primary)" }}>
               {tx.h1a}{" "}
-              <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <span className="gradient-text">
                 {tx.h1b}
               </span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto mb-10">
+            <p className="text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto mb-10" style={{ color: "var(--text-secondary)" }}>
               {tx.heroDesc}
             </p>
 
@@ -143,9 +156,14 @@ export default function ServicesView({ lang }: ServicesViewProps) {
               {techStack.map(({ icon: Icon, label }) => (
                 <span
                   key={label}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-700 dark:text-gray-300 shadow-sm"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono border shadow-sm"
+                  style={{
+                    background: "var(--bg-surface)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-secondary)",
+                  }}
                 >
-                  <Icon className="text-sm" />
+                  <Icon className="text-sm text-blue-500" />
                   {label}
                 </span>
               ))}
@@ -155,7 +173,7 @@ export default function ServicesView({ lang }: ServicesViewProps) {
               <a
                 href="#contact-form"
                 id="hire-me-primary-cta"
-                className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-600 text-white font-semibold text-base shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.03] active:scale-[0.98] transition-all group"
+                className="btn-primary inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-base group"
               >
                 <FaEnvelope className="text-sm" />
                 <span>{tx.ctaPrimary}</span>
@@ -164,7 +182,7 @@ export default function ServicesView({ lang }: ServicesViewProps) {
               <Link
                 href="/#projects"
                 id="view-projects-btn"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white dark:bg-gray-800 hover:bg-gray-50 text-gray-800 dark:text-gray-200 font-semibold text-sm border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-500 transition-all shadow-sm"
+                className="btn-ghost inline-flex items-center gap-2 px-6 py-3.5 rounded-xl text-sm"
               >
                 {tx.ctaProjects}
               </Link>
@@ -175,10 +193,10 @@ export default function ServicesView({ lang }: ServicesViewProps) {
         {/* ── Services Grid ── */}
         <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 gradient-text">
               {tx.servicesH2}
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
+            <p className="max-w-xl mx-auto text-base" style={{ color: "var(--text-secondary)" }}>
               {tx.servicesDesc}
             </p>
           </div>
@@ -189,27 +207,38 @@ export default function ServicesView({ lang }: ServicesViewProps) {
               return (
                 <article
                   key={d.title}
-                  className={`relative rounded-3xl border ${svc.borderColor} ${svc.hoverBorder} bg-white dark:bg-gray-900/60 p-8 shadow-sm hover:shadow-lg transition-all duration-300 group backdrop-blur-sm`}
+                  className="relative rounded-3xl border p-8 shadow-sm transition-all duration-300 group backdrop-blur-sm hover:border-blue-500/50 hover:shadow-glow-sm"
+                  style={{
+                    background: "var(--bg-surface)",
+                    borderColor: "var(--border)",
+                  }}
                 >
-                  <div className="w-12 h-12 rounded-2xl bg-white/70 dark:bg-gray-800/70 border border-gray-200 dark:border-gray-700 flex items-center justify-center mb-5 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 shadow-sm group-hover:scale-110 transition-transform duration-300 border"
+                    style={{
+                      background: "var(--bg-base)",
+                      borderColor: "var(--border)",
+                    }}
+                  >
                     <Icon className={`text-xl ${svc.iconColor}`} />
                   </div>
-                  <h3 className="text-xl font-extrabold text-gray-900 dark:text-white mb-1">
+                  <h3 className="text-xl font-extrabold mb-1" style={{ color: "var(--text-primary)" }}>
                     {d.title}
                   </h3>
-                  <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-4 font-mono">
+                  <p className="text-xs font-medium mb-4 font-mono" style={{ color: "var(--accent-secondary)" }}>
                     {d.subtitle}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-5">
+                  <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--text-secondary)" }}>
                     {d.description}
                   </p>
                   <ul className="space-y-2">
                     {d.deliverables.map((item) => (
                       <li
                         key={item}
-                        className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
+                        className="flex items-start gap-2 text-sm"
+                        style={{ color: "var(--text-primary)" }}
                       >
-                        <FaCheckCircle className="text-indigo-500 dark:text-indigo-400 flex-shrink-0 mt-0.5 text-xs" />
+                        <FaCheckCircle className="flex-shrink-0 mt-0.5 text-xs text-blue-500" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -221,13 +250,19 @@ export default function ServicesView({ lang }: ServicesViewProps) {
         </section>
 
         {/* ── Process ── */}
-        <section className="bg-white dark:bg-gray-900/40 border-y border-gray-100 dark:border-gray-800 py-16 px-4">
+        <section
+          className="border-y py-16 px-4"
+          style={{
+            background: "var(--bg-surface)",
+            borderColor: "var(--border)",
+          }}
+        >
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-4">
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 gradient-text">
                 {tx.processH2}
               </h2>
-              <p className="text-gray-500 dark:text-gray-400 max-w-lg mx-auto">
+              <p className="max-w-lg mx-auto text-base" style={{ color: "var(--text-secondary)" }}>
                 {tx.processDesc}
               </p>
             </div>
@@ -236,13 +271,19 @@ export default function ServicesView({ lang }: ServicesViewProps) {
                 const d = step[lang];
                 return (
                   <div key={step.step} className="text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
+                    <div
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
+                      style={{
+                        background: "linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))",
+                        boxShadow: "0 8px 24px var(--glow-primary)",
+                      }}
+                    >
                       <span className="text-white font-extrabold text-lg">{step.step}</span>
                     </div>
-                    <h3 className="font-bold text-gray-900 dark:text-white text-base mb-2">
+                    <h3 className="font-bold text-base mb-2" style={{ color: "var(--text-primary)" }}>
                       {d.title}
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                       {d.desc}
                     </p>
                   </div>
@@ -254,20 +295,24 @@ export default function ServicesView({ lang }: ServicesViewProps) {
 
         {/* ── Pricing ── */}
         <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16 text-center">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 gradient-text">
             {tx.pricingH2}
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 leading-relaxed mb-8 max-w-xl mx-auto">
+          <p className="leading-relaxed mb-8 max-w-xl mx-auto text-base" style={{ color: "var(--text-secondary)" }}>
             {tx.pricingDesc}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
             {tx.pricingTiers.map((tier) => (
               <div
                 key={tier.label}
-                className="p-6 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/60 text-left shadow-sm hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors"
+                className="p-6 rounded-2xl text-left border shadow-sm transition-all hover:border-blue-500/50"
+                style={{
+                  background: "var(--bg-surface)",
+                  borderColor: "var(--border)",
+                }}
               >
-                <p className="font-bold text-gray-900 dark:text-white text-sm mb-2">{tier.label}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                <p className="font-bold text-sm mb-2" style={{ color: "var(--text-primary)" }}>{tier.label}</p>
+                <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                   {tier.desc}
                 </p>
               </div>
@@ -276,7 +321,7 @@ export default function ServicesView({ lang }: ServicesViewProps) {
           <a
             href="#contact-form"
             id="pricing-contact-cta"
-            className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-600 text-white font-semibold text-base shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.03] active:scale-[0.98] transition-all group"
+            className="btn-primary inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-base group"
           >
             <FaEnvelope className="text-sm" />
             <span>{tx.pricingBtn}</span>
@@ -286,20 +331,21 @@ export default function ServicesView({ lang }: ServicesViewProps) {
 
         {/* ── Embedded Contact Form ── */}
         <section id="contact-form" className="max-w-2xl mx-auto px-4 sm:px-6 pb-20">
-          <div className="rounded-3xl border border-indigo-200/60 dark:border-indigo-900/50 bg-white dark:bg-gray-900/80 p-8 shadow-xl shadow-indigo-500/5 backdrop-blur-sm">
+          <div className="glass-card rounded-3xl p-8 sm:p-10 border border-border shadow-xl">
             <div className="mb-6">
-              <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-1">
+              <h2 className="text-2xl font-extrabold mb-1 gradient-text">
                 {tx.formH2}
               </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{tx.formDesc}</p>
+              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{tx.formDesc}</p>
             </div>
             <MiniContactForm lang={lang} tx={tx} />
-            <p className="mt-5 text-center text-xs text-gray-400 dark:text-gray-500">
+            <p className="mt-5 text-center text-xs" style={{ color: "var(--text-secondary)" }}>
               {tx.emailLabel}{" "}
               <a
                 href="mailto:zahidhasantonmoy.dev@gmail.com"
                 id="mailto-fallback"
-                className="text-indigo-500 hover:underline font-medium"
+                className="font-medium hover:underline"
+                style={{ color: "var(--accent-primary)" }}
               >
                 zahidhasantonmoy.dev@gmail.com
               </a>
@@ -308,21 +354,29 @@ export default function ServicesView({ lang }: ServicesViewProps) {
         </section>
 
         {/* ── Bottom Banner ── */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-700 to-indigo-800 py-16 px-4">
+        <section
+          className="relative overflow-hidden py-16 px-4 border-t"
+          style={{
+            background: "linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-base) 100%)",
+            borderColor: "var(--border)",
+          }}
+        >
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute top-0 left-1/4 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
+            <div className="absolute top-0 left-1/4 w-64 h-64 rounded-full blur-3xl opacity-10" style={{ background: "var(--accent-primary)" }} />
+            <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full blur-3xl opacity-10" style={{ background: "var(--accent-secondary)" }} />
           </div>
           <div className="relative z-10 max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 gradient-text">
               {tx.bannerH2}
             </h2>
-            <p className="text-indigo-200 text-base leading-relaxed mb-8">{tx.bannerDesc}</p>
+            <p className="text-base leading-relaxed mb-8 max-w-xl mx-auto" style={{ color: "var(--text-secondary)" }}>
+              {tx.bannerDesc}
+            </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
                 href="#contact-form"
                 id="bottom-hire-cta"
-                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl bg-white text-indigo-700 font-bold text-sm hover:bg-indigo-50 hover:scale-[1.03] active:scale-[0.98] transition-all shadow-lg"
+                className="btn-primary inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl font-bold text-sm"
               >
                 <FaEnvelope />
                 {tx.ctaPrimary}
@@ -333,7 +387,12 @@ export default function ServicesView({ lang }: ServicesViewProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="GitHub"
-                  className="p-3 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all"
+                  className="p-3 rounded-xl border transition-all hover:scale-110 hover:border-blue-500 hover:text-blue-500"
+                  style={{
+                    background: "var(--bg-surface)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-secondary)",
+                  }}
                 >
                   <FaGithub size={18} />
                 </a>
@@ -342,7 +401,12 @@ export default function ServicesView({ lang }: ServicesViewProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
-                  className="p-3 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all"
+                  className="p-3 rounded-xl border transition-all hover:scale-110 hover:border-blue-500 hover:text-blue-500"
+                  style={{
+                    background: "var(--bg-surface)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-secondary)",
+                  }}
                 >
                   <FaLinkedin size={18} />
                 </a>

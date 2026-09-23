@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
+const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], display: "swap", variable: "--font-mono" });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://zahidhasantonmoy.vercel.app"),
@@ -117,7 +118,7 @@ export default function RootLayout({
         {/* Dynamic RSS 2.0 Feed for Blog Syndication & Readers */}
         <link rel="alternate" type="application/rss+xml" title="Zahid Hasan Tonmoy's Blog" href="https://zahidhasantonmoy.vercel.app/rss.xml" />
       </head>
-      <body className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-white`}>
+      <body className={`${inter.className} ${jetbrainsMono.variable}`} style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

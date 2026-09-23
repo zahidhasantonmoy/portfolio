@@ -22,10 +22,10 @@ const ReviewForm = () => {
     };
 
     return (
-        <section id="review" className="py-20 bg-gray-50 dark:bg-gray-800 transition-colors duration-300">
+        <section id="review" className="py-20 transition-colors duration-300" style={{ background: 'var(--bg-surface)' }}>
             <div className="container mx-auto px-6">
                 <motion.h2
-                    className="text-4xl font-bold text-center mb-12 text-gray-800 dark:text-white"
+                    className="text-4xl font-bold text-center mb-12 gradient-text"
                     initial={{ opacity: 0, y: -50 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7 }}
@@ -35,7 +35,8 @@ const ReviewForm = () => {
                 </motion.h2>
 
                 <motion.div
-                    className="max-w-2xl mx-auto bg-white dark:bg-gray-700 p-8 rounded-xl shadow-lg"
+                    className="max-w-2xl mx-auto p-8 rounded-xl shadow-lg"
+                    style={{ background: 'var(--bg-base)', border: '1px solid var(--border)' }}
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5 }}
@@ -43,11 +44,12 @@ const ReviewForm = () => {
                 >
                     {submitted ? (
                         <div className="text-center py-12">
-                            <h3 className="text-2xl font-bold text-green-500 mb-4">Thank You!</h3>
-                            <p className="text-gray-600 dark:text-gray-300">Your feedback has been submitted successfully.</p>
+                            <h3 className="text-2xl font-bold mb-4" style={{ color: 'var(--success)' }}>Thank You!</h3>
+                            <p style={{ color: 'var(--text-secondary)' }}>Your feedback has been submitted successfully.</p>
                             <button
                                 onClick={() => setSubmitted(false)}
-                                className="mt-6 text-blue-500 hover:underline"
+                                className="mt-6 hover:underline"
+                                style={{ color: 'var(--accent-primary)' }}
                             >
                                 Submit another review
                             </button>
@@ -55,7 +57,7 @@ const ReviewForm = () => {
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
-                                <label className="block text-gray-700 dark:text-gray-200 mb-2 font-medium">Rating</label>
+                                <label className="block mb-2 font-medium" style={{ color: 'var(--text-secondary)' }}>Rating</label>
                                 <div className="flex gap-2">
                                     {[...Array(5)].map((_, index) => {
                                         const ratingValue = index + 1;
@@ -70,7 +72,7 @@ const ReviewForm = () => {
                                                 />
                                                 <FaStar
                                                     className="cursor-pointer transition-colors duration-200"
-                                                    color={ratingValue <= (hover || rating) ? "#ffc107" : "#e4e5e9"}
+                                                    color={ratingValue <= (hover || rating) ? "#ffc107" : "var(--border)"}
                                                     size={30}
                                                     onMouseEnter={() => setHover(ratingValue)}
                                                     onMouseLeave={() => setHover(0)}
@@ -82,34 +84,36 @@ const ReviewForm = () => {
                             </div>
 
                             <div>
-                                <label htmlFor="name" className="block text-gray-700 dark:text-gray-200 mb-2 font-medium">Name</label>
+                                <label htmlFor="name" className="block mb-2 font-medium" style={{ color: 'var(--text-secondary)' }}>Name</label>
                                 <input
                                     type="text"
                                     id="name"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     required
-                                    className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-600 border border-gray-200 dark:border-gray-500 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                                    className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-colors"
+                                    style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-primary)' } as any}
                                     placeholder="Your Name"
                                 />
                             </div>
 
                             <div>
-                                <label htmlFor="comment" className="block text-gray-700 dark:text-gray-200 mb-2 font-medium">Comment</label>
+                                <label htmlFor="comment" className="block mb-2 font-medium" style={{ color: 'var(--text-secondary)' }}>Comment</label>
                                 <textarea
                                     id="comment"
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
                                     required
                                     rows={4}
-                                    className="w-full px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-600 border border-gray-200 dark:border-gray-500 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                                    className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-colors"
+                                    style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-primary)' } as any}
                                     placeholder="Share your experience..."
                                 ></textarea>
                             </div>
 
                             <button
                                 type="submit"
-                                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors duration-300 shadow-md"
+                                className="btn-primary w-full py-4 rounded-lg text-base"
                             >
                                 Submit Review
                             </button>

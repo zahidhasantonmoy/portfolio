@@ -52,10 +52,10 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-24 bg-white dark:bg-gray-900 transition-colors duration-300 relative overflow-hidden">
+    <section id="contact" className="py-24 transition-colors duration-300 relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
       <div className="container mx-auto px-6 relative z-10">
         <motion.h2
-          className="text-4xl font-bold text-center mb-16 text-gray-800 dark:text-white"
+          className="text-4xl font-bold text-center mb-16 gradient-text"
           initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
@@ -67,30 +67,30 @@ const Contact = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto">
           {/* Contact Info */}
           <motion.div
-            className="bg-gray-100 dark:bg-gray-800 rounded-2xl p-8 shadow-xl h-fit"
+            className="glass-card rounded-2xl p-8 shadow-xl h-fit"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">Contact Information</h3>
-            <div className="space-y-6 text-gray-600 dark:text-gray-300">
-              <div className="flex items-center p-4 bg-white dark:bg-gray-700/50 rounded-xl hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 mr-4">
+            <h3 className="text-2xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>Contact Information</h3>
+            <div className="space-y-6" style={{ color: 'var(--text-secondary)' }}>
+              <div className="flex items-center p-4 rounded-xl hover:shadow-md transition-shadow" style={{ background: 'var(--bg-base)' }}>
+                <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-primary)' }}>
                   <FaEnvelope size={20} />
                 </div>
                 <span>zahidhasantonmoy.dev@gmail.com</span>
               </div>
 
-              <a href="tel:+8801850077786" className="flex items-center p-4 bg-white dark:bg-gray-700/50 rounded-xl hover:shadow-md transition-shadow hover:text-blue-600 dark:hover:text-blue-400">
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 mr-4">
+              <a href="tel:+8801850077786" className="flex items-center p-4 rounded-xl hover:shadow-md transition-shadow" style={{ background: 'var(--bg-base)' }}>
+                <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4" style={{ background: 'rgba(34, 197, 94, 0.1)', color: 'var(--success)' }}>
                   <FaPhone size={20} />
                 </div>
                 <span>+880 1850 077786</span>
               </a>
 
-              <div className="flex items-center p-4 bg-white dark:bg-gray-700/50 rounded-xl hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400 mr-4">
+              <div className="flex items-center p-4 rounded-xl hover:shadow-md transition-shadow" style={{ background: 'var(--bg-base)' }}>
+                <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4" style={{ background: 'rgba(6, 182, 212, 0.1)', color: 'var(--accent-secondary)' }}>
                   <FaMapMarkerAlt size={20} />
                 </div>
                 <span>Dhaka, Bangladesh</span>
@@ -98,57 +98,37 @@ const Contact = () => {
             </div>
 
             {/* Social & Developer Profiles */}
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-4">
+            <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--border)' }}>
+              <h4 className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--text-secondary)' }}>
                 Connect &amp; Follow
               </h4>
               <div className="flex flex-wrap gap-2.5">
-                <a
-                  href="https://github.com/zahidhasantonmoy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="GitHub profile"
-                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700/60 rounded-xl text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white hover:shadow-md transition-all text-xs font-medium"
-                >
-                  <FaGithub size={15} />
-                  <span>GitHub</span>
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/zahidhasantonmoy/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="LinkedIn profile"
-                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700/60 rounded-xl text-gray-700 dark:text-gray-200 hover:text-blue-600 hover:shadow-md transition-all text-xs font-medium"
-                >
-                  <FaLinkedin size={15} />
-                  <span>LinkedIn</span>
-                </a>
-                <a
-                  href="https://medium.com/@zahidhasantonmoy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Medium profile"
-                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700/60 rounded-xl text-gray-700 dark:text-gray-200 hover:text-green-500 hover:shadow-md transition-all text-xs font-medium"
-                >
-                  <FaMedium size={15} />
-                  <span>Medium</span>
-                </a>
-                <a
-                  href="https://dev.to/zahidhasantonmoy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Dev.to profile"
-                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700/60 rounded-xl text-gray-700 dark:text-gray-200 hover:text-indigo-400 hover:shadow-md transition-all text-xs font-medium"
-                >
-                  <FaDev size={15} />
-                  <span>Dev.to</span>
-                </a>
+                {[
+                  { href: "https://github.com/zahidhasantonmoy", label: "GitHub", icon: FaGithub },
+                  { href: "https://www.linkedin.com/in/zahidhasantonmoy/", label: "LinkedIn", icon: FaLinkedin },
+                  { href: "https://medium.com/@zahidhasantonmoy", label: "Medium", icon: FaMedium },
+                  { href: "https://dev.to/zahidhasantonmoy", label: "Dev.to", icon: FaDev },
+                ].map(({ href, label, icon: Icon }) => (
+                  <a
+                    key={href}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${label} profile`}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all hover:shadow-md"
+                    style={{ background: 'var(--bg-base)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
+                  >
+                    <Icon size={15} />
+                    <span>{label}</span>
+                  </a>
+                ))}
                 <a
                   href="https://buymeacoffee.com/zahidhasantonmoy"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Buy Me a Coffee"
-                  className="flex items-center gap-2 px-3 py-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-700/30 rounded-xl hover:shadow-md hover:scale-105 transition-all text-xs font-semibold"
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl hover:shadow-md hover:scale-105 transition-all text-xs font-semibold"
+                  style={{ background: 'rgba(234, 179, 8, 0.1)', color: '#EAB308', border: '1px solid rgba(234, 179, 8, 0.2)' }}
                 >
                   <FaCoffee size={15} />
                   <span>Buy Me a Coffee</span>
@@ -165,10 +145,10 @@ const Contact = () => {
                   key="form"
                   initial={{ opacity: 0, x: 50 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  exit={{ scale: 0, opacity: 0, rotateX: -90 }} // Fold effect start
+                  exit={{ scale: 0, opacity: 0, rotateX: -90 }}
                   transition={{ duration: 0.6 }}
                   viewport={{ once: true }}
-                  className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl border border-gray-100 dark:border-gray-700"
+                  className="glass-card rounded-2xl p-8 shadow-xl"
                 >
                   {showPlane ? (
                     <motion.div
@@ -184,7 +164,7 @@ const Contact = () => {
                       transition={{ duration: 2, times: [0, 0.2, 0.8, 1] }}
                       className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none"
                     >
-                      <FaPaperPlane className="text-blue-500 w-32 h-32" />
+                      <FaPaperPlane style={{ color: 'var(--accent-primary)' }} className="w-32 h-32" />
                     </motion.div>
                   ) : null}
 
@@ -192,24 +172,25 @@ const Contact = () => {
                     animate={showPlane ? { opacity: 0, scale: 0.8 } : { opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Send a Message</h3>
+                    <h3 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Send a Message</h3>
                     <form onSubmit={sendEmail} className="space-y-6">
                       <div>
-                        <label htmlFor="user_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
-                        <input type="text" id="user_name" name="user_name" required className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-white" placeholder="John Doe" />
+                        <label htmlFor="user_name" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Name</label>
+                        <input type="text" id="user_name" name="user_name" required className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-all" style={{ background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-primary)' } as any} placeholder="John Doe" />
                       </div>
                       <div>
-                        <label htmlFor="user_email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
-                        <input type="email" id="user_email" name="user_email" required className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-white" placeholder="john@example.com" />
+                        <label htmlFor="user_email" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Email</label>
+                        <input type="email" id="user_email" name="user_email" required className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-all" style={{ background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-primary)' } as any} placeholder="john@example.com" />
                       </div>
                       <div>
-                        <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Message</label>
-                        <textarea id="message" name="message" required rows={4} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all dark:text-white" placeholder="Your message..."></textarea>
+                        <label htmlFor="message" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Message</label>
+                        <textarea id="message" name="message" required rows={4} className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-all" style={{ background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-primary)' } as any} placeholder="Your message..."></textarea>
                       </div>
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-4 px-6 rounded-lg hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full font-bold py-4 px-6 rounded-lg hover:shadow-glow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-white"
+                        style={{ background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))' }}
                       >
                         {isSubmitting ? (
                           <span>Sending...</span>
@@ -227,18 +208,19 @@ const Contact = () => {
                   key="success"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl border border-green-200 dark:border-green-900 flex flex-col items-center justify-center text-center h-full min-h-[400px]"
+                  className="glass-card rounded-2xl p-8 shadow-xl flex flex-col items-center justify-center text-center h-full min-h-[400px]"
+                  style={{ border: '1px solid rgba(34, 197, 94, 0.3)' }}
                 >
-                  <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6">
-                    <FaCheck className="text-green-500 text-3xl" />
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: 'rgba(34, 197, 94, 0.1)' }}>
+                    <FaCheck style={{ color: 'var(--success)' }} className="text-3xl" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Message Sent!</h3>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Message Sent!</h3>
+                  <p style={{ color: 'var(--text-secondary)' }}>
                     Thanks for reaching out. I'll get back to you as soon as possible.
                   </p>
                   <button
                     onClick={() => setIsSuccess(false)}
-                    className="mt-8 px-6 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    className="btn-ghost mt-8 px-6 py-2 rounded-lg"
                   >
                     Send another
                   </button>

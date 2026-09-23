@@ -1,9 +1,7 @@
-
 "use client";
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaGithub, FaLinkedin, FaFacebook, FaTwitter, FaMedium, FaDev, FaCoffee } from 'react-icons/fa';
-
 import NewsletterSection from './NewsletterSection';
 
 const Footer = () => {
@@ -13,11 +11,16 @@ const Footer = () => {
       <NewsletterSection />
       
       <motion.footer
-        initial={{ opacity: 0, y: 50 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
+        transition={{ duration: 0.5 }}
         viewport={{ once: true }}
-        className="bg-gray-800 text-white py-10"
+        className="border-t py-12"
+        style={{
+          background: 'var(--bg-base)',
+          borderColor: 'var(--border)',
+          color: 'var(--text-primary)'
+        }}
       >
         <div className="container mx-auto px-6 text-center">
           <div className="flex justify-center space-x-6 mb-6">
@@ -26,76 +29,93 @@ const Footer = () => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub profile"
-              className="text-gray-400 hover:text-white transition-colors duration-300"
+              className="p-2.5 rounded-xl transition-all duration-300 hover:scale-110"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent-primary)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
             >
-              <FaGithub size={30} aria-hidden="true" />
+              <FaGithub size={24} aria-hidden="true" />
             </a>
             <a
               href="https://www.linkedin.com/in/zahidhasantonmoy/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn profile"
-              className="text-gray-400 hover:text-white transition-colors duration-300"
+              className="p-2.5 rounded-xl transition-all duration-300 hover:scale-110"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent-primary)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
             >
-              <FaLinkedin size={30} aria-hidden="true" />
+              <FaLinkedin size={24} aria-hidden="true" />
             </a>
             <a
               href="https://www.facebook.com/zahidhasantonmoybd"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook profile"
-              className="text-gray-400 hover:text-white transition-colors duration-300"
+              className="p-2.5 rounded-xl transition-all duration-300 hover:scale-110"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent-primary)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
             >
-              <FaFacebook size={30} aria-hidden="true" />
+              <FaFacebook size={24} aria-hidden="true" />
             </a>
             <a
               href="https://x.com/zahidhasan_bd"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Twitter / X profile"
-              className="text-gray-400 hover:text-white transition-colors duration-300"
+              className="p-2.5 rounded-xl transition-all duration-300 hover:scale-110"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent-primary)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
             >
-              <FaTwitter size={30} aria-hidden="true" />
+              <FaTwitter size={24} aria-hidden="true" />
             </a>
             <a
               href="https://medium.com/@zahidhasantonmoy"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Medium profile"
-              className="text-gray-400 hover:text-white transition-colors duration-300"
+              className="p-2.5 rounded-xl transition-all duration-300 hover:scale-110"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent-primary)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
             >
-              <FaMedium size={30} aria-hidden="true" />
+              <FaMedium size={24} aria-hidden="true" />
             </a>
             <a
               href="https://dev.to/zahidhasantonmoy"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Dev.to profile"
-              className="text-gray-400 hover:text-white transition-colors duration-300"
+              className="p-2.5 rounded-xl transition-all duration-300 hover:scale-110"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--accent-primary)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
             >
-              <FaDev size={30} aria-hidden="true" />
+              <FaDev size={24} aria-hidden="true" />
             </a>
             <a
               href="https://buymeacoffee.com/zahidhasantonmoy"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Buy Me a Coffee"
-              className="text-gray-400 hover:text-yellow-400 transition-colors duration-300"
+              className="p-2.5 rounded-xl transition-all duration-300 hover:scale-110 text-yellow-500 hover:text-yellow-400"
             >
-              <FaCoffee size={28} aria-hidden="true" />
+              <FaCoffee size={24} aria-hidden="true" />
             </a>
           </div>
-          <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-xs text-gray-400 mb-4">
-            <a href="/links" className="hover:text-indigo-400 font-medium transition-colors">Social Hub & Links</a>
+          <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-xs mb-4" style={{ color: 'var(--text-secondary)' }}>
+            <a href="/links" className="hover:text-blue-500 font-medium transition-colors">Social Hub & Links</a>
             <span>•</span>
-            <a href="/blog" className="hover:text-indigo-400 transition-colors">Tech Blog</a>
+            <a href="/blog" className="hover:text-blue-500 transition-colors">Tech Blog</a>
             <span>•</span>
-            <a href="/bn/blog" className="hover:text-indigo-400 transition-colors">বাংলা ব্লগ</a>
+            <a href="/bn/blog" className="hover:text-blue-500 transition-colors">বাংলা ব্লগ</a>
             <span>•</span>
-            <a href="/journal" className="hover:text-indigo-400 transition-colors">Dev Journal</a>
+            <a href="/journal" className="hover:text-blue-500 transition-colors">Dev Journal</a>
           </div>
-          {/* text-gray-300 instead of text-gray-400 — meets WCAG AA contrast on bg-gray-800 (#4) */}
-          <p className="text-gray-300 text-sm">
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
             &copy; {new Date().getFullYear()} Zahid Hasan Tonmoy. All rights reserved.
           </p>
         </div>

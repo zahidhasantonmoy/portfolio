@@ -57,8 +57,10 @@ export default function Navbar() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       aria-label="Main navigation"
-      className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg' : 'bg-transparent'
-        }`}
+      className={`fixed w-full z-50 transition-all duration-500 ${scrolled
+        ? 'bg-[var(--bg-surface)]/80 backdrop-blur-xl shadow-lg shadow-black/5 border-b border-[var(--border)]'
+        : 'bg-transparent'
+      }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -72,7 +74,7 @@ export default function Navbar() {
                 whileHover={{ scale: 1.05 }}
                 className="flex-shrink-0 cursor-pointer"
               >
-                <span className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
+                <span className="text-lg sm:text-xl md:text-2xl font-bold gradient-text">
                   Zahid Hasan Tonmoy
                 </span>
               </motion.div>
@@ -82,12 +84,12 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-4">
+            <div className="ml-10 flex items-baseline space-x-1">
               {navigation.map((item) => (
                 <MagneticButton key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium inline-block"
+                    className="relative text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-4 py-2 rounded-lg text-sm font-medium inline-block transition-colors duration-200 hover:bg-[var(--bg-surface-hover)]"
                     onMouseEnter={() => playHover()}
                     onClick={(e) => handleNavClick(e, item.href)}
                   >
@@ -107,7 +109,7 @@ export default function Navbar() {
             <div className="md:hidden">
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                className="inline-flex items-center justify-center p-2 rounded-lg text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:bg-[var(--bg-surface-hover)] transition-colors"
               >
                 <span className="sr-only">Open main menu</span>
                 {isOpen ? (
@@ -128,13 +130,13 @@ export default function Navbar() {
         animate={{ opacity: isOpen ? 1 : 0, y: isOpen ? 0 : -20 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="px-3 pt-2 pb-4 space-y-1 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-xl border-b border-gray-200/80 dark:border-gray-800/80">
+        <div className="px-3 pt-2 pb-4 space-y-1 bg-[var(--bg-surface)]/95 backdrop-blur-xl shadow-xl border-b border-[var(--border)]">
           {navigation.map((item) => (
             <Link
               key={item.name}
               href={item.href}
               onClick={(e) => handleNavClick(e, item.href)}
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 block px-3 py-2.5 rounded-lg text-base font-medium transition active:scale-95"
+              className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)] block px-3 py-2.5 rounded-lg text-base font-medium transition active:scale-95"
             >
               <motion.span whileHover={{ scale: 1.05 }} className="block">
                 {item.name}

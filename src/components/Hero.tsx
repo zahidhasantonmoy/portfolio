@@ -80,7 +80,6 @@ const Hero = ({ name, title }: HeroProps) => {
     },
     hover: {
       scale: 1.2,
-      color: "#6EE7B7", // Tailwind teal-400
       transition: {
         duration: 0.2,
       },
@@ -92,16 +91,25 @@ const Hero = ({ name, title }: HeroProps) => {
       id="home"
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className="relative min-h-screen py-24 sm:py-28 md:py-0 flex items-center justify-center text-center overflow-hidden bg-gradient-to-br from-gray-950 via-purple-950 to-blue-950"
+      className="relative min-h-screen py-24 sm:py-28 md:py-0 flex items-center justify-center text-center overflow-hidden"
+      style={{ background: 'var(--bg-base)' }}
     >
       {/* Dynamic Background Elements */}
       <div className="absolute inset-0 z-0">
+        {/* Radial gradient accent glow */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full opacity-20 blur-[120px]"
+          style={{ background: 'radial-gradient(ellipse, var(--accent-primary), transparent 70%)' }}
+        />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full opacity-15 blur-[100px]"
+          style={{ background: 'radial-gradient(ellipse, var(--accent-secondary), transparent 70%)' }}
+        />
+
         {/* Animated Grid/Pattern - Parallax Layer 1 */}
         <motion.div
-          className="absolute inset-0 bg-grid-pattern opacity-10"
+          className="absolute inset-0 bg-grid-pattern opacity-[0.05]"
           style={{ x: layer1X, y: layer1Y }}
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.1 }}
+          animate={{ opacity: 0.05 }}
           transition={{ duration: 3, ease: "easeInOut" }}
         ></motion.div>
 
@@ -109,14 +117,14 @@ const Hero = ({ name, title }: HeroProps) => {
         <motion.div
           className="absolute top-0 left-0 w-full h-full"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.3 }}
+          animate={{ opacity: 0.2 }}
           transition={{ duration: 2, delay: 0.5 }}
         >
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <motion.path
               d="M0,10 Q50,0 100,10 T0,20 Q50,30 100,40 T0,50 Q50,60 100,70 T0,80 Q50,90 100,100"
               stroke="url(#gradient1)"
-              strokeWidth="0.5"
+              strokeWidth="0.3"
               fill="none"
               initial={{ pathLength: 0 }}
               animate={{ pathLength: 1 }}
@@ -125,7 +133,7 @@ const Hero = ({ name, title }: HeroProps) => {
             <motion.path
               d="M100,0 Q50,10 0,20 T100,30 Q50,40 0,50 T100,60 Q50,70 0,80 T100,90 Q50,100 0,100"
               stroke="url(#gradient2)"
-              strokeWidth="0.5"
+              strokeWidth="0.3"
               fill="none"
               initial={{ pathLength: 0 }}
               animate={{ pathLength: 1 }}
@@ -133,12 +141,12 @@ const Hero = ({ name, title }: HeroProps) => {
             />
             <defs>
               <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#8B5CF6" /> {/* Purple-500 */}
-                <stop offset="100%" stopColor="#3B82F6" /> {/* Blue-500 */}
+                <stop offset="0%" stopColor="var(--accent-primary)" />
+                <stop offset="100%" stopColor="var(--accent-secondary)" />
               </linearGradient>
               <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#EC4899" /> {/* Pink-500 */}
-                <stop offset="100%" stopColor="#10B981" /> {/* Emerald-500 */}
+                <stop offset="0%" stopColor="var(--accent-secondary)" />
+                <stop offset="100%" stopColor="var(--accent-primary)" />
               </linearGradient>
             </defs>
           </svg>
@@ -146,8 +154,8 @@ const Hero = ({ name, title }: HeroProps) => {
 
         {/* Iconic Overlays - Parallax Layer 2 */}
         <motion.div
-          className="absolute top-1/4 left-1/4 text-white/5"
-          style={{ x: layer2X, y: layer2Y }}
+          className="absolute top-1/4 left-1/4"
+          style={{ x: layer2X, y: layer2Y, color: 'var(--accent-primary)', opacity: 0.03 }}
           initial={{ scale: 0, rotate: 0 }}
           animate={{ scale: 1, rotate: 360 }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
@@ -155,8 +163,8 @@ const Hero = ({ name, title }: HeroProps) => {
           <FaBrain size={150} />
         </motion.div>
         <motion.div
-          className="absolute bottom-1/4 right-1/4 text-white/5"
-          style={{ x: layer2X, y: layer2Y }}
+          className="absolute bottom-1/4 right-1/4"
+          style={{ x: layer2X, y: layer2Y, color: 'var(--accent-secondary)', opacity: 0.03 }}
           initial={{ scale: 0, rotate: 0 }}
           animate={{ scale: 1, rotate: -360 }}
           transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
@@ -164,8 +172,8 @@ const Hero = ({ name, title }: HeroProps) => {
           <FaDatabase size={150} />
         </motion.div>
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white/5"
-          style={{ x: layer1X, y: layer1Y }} // mix layers
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{ x: layer1X, y: layer1Y, color: 'var(--accent-primary)', opacity: 0.03 }}
           initial={{ scale: 0, rotate: 0 }}
           animate={{ scale: 1, rotate: 180 }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
@@ -175,11 +183,13 @@ const Hero = ({ name, title }: HeroProps) => {
       </div>
 
       <motion.div
-        className="relative z-10 flex flex-col items-center text-white p-4"
+        className="relative z-10 flex flex-col items-center p-4"
+        style={{ color: 'var(--text-primary)' }}
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
+        {/* Profile Image with accent gradient glow ring */}
         <motion.div variants={itemVariants} className="mb-5 sm:mb-6 relative w-36 h-36 sm:w-52 sm:h-52 rounded-full overflow-hidden flex-shrink-0">
           <Image
             src="/images/profile.jpg"
@@ -189,28 +199,36 @@ const Hero = ({ name, title }: HeroProps) => {
             priority
             className="object-cover transform hover:scale-105 transition-transform duration-300 ease-in-out"
           />
-          {/* Modern Glow Effect */}
+          {/* Accent gradient glow ring */}
           <motion.div
             className="absolute inset-0 rounded-full border-4 border-transparent"
             animate={{
-              boxShadow: ["0 0 15px rgba(59,130,246,0.8)", "0 0 25px rgba(139,92,246,0.8)", "0 0 15px rgba(59,130,246,0.8)"],
+              boxShadow: [
+                "0 0 15px rgba(59,130,246,0.7)",
+                "0 0 25px rgba(6,182,212,0.7)",
+                "0 0 15px rgba(59,130,246,0.7)"
+              ],
             }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           ></motion.div>
         </motion.div>
 
-        {/* Live "Available for Hire" pulsing badge */}
+        {/* Live "Available for Freelance" pulsing badge — uses --success (Von Restorff) */}
         <motion.div
           variants={itemVariants}
-          className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs sm:text-sm font-medium mb-5 backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.18)] hover:bg-emerald-500/15 transition-all duration-300 cursor-default"
+          className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium mb-5 backdrop-blur-md cursor-default transition-all duration-300"
+          style={{
+            background: 'rgba(34, 197, 94, 0.1)',
+            border: '1px solid rgba(34, 197, 94, 0.3)',
+            color: 'var(--success)',
+            boxShadow: '0 0 20px rgba(34, 197, 94, 0.18)',
+          }}
         >
           <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
           </span>
-          <span className="font-semibold tracking-wide">Available for Hire</span>
-          <span className="text-emerald-400/50">•</span>
-          <span className="text-emerald-300/90 text-[11px] sm:text-xs">Open to Full-time & Remote Roles</span>
+          <span className="font-semibold tracking-wide">Available for Freelance & Full-time Roles</span>
         </motion.div>
 
         {/*
@@ -226,7 +244,7 @@ const Hero = ({ name, title }: HeroProps) => {
           {/* Invisible spacer — reserves the final width/height from first paint */}
           <span className="invisible select-none" aria-hidden="true">{name}</span>
           {/* Animated overlay — absolutely positioned so it never contributes to layout */}
-          <span className="absolute inset-0 flex items-center justify-center">
+          <span className="absolute inset-0 flex items-center justify-center gradient-text">
             <DecryptedText text={name} speed={30} revealSpeed={50} />
           </span>
         </motion.h1>
@@ -240,7 +258,8 @@ const Hero = ({ name, title }: HeroProps) => {
           The live TypewriterText then renders on top at the same fixed size.
         */}
         <motion.div
-          className="text-lg sm:text-2xl md:text-4xl font-light leading-relaxed mb-6 sm:mb-8 text-gray-300"
+          className="text-lg sm:text-2xl md:text-4xl font-light leading-relaxed mb-6 sm:mb-8"
+          style={{ color: 'var(--text-secondary)' }}
           variants={heroItemVariants}
         >
           <span className="relative inline-block">
@@ -261,19 +280,21 @@ const Hero = ({ name, title }: HeroProps) => {
                 typingSpeed={100}
                 deleteSpeed={50}
                 delay={2000}
-                className="text-blue-200"
+                className="gradient-text"
               />
             </span>
           </span>
         </motion.div>
 
+        {/* CTA Buttons — Von Restorff: Only "View My Work" is filled */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-8 w-full max-w-xs sm:max-w-none"
+          className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8 w-full max-w-xs sm:max-w-none"
           variants={containerVariants}
         >
+          {/* PRIMARY CTA — filled accent button */}
           <motion.a
             href="#projects"
-            className="px-8 py-4 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-300 w-full sm:w-auto text-center"
+            className="btn-primary px-8 py-4 text-base font-bold rounded-xl w-full sm:w-auto text-center shadow-glow-sm hover:shadow-glow-md"
             variants={itemVariants}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -281,19 +302,21 @@ const Hero = ({ name, title }: HeroProps) => {
             View My Work
           </motion.a>
 
+          {/* Ghost CTA */}
           <motion.a
             href="/blog"
-            className="px-8 py-4 bg-purple-600 text-white font-bold rounded-lg shadow-lg hover:bg-purple-700 transition-colors duration-300 flex items-center justify-center gap-2 w-full sm:w-auto text-center"
+            className="btn-ghost px-8 py-4 text-base font-bold rounded-xl w-full sm:w-auto text-center"
             variants={itemVariants}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <span>Read Blog</span>
+            Read Blog
           </motion.a>
 
+          {/* Ghost CTA */}
           <motion.a
             href="#contact"
-            className="px-8 py-4 border-2 border-gray-400 text-gray-300 font-bold rounded-lg shadow-lg hover:bg-gray-700 hover:border-gray-700 transition-colors duration-300 w-full sm:w-auto text-center"
+            className="btn-ghost px-8 py-4 text-base font-bold rounded-xl w-full sm:w-auto text-center"
             variants={itemVariants}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -307,90 +330,32 @@ const Hero = ({ name, title }: HeroProps) => {
           className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 max-w-full px-2"
           variants={containerVariants}
         >
-          <motion.a
-            href="https://github.com/zahidhasantonmoy"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="GitHub profile"
-            className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
-            variants={iconVariants}
-            whileHover="hover"
-            whileTap={{ scale: 0.9 }}
-          >
-            <FaGithub size={30} aria-hidden="true" />
-          </motion.a>
-          <motion.a
-            href="https://www.linkedin.com/in/zahidhasantonmoy/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="LinkedIn profile"
-            className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
-            variants={iconVariants}
-            whileHover="hover"
-            whileTap={{ scale: 0.9 }}
-          >
-            <FaLinkedin size={30} aria-hidden="true" />
-          </motion.a>
-          <motion.a
-            href="https://www.facebook.com/zahidhasantonmoybd"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Facebook profile"
-            className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
-            variants={iconVariants}
-            whileHover="hover"
-            whileTap={{ scale: 0.9 }}
-          >
-            <FaFacebook size={30} aria-hidden="true" />
-          </motion.a>
-          <motion.a
-            href="https://x.com/zahidhasan_bd"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Twitter / X profile"
-            className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
-            variants={iconVariants}
-            whileHover="hover"
-            whileTap={{ scale: 0.9 }}
-          >
-            <FaTwitter size={30} aria-hidden="true" />
-          </motion.a>
-          <motion.a
-            href="https://medium.com/@zahidhasantonmoy"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Medium profile"
-            className="text-gray-400 hover:text-green-400 transition-colors duration-300"
-            variants={iconVariants}
-            whileHover="hover"
-            whileTap={{ scale: 0.9 }}
-          >
-            <FaMedium size={30} aria-hidden="true" />
-          </motion.a>
-          <motion.a
-            href="https://dev.to/zahidhasantonmoy"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Dev.to profile"
-            className="text-gray-400 hover:text-white transition-colors duration-300"
-            variants={iconVariants}
-            whileHover="hover"
-            whileTap={{ scale: 0.9 }}
-          >
-            <FaDev size={30} aria-hidden="true" />
-          </motion.a>
-          <motion.a
-            href="https://buymeacoffee.com/zahidhasantonmoy"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Buy Me a Coffee"
-            className="text-gray-400 hover:text-yellow-400 transition-colors duration-300"
-            variants={iconVariants}
-            whileHover="hover"
-            whileTap={{ scale: 0.9 }}
-          >
-            <FaCoffee size={28} aria-hidden="true" />
-          </motion.a>
+          {[
+            { href: "https://github.com/zahidhasantonmoy", label: "GitHub profile", icon: FaGithub, size: 30 },
+            { href: "https://www.linkedin.com/in/zahidhasantonmoy/", label: "LinkedIn profile", icon: FaLinkedin, size: 30 },
+            { href: "https://www.facebook.com/zahidhasantonmoybd", label: "Facebook profile", icon: FaFacebook, size: 30 },
+            { href: "https://x.com/zahidhasan_bd", label: "Twitter / X profile", icon: FaTwitter, size: 30 },
+            { href: "https://medium.com/@zahidhasantonmoy", label: "Medium profile", icon: FaMedium, size: 30 },
+            { href: "https://dev.to/zahidhasantonmoy", label: "Dev.to profile", icon: FaDev, size: 30 },
+            { href: "https://buymeacoffee.com/zahidhasantonmoy", label: "Buy Me a Coffee", icon: FaCoffee, size: 28 },
+          ].map(({ href, label, icon: Icon, size }) => (
+            <motion.a
+              key={href}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={label}
+              className="transition-colors duration-300"
+              style={{ color: 'var(--text-secondary)' }}
+              variants={iconVariants}
+              whileHover="hover"
+              whileTap={{ scale: 0.9 }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent-primary)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'; }}
+            >
+              <Icon size={size} aria-hidden="true" />
+            </motion.a>
+          ))}
         </motion.div>
       </motion.div>
     </section>

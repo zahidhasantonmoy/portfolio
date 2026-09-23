@@ -2,27 +2,194 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════
+   DESIGN TOKENS — Dark Mode (Default)
+   60-30-10 ratio:
+     60% → bg-base (deep navy-black)
+     30% → bg-surface (card/section)
+     10% → accent-primary + accent-secondary
+   ═══════════════════════════════════════════════════════ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-base: #0A0E17;
+  --bg-surface: #131926;
+  --text-primary: #E8EAED;
+  --text-secondary: #9BA3AF;
+  --accent-primary: #3B82F6;
+  --accent-secondary: #06B6D4;
+  --success: #22C55E;
+  --border: #1F2937;
+
+  /* Derived tokens */
+  --bg-surface-hover: #1a2235;
+  --accent-primary-hover: #2563EB;
+  --glow-primary: rgba(59, 130, 246, 0.15);
+  --glow-secondary: rgba(6, 182, 212, 0.15);
 }
 
+/* ═══════════════════════════════════════════════════════
+   LIGHT MODE — Activated via next-themes class="light"
+   Same accent hues for brand consistency.
+   ═══════════════════════════════════════════════════════ */
+.light {
+  --bg-base: #FAFAFA;
+  --bg-surface: #FFFFFF;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --accent-primary: #3B82F6;
+  --accent-secondary: #06B6D4;
+  --success: #16A34A;
+  --border: #E5E7EB;
+
+  --bg-surface-hover: #F3F4F6;
+  --accent-primary-hover: #2563EB;
+  --glow-primary: rgba(59, 130, 246, 0.08);
+  --glow-secondary: rgba(6, 182, 212, 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════
+   TAILWIND v3 @theme INLINE — Register CSS variables
+   so Tailwind utilities can reference them.
+   ═══════════════════════════════════════════════════════ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg-base);
+  --color-foreground: var(--text-primary);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ═══════════════════════════════════════════════════════
+   BASE BODY STYLES
+   ═══════════════════════════════════════════════════════ */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ═══════════════════════════════════════════════════════
+   UTILITY CLASSES
+   Reusable across all components.
+   ═══════════════════════════════════════════════════════ */
+
+/* Gradient text: accent-primary → accent-secondary */
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glassmorphism card */
+.glass-card {
+  background: rgba(19, 25, 38, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+.light .glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+/* Primary filled button */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: var(--accent-primary);
+  color: white;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px var(--glow-primary);
+}
+.btn-primary:hover {
+  background: var(--accent-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px var(--glow-primary);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Ghost/outline button */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+.btn-ghost:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+  background: var(--glow-primary);
+}
+
+/* Animated border glow */
+.glow-border {
+  position: relative;
+}
+.glow-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-primary));
+  background-size: 200% 200%;
+  animation: glow-shift 3s ease-in-out infinite;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.glow-border:hover::after {
+  opacity: 1;
+}
+
+@keyframes glow-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Focus ring — accessible keyboard focus */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background: var(--accent-primary);
+  color: white;
+}
+
+/* Scrollbar styling (Webkit) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }

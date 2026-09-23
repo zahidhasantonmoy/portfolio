@@ -76,7 +76,7 @@ const GitHubSection = () => {
   const currentStreakDisplay = stats ? `${stats.currentStreak} Days ⚡` : "4 Days ⚡";
 
   return (
-    <section id="github" className="py-24 bg-[#0d1117] overflow-hidden relative">
+    <section id="github" className="py-24 overflow-hidden relative" style={{ background: 'var(--bg-base)' }}>
       {/* Background Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:40px_40px] opacity-20 pointer-events-none" />
 
@@ -170,7 +170,7 @@ const GitHubSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <div className="bg-gray-900/60 backdrop-blur-xl border border-gray-700/50 p-8 rounded-2xl shadow-xl relative overflow-hidden group">
+            <div className="backdrop-blur-xl p-8 rounded-2xl shadow-xl relative overflow-hidden group" style={{ background: 'rgba(19, 25, 38, 0.6)', border: '1px solid var(--border)' }}>
               <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
               <div className="flex items-center justify-between mb-8 relative z-10">
@@ -254,7 +254,8 @@ const GitHubSection = () => {
                   href="https://github.com/zahidhasantonmoy"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full text-center py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold hover:shadow-[0_0_20px_rgba(8,145,178,0.4)] transition-all transform hover:scale-[1.02]"
+                  className="block w-full text-center py-3 rounded-xl text-white font-bold hover:shadow-glow-sm transition-all transform hover:scale-[1.02]"
+                  style={{ background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))' }}
                 >
                   Visit My GitHub 🚀
                 </a>

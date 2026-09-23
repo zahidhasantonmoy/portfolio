@@ -76,12 +76,12 @@ export default function HomePageContent({ dbProjects, dbSkills }: { dbProjects?:
   return (
     <FilterProvider>
       <ScrollProgress />
-      <main className="min-h-screen bg-white dark:bg-gray-900">
+      <main className="min-h-screen" style={{ background: 'var(--bg-base)' }}>
         <Hero name={data.name} title={data.title} />
         <About aboutMe={data.aboutMe} />
-        <section id="skills" className="py-20 bg-gray-50 dark:bg-gray-900">
+        <section id="skills" className="py-20" style={{ background: 'var(--bg-base)' }}>
           <div className="container mx-auto px-6">
-            <h2 className="text-4xl font-bold text-center mb-12">My Skills</h2>
+            <h2 className="text-4xl font-bold text-center mb-12 gradient-text">My Skills</h2>
             <SkillSection skills={finalSkills} />
           </div>
         </section>

@@ -34,35 +34,50 @@ export default function CaseStudyList({ caseStudies, lang }: CaseStudyListProps)
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] pt-28 pb-20">
+    <main className="min-h-screen pt-28 pb-20" style={{ background: "var(--bg-base)", color: "var(--text-primary)" }}>
       {/* ── Header ── */}
       <section className="relative px-4 sm:px-6 max-w-5xl mx-auto text-center mb-16">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-indigo-600/10 blur-[130px]" />
+          <div
+            className="absolute -top-32 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-[130px] opacity-15"
+            style={{ background: "var(--accent-primary)" }}
+          />
         </div>
 
         <div className="relative z-10">
           <Link
             href={t.switchHref}
             id="work-lang-switch"
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition-all mb-5 shadow-sm"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all mb-5 shadow-sm border hover:border-blue-500"
+            style={{
+              background: "var(--bg-surface)",
+              borderColor: "var(--border)",
+              color: "var(--text-secondary)",
+            }}
           >
             <FaLanguage className="text-sm" /> {t.switchText}
           </Link>
 
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-xs font-semibold mb-6 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-indigo-500" />
+          <div
+            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs font-semibold mb-6 shadow-sm border"
+            style={{
+              background: "rgba(59, 130, 246, 0.1)",
+              borderColor: "rgba(59, 130, 246, 0.3)",
+              color: "var(--accent-primary)",
+            }}
+          >
+            <span className="w-2 h-2 rounded-full" style={{ background: "var(--accent-primary)" }} />
             {t.badge}
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-[1.1] mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6" style={{ color: "var(--text-primary)" }}>
             {t.titleA}{" "}
-            <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <span className="gradient-text">
               {t.titleB}
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg leading-relaxed max-w-2xl mx-auto" style={{ color: "var(--text-secondary)" }}>
             {t.desc}
           </p>
         </div>
@@ -77,8 +92,14 @@ export default function CaseStudyList({ caseStudies, lang }: CaseStudyListProps)
             ))}
           </div>
         ) : (
-          <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 p-8">
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
+          <div
+            className="text-center py-20 rounded-3xl border p-8"
+            style={{
+              background: "var(--bg-surface)",
+              borderColor: "var(--border)",
+            }}
+          >
+            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
               {isBn
                 ? "নতুন কেস স্টাডি প্রস্তুত হচ্ছে..."
                 : "New case studies are currently being documented..."}
@@ -89,17 +110,20 @@ export default function CaseStudyList({ caseStudies, lang }: CaseStudyListProps)
 
       {/* ── Bottom CTA ── */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6">
-        <div className="relative overflow-hidden rounded-3xl border border-indigo-200/80 dark:border-indigo-900/50 bg-gradient-to-br from-white via-indigo-50/40 to-purple-50/30 dark:from-gray-900/90 dark:via-indigo-950/30 dark:to-purple-950/20 p-8 sm:p-12 shadow-xl shadow-indigo-500/5 backdrop-blur-sm text-center">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-4">
+        <div
+          className="glass-card relative overflow-hidden rounded-3xl p-8 sm:p-12 shadow-xl backdrop-blur-sm text-center border"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-4 gradient-text">
             {t.ctaH2}
           </h2>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed max-w-xl mx-auto mb-8">
+          <p className="text-sm sm:text-base leading-relaxed max-w-xl mx-auto mb-8" style={{ color: "var(--text-secondary)" }}>
             {t.ctaDesc}
           </p>
           <Link
             href={t.servicesHref}
             id="work-bottom-services-cta"
-            className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-600 text-white font-semibold text-base shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-[1.03] active:scale-[0.98] transition-all group"
+            className="btn-primary inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-base group"
           >
             <FaRocket className="text-sm" />
             <span>{t.ctaBtn}</span>

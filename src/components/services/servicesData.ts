@@ -34,9 +34,9 @@ export interface ServiceItem {
 export const servicesBilingual: ServiceItem[] = [
   {
     icon: FaRocket,
-    iconColor: "text-indigo-400",
-    borderColor: "border-indigo-500/20",
-    hoverBorder: "hover:border-indigo-500/50",
+    iconColor: "text-blue-500",
+    borderColor: "border-blue-500/20",
+    hoverBorder: "hover:border-blue-500/50",
     en: {
       title: "Full-Stack Web MVP",
       subtitle: "Next.js · React · Node.js · PostgreSQL",
@@ -66,9 +66,9 @@ export const servicesBilingual: ServiceItem[] = [
   },
   {
     icon: FaRobot,
-    iconColor: "text-purple-400",
-    borderColor: "border-purple-500/20",
-    hoverBorder: "hover:border-purple-500/50",
+    iconColor: "text-cyan-400",
+    borderColor: "border-cyan-500/20",
+    hoverBorder: "hover:border-cyan-500/50",
     en: {
       title: "AI Agent Development",
       subtitle: "LLM · Tool Calling · RAG · Streaming",

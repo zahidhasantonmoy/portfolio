@@ -44,10 +44,10 @@ const Projects = ({ projects }: ProjectsProps) => {
     : projects.filter((project) => (project.category || 'General') === selectedCategory);
 
   return (
-    <section id="projects" className="py-20 bg-white dark:bg-gray-900 transition-colors duration-300">
+    <section id="projects" className="py-20 transition-colors duration-300" style={{ background: 'var(--bg-base)' }}>
       <div className="container mx-auto px-6">
         <motion.h2
-          className="text-4xl font-bold text-center mb-12 text-gray-900 dark:text-white"
+          className="text-4xl font-bold text-center mb-12 gradient-text"
           initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
@@ -70,14 +70,16 @@ const Projects = ({ projects }: ProjectsProps) => {
                 }}
                 className={`relative px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
                   isSelected
-                    ? 'text-white shadow-lg shadow-blue-500/25 scale-105'
-                    : 'bg-gray-100 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white border border-transparent dark:border-gray-700/50'
+                    ? 'text-white shadow-lg shadow-[var(--glow-primary)] scale-105'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border)] hover:border-[var(--accent-primary)]'
                 }`}
+                style={!isSelected ? { background: 'var(--bg-surface)' } : undefined}
               >
                 {isSelected && (
                   <motion.div
                     layoutId="activeProjectCategory"
-                    className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full -z-10"
+                    className="absolute inset-0 rounded-full -z-10"
+                    style={{ background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))' }}
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
@@ -86,8 +88,9 @@ const Projects = ({ projects }: ProjectsProps) => {
                   className={`text-[11px] px-1.5 py-0.5 rounded-full font-mono transition-colors ${
                     isSelected
                       ? 'bg-white/20 text-white'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                      : 'text-[var(--text-secondary)]'
                   }`}
+                  style={!isSelected ? { background: 'var(--bg-surface-hover)' } : undefined}
                 >
                   {count}
                 </span>
@@ -105,7 +108,7 @@ const Projects = ({ projects }: ProjectsProps) => {
               exit={{ height: 0, opacity: 0 }}
               className="text-center mb-8"
             >
-              <span className="inline-block px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-lg text-sm font-semibold">
+              <span className="inline-block px-4 py-2 rounded-lg text-sm font-semibold" style={{ background: 'rgba(59,130,246,0.1)', color: 'var(--accent-primary)' }}>
                 Highlighting projects using: {selectedSkill}
               </span>
             </motion.div>

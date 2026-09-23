@@ -25,15 +25,15 @@ const getCategoryIcon = (category: string) => {
     return <FaLayerGroup />;
 };
 
-// Color mapping (can be extended)
-const getCategoryColor = (index: number) => {
-    const colors = [
-        '#3b82f6', // blue-500
-        '#a855f7', // purple-500
-        '#10b981', // emerald-500
-        '#f59e0b', // amber-500
+// Color mapping using accent tokens
+const getCategoryGradient = (index: number) => {
+    const gradients = [
+        'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
+        'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))',
+        'linear-gradient(135deg, var(--success), var(--accent-secondary))',
+        'linear-gradient(135deg, var(--accent-primary), var(--success))',
     ];
-    return colors[index % colors.length];
+    return gradients[index % gradients.length];
 };
 
 const SkillsInteractive = ({ skills }: SkillsInteractiveProps) => {
@@ -92,12 +92,6 @@ const SkillsInteractive = ({ skills }: SkillsInteractiveProps) => {
         };
     }, [skills]);
 
-
-    // Determine active color for sphere text based on hover
-    const activeColor = activeCategory
-        ? getCategoryColor(skills.findIndex(s => s.category === activeCategory))
-        : '#6b7280'; // gray-500 default
-
     return (
         <div className="flex flex-col lg:flex-row items-center justify-center gap-12 min-h-[600px] py-10">
 
@@ -107,16 +101,17 @@ const SkillsInteractive = ({ skills }: SkillsInteractiveProps) => {
                     initial={{ opacity: 0, x: -50 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="bg-white dark:bg-gray-800 dark:bg-opacity-50 backdrop-blur-xl rounded-2xl p-8 border border-gray-100 dark:border-gray-700 shadow-xl"
+                    className="glass-card rounded-2xl p-8"
                 >
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+                        <h3 className="text-2xl font-bold gradient-text">
                             Technical Expertise
                         </h3>
                         {selectedSkill && (
                             <button
                                 onClick={() => setSelectedSkill(null)}
-                                className="text-xs text-red-500 hover:text-red-700 font-semibold"
+                                className="text-xs font-semibold"
+                                style={{ color: '#EF4444' }}
                             >
                                 Clear Filter: {selectedSkill}
                             </button>
@@ -132,24 +127,20 @@ const SkillsInteractive = ({ skills }: SkillsInteractiveProps) => {
                                 transition={{ delay: idx * 0.1 }}
                                 onMouseEnter={() => setActiveCategory(skillGroup.category)}
                                 onMouseLeave={() => setActiveCategory(null)}
-                                className={`
-                  p-4 rounded-xl transition-all duration-300 border relative overflow-hidden group
-                  ${activeCategory === skillGroup.category
-                                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 transform scale-102'
-                                        : 'bg-transparent border-transparent hover:bg-gray-50 dark:hover:bg-gray-800/50'}
-                `}
+                                className="p-4 rounded-xl transition-all duration-300 border relative overflow-hidden group"
+                                style={{
+                                    background: activeCategory === skillGroup.category ? 'rgba(59, 130, 246, 0.05)' : 'transparent',
+                                    borderColor: activeCategory === skillGroup.category ? 'rgba(59, 130, 246, 0.3)' : 'transparent',
+                                }}
                             >
                                 <div className="flex items-center gap-4 mb-3 relative z-10">
-                                    <div className={`
-                    p-2 rounded-lg text-white shadow-lg
-                    ${idx === 0 ? 'bg-gradient-to-br from-blue-500 to-cyan-400' :
-                                            idx === 1 ? 'bg-gradient-to-br from-purple-500 to-pink-400' :
-                                                idx === 2 ? 'bg-gradient-to-br from-green-500 to-emerald-400' :
-                                                    'bg-gradient-to-br from-orange-500 to-yellow-400'}
-                  `}>
+                                    <div
+                                        className="p-2 rounded-lg text-white shadow-lg"
+                                        style={{ background: getCategoryGradient(idx) }}
+                                    >
                                         {getCategoryIcon(skillGroup.category)}
                                     </div>
-                                    <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                    <h4 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
                                         {skillGroup.category}
                                     </h4>
                                 </div>
@@ -162,12 +153,13 @@ const SkillsInteractive = ({ skills }: SkillsInteractiveProps) => {
                                                 e.stopPropagation();
                                                 setSelectedSkill(selectedSkill === item ? null : item);
                                             }}
-                                            className={`
-                        px-3 py-1 text-sm rounded-full transition-all duration-200
-                        ${selectedSkill === item
-                                                    ? 'bg-blue-600 text-white shadow-md scale-105'
-                                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}
-                      `}
+                                            className="px-3 py-1 text-sm rounded-full transition-all duration-200"
+                                            style={{
+                                                background: selectedSkill === item ? 'var(--accent-primary)' : 'var(--bg-surface-hover)',
+                                                color: selectedSkill === item ? 'white' : 'var(--text-secondary)',
+                                                transform: selectedSkill === item ? 'scale(1.05)' : 'scale(1)',
+                                                boxShadow: selectedSkill === item ? '0 4px 12px var(--glow-primary)' : 'none',
+                                            }}
                                         >
                                             {item}
                                         </button>
@@ -190,18 +182,13 @@ const SkillsInteractive = ({ skills }: SkillsInteractiveProps) => {
                     {/* Glowing background effect */}
                     <div
                         className="absolute inset-0 blur-[100px] rounded-full animate-pulse transition-colors duration-500"
-                        style={{ backgroundColor: activeCategory ? activeColor : '#3b82f6', opacity: 0.2 }}
+                        style={{ backgroundColor: 'var(--accent-primary)', opacity: 0.15 }}
                     />
 
                     <div
                         ref={containerRef}
-                        className="
-              relative z-10 
-              text-lg font-bold 
-              cursor-pointer 
-              transition-colors duration-500
-            "
-                        style={{ color: activeCategory ? activeColor : undefined }} // "Sync Color" logic
+                        className="relative z-10 text-lg font-bold cursor-pointer transition-colors duration-500"
+                        style={{ color: 'var(--text-secondary)' }}
                     />
                 </motion.div>
             </div>
@@ -214,12 +201,12 @@ const SkillsInteractive = ({ skills }: SkillsInteractiveProps) => {
           display: inline-block;
           will-change: transform, opacity;
           cursor: pointer;
+          transition: color 0.2s ease;
         }
         .tagcloud-item:hover {
-          color: ${activeCategory ? activeColor : '#3b82f6'};
+          color: var(--accent-primary) !important;
           transform: scale(1.2);
         }
-        /* Default generic color if internal style not applied */
         .tagcloud-item {
             color: inherit; 
         }
