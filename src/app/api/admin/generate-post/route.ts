@@ -124,6 +124,11 @@ REQUIREMENTS:
 19. "og_image_bn": "https://zahidhasantonmoy.vercel.app/bn/blog/" + slug + "/opengraph-image".
 20. "branding":
    - "angle": 1-sentence personal developer branding angle highlighting engineering excellence.
+21. "series": If the topic is part of an ongoing multi-part tutorial or educational series (e.g. AI Agent Series Post 2 of 5), provide series metadata; if standalone, set fields to null:
+   - "index": integer (e.g. 2 for Post 2)
+   - "total": integer (e.g. 5)
+   - "prev_post_title_bn": Previous post title in Bangla if index > 1 (e.g. "অটোনোমাস এআই এজেন্ট কী এবং কেন এটি সফটওয়্যার ইঞ্জিনিয়ারিংয়ের ভবিষ্যৎ?"), else null
+   - "prev_post_slug": Previous post slug if index > 1 (e.g. "mastering-autonomous-ai-agents"), else null
 
 STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown code fences around root):
 {
@@ -287,10 +292,27 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
       result.social.linkedin_hashtags_bn = ["#প্রোগ্রামিং", "#ওয়েবডেভেলপমেন্ট", "#নেক্সটজেএস", "#TechBangladesh"];
     }
 
-    // Process and normalize content_images (cap at 3 max)
+    // Normalize series field
+    if (result.series && typeof result.series === "object") {
+      result.series = {
+        index: typeof result.series.index === "number" ? result.series.index : null,
+        total: typeof result.series.total === "number" ? result.series.total : null,
+        prev_post_title_bn: typeof result.series.prev_post_title_bn === "string" ? result.series.prev_post_title_bn : null,
+        prev_post_slug: typeof result.series.prev_post_slug === "string" ? result.series.prev_post_slug : null,
+      };
+    } else {
+      result.series = {
+        index: null,
+        total: null,
+        prev_post_title_bn: null,
+        prev_post_slug: null,
+      };
+    }
+
+    // Process and normalize content_images (cap at 2 max, strictly decorative)
     if (Array.isArray(result.content_images)) {
       result.content_images = result.content_images
-        .slice(0, 3)
+        .slice(0, 2)
         .map((img: any, idx: number) => {
           const id = img.id || `img-${idx + 1}`;
           const marker = `{{IMAGE:${id}}}`;
@@ -298,8 +320,8 @@ STRICT JSON OUTPUT FORMAT (Respond ONLY with valid parseable JSON, no markdown c
             id,
             placement_marker: marker,
             prompt: typeof img.prompt === "string" ? img.prompt.trim() : "",
-            alt_en: typeof img.alt_en === "string" ? img.alt_en.trim() : `Diagram illustrating ${targetTopic}`,
-            alt_bn: typeof img.alt_bn === "string" ? img.alt_bn.trim() : `${targetTopic}-এর আর্কিটেকচার ডায়াগ্রাম`,
+            alt_en: typeof img.alt_en === "string" ? img.alt_en.trim() : `Abstract visual concept for ${targetTopic}`,
+            alt_bn: typeof img.alt_bn === "string" ? img.alt_bn.trim() : `${targetTopic}-এর বিমূর্ত কনসেপ্ট আর্ট`,
             caption_en: typeof img.caption_en === "string" ? img.caption_en.trim() : "",
             caption_bn: typeof img.caption_bn === "string" ? img.caption_bn.trim() : "",
             url: null,
