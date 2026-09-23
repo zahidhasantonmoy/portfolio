@@ -83,7 +83,7 @@ export default function ArticleCTA({ lang = 'en' }: ArticleCTAProps) {
         {/* Right side: Action Buttons */}
         <div className="flex flex-col sm:flex-row lg:flex-col gap-3.5 flex-shrink-0 w-full lg:w-auto">
           <Link
-            href={isBn ? "/services#contact-form" : "/services"}
+            href={isBn ? "/bn/services#contact-form" : "/services"}
             className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-600 text-white font-semibold text-sm shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all group"
           >
             <FaRocket className="text-xs group-hover:rotate-12 transition-transform duration-300" />

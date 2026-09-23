@@ -92,6 +92,8 @@ Zahid Hasan Tonmoy is a Bangladeshi software engineer, data analyst, and digital
 ## Geographic & Contact Details
 - **Primary Market:** Dhaka, Bangladesh (Locally) & Global Remote Clients (US, UK, Europe, Australia, Middle East).
 - **Official Website:** https://zahidhasantonmoy.vercel.app
+- **Services & Hire Me (English):** https://zahidhasantonmoy.vercel.app/services
+- **Services & Hire Me (Bangla):** https://zahidhasantonmoy.vercel.app/bn/services
 - **Blog (English):** https://zahidhasantonmoy.vercel.app/blog
 - **Blog (Bangla):** https://zahidhasantonmoy.vercel.app/bn/blog
 - **GitHub:** https://github.com/zahidhasantonmoy

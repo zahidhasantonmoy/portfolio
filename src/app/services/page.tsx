@@ -1,5 +1,5 @@
-﻿import type { Metadata } from "next";
-import ServicesClient from "./ServicesClient";
+import type { Metadata } from "next";
+import ServicesView from "@/components/services/ServicesView";
 
 export const metadata: Metadata = {
   title: "Services & Hire Me | Zahid Hasan Tonmoy — Full Stack & AI Developer",
@@ -23,14 +23,20 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Services & Hire Me | Zahid Hasan Tonmoy",
-    description: "Full-Stack MVP, AI Agents, API automation, and technical consulting — freelance & remote.",
+    description:
+      "Full-Stack MVP, AI Agents, API automation, and technical consulting — freelance & remote.",
     images: ["https://zahidhasantonmoy.vercel.app/images/og-image.jpg"],
   },
   alternates: {
     canonical: "https://zahidhasantonmoy.vercel.app/services",
+    languages: {
+      en: "https://zahidhasantonmoy.vercel.app/services",
+      bn: "https://zahidhasantonmoy.vercel.app/bn/services",
+      "x-default": "https://zahidhasantonmoy.vercel.app/services",
+    },
   },
 };
 
 export default function ServicesPage() {
-  return <ServicesClient />;
+  return <ServicesView lang="en" />;
 }
