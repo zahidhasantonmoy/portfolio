@@ -1701,104 +1701,100 @@ export default function PostEditor({
   };
 
   const EXAMPLE_JSON_STRUCTURE = `{
-  "slug": "mastering-autonomous-ai-agents",
-  "canonical_url": "https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents",
+  "slug": "transitioning-from-llms-to-ai-agents",
+  "canonical_url": "https://zahidhasantonmoy.vercel.app/blog/transitioning-from-llms-to-ai-agents",
   "language_alternate": {
-    "en": "https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents",
-    "bn": "https://zahidhasantonmoy.vercel.app/bn/blog/mastering-autonomous-ai-agents"
+    "en": "https://zahidhasantonmoy.vercel.app/blog/transitioning-from-llms-to-ai-agents",
+    "bn": "https://zahidhasantonmoy.vercel.app/bn/blog/transitioning-from-llms-to-ai-agents"
   },
   "published_date": "${new Date().toISOString().split("T")[0]}",
   "updated_date": "${new Date().toISOString().split("T")[0]}",
   "author": "Zahid Hasan Tonmoy",
   "status": "draft",
-  "category": "ai-agent-development",
-  "tags": [ "ai-agent", "nextjs", "react", "typescript" ],
-  "reading_time_minutes": 8,
+  "category": "ai-agent-fundamentals",
+  "tags": [ "ai-agent", "nextjs", "langchain", "typescript" ],
+  "reading_time_minutes": 9,
+  "series": {
+    "index": 2,
+    "total": 5,
+    "prev_post_slug": "mastering-autonomous-ai-agents",
+    "prev_post_title_bn": "নেক্সট জেএস ও ল্যাংচেইন দিয়ে স্বয়ংক্রিয় এআই এজেন্ট ডেভেলপমেন্ট"
+  },
   "english": {
-    "title": "Mastering Autonomous AI Agents with Next.js 14 and LangChain",
-    "article": "# Mastering Autonomous AI Agents with Next.js 14 and LangChain\\n\\nAutonomous agents represent the next major evolution in full-stack web engineering. Rather than traditional static handlers, an autonomous agent continuously observes its state, plans multi-step tool interactions, and executes decisions using LLMs.\\n\\n## Architectural Overview\\n\\n{{IMAGE:img-1}}\\n\\nIn a modern Next.js 14 App Router architecture, the agent execution loop runs inside a secure server action or Route Handler:\\n\\n\`\`\`typescript\\n// src/lib/agent/executor.ts\\nimport { ChatOpenAI } from '@langchain/openai';\\nimport { AgentExecutor, createOpenAIToolsAgent } from 'langchain/agents';\\nimport { pull } from 'langchain/hub';\\nimport { searchTool, databaseTool } from './tools';\\n\\nexport async function runAgentWorkflow(userGoal: string) {\\n  const llm = new ChatOpenAI({ modelName: 'gpt-4o', temperature: 0 });\\n  const tools = [searchTool, databaseTool];\\n  const prompt = await pull<any>('hwchase17/openai-tools-agent');\\n\\n  const agent = await createOpenAIToolsAgent({ llm, tools, prompt });\\n  const executor = new AgentExecutor({ agent, tools, verbose: true });\\n\\n  return await executor.invoke({ input: userGoal });\\n}\\n\`\`\`\\n\\n## Streaming Real-Time Tool Invocations to the UI\\n\\n{{IMAGE:img-2}}\\n\\nTo provide a seamless client experience, we stream agent thoughts and tool outputs directly into React components:\\n\\n\`\`\`tsx\\n// src/components/AgentFeed.tsx\\n'use client';\\nimport { useChat } from 'ai/react';\\n\\nexport default function AgentFeed() {\\n  const { messages, input, handleInputChange, handleSubmit } = useChat();\\n  return (\\n    <div className=\\\"max-w-2xl mx-auto p-6 space-y-4\\\">\\n      {messages.map((m) => (\\n        <div key={m.id} className={m.role === 'user' ? 'text-indigo-600' : 'text-gray-200'}>\\n          {m.content}\\n        </div>\\n      ))}\\n    </div>\\n  );\\n}\\n\`\`\`\\n\\n## Frequently Asked Questions\\n\\n### What are autonomous AI agents?\\nAutonomous agents are software systems powered by LLMs that observe an environment, make iterative decisions, and take actions using tools.\\n\\n### Can I run AI agents with Next.js server actions?\\nYes, server actions provide secure server-side execution environments with streaming support."
+    "title": "Transitioning from LLMs to Autonomous AI Agents: Architectural Patterns, Tool-Calling, and Real-World Pitfalls",
+    "article": "# Transitioning from LLMs to Autonomous AI Agents: Architectural Patterns, Tool-Calling, and Real-World Pitfalls\\n\\nStatic prompt engineering has hit an architectural ceiling. While passive Large Language Models excel at single-turn transformations and text generation, real-world full-stack systems require continuous observation, state reasoning, dynamic tool selection, and resilient self-correction.\\n\\n## Architectural Evolution: From Prompt Chains to Autonomous ReAct Loops\\n\\nPassive LLMs operate purely as input-output functions. In contrast, an autonomous AI agent relies on the ReAct (Reasoning + Acting) loop to iteratively decide *which* tool to run, inspect intermediate observations, and refine its plan until the user goal is fulfilled.\\n\\n\`\`\`mermaid\\ngraph TD\\n    A[Client Request / Goal] --> B[Next.js 14 Route Handler]\\n    B --> C[Agent Orchestrator / LLM Brain]\\n    C -->|Reasoning Step| D{Requires External Action?}\\n    D -->|Yes| E[Execute Zod-Validated Tool]\\n    E -->|Observation / Result| C\\n    D -->|No: Task Complete| F[Stream Final Response to UI]\\n\`\`\`\\n*Architecture Flow Summary: Client Request → Next.js Route Handler → LangChain Orchestrator → Zod-Validated Tool Execution → Streamed UI Response.*\\n\\n### Zahid's Engineering Perspective: A Hard-Earned Lesson\\n\\nWhen I was architecting a production workflow for one of my full-stack web applications, I initially attempted to let GPT-4 directly query and update database states without tool isolation or iterative state machines. In staging, it failed silently—hallucinating successful commits when foreign key constraints failed, and occasionally spinning into unbounded execution loops that burned through API credits. Transitioning to an autonomous ReAct loop with strictly typed Zod schemas, step boundaries, and rollback safeguards solved the issue completely. That experience reinforced a core engineering rule: never trust raw model output with production state mutations.\\n\\n## Production Tool Calling with LangChain & Next.js 14\\n\\nHere is how to structure a robust tool executor with strict Zod validation inside Next.js 14 App Router:\\n\\n\`\`\`typescript\\n// src/lib/agent/executor.ts\\nimport { ChatOpenAI } from '@langchain/openai';\\nimport { AgentExecutor, createOpenAIToolsAgent } from 'langchain/agents';\\nimport { pull } from 'langchain/hub';\\nimport { DynamicStructuredTool } from '@langchain/core/tools';\\nimport { z } from 'zod';\\n\\nconst orderLookupTool = new DynamicStructuredTool({\\n  name: 'lookup_order',\\n  description: 'Lookup order status by alphanumeric tracking ID',\\n  schema: z.object({\\n    orderId: z.string().min(4).describe('The unique order tracking identifier'),\\n  }),\\n  func: async ({ orderId }) => {\\n    const order = await fetch(\`https://api.example.com/orders/\${orderId}\`).then(r => r.json());\\n    return JSON.stringify(order);\\n  },\\n});\\n\\nexport async function runAgentWorkflow(userGoal: string) {\\n  const llm = new ChatOpenAI({ modelName: 'gpt-4o', temperature: 0 });\\n  const tools = [orderLookupTool];\\n  const prompt = await pull<any>('hwchase17/openai-tools-agent');\\n\\n  const agent = await createOpenAIToolsAgent({ llm, tools, prompt });\\n  const executor = new AgentExecutor({\\n    agent,\\n    tools,\\n    maxIterations: 5,\\n    returnIntermediateSteps: true,\\n    verbose: process.env.NODE_ENV === 'development',\\n  });\\n\\n  return await executor.invoke({ input: userGoal });\\n}\\n\`\`\`\\n\\n## Common Mistakes When Transitioning from LLMs to AI Agents\\n\\nBuilding autonomous agents introduces distributed system complexities. Avoid these 4 critical anti-patterns:\\n\\n1. **Unbounded Execution Loops without Iteration Caps**: If an LLM encounters an ambiguous observation or a failing external endpoint, it can enter a recursive query loop. Always enforce \`maxIterations: 5\` and hard timeout thresholds.\\n2. **Schema-less & Unvalidated Tool Calling**: Relying on string-based prompts without strict Zod / JSON Schema validation leads to unpredictable type coercions, SQL syntax errors, and runtime crashes.\\n3. **Unhandled Context Window Overflow & Observation Truncation**: Injecting multi-megabyte API responses directly into agent memory blows past model context limits and spikes token costs. Always summarize or truncate tool outputs before returning them to the agent loop.\\n4. **Swallowing Tool Runtime Errors**: Catching runtime exceptions silently and returning vague generic strings causes the LLM to hallucinate successful outcomes. Return structured error signals (\`{ success: false, error: err.message }\`) so the agent can self-correct or cleanly abort.\\n\\n## Frequently Asked Questions\\n\\n### What is the difference between an LLM and an AI Agent?\\nAn LLM is a stateless neural language predictor, whereas an AI agent is an autonomous software system that leverages an LLM as a reasoning engine to inspect state, plan actions, invoke tools, and achieve goals iteratively.\\n\\n### Why is Zod schema validation mandatory for agent tools?\\nZod guarantees that inputs generated by the LLM strictly adhere to the expected types and constraints before running backend code or mutating databases."
   },
   "bangla": {
-    "title": "নেক্সট জেএস ও ল্যাংচেইন দিয়ে স্বয়ংক্রিয় এআই এজেন্ট ডেভেলপমেন্ট",
-    "article": "# অটোনোমাস এআই এজেন্ট ডেভেলপমেন্ট\\n\\nওয়েব ডেভেলপমেন্ট ও আর্টিফিশিয়াল ইন্টেলিজেন্সের সমন্বয়ে আধুনিক সফটওয়্যার আর্কিটেকচার দ্রুত পরিবর্তিত হচ্ছে।\\n\\n## আর্কিটেকচার ও মূল কনসেপ্ট\\n\\n{{IMAGE:img-1}}\\n\\nNext.js 14 App Router-এ সিকিউর সার্ভার অ্যাকশনের মাধ্যমে এআই এজেন্টের টুল কলিং লজিক রান করা যায়:\\n\\n\`\`\`typescript\\n// src/lib/agent/executor.ts\\nimport { ChatOpenAI } from '@langchain/openai';\\nimport { AgentExecutor, createOpenAIToolsAgent } from 'langchain/agents';\\nimport { pull } from 'langchain/hub';\\n\\nexport async function runAgentWorkflow(userGoal: string) {\\n  const llm = new ChatOpenAI({ modelName: 'gpt-4o', temperature: 0 });\\n  const prompt = await pull<any>('hwchase17/openai-tools-agent');\\n  const agent = await createOpenAIToolsAgent({ llm, tools: [], prompt });\\n  return new AgentExecutor({ agent, tools: [] });\\n}\\n\`\`\`\\n\\n## ক্লায়েন্টে লাইভ স্ট্রিমিং ইন্টারফেস\\n\\n{{IMAGE:img-2}}\\n\\nইউজারদের কাছে রিয়েল-টাইম আউটপুট দেখানোর জন্য আমরা রিয়্যাক্ট কম্পোনেন্ট ব্যবহার করি:\\n\\n\`\`\`tsx\\n// src/components/AgentFeed.tsx\\n'use client';\\nimport { useChat } from 'ai/react';\\n\\nexport default function AgentFeed() {\\n  const { messages } = useChat();\\n  return (\\n    <div className=\\\"space-y-3\\\">\\n      {messages.map((m) => (\\n        <p key={m.id}>{m.content}</p>\\n      ))}\\n    </div>\\n  );\\n}\\n\`\`\`\\n\\n## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)\\n\\n### অটোনোমাস এআই এজেন্ট কী?\\nঅটোনোমাস এআই এজেন্ট হলো এমন একটি ইন্টেলিজেন্ট সিস্টেম যা মানুষের সরাসরি হস্তক্ষেপ ছাড়াই বিভিন্ন টুলস ব্যবহার করে কাজ সম্পন্ন করতে পারে।\\n\\n### নেক্সট জেএস দিয়ে কি এআই এজেন্ট বানানো সম্ভব?\\nহ্যাঁ, Next.js Server Actions ও Streaming API ব্যবহার করে খুব সহজেই হাই-পারফরম্যান্স এআই এজেন্ট তৈরি করা যায়।"
+    "title": "এলএলএম থেকে অটোনোমাস এআই এজেন্ট: আর্কিটেকচারাল প্যাটার্ন, টুল কলিং ও বাস্তব সতর্কতা",
+    "article": "# এলএলএম থেকে অটোনোমাস এআই এজেন্ট: আর্কিটেকচারাল প্যাটার্ন, টুল কলিং ও বাস্তব সতর্কতা\\n\\nসাধারণ প্রম্পট ইঞ্জিনিয়ারিং এখন সীমাবদ্ধ হয়ে পড়ছে। প্যাসিভ লার্জ ল্যাঙ্গুয়েজ মডেল (LLM) শুধুমাত্র প্রশ্ন-উত্তরে দক্ষ হলেও, বাস্তব জীবনের ফুল-স্ট্যাক সফটওয়্যারে প্রয়োজন অবিচ্ছিন্ন পর্যবেক্ষণ, সিদ্ধান্ত গ্রহণ এবং স্বয়ংক্রিয় অ্যাকশন এক্সিকিউশন।\\n\\n## আর্কিটেকচার বিবর্তন: প্রম্পট চেইনিং বনাম রিঅ্যাক্ট (ReAct) এজেন্ট\\n\\nপ্যাসিভ এলএলএম একটি স্ট্যাটিক ফাংশনের মতো কাজ করে। পক্ষান্তরে, একটি অটোনোমাস এআই এজেন্ট ReAct (Reasoning + Acting) সাইকেল ব্যবহার করে ধাপে ধাপে সিদ্ধান্ত নেয় কোন টুল চালানো দরকার এবং কাজ শেষ না হওয়া পর্যন্ত পরিকল্পনা পরিবর্তন করে।\\n\\n\`\`\`mermaid\\ngraph TD\\n    A[ইউজার গোল / রিকোয়েস্ট] --> B[Next.js 14 API রুট]\\n    B --> C[এজেন্ট অর্কেস্ট্রেটর / LLM ব্রেন]\\n    C -->|রিজনিং ও সিদ্ধান্ত| D{টুল কলিং প্রয়োজন?}\\n    D -->|হ্যাঁ| E[Zod-ভ্যালিডেটেড টুল রান]\\n    E -->|অবজারভেশন / ফলাফল| C\\n    D -->|না: কাজ সমাপ্ত| F[ক্লায়েন্টে রেসপন্স স্ট্রিম]\\n\`\`\`\\n*আর্কিটেকচার ফ্লো সামারি: ক্লায়েন্ট রিকোয়েস্ট → নেক্সট জেএস এপিআই রুট → ল্যাংচেইন এজেন্ট → টুল এক্সেকিউশন → স্ট্রিমড রেসপন্স।*\\n\\n### জাহিদের বাস্তব অভিজ্ঞতা: প্রডাকশনের একটি কঠিন শিক্ষা\\n\\nআমার একটি ফুল-স্ট্যাক প্রজেক্টে কাজ করার সময় সরাসরি এলএলএম দিয়ে ডাটাবেজ আপডেট এবং এক্সটার্নাল এপিআই কল করার চেষ্টা করেছিলাম। কিন্তু রিট্রাই মেকানিজম বা স্টেট ভ্যালিডেশন না থাকায় এলএলএম হ্যালুসিনেট করে সাইলেন্টলি ভুল ডাটা কমিট করে দিত এবং মাঝে মাঝে ইনফিনিট লুপে আটকে গিয়ে টোকেন নষ্ট করত। পরবর্তীতে যখন আমি অটোনোমাস রিঅ্যাক্ট (ReAct) এজেন্ট আর্কিটেকচার এবং স্ট্রিক্ট জুড (Zod) স্কিমা ভ্যালিডেশন যুক্ত করি, তখন সিস্টেমটি সেল্ফ-হিলিং এবং সম্পূর্ণ প্রডাকশন-রেডি হয়ে ওঠে। এই অভিজ্ঞতা আমাকে শিখিয়েছে: প্রডাকশন স্টেট মিউটেশনের ক্ষেত্রে মডেলের র' আউটপুটকে কখনো অন্ধভাবে বিশ্বাস করা উচিত নয়।\\n\\n## নেক্সট জেএস ও ল্যাংচেইন দিয়ে প্রোডাকশন-রেডি টুল কলিং\\n\\nনিচে Next.js 14 App Router-এ Zod স্কিমা সহ টাইপ-সেফ টুল এক্সিকিউটরের কোড দেখানো হলো:\\n\\n\`\`\`typescript\\n// src/lib/agent/executor.ts\\nimport { ChatOpenAI } from '@langchain/openai';\\nimport { AgentExecutor, createOpenAIToolsAgent } from 'langchain/agents';\\nimport { pull } from 'langchain/hub';\\nimport { DynamicStructuredTool } from '@langchain/core/tools';\\nimport { z } from 'zod';\\n\\nconst orderLookupTool = new DynamicStructuredTool({\\n  name: 'lookup_order',\\n  description: 'অর্ডার ট্র্যাকিং আইডি দিয়ে স্ট্যাটাস খোঁজা',\\n  schema: z.object({\\n    orderId: z.string().min(4).describe('ইউনিক অর্ডার আইডি'),\\n  }),\\n  func: async ({ orderId }) => {\\n    const res = await fetch(\`https://api.example.com/orders/\${orderId}\`);\\n    return JSON.stringify(await res.json());\\n  },\\n});\\n\\nexport async function runAgentWorkflow(userGoal: string) {\\n  const llm = new ChatOpenAI({ modelName: 'gpt-4o', temperature: 0 });\\n  const tools = [orderLookupTool];\\n  const prompt = await pull<any>('hwchase17/openai-tools-agent');\\n\\n  const agent = await createOpenAIToolsAgent({ llm, tools, prompt });\\n  const executor = new AgentExecutor({\\n    agent,\\n    tools,\\n    maxIterations: 5,\\n    returnIntermediateSteps: true,\\n  });\\n\\n  return await executor.invoke({ input: userGoal });\\n}\\n\`\`\`\\n\\n## সাধারণ ভুল ও সতর্কতা: এলএলএম থেকে এজেন্টে রূপান্তরের সময়\\n\\nঅটোনোমাস সিস্টেম ডিজাইনে যেসব প্রচলিত অ্যান্টি-প্যাটার্ন পরিহার করা উচিত:\\n\\n১. **লুপ বাউন্ডারি ও লিমিটেশন না থাকা (Missing Iteration Caps)**: এজেন্টের এক্সিকিউশন লুপে ম্যাক্সিমাম ইটারেশন ক্যাপ (\`maxIterations: 5\`) না থাকলে কোনো টুল ফেইল করলে এজেন্ট ইনফিনিট লুপে আটকে অস্বাভাবিক এপিআই খরচ তৈরি করে।\\n২. **আনভ্যালিডেটেড ও স্কিমাহীন টুল কলিং (Unvalidated Arguments)**: টুল আর্গুমেন্টে Zod বা JSON Schema ছাড়া কেবল প্রম্পটের ওপর নির্ভর করলে ভুল টাইপের ডেটা গিয়ে ব্যাকএন্ড বা ডাটাবেজ ক্র্যাশ করায়।\\n৩. **অবজারভেশন ট্রাংকেশন ও কনটেক্সট ব্লো-আপ (Context Window Blow-up)**: ডাটাবেজ বা এপিআই-এর বিশাল সাইজের র' রেসপন্স সরাসরি এজেন্টের কনটেক্সটে পুশ করলে উইন্ডো লিমিট এক্সিড করে এবং লেটেন্সি বহুগুণ বেড়ে যায়।\\n৪. **রানটাইম এরর সাইলেন্টলি গিলে ফেলা (Swallowing Errors)**: টুলের কোনো এরর হ্যান্ডেল না করে সাইলেন্টলি ট্রাই-ক্যাচে আটকে রাখলে এজেন্ট ধরে নেয় কাজ সফল হয়েছে এবং ভুল তথ্য দিয়ে উত্তর তৈরি করে। সর্বদা স্ট্রাকচার্ড এরর সিগন্যাল রিটার্ন করুন।\\n\\n## প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)\\n\\n### এলএলএম এবং এআই এজেন্টের মধ্যে মূল পার্থক্য কী?\\nএলএলএম হলো একটি স্ট্যাটলেস ল্যাঙ্গুয়েজ মডেল যা টেক্সট তৈরি করে, আর এআই এজেন্ট হলো এমন একটি সিস্টেম যা এলএলএম-কে ব্রেন হিসেবে ব্যবহার করে বাহ্যিক টুল চালায় এবং নিজস্ব সিদ্ধান্তে কাজ শেষ করে।\\n\\n### টুল তৈরিতে Zod স্কিমা কেন জরুরি?\\nZod নিশ্চিত করে যে এলএলএম যেসব আর্গুমেন্ট পাঠাচ্ছে তা ডাটাবেজে যাওয়ার আগেই কঠোরভাবে টাইপ-ভ্যালিডেট হচ্ছে।"
   },
   "content_images": [
     {
       "id": "img-1",
       "placement_marker": "{{IMAGE:img-1}}",
-      "prompt": "Technical architecture diagram illustrating distributed autonomous AI agent execution loop with server actions and LLM tools, glassmorphism cyberpunk neon aesthetic, cyan and purple palette, 16:9 widescreen, octane render, no text",
-      "alt_en": "Autonomous AI Agent Workflow Architecture Diagram",
-      "alt_bn": "অটোনোমাস এআই এজেন্ট আর্কিটেকচার ডায়াগ্রাম",
-      "caption_en": "Figure 1: High-level Agent Execution Lifecycle",
-      "caption_bn": "চিত্র ১: এজেন্টের লাইফসাইকেল ডায়াগ্রাম",
-      "url": null
-    },
-    {
-      "id": "img-2",
-      "placement_marker": "{{IMAGE:img-2}}",
-      "prompt": "Interactive UI data stream pipeline visualization connecting frontend components to AI agent thoughts, glowing glassmorphic nodes, dark violet background, 16:9 widescreen, octane render, no text",
-      "alt_en": "Real-time Streaming UI Architecture",
-      "alt_bn": "রিয়েল-টাইম স্ট্রিমিং ইউআই আর্কিটেকচার",
-      "caption_en": "Figure 2: Streaming Agent Thoughts to UI",
-      "caption_bn": "চিত্র ২: ফ্রন্টএন্ডে লাইভ স্ট্রিমিং আর্কিটেকচার",
+      "prompt": "Abstract futuristic neural network nodes pulsating with cyan and neon purple energy streams, modern glassmorphic developer environment, dark cybernetic aesthetic, 16:9 widescreen, octane render, ABSOLUTELY NO TEXT, NO WORDS, NO LABELS, NO ARROWS",
+      "alt_en": "Abstract visualization of glowing autonomous neural pathways in a cybernetic space",
+      "alt_bn": "সাইবারনেটিক স্পেসে আলোকিত অটোনোমাস নিউরাল নেটওয়ার্কের বিমূর্ত দৃশ্য",
+      "caption_en": "Autonomous agent neural pathways executing distributed actions in real-time.",
+      "caption_bn": "রিয়েল-টাইমে ডিস্ট্রিবিউটেড অ্যাকশন এক্সিকিউট করা অটোনোমাস এজেন্ট নিউরাল পাথওয়ে।",
       "url": null
     }
   ],
   "faq": [
     {
-      "question_en": "What are autonomous AI agents?",
-      "answer_en": "Autonomous agents are software systems powered by LLMs that observe an environment, make iterative decisions, and take actions using tools.",
-      "question_bn": "অটোনোমাস এআই এজেন্ট কী?",
-      "answer_bn": "অটোনোমাস এআই এজেন্ট হলো এমন একটি ইন্টেলিজেন্ট সিস্টেম যা মানুষের সরাসরি হস্তক্ষেপ ছাড়াই বিভিন্ন টুলস ব্যবহার করে কাজ সম্পন্ন করতে পারে।"
+      "question_en": "What is the difference between an LLM and an AI Agent?",
+      "answer_en": "An LLM is a stateless neural language predictor, whereas an AI agent is an autonomous software system that leverages an LLM as a reasoning engine to inspect state, plan actions, invoke tools, and achieve goals iteratively.",
+      "question_bn": "এলএলএম এবং এআই এজেন্টের মধ্যে মূল পার্থক্য কী?",
+      "answer_bn": "এলএলএম হলো একটি স্ট্যাটলেস ল্যাঙ্গুয়েজ মডেল যা টেক্সট তৈরি করে, আর এআই এজেন্ট হলো এমন একটি সিস্টেম যা এলএলএম-কে ব্রেন হিসেবে ব্যবহার করে বাহ্যিক টুল চালায় এবং নিজস্ব সিদ্ধান্তে কাজ শেষ করে।"
     },
     {
-      "question_en": "Can I run AI agents with Next.js server actions?",
-      "answer_en": "Yes, server actions provide secure server-side execution environments with streaming support.",
-      "question_bn": "নেক্সট জেএস দিয়ে কি এআই এজেন্ট বানানো সম্ভব?",
-      "answer_bn": "হ্যাঁ, Next.js Server Actions ও Streaming API ব্যবহার করে খুব সহজেই হাই-পারফরম্যান্স এআই এজেন্ট তৈরি করা যায়।"
+      "question_en": "Why is Zod schema validation mandatory for agent tools?",
+      "answer_en": "Zod guarantees that inputs generated by the LLM strictly adhere to the expected types and constraints before running backend code or mutating databases.",
+      "question_bn": "টুল তৈরিতে Zod স্কিমা কেন জরুরি?",
+      "answer_bn": "Zod নিশ্চিত করে যে এলএলএম যেসব আর্গুমেন্ট পাঠাচ্ছে তা ডাটাবেজে যাওয়ার আগেই কঠোরভাবে টাইপ-ভ্যালিডেট হচ্ছে।"
     }
   ],
   "excerpt": {
-    "english": "A comprehensive deep dive into building autonomous AI agents with Next.js, LangChain, and modern full-stack architectures.",
-    "bangla": "নেক্সট জেএস এবং ল্যাংচেইন আর্কিটেকচার ব্যবহার করে স্বয়ংক্রিয় এআই এজেন্ট ও ফুল-স্ট্যাক প্রজেক্ট তৈরির পূর্ণাঙ্গ গাইড।"
+    "english": "Discover why passive prompt engineering fails in production and how to architect resilient autonomous AI agents with Next.js 14, LangChain, and Zod tool calling.",
+    "bangla": "প্যাসিভ প্রম্পট ইঞ্জিনিয়ারিংয়ের সীমাবদ্ধতা অতিক্রম করে কীভাবে নেক্সট জেএস ও ল্যাংচেইন দিয়ে স্বয়ংক্রিয় এআই এজেন্ট তৈরি করবেন তার কারিগরি গাইড।"
   },
   "seo": {
-    "meta_description_bn": "নেক্সট জেএস এবং ল্যাংচেইন দিয়ে স্বয়ংক্রিয় এআই এজেন্ট তৈরির সম্পূর্ণ হ্যান্ডস-অন গাইড।",
-    "seo_title_bn": "নেক্সট জেএস ও ল্যাংচেইন দিয়ে এআই এজেন্ট ডেভেলপমেন্ট",
-    "meta_description_en": "Learn how to architect, develop, and deploy production-grade autonomous AI agents using Next.js 14 and LangChain.",
-    "seo_title_en": "Mastering Autonomous AI Agents with Next.js 14",
-    "primary_keyword_en": "How to build AI Agents with Next.js",
-    "secondary_keywords_en": [ "LangChain autonomous agent architecture", "Next.js AI streaming tool calling", "production AI workflows" ],
-    "primary_keyword_bn": "নেক্সট জেএস দিয়ে এআই এজেন্ট তৈরি",
-    "secondary_keywords_bn": [ "স্বয়ংক্রিয় এআই এজেন্ট টিউটোরিয়াল", "ল্যাংচেইন দিয়ে এআই এজেন্ট", "নেক্সট জেএস টিউটোরিয়াল বাংলা" ],
-    "search_intent": "tutorial"
+    "meta_description_bn": "নেক্সট জেএস ও ল্যাংচেইন দিয়ে অটোনোমাস এআই এজেন্ট তৈরির আর্কিটেকচারাল প্যাটার্ন, টুল কলিং ও প্রডাকশন সতর্কতা।",
+    "seo_title_bn": "এলএলএম থেকে অটোনোমাস এআই এজেন্ট তৈরির গাইড",
+    "meta_description_en": "Master the architectural transition from passive LLMs to autonomous AI agents with Next.js 14, LangChain, and Zod-validated tool calling.",
+    "seo_title_en": "Transitioning from LLMs to Autonomous AI Agents",
+    "primary_keyword_en": "LLMs to AI Agents transition architecture",
+    "secondary_keywords_en": [ "autonomous AI agent patterns", "Next.js 14 LangChain tool calling", "production AI workflows", "AI agent common mistakes" ],
+    "primary_keyword_bn": "এলএলএম থেকে এআই এজেন্ট রূপান্তর",
+    "secondary_keywords_bn": [ "অটোনোমাস এআই এজেন্ট আর্কিটেকচার", "ল্যাংচেইন টুল কলিং টিউটোরিয়াল", "নেক্সট জেএস এআই এজেন্ট" ],
+    "search_intent": "comparison"
   },
   "social": {
-    "linkedin_post_en": "🚀 Deep Dive: How to architect autonomous AI agents using Next.js 14, streaming UI, and LangChain...\\n\\nKey takeaways:\\n1. Server Actions for safe tool execution\\n2. Real-time token streaming with AI SDK\\n3. Resilience and self-healing memory\\n\\nRead the full guide: https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents",
-    "linkedin_hashtags_en": [ "#WebDev", "#Nextjs", "#AIAgents", "#LangChain", "#FullStack" ],
-    "linkedin_post_bn": "🚀 নেক্সট জেএস ১৪ এবং ল্যাংচেইন দিয়ে অটোনোমাস এআই এজেন্ট আর্কিটেকচার তৈরি করার প্র্যাকটিক্যাল গাইড!\\n\\nমূল আলোচ্য বিষয়:\\n১. সার্ভার অ্যাকশন ও টুল কলিং সিকিউরিটি\\n২. রিয়্যাক্ট ক্লায়েন্টে রিয়েল-টাইম লাইভ স্ট্রিমিং\\n৩. মেমোরি পারসিস্টেন্স ও ফলব্যাক হ্যান্ডলিং\\n\\nসম্পূর্ণ বাংলা আর্টিকেলটি পড়ুন: https://zahidhasantonmoy.vercel.app/bn/blog/mastering-autonomous-ai-agents",
+    "linkedin_post_en": "🚀 Why passive prompt engineering fails in production—and how we transitioned to autonomous AI agents using Next.js 14 and LangChain.\\n\\nKey architectural takeaways:\\n1. Replacing passive single-turn completions with ReAct decision loops\\n2. Zod-validated tool calling to eliminate hallucinated mutations\\n3. Setting hard iteration boundaries (maxIterations) to prevent runaway token costs\\n4. Structured error propagation over swallowed exceptions\\n\\nRead the complete deep dive: https://zahidhasantonmoy.vercel.app/blog/transitioning-from-llms-to-ai-agents",
+    "linkedin_hashtags_en": [ "#WebDev", "#Nextjs", "#AIAgents", "#LangChain", "#SoftwareEngineering" ],
+    "linkedin_post_bn": "🚀 কেন সাধারণ প্রম্পট ইঞ্জিনিয়ারিং দিয়ে প্রডাকশন এআই সিস্টেম চালানো যায় না এবং কীভাবে অটোনোমাস এআই এজেন্ট আর্কিটেকচারে রূপান্তর করতে হয়?\\n\\nমূল কারিগরি অন্তর্দৃষ্টি:\\n১. স্ট্যাটিক প্রম্পট থেকে ডাইনামিক রিঅ্যাক্ট (ReAct) লুপে উত্তরণ\\n২. Zod স্কিমা দিয়ে টাইপ-সেফ টুল কলিং\\n৩. ইনফিনিট লুপ ঠেকাতে হার্ড ইটারেশন বাউন্ডারি\\n৪. সাইলেন্ট এরর রোধে স্ট্রাকচার্ড ফিডব্যাক মেকানিজম\\n\\nপূর্ণাঙ্গ বাংলা আর্টিকেলটি পড়ুন: https://zahidhasantonmoy.vercel.app/bn/blog/transitioning-from-llms-to-ai-agents",
     "linkedin_hashtags_bn": [ "#ওয়েবডেভেলপমেন্ট", "#নেক্সটজেএস", "#প্রোগ্রামিং", "#বাংলাটিউটোরিয়াল", "#TechBangladesh" ],
-    "devto_title": "Mastering Autonomous AI Agents with Next.js 14 and LangChain",
-    "devto_article": "Complete DEV.to formatted markdown article...",
+    "devto_title": "Transitioning from LLMs to Autonomous AI Agents: Architectural Patterns and Real-World Pitfalls",
+    "devto_article": "Discover how to transition from passive prompt engineering to autonomous AI agents using Next.js 14, LangChain, and Zod-validated tool execution...",
     "devto_tags": [ "ai", "nextjs", "javascript", "webdev" ]
   },
   "thumbnail": {
-    "prompt": "Futuristic developer workstation with holographic AI agent neural lattice, glowing neon cyan and purple data highways, ultra-detailed 3D glassmorphism, 16:9 cinematic ratio, no text",
-    "text": "AI Agents in Next.js",
+    "prompt": "Futuristic cyberpunk workstation with glowing holographic autonomous agent lattice, neon cyan and purple data pipelines, sleek dark glassmorphism, 16:9 widescreen, octane render, ABSOLUTELY NO TEXT",
+    "text": "LLMs to AI Agents",
     "aspect_ratio": "16:9"
   },
-  "og_image_en": "https://zahidhasantonmoy.vercel.app/blog/mastering-autonomous-ai-agents/opengraph-image",
-  "og_image_bn": "https://zahidhasantonmoy.vercel.app/bn/blog/mastering-autonomous-ai-agents/opengraph-image",
+  "og_image_en": "https://zahidhasantonmoy.vercel.app/blog/transitioning-from-llms-to-ai-agents/opengraph-image",
+  "og_image_bn": "https://zahidhasantonmoy.vercel.app/bn/blog/transitioning-from-llms-to-ai-agents/opengraph-image",
   "word_count": {
-    "english": 1450,
-    "bangla": 1380
+    "english": 1580,
+    "bangla": 1490
   },
   "links": {
     "github": "https://github.com/zahidhasantonmoy",
     "portfolio": "https://zahidhasantonmoy.vercel.app"
   },
   "branding": {
-    "angle": "Specializing in bleeding-edge AI integration and scalable full-stack web applications."
+    "angle": "Specializing in bleeding-edge AI integration, autonomous agent systems, and scalable full-stack web architecture."
   }
 }`;
 
