@@ -81,14 +81,26 @@ export default function TableOfContents({ content, lang = 'en' }: TableOfContent
   return (
     <nav
       aria-label="Table of contents"
-      className="p-5 rounded-2xl bg-gray-50/80 dark:bg-gray-850/80 border border-gray-200/80 dark:border-gray-800 backdrop-blur-sm shadow-sm"
+      className="p-5 rounded-2xl backdrop-blur-sm shadow-sm border"
+      style={{
+        background: 'var(--bg-surface)',
+        borderColor: 'var(--border)',
+      }}
     >
-      <div className="flex items-center gap-2 pb-3 mb-3 border-b border-gray-200 dark:border-gray-800 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-        <FaListUl className="text-indigo-500" />
-        <span>{lang === 'bn' ? 'সূচিপত্র' : 'Table of Contents'}</span>
+      <div
+        className="flex items-center gap-2 pb-3 mb-3 border-b text-xs font-bold uppercase tracking-wider"
+        style={{
+          borderColor: 'var(--border)',
+          color: 'var(--text-secondary)',
+        }}
+      >
+        <FaListUl className="text-blue-500" />
+        <span style={{ color: 'var(--text-primary)' }}>
+          {lang === 'bn' ? 'সূচিপত্র' : 'Table of Contents'}
+        </span>
       </div>
 
-      <ul className="space-y-2 text-xs">
+      <ul className="space-y-1 text-xs">
         {headings.map((item) => {
           const isActive = activeId === item.id;
           return (
@@ -107,11 +119,16 @@ export default function TableOfContents({ content, lang = 'en' }: TableOfContent
                     history.pushState(null, '', `#${item.id}`);
                   }
                 }}
-                className={`block py-1 leading-snug transition-colors line-clamp-2 ${
+                className={`block py-1.5 px-2 rounded-lg leading-snug transition-all line-clamp-2 ${
                   isActive
-                    ? 'font-bold text-indigo-600 dark:text-indigo-400 pl-2 border-l-2 border-indigo-500'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                    ? 'font-bold'
+                    : 'hover:opacity-100 opacity-80 hover:bg-white/5'
                 }`}
+                style={{
+                  color: isActive ? 'var(--accent-primary)' : 'var(--text-primary)',
+                  borderLeft: isActive ? '2px solid var(--accent-primary)' : '2px solid transparent',
+                  background: isActive ? 'var(--glow-primary)' : 'transparent',
+                }}
               >
                 {item.text}
               </a>
