@@ -68,13 +68,13 @@ export default async function BlogPage({
         }}
       />
       {/* Hero Header */}
-      <section className="bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 py-20 px-4">
+      <section className="bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 py-14 sm:py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm mb-6">
             <span>✍️</span>
             <span>Engineering & AI Blog</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
             Thoughts, Tutorials &amp;{" "}
             <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
               Dev Notes
@@ -90,7 +90,7 @@ export default async function BlogPage({
         </div>
       </section>
 
-      <div className="max-w-5xl mx-auto px-4 py-12">
+      <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12">
         {/* Real-time Search, Category Pills & Filtered Posts Grid */}
         <LiveBlogList
           initialPosts={posts}

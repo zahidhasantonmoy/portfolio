@@ -22,10 +22,10 @@ const ReviewForm = () => {
     };
 
     return (
-        <section id="review" className="py-20 transition-colors duration-300" style={{ background: 'var(--bg-surface)' }}>
-            <div className="container mx-auto px-6">
+        <section id="review" className="py-16 sm:py-20 transition-colors duration-300" style={{ background: 'var(--bg-surface)' }}>
+            <div className="container mx-auto px-4 sm:px-6">
                 <motion.h2
-                    className="text-4xl font-bold text-center mb-12 gradient-text"
+                    className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 gradient-text"
                     initial={{ opacity: 0, y: -50 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7 }}
@@ -35,7 +35,7 @@ const ReviewForm = () => {
                 </motion.h2>
 
                 <motion.div
-                    className="max-w-2xl mx-auto p-8 rounded-xl shadow-lg"
+                    className="max-w-2xl mx-auto p-5 sm:p-6 md:p-8 rounded-xl shadow-lg"
                     style={{ background: 'var(--bg-base)', border: '1px solid var(--border)' }}
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}

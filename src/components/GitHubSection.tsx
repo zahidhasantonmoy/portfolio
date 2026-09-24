@@ -76,11 +76,11 @@ const GitHubSection = () => {
   const currentStreakDisplay = stats ? `${stats.currentStreak} Days ⚡` : "4 Days ⚡";
 
   return (
-    <section id="github" className="py-24 overflow-hidden relative" style={{ background: 'var(--bg-base)' }}>
+    <section id="github" className="py-16 sm:py-20 md:py-24 overflow-hidden relative" style={{ background: 'var(--bg-base)' }}>
       {/* Background Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:40px_40px] opacity-20 pointer-events-none" />
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -91,17 +91,17 @@ const GitHubSection = () => {
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
             Live Sync with GitHub (@zahidhasantonmoy)
           </div>
-          <h2 className="text-4xl font-bold text-white mb-4 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-purple-500">
               Neural Activity
             </span>
           </h2>
-          <p className="text-gray-400 text-lg">Visualizing real-time code frequency & commit history</p>
+          <p className="text-gray-400 text-sm sm:text-lg">Visualizing real-time code frequency & commit history</p>
         </motion.div>
 
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-16">
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16">
           {/* Holographic Skyline Container */}
-          <div className="perspective-1000 w-full max-w-3xl flex flex-col items-center">
+          <div className="perspective-1000 w-full max-w-3xl flex flex-col items-center overflow-x-auto">
             {/* Live Hover Tooltip */}
             <div className="h-8 mb-2 flex items-center justify-center">
               {hoveredDay ? (
@@ -131,7 +131,7 @@ const GitHubSection = () => {
               transition={{ duration: 1.5, ease: "easeOut" }}
             >
               <div className="grid grid-cols-20 gap-1 w-full h-full">
-                <div className="flex flex-wrap gap-[4px] justify-center shadow-2xl bg-black/40 p-4 rounded-xl border border-white/5 backdrop-blur-sm max-w-[620px]">
+                <div className="flex flex-wrap gap-[3px] sm:gap-[4px] justify-center shadow-2xl bg-black/40 p-3 sm:p-4 rounded-xl border border-white/5 backdrop-blur-sm max-w-[280px] sm:max-w-[480px] md:max-w-[620px]">
                   {displayContributions.map((item, i) => {
                     const level = Math.min(4, Math.max(0, item.level || 0));
                     return (

@@ -91,7 +91,7 @@ const Hero = ({ name, title }: HeroProps) => {
       id="home"
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className="relative min-h-screen py-24 sm:py-28 md:py-0 flex items-center justify-center text-center overflow-hidden"
+      className="relative min-h-screen py-20 sm:py-24 md:py-0 flex items-center justify-center text-center overflow-hidden"
       style={{ background: 'var(--bg-base)' }}
     >
       {/* Dynamic Background Elements */}
@@ -190,12 +190,12 @@ const Hero = ({ name, title }: HeroProps) => {
         animate="visible"
       >
         {/* Profile Image with accent gradient glow ring */}
-        <motion.div variants={itemVariants} className="mb-5 sm:mb-6 relative w-36 h-36 sm:w-52 sm:h-52 rounded-full overflow-hidden flex-shrink-0">
+        <motion.div variants={itemVariants} className="mb-5 sm:mb-6 relative w-28 h-28 sm:w-40 sm:h-40 md:w-52 md:h-52 rounded-full overflow-hidden flex-shrink-0">
           <Image
             src="/images/profile.jpg"
             alt="Zahid Hasan Tonmoy — profile photo"
             fill
-            sizes="(max-width: 640px) 144px, 208px"
+            sizes="(max-width: 640px) 112px, (max-width: 768px) 160px, 208px"
             priority
             className="object-cover transform hover:scale-105 transition-transform duration-300 ease-in-out"
           />
@@ -216,7 +216,7 @@ const Hero = ({ name, title }: HeroProps) => {
         {/* Live "Available for Freelance" pulsing badge — uses --success (Von Restorff) */}
         <motion.div
           variants={itemVariants}
-          className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium mb-5 backdrop-blur-md cursor-default transition-all duration-300"
+          className="inline-flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs md:text-sm font-medium mb-5 backdrop-blur-md cursor-default transition-all duration-300 max-w-[320px] sm:max-w-none text-center"
           style={{
             background: 'rgba(34, 197, 94, 0.1)',
             border: '1px solid rgba(34, 197, 94, 0.3)',
@@ -238,7 +238,7 @@ const Hero = ({ name, title }: HeroProps) => {
           zero-width element that later expands.
         */}
         <motion.h1
-          className="text-4xl sm:text-6xl md:text-8xl font-extrabold mb-2 drop-shadow-lg relative w-full text-center tracking-tight"
+          className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold mb-2 drop-shadow-lg relative w-full text-center tracking-tight"
           variants={heroItemVariants}
         >
           {/* Invisible spacer — reserves the final width/height from first paint */}
@@ -258,7 +258,7 @@ const Hero = ({ name, title }: HeroProps) => {
           The live TypewriterText then renders on top at the same fixed size.
         */}
         <motion.div
-          className="text-lg sm:text-2xl md:text-4xl font-light leading-relaxed mb-6 sm:mb-8"
+          className="text-base sm:text-xl md:text-3xl lg:text-4xl font-light leading-relaxed mb-6 sm:mb-8"
           style={{ color: 'var(--text-secondary)' }}
           variants={heroItemVariants}
         >
@@ -288,13 +288,13 @@ const Hero = ({ name, title }: HeroProps) => {
 
         {/* CTA Buttons — Von Restorff: Only "View My Work" is filled */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8 w-full max-w-xs sm:max-w-none"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 w-full max-w-[280px] sm:max-w-none"
           variants={containerVariants}
         >
           {/* PRIMARY CTA — filled accent button */}
           <motion.a
             href="#projects"
-            className="btn-primary px-8 py-4 text-base font-bold rounded-xl w-full sm:w-auto text-center shadow-glow-sm hover:shadow-glow-md"
+            className="btn-primary px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold rounded-xl w-full sm:w-auto text-center shadow-glow-sm hover:shadow-glow-md"
             variants={itemVariants}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -305,7 +305,7 @@ const Hero = ({ name, title }: HeroProps) => {
           {/* Ghost CTA */}
           <motion.a
             href="/blog"
-            className="btn-ghost px-8 py-4 text-base font-bold rounded-xl w-full sm:w-auto text-center"
+            className="btn-ghost px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold rounded-xl w-full sm:w-auto text-center"
             variants={itemVariants}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -316,7 +316,7 @@ const Hero = ({ name, title }: HeroProps) => {
           {/* Ghost CTA */}
           <motion.a
             href="#contact"
-            className="btn-ghost px-8 py-4 text-base font-bold rounded-xl w-full sm:w-auto text-center"
+            className="btn-ghost px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold rounded-xl w-full sm:w-auto text-center"
             variants={itemVariants}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -327,7 +327,7 @@ const Hero = ({ name, title }: HeroProps) => {
 
         {/* Social icon links — aria-label added for accessibility (#3) */}
         <motion.div
-          className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 max-w-full px-2"
+          className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 md:gap-6 max-w-full px-2"
           variants={containerVariants}
         >
           {[

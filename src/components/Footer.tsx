@@ -15,15 +15,15 @@ const Footer = () => {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         viewport={{ once: true }}
-        className="border-t py-12"
+        className="border-t py-10 sm:py-12"
         style={{
           background: 'var(--bg-base)',
           borderColor: 'var(--border)',
           color: 'var(--text-primary)'
         }}
       >
-        <div className="container mx-auto px-6 text-center">
-          <div className="flex justify-center space-x-6 mb-6">
+        <div className="container mx-auto px-4 sm:px-6 text-center">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6">
             <a
               href="https://github.com/zahidhasantonmoy"
               target="_blank"

@@ -90,10 +90,10 @@ const Achievements = () => {
 
 
   return (
-    <section id="achievements" className="py-20 relative" style={{ background: 'var(--bg-surface)' }}>
-      <div className="container mx-auto px-6">
+    <section id="achievements" className="py-16 sm:py-20 relative" style={{ background: 'var(--bg-surface)' }}>
+      <div className="container mx-auto px-4 sm:px-6">
         <motion.h2
-          className="text-4xl font-bold text-center mb-16 gradient-text"
+          className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 sm:mb-16 gradient-text"
           initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
 
@@ -102,11 +102,11 @@ const Achievements = () => {
         >
           My Credentials
         </motion.h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 md:gap-8">
           {achievements.map((achievement, index) => (
             <motion.div
               key={index}
-              className="relative group rounded-xl overflow-hidden p-8 transition-all duration-300 hover:shadow-glow-sm"
+              className="relative group rounded-xl overflow-hidden p-5 sm:p-6 md:p-8 transition-all duration-300 hover:shadow-glow-sm"
               style={{
                 background: 'var(--bg-base)',
                 border: '1px solid var(--border)',
@@ -133,7 +133,7 @@ const Achievements = () => {
                   )}
                 </div>
 
-                <h3 className="text-2xl font-bold mb-6 transition-colors" style={{ color: 'var(--text-primary)' }}>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 sm:mb-6 transition-colors" style={{ color: 'var(--text-primary)' }}>
                   {achievement.title}
                 </h3>
 

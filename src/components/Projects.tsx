@@ -44,10 +44,10 @@ const Projects = ({ projects }: ProjectsProps) => {
     : projects.filter((project) => (project.category || 'General') === selectedCategory);
 
   return (
-    <section id="projects" className="py-20 transition-colors duration-300" style={{ background: 'var(--bg-base)' }}>
-      <div className="container mx-auto px-6">
+    <section id="projects" className="py-16 sm:py-20 transition-colors duration-300" style={{ background: 'var(--bg-base)' }}>
+      <div className="container mx-auto px-4 sm:px-6">
         <motion.h2
-          className="text-4xl font-bold text-center mb-12 gradient-text"
+          className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 gradient-text"
           initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
@@ -117,7 +117,7 @@ const Projects = ({ projects }: ProjectsProps) => {
 
         <motion.div
           layout
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 md:gap-8"
         >
           {filteredProjects.map((project) => {
             // Determine highlight state

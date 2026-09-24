@@ -79,9 +79,9 @@ export default function HomePageContent({ dbProjects, dbSkills }: { dbProjects?:
       <main className="min-h-screen" style={{ background: 'var(--bg-base)' }}>
         <Hero name={data.name} title={data.title} />
         <About aboutMe={data.aboutMe} />
-        <section id="skills" className="py-20" style={{ background: 'var(--bg-base)' }}>
-          <div className="container mx-auto px-6">
-            <h2 className="text-4xl font-bold text-center mb-12 gradient-text">My Skills</h2>
+        <section id="skills" className="py-16 sm:py-20" style={{ background: 'var(--bg-base)' }}>
+          <div className="container mx-auto px-4 sm:px-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 gradient-text">My Skills</h2>
             <SkillSection skills={finalSkills} />
           </div>
         </section>

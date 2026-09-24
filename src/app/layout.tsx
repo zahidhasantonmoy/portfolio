@@ -77,6 +77,15 @@ export const metadata: Metadata = {
   },
 };
 
+// Next.js 14+ viewport export — ensures proper mobile scaling
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: '#030712',
+};
+
 import Providers from "./providers";
 import { ClientNavbar, ClientFooter, ClientChatBot, ClientResumeLeadDrawer } from "@/components/GlobalLayoutElements";
 

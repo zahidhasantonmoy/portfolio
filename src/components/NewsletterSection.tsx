@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 const NewsletterSection = () => {
   return (
-    <section className="py-20 relative overflow-hidden" style={{ background: 'var(--bg-surface)' }}>
+    <section className="py-16 sm:py-20 relative overflow-hidden" style={{ background: 'var(--bg-surface)' }}>
       {/* Subtle background glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div

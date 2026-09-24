@@ -79,10 +79,10 @@ const TimelineSection = () => {
   };
 
   return (
-    <section id="timeline" className="py-20 pb-40" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
-      <div className="container mx-auto px-6">
+    <section id="timeline" className="py-16 sm:py-20 pb-28 sm:pb-40" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+      <div className="container mx-auto px-4 sm:px-6">
         <motion.h2
-          className="text-4xl font-bold text-center mb-16 gradient-text"
+          className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 sm:mb-16 gradient-text"
           initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
@@ -107,7 +107,7 @@ const TimelineSection = () => {
             return (
               <motion.div
                 key={index}
-                className={`relative flex items-center w-full mb-16 ${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}
+                className={`relative flex items-center w-full mb-10 sm:mb-16 justify-center md:${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}
                 variants={cardVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -115,7 +115,7 @@ const TimelineSection = () => {
               >
                 {/* Event Card */}
                 <motion.div
-                  className="w-full md:w-5/12 p-8 rounded-xl shadow-xl transition-colors duration-300"
+                  className="w-full md:w-5/12 p-5 sm:p-6 md:p-8 rounded-xl shadow-xl transition-colors duration-300"
                   style={{
                     background: 'var(--bg-surface)',
                     border: `1px solid var(--border)`,
@@ -123,14 +123,14 @@ const TimelineSection = () => {
                   whileHover={{ translateY: -5, borderColor: colors.border }}
                 >
                   <p className="text-sm mb-2 font-semibold" style={{ color: colors.text }}>{event.date}</p>
-                  <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{event.title}</h3>
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{event.title}</h3>
                   <h4 className="text-lg font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>{event.institution}</h4>
                   <p className="leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{event.description}</p>
                 </motion.div>
 
                 {/* Icon Circle */}
                 <motion.div
-                  className="absolute flex items-center justify-center w-20 h-20 rounded-full text-white text-3xl shadow-lg z-10"
+                  className="absolute hidden md:flex items-center justify-center w-14 h-14 md:w-20 md:h-20 rounded-full text-white text-xl md:text-3xl shadow-lg z-10"
                   style={{ background: colors.bg }}
                   variants={iconCircleVariants}
                   initial="hidden"

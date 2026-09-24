@@ -193,3 +193,63 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
 }
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE-FIRST RESPONSIVE IMPROVEMENTS
+   ═══════════════════════════════════════════════════════ */
+
+/* Prevent horizontal overflow on mobile */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Responsive container utility */
+.container {
+  width: 100%;
+  max-width: 1280px;
+}
+
+/* Better touch targets on mobile */
+@media (max-width: 640px) {
+  button, a, [role="button"] {
+    min-height: 36px;
+  }
+  
+  /* Reduce heavy backdrop blur on low-end devices */
+  .backdrop-blur-xl {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  /* Ensure images don't overflow */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Responsive image handling */
+img {
+  max-width: 100%;
+}
+
+/* Ensure grid doesn't break on small screens */
+@media (max-width: 480px) {
+  .grid {
+    min-width: 0;
+  }
+  
+  .flex-shrink-0 {
+    flex-shrink: 0;
+  }
+}
+
+/* Safe area insets for modern mobile browsers */
+@supports (padding: max(0px)) {
+  .fixed.bottom-0,
+  .fixed.bottom-4,
+  .fixed.bottom-8 {
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+}

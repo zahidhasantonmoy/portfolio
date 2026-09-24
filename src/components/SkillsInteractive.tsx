@@ -53,7 +53,7 @@ const SkillsInteractive = ({ skills }: SkillsInteractiveProps) => {
         const texts = allSkills.length > 0 ? allSkills : ['HTML', 'CSS', 'JS', 'React', 'Node'];
 
         const options = {
-            radius: 300,
+            radius: typeof window !== 'undefined' && window.innerWidth < 640 ? 120 : typeof window !== 'undefined' && window.innerWidth < 1024 ? 200 : 300,
             maxSpeed: 'normal',
             initSpeed: 'normal',
             direction: 135,
@@ -93,18 +93,18 @@ const SkillsInteractive = ({ skills }: SkillsInteractiveProps) => {
     }, [skills]);
 
     return (
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-12 min-h-[600px] py-10">
+        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 min-h-[400px] lg:min-h-[600px] py-6 sm:py-10">
 
             {/* Left Side: Categories & List */}
-            <div className="w-full lg:w-1/2 space-y-8">
+            <div className="w-full lg:w-1/2 space-y-4 sm:space-y-8">
                 <motion.div
                     initial={{ opacity: 0, x: -50 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="glass-card rounded-2xl p-8"
+                    className="glass-card rounded-2xl p-5 sm:p-8"
                 >
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-2xl font-bold gradient-text">
+                        <h3 className="text-xl sm:text-2xl font-bold gradient-text">
                             Technical Expertise
                         </h3>
                         {selectedSkill && (

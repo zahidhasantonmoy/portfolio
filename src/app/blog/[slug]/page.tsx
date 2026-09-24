@@ -236,7 +236,7 @@ export default async function BlogPostPage({
             )}
 
             {/* Title */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight drop-shadow-md">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight drop-shadow-md">
               {post.title_en}
             </h1>
 

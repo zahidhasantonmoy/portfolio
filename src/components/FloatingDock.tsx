@@ -19,7 +19,7 @@ export default function FloatingDock() {
     const mouseX = useMotionValue(Infinity);
 
     return (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex h-16 items-end gap-2 sm:gap-3 rounded-2xl bg-white/10 dark:bg-black/10 px-3 sm:px-4 pb-3 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-2xl max-w-[95vw] overflow-x-auto">
+        <div className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 flex h-12 sm:h-16 items-end gap-1 sm:gap-2 md:gap-3 rounded-2xl bg-white/10 dark:bg-black/10 px-2 sm:px-3 md:px-4 pb-2 sm:pb-3 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-2xl max-w-[95vw] overflow-x-auto">
             {icons.map((item, i) => (
                 <DockIcon key={i} mouseX={mouseX} {...item} />
             ))}

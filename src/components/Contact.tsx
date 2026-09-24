@@ -52,10 +52,10 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="py-24 transition-colors duration-300 relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
-      <div className="container mx-auto px-6 relative z-10">
+    <section id="contact" className="py-16 sm:py-20 md:py-24 transition-colors duration-300 relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <motion.h2
-          className="text-4xl font-bold text-center mb-16 gradient-text"
+          className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 sm:mb-16 gradient-text"
           initial={{ opacity: 0, y: -50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
@@ -64,16 +64,16 @@ const Contact = () => {
           Get In Touch
         </motion.h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 max-w-6xl mx-auto">
           {/* Contact Info */}
           <motion.div
-            className="glass-card rounded-2xl p-8 shadow-xl h-fit"
+            className="glass-card rounded-2xl p-5 sm:p-6 md:p-8 shadow-xl h-fit"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h3 className="text-2xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>Contact Information</h3>
+            <h3 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8" style={{ color: 'var(--text-primary)' }}>Contact Information</h3>
             <div className="space-y-6" style={{ color: 'var(--text-secondary)' }}>
               <div className="flex items-center p-4 rounded-xl hover:shadow-md transition-shadow" style={{ background: 'var(--bg-base)' }}>
                 <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-primary)' }}>
@@ -148,7 +148,7 @@ const Contact = () => {
                   exit={{ scale: 0, opacity: 0, rotateX: -90 }}
                   transition={{ duration: 0.6 }}
                   viewport={{ once: true }}
-                  className="glass-card rounded-2xl p-8 shadow-xl"
+                  className="glass-card rounded-2xl p-5 sm:p-6 md:p-8 shadow-xl"
                 >
                   {showPlane ? (
                     <motion.div
