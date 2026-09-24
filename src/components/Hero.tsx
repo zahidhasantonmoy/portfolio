@@ -286,15 +286,15 @@ const Hero = ({ name, title }: HeroProps) => {
           </span>
         </motion.div>
 
-        {/* CTA Buttons — Von Restorff: Only "View My Work" is filled */}
+        {/* CTA Buttons */}
         <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 w-full max-w-[280px] sm:max-w-none"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 w-full max-w-xs sm:max-w-none"
           variants={containerVariants}
         >
-          {/* PRIMARY CTA — filled accent button */}
+          {/* PRIMARY CTA — View My Work */}
           <motion.a
             href="#projects"
-            className="btn-primary px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold rounded-xl w-full sm:w-auto text-center shadow-glow-sm hover:shadow-glow-md"
+            className="px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold rounded-xl text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 w-full sm:w-auto text-center inline-flex items-center justify-center"
             variants={itemVariants}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -302,21 +302,21 @@ const Hero = ({ name, title }: HeroProps) => {
             View My Work
           </motion.a>
 
-          {/* Ghost CTA */}
+          {/* SECONDARY CTA — Read Blog */}
           <motion.a
             href="/blog"
-            className="btn-ghost px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold rounded-xl w-full sm:w-auto text-center"
+            className="px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold rounded-xl text-white bg-purple-600 hover:bg-purple-500 shadow-lg shadow-purple-600/25 hover:shadow-purple-600/40 transition-all duration-300 w-full sm:w-auto text-center inline-flex items-center justify-center gap-2"
             variants={itemVariants}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Read Blog
+            <span>Read Blog</span>
           </motion.a>
 
-          {/* Ghost CTA */}
+          {/* TERTIARY CTA — Contact Me */}
           <motion.a
             href="#contact"
-            className="btn-ghost px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-bold rounded-xl w-full sm:w-auto text-center"
+            className="px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold rounded-xl text-gray-800 dark:text-white bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border-2 border-gray-300 dark:border-white/20 hover:border-gray-400 dark:hover:border-white/50 backdrop-blur-md shadow-lg transition-all duration-300 w-full sm:w-auto text-center inline-flex items-center justify-center"
             variants={itemVariants}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
