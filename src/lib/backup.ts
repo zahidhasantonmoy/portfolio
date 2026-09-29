@@ -52,8 +52,8 @@ export interface RestoreSummary {
 
 export function getCloudinaryClient() {
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const apiKey = process.env.CLOUDINARY_API_KEY;
-  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+  const apiKey = process.env.CLOUDINARY_BACKUP_KEY || process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_BACKUP_SECRET || process.env.CLOUDINARY_API_SECRET;
 
   if (!cloudName || !apiKey || !apiSecret) {
     return null;
@@ -135,7 +135,7 @@ export async function uploadBackupToCloudinary(jsonString: string, filename?: st
   const cld = getCloudinaryClient();
   if (!cld) {
     throw new Error(
-      "Cloudinary credentials missing. Please set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET."
+      "Cloudinary credentials missing. Please set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, CLOUDINARY_BACKUP_KEY (or CLOUDINARY_API_KEY), and CLOUDINARY_BACKUP_SECRET (or CLOUDINARY_API_SECRET)."
     );
   }
 

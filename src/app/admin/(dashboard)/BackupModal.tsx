@@ -711,8 +711,8 @@ export default function BackupModal({ isOpen, onClose, onRestoreSuccess }: Backu
                   </p>
                   <pre className="p-2 rounded bg-black/50 text-[11px] font-mono text-gray-300">
                     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=...
-                    {"\n"}CLOUDINARY_API_KEY=...
-                    {"\n"}CLOUDINARY_API_SECRET=...
+                    {"\n"}CLOUDINARY_BACKUP_KEY=... (or CLOUDINARY_API_KEY)
+                    {"\n"}CLOUDINARY_BACKUP_SECRET=... (or CLOUDINARY_API_SECRET)
                   </pre>
                 </div>
               ) : isLoadingCloudList ? (

@@ -25,7 +25,7 @@ export async function GET() {
       return NextResponse.json({
         configured: false,
         backups: [],
-        message: "Cloudinary credentials (NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET) are not configured.",
+        message: "Cloudinary credentials (NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, CLOUDINARY_BACKUP_KEY / CLOUDINARY_API_KEY, CLOUDINARY_BACKUP_SECRET / CLOUDINARY_API_SECRET) are not configured.",
       });
     }
 
@@ -57,7 +57,7 @@ export async function POST() {
       return NextResponse.json(
         {
           error:
-            "Cloudinary credentials missing in environment variables. Please check NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.",
+            "Cloudinary credentials missing in environment variables. Please check NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, CLOUDINARY_BACKUP_KEY, and CLOUDINARY_BACKUP_SECRET.",
         },
         { status: 400 }
       );
