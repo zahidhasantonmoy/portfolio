@@ -26,6 +26,20 @@ export const metadata: Metadata = {
     description: "Technical blog on MERN Stack, Next.js, AI Agents, Machine Learning, and Modern Web Architecture.",
     url: "https://zahidhasantonmoy.vercel.app/blog",
     type: "website",
+    images: [
+      {
+        url: "https://zahidhasantonmoy.vercel.app/images/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Zahid Hasan Tonmoy's Technical Blog",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog | Zahid Hasan Tonmoy - MERN, AI & Web Engineering",
+    description: "Technical blog on MERN Stack, Next.js, AI Agents, Machine Learning, and Modern Web Architecture.",
+    images: ["https://zahidhasantonmoy.vercel.app/images/og-image.jpg"],
   },
   alternates: {
     canonical: "https://zahidhasantonmoy.vercel.app/blog",

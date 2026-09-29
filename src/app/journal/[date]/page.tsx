@@ -22,9 +22,40 @@ export async function generateMetadata({
   const { date } = await params;
   const entry = await getJournalEntryByDate(date);
   if (!entry) return { title: "Journal Entry Not Found" };
+
+  const base = "https://zahidhasantonmoy.vercel.app";
+  const ogImageUrl = `${base}/journal/${date}/opengraph-image`;
+  const title = `${entry.title} | Dev Journal — Zahid Hasan Tonmoy`;
+  const description = `Development journal entry for ${date} — ${entry.mood} day working with ${(entry.tech_stack ?? []).join(", ")}.`;
+
   return {
-    title: `${entry.title} | Dev Journal — Zahid Hasan Tonmoy`,
-    description: `Development journal entry for ${date} — ${entry.mood} day working with ${(entry.tech_stack ?? []).join(", ")}.`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${base}/journal/${date}`,
+      type: "article",
+      publishedTime: entry.log_date,
+      authors: ["Zahid Hasan Tonmoy"],
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: entry.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
+    },
+    alternates: {
+      canonical: `${base}/journal/${date}`,
+    },
   };
 }
 

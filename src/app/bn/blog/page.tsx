@@ -19,6 +19,27 @@ export const metadata: Metadata = {
     "জাহিদ হাসান তন্ময়",
     "ওয়েব ডেভেলপমেন্ট বাংলাদেশ"
   ],
+  openGraph: {
+    title: "বাংলা টেক ব্লগ | জাহিদ হাসান তন্ময় - MERN ও AI ইঞ্জিনিয়ারিং",
+    description: "MERN স্ট্যাক, Next.js, React, TypeScript, পাইথন মেশিন লার্নিং ও এআই এজেন্ট ডেভেলপমেন্ট সহ আধুনিক ওয়েব প্রযুক্তির উপর বাংলায় টেকনিক্যাল আর্টিকেল।",
+    url: "https://zahidhasantonmoy.vercel.app/bn/blog",
+    type: "website",
+    locale: "bn_BD",
+    images: [
+      {
+        url: "https://zahidhasantonmoy.vercel.app/images/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "জাহিদ হাসান তন্ময় — বাংলা টেক ব্লগ",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "বাংলা টেক ব্লগ | জাহিদ হাসান তন্ময় - MERN ও AI ইঞ্জিনিয়ারিং",
+    description: "MERN স্ট্যাক, Next.js, React, TypeScript, মেশিন লার্নিং ও এআই এজেন্ট ডেভেলপমেন্টের উপর বাংলায় টেকনিক্যাল আর্টিকেল।",
+    images: ["https://zahidhasantonmoy.vercel.app/images/og-image.jpg"],
+  },
   alternates: {
     canonical: "https://zahidhasantonmoy.vercel.app/bn/blog",
     languages: {

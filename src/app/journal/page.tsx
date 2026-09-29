@@ -6,9 +6,34 @@ import type { LogMood } from "@/types/blog";
 export const revalidate = 60; // ISR — 60 seconds
 
 export const metadata: Metadata = {
-  title: "Dev Journal | Zahid Hasan Tonmoy",
+  title: "Dev Journal | Zahid Hasan Tonmoy — Daily Developer Logs",
   description:
-    "Daily development journal — what I'm learning, building, and exploring every day as a developer.",
+    "Daily development journal — what I'm learning, building, debugging, and architecting every day as a Full Stack & AI Agent Developer.",
+  openGraph: {
+    title: "Dev Journal | Zahid Hasan Tonmoy",
+    description:
+      "Daily development journal — what I'm learning, building, debugging, and architecting every day as a Full Stack & AI Agent Developer.",
+    url: "https://zahidhasantonmoy.vercel.app/journal",
+    type: "website",
+    images: [
+      {
+        url: "https://zahidhasantonmoy.vercel.app/images/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Zahid Hasan Tonmoy — Dev Journal",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Dev Journal | Zahid Hasan Tonmoy",
+    description:
+      "Daily development journal — what I'm learning, building, debugging, and architecting every day.",
+    images: ["https://zahidhasantonmoy.vercel.app/images/og-image.jpg"],
+  },
+  alternates: {
+    canonical: "https://zahidhasantonmoy.vercel.app/journal",
+  },
 };
 
 const MOOD_CONFIG: Record<LogMood, { emoji: string; label: string; color: string }> = {
