@@ -486,7 +486,7 @@ export default function BackupModal({ isOpen, onClose, onRestoreSuccess }: Backu
                       <span className="text-xs font-semibold text-white">Backup Contents Detected</span>
                     </div>
                     {parsedJson.exported_at && (
-                      <span className="text-[10px] text-gray-400 font-mono">
+                      <span className="text-[10px] text-gray-400 font-mono" suppressHydrationWarning>
                         Exported: {new Date(parsedJson.exported_at).toLocaleDateString()}
                       </span>
                     )}
@@ -745,7 +745,7 @@ export default function BackupModal({ isOpen, onClose, onRestoreSuccess }: Backu
                         <div className="flex items-center gap-3 text-[11px] text-gray-500 mt-1 font-mono">
                           <span>{formatBytes(b.bytes)}</span>
                           <span>•</span>
-                          <span>{new Date(b.created_at).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                          <span suppressHydrationWarning>{new Date(b.created_at).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                         </div>
                       </div>
 

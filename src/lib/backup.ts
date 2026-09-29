@@ -140,44 +140,40 @@ export async function uploadBackupToCloudinary(jsonString: string, filename?: st
   }
 
   const dateTag = new Date().toISOString().replace(/[:.]/g, "-");
-  const targetId = filename
-    ? filename.replace(/\.json$/i, "")
-    : `backup_${dateTag}`;
+  const cleanFilename = filename
+    ? (filename.endsWith(".json") ? filename : `${filename}.json`)
+    : `backup_${dateTag}.json`;
 
-  return new Promise<{
-    url: string;
-    secure_url: string;
-    public_id: string;
-    bytes: number;
-    created_at: string;
-  }>((resolve, reject) => {
-    const uploadStream = cld.uploader.upload_stream(
-      {
-        resource_type: "raw",
-        folder: "portfolio_backups",
-        public_id: targetId,
-        use_filename: true,
-        unique_filename: false,
-        overwrite: true,
-        tags: ["database_backup", "portfolio", "neon_postgres"],
-      },
-      (error, result) => {
-        if (error || !result) {
-          reject(error || new Error("Failed to upload backup to Cloudinary"));
-        } else {
-          resolve({
-            url: result.url,
-            secure_url: result.secure_url,
-            public_id: result.public_id,
-            bytes: result.bytes,
-            created_at: result.created_at,
-          });
-        }
-      }
-    );
+  const base64Data = Buffer.from(jsonString, "utf-8").toString("base64");
+  const dataUri = `data:application/json;base64,${base64Data}`;
 
-    uploadStream.end(Buffer.from(jsonString, "utf-8"));
-  });
+  try {
+    const result = await cld.uploader.upload(dataUri, {
+      resource_type: "raw",
+      folder: "portfolio_backups",
+      public_id: cleanFilename,
+      use_filename: true,
+      unique_filename: false,
+      overwrite: true,
+      tags: ["database_backup", "portfolio", "neon_postgres"],
+    });
+
+    return {
+      url: result.url,
+      secure_url: result.secure_url,
+      public_id: result.public_id,
+      bytes: result.bytes,
+      created_at: result.created_at,
+    };
+  } catch (error: any) {
+    console.error("[uploadBackupToCloudinary] Error:", error);
+    const errorMsg =
+      error?.message ||
+      error?.error?.message ||
+      (typeof error === "string" ? error : JSON.stringify(error)) ||
+      "Failed to upload backup to Cloudinary";
+    throw new Error(errorMsg);
+  }
 }
 
 /**

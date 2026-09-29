@@ -95,7 +95,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
         {/* PWA & Mobile Web App Meta Tags */}
         <meta name="theme-color" content="#030712" />
@@ -127,7 +127,7 @@ export default function RootLayout({
         {/* Dynamic RSS 2.0 Feed for Blog Syndication & Readers */}
         <link rel="alternate" type="application/rss+xml" title="Zahid Hasan Tonmoy's Blog" href="https://zahidhasantonmoy.vercel.app/rss.xml" />
       </head>
-      <body className={`${inter.className} ${jetbrainsMono.variable}`} style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+      <body className={`${inter.className} ${jetbrainsMono.variable}`} style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }} suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

@@ -45,9 +45,13 @@ export async function POST(req: NextRequest) {
       message: `Database restore completed using '${strategy}' strategy.`,
       summary,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[Database Restore API] Error:", error);
-    const message = error instanceof Error ? error.message : "Restore process encountered an error";
+    const message =
+      error?.message ||
+      error?.error?.message ||
+      (typeof error === "string" ? error : JSON.stringify(error)) ||
+      "Restore process encountered an error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -31,9 +31,13 @@ export async function GET() {
 
     const result = await listCloudinaryBackups();
     return NextResponse.json(result);
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[Cloudinary Backup GET] Error:", error);
-    const message = error instanceof Error ? error.message : "Failed to fetch cloud backups";
+    const message =
+      error?.message ||
+      error?.error?.message ||
+      (typeof error === "string" ? error : JSON.stringify(error)) ||
+      "Failed to fetch cloud backups";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
@@ -61,7 +65,7 @@ export async function POST() {
 
     const backupPayload = await generateBackupPayload();
     const dateStr = new Date().toISOString().replace(/[:.]/g, "-");
-    const filename = `portfolio_backup_${dateStr}`;
+    const filename = `portfolio_backup_${dateStr}.json`;
     const jsonString = JSON.stringify(backupPayload, null, 2);
 
     const uploadRes = await uploadBackupToCloudinary(jsonString, filename);
@@ -72,9 +76,13 @@ export async function POST() {
       file: uploadRes,
       stats: backupPayload.stats,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[Cloudinary Backup POST] Error:", error);
-    const message = error instanceof Error ? error.message : "Failed to upload cloud backup";
+    const message =
+      error?.message ||
+      error?.error?.message ||
+      (typeof error === "string" ? error : JSON.stringify(error)) ||
+      "Failed to upload cloud backup";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

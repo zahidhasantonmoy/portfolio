@@ -596,7 +596,7 @@ export default function AnalyticsClient({
                   </div>
 
                   <div className="flex items-center gap-3 flex-shrink-0 text-[11px] text-gray-500">
-                    <span>{new Date(msg.created_at).toLocaleDateString("en-BD", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                    <span suppressHydrationWarning>{new Date(msg.created_at).toLocaleDateString("en-BD", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                     <Link
                       href="/admin/messages"
                       className="text-indigo-400 hover:text-indigo-300 font-medium"
@@ -626,7 +626,7 @@ export default function AnalyticsClient({
                     </span>
                   </div>
 
-                  <div className="text-[11px] text-gray-500 flex-shrink-0">
+                  <div className="text-[11px] text-gray-500 flex-shrink-0" suppressHydrationWarning>
                     {new Date(sub.subscribed_at).toLocaleDateString("en-BD", { month: "short", day: "numeric" })}
                   </div>
                 </div>
