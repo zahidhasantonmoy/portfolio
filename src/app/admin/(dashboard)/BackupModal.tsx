@@ -670,6 +670,20 @@ export default function BackupModal({ isOpen, onClose, onRestoreSuccess }: Backu
           {/* TAB 3: CLOUDINARY BACKUPS LIST */}
           {activeTab === "cloud" && (
             <div className="space-y-4">
+              <div className="p-3 rounded-xl bg-indigo-950/30 border border-indigo-500/20 flex items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+                  <div>
+                    <p className="text-white font-medium text-[11px]">
+                      Automated Weekly Backup Active
+                    </p>
+                    <p className="text-[10px] text-gray-400">
+                      Runs automatically every 7 days (Sundays at 00:00 UTC) via Vercel Cron with Telegram notifications.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-semibold text-white text-sm">Stored Cloud Snapshots</h3>
