@@ -3100,6 +3100,19 @@ export default function PostEditor({
                 placeholder="Click 'Generate Prompt' to analyze this post and craft a focused prompt..."
                 className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-teal-500 placeholder:text-gray-500"
               />
+              {imagePrompt && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(imagePrompt);
+                    toast.success("📋 Cover image prompt copied to clipboard!");
+                  }}
+                  className="px-3.5 py-2 bg-gray-800 hover:bg-gray-700 text-teal-300 hover:text-white border border-gray-700 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 shadow-sm active:scale-95"
+                  title="Copy cover image prompt"
+                >
+                  <span>📋 Copy</span>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={handleGenerateImagePrompt}
@@ -3446,9 +3459,24 @@ export default function PostEditor({
 
                       {/* Prompt */}
                       <div>
-                        <label className="block text-[11px] font-medium text-gray-400 mb-1">
-                          Visual Prompt (Glassmorphism / Cyan-Purple Style):
-                        </label>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-[11px] font-medium text-gray-400">
+                            Visual Prompt (Glassmorphism / Cyan-Purple Style):
+                          </label>
+                          {img.prompt && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(img.prompt);
+                                toast.success(`📋 Prompt for ${img.id || "image"} copied!`);
+                              }}
+                              className="text-[10px] text-indigo-300 hover:text-white bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-700/60 px-2 py-0.5 rounded flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
+                              title="Copy prompt for this image"
+                            >
+                              <span>📋 Copy Prompt</span>
+                            </button>
+                          )}
+                        </div>
                         <textarea
                           value={img.prompt}
                           onChange={(e) => {
@@ -3818,7 +3846,23 @@ export default function PostEditor({
                     : "bg-gray-800/40 border-gray-700/40 text-gray-500"
                 }`}>
                   <span>🎨 Image Prompt</span>
-                  <span>{parsedJsonData.thumbnail?.prompt ? "✓ Ready" : "—"}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span>{parsedJsonData.thumbnail?.prompt ? "✓ Ready" : "—"}</span>
+                    {parsedJsonData.thumbnail?.prompt && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigator.clipboard.writeText(parsedJsonData.thumbnail.prompt);
+                          toast.success("📋 Cover image prompt copied!");
+                        }}
+                        className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-800 hover:bg-emerald-700 text-white rounded border border-emerald-600 transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm"
+                        title="Copy cover image prompt"
+                      >
+                        <span>📋 Copy</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
@@ -3929,6 +3973,122 @@ export default function PostEditor({
               Clicking will automatically populate English, Bangla, SEO, Excerpts, Slug, and AI cover prompt, then redirect you to review in the English tab.
             </p>
           </div>
+
+          {/* ── AI Image Generation Prompts Card (Cover & Content Visuals) ── */}
+          {parsedJsonData && (parsedJsonData.thumbnail?.prompt || (Array.isArray(parsedJsonData.content_images) && parsedJsonData.content_images.some((i: any) => i?.prompt))) && (
+            <div className="border border-teal-800/60 bg-gradient-to-br from-teal-950/30 via-gray-900 to-indigo-950/20 rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl animate-in fade-in duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-800">
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <span>🎨 AI Image Generation Prompts</span>
+                    <span className="text-[11px] bg-teal-500/20 text-teal-300 border border-teal-500/30 px-2 py-0.5 rounded-full font-medium">
+                      Ready to Copy & Generate
+                    </span>
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Copy these pre-crafted prompts directly into Midjourney, Flux, Ideogram, Leonardo.ai, or ChatGPT / DALL-E:
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const parts: string[] = [];
+                      if (parsedJsonData.thumbnail?.prompt) {
+                        parts.push(`=== COVER IMAGE PROMPT (16:9 Widescreen) ===\n${parsedJsonData.thumbnail.prompt}`);
+                      }
+                      if (Array.isArray(parsedJsonData.content_images)) {
+                        parsedJsonData.content_images.forEach((img: any, i: number) => {
+                          if (img?.prompt) {
+                            parts.push(`=== IN-ARTICLE DIAGRAM ${img.id || i + 1} (${img.placement_marker || `{{IMAGE:${img.id}}}`}) ===\n${img.prompt}`);
+                          }
+                        });
+                      }
+                      if (parts.length > 0) {
+                        navigator.clipboard.writeText(parts.join("\n\n"));
+                        toast.success("📋 All image prompts copied together!");
+                      }
+                    }}
+                    className="px-3 py-1.5 text-xs bg-teal-900/60 hover:bg-teal-800 text-teal-200 border border-teal-700/60 rounded-lg transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                    title="Copy all cover and in-article diagram prompts at once"
+                  >
+                    <span>📋 Copy All Prompts</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {/* 1. Cover Thumbnail Prompt */}
+                {parsedJsonData.thumbnail?.prompt && (
+                  <div className="bg-gray-950/90 border border-teal-900/60 rounded-xl p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-teal-300 flex items-center gap-1.5">
+                          <span>🖼️</span> Cover / Thumbnail Image
+                        </span>
+                        <span className="text-[10px] bg-teal-950 text-teal-400 border border-teal-800/60 px-1.5 py-0.5 rounded font-mono">
+                          16:9 (1280x720) • Octane Render • No Text
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(parsedJsonData.thumbnail.prompt);
+                          toast.success("📋 Cover image prompt copied to clipboard!");
+                        }}
+                        className="px-3 py-1 bg-teal-700 hover:bg-teal-600 text-xs font-semibold text-white rounded-lg border border-teal-500/80 transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                      >
+                        <span>📋 Copy Cover Prompt</span>
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <p className="text-xs text-teal-100/90 font-mono bg-black/60 p-3 rounded-lg border border-gray-800/80 leading-relaxed select-all whitespace-pre-wrap">
+                        {parsedJsonData.thumbnail.prompt}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. In-Article Content Image Prompts */}
+                {Array.isArray(parsedJsonData.content_images) && parsedJsonData.content_images.filter((img: any) => img?.prompt).map((img: any, idx: number) => (
+                  <div key={img.id || idx} className="bg-gray-950/90 border border-indigo-900/60 rounded-xl p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-indigo-300 flex items-center gap-1.5">
+                          <span>📊</span> In-Article Diagram {idx + 1} ({img.id || `img-${idx + 1}`})
+                        </span>
+                        {img.placement_marker && (
+                          <code className="text-[10px] bg-indigo-950 text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-800/60 font-mono">
+                            {img.placement_marker}
+                          </code>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(img.prompt);
+                          toast.success(`📋 Copied prompt for ${img.id || `image ${idx + 1}`}!`);
+                        }}
+                        className="px-3 py-1 bg-indigo-700 hover:bg-indigo-600 text-xs font-semibold text-white rounded-lg border border-indigo-500/80 transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                      >
+                        <span>📋 Copy Prompt</span>
+                      </button>
+                    </div>
+                    <p className="text-xs text-indigo-100/90 font-mono bg-black/60 p-3 rounded-lg border border-gray-800/80 leading-relaxed select-all whitespace-pre-wrap">
+                      {img.prompt}
+                    </p>
+                    {(img.alt_en || img.caption_en) && (
+                      <div className="text-[11px] text-gray-400 flex flex-wrap gap-3 pt-1">
+                        {img.alt_en && <span><strong>Alt:</strong> {img.alt_en}</span>}
+                        {img.caption_en && <span><strong>Caption:</strong> {img.caption_en}</span>}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Social Syndication Companion Card (LinkedIn & Dev.to) */}
           {(socialData || parsedJsonData?.social) && (() => {
