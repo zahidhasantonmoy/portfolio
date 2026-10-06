@@ -43,13 +43,33 @@ function MermaidDiagram({ chart }: { chart: string }) {
           startOnLoad: false,
           theme: "dark",
           themeVariables: {
-            primaryColor: "#6366f1",
+            darkMode: true,
+            background: "#0d1117",
+            primaryColor: "#1e1b4b",
             primaryTextColor: "#ffffff",
-            primaryBorderColor: "#818cf8",
+            primaryBorderColor: "#6366f1",
             lineColor: "#38bdf8",
-            secondaryColor: "#a855f7",
-            tertiaryColor: "#1e1b4b",
-            background: "#0f172a",
+            secondaryColor: "#312e81",
+            secondaryTextColor: "#ffffff",
+            secondaryBorderColor: "#a855f7",
+            tertiaryColor: "#0f172a",
+            tertiaryTextColor: "#ffffff",
+            tertiaryBorderColor: "#475569",
+            textColor: "#f8fafc",
+            titleColor: "#e2e8f0",
+            nodeTextColor: "#ffffff",
+            nodeBorder: "#6366f1",
+            edgeLabelBackground: "#0d1117",
+            clusterBkg: "#0d1117",
+            clusterBorder: "#334155",
+            mainBkg: "#1e1b4b",
+            fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+            fontSize: "14px",
+          },
+          flowchart: {
+            htmlLabels: true,
+            curve: "basis",
+            useMaxWidth: true,
           },
           securityLevel: "loose",
         });
@@ -73,7 +93,7 @@ function MermaidDiagram({ chart }: { chart: string }) {
 
   return (
     <figure
-      className="my-8 rounded-2xl border border-indigo-900/40 bg-[#0d1117]/90 p-4 md:p-6 shadow-2xl overflow-hidden"
+      className="not-prose my-8 rounded-2xl border border-indigo-900/40 bg-[#0d1117]/90 p-4 md:p-6 shadow-2xl overflow-hidden text-slate-100"
       aria-label="System Architecture Diagram"
     >
       <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-800 text-xs text-gray-400 font-mono select-none">
@@ -91,7 +111,7 @@ function MermaidDiagram({ chart }: { chart: string }) {
       >
         {svg ? (
           <div
-            className="w-full overflow-x-auto flex justify-center py-2 [&_svg]:max-w-full [&_svg]:h-auto transition-opacity duration-300"
+            className="mermaid-diagram-wrapper w-full overflow-x-auto flex justify-center py-2 [&_svg]:max-w-full [&_svg]:h-auto [&_svg_text]:!fill-slate-100 [&_span]:!text-slate-100 [&_.edgeLabel]:!text-slate-200 [&_.edgeLabel_span]:!text-slate-200 [&_.nodeLabel]:!text-white [&_.cluster-label]:!text-slate-200 transition-opacity duration-300"
             dangerouslySetInnerHTML={{ __html: svg }}
           />
         ) : error ? (

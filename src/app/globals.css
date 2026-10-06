@@ -254,3 +254,57 @@ img {
     padding-bottom: max(0px, env(safe-area-inset-bottom));
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   MERMAID ARCHITECTURE DIAGRAM STYLES
+   Ensures SVG diagram nodes, edge labels, clusters, and
+   foreignObject text remain high-contrast and fully visible
+   in both light and dark modes.
+   ═══════════════════════════════════════════════════════ */
+.mermaid-diagram-wrapper {
+  color: #f1f5f9;
+}
+
+.mermaid-diagram-wrapper svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Force all SVG native text, tspans, and foreignObject text to be light and readable */
+.mermaid-diagram-wrapper svg text,
+.mermaid-diagram-wrapper svg tspan {
+  fill: #f1f5f9 !important;
+  color: #f1f5f9 !important;
+}
+
+.mermaid-diagram-wrapper .node .label,
+.mermaid-diagram-wrapper .nodeLabel,
+.mermaid-diagram-wrapper .nodeLabel span,
+.mermaid-diagram-wrapper .nodeLabel p,
+.mermaid-diagram-wrapper foreignObject span,
+.mermaid-diagram-wrapper foreignObject div,
+.mermaid-diagram-wrapper foreignObject p {
+  color: #ffffff !important;
+}
+
+/* Edge labels: high-contrast text and dark pill background so connections don't overlap text */
+.mermaid-diagram-wrapper .edgeLabel,
+.mermaid-diagram-wrapper .edgeLabel span,
+.mermaid-diagram-wrapper .edgeLabel p {
+  color: #e2e8f0 !important;
+  background-color: rgba(13, 17, 23, 0.9) !important;
+}
+
+.mermaid-diagram-wrapper .edgeLabel rect {
+  fill: #0d1117 !important;
+  opacity: 0.95 !important;
+}
+
+/* Subgraphs / Cluster titles */
+.mermaid-diagram-wrapper .cluster-label,
+.mermaid-diagram-wrapper .cluster-label span,
+.mermaid-diagram-wrapper .cluster text {
+  color: #cbd5e1 !important;
+  fill: #cbd5e1 !important;
+  font-weight: 600 !important;
+}
