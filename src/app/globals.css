@@ -3,69 +3,428 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════
-   DESIGN TOKENS — Dark Mode (Default)
-   60-30-10 ratio:
-     60% → bg-base (deep navy-black)
-     30% → bg-surface (card/section)
-     10% → accent-primary + accent-secondary
+   REDESIGN 4 — DESIGN TOKENS (dark only)
+   Source: /tmp/r4-clean.html
+   Compat vars (--bg-base etc.) are kept with R4 values so
+   existing components using Tailwind's mapped colors keep
+   working; the old light theme is gone (dark-only design).
    ═══════════════════════════════════════════════════════ */
 :root {
-  --bg-base: #0A0E17;
-  --bg-surface: #131926;
-  --text-primary: #E8EAED;
-  --text-secondary: #9BA3AF;
-  --accent-primary: #3B82F6;
-  --accent-secondary: #06B6D4;
-  --success: #22C55E;
-  --border: #1F2937;
+  color-scheme: dark;
+
+  /* R4 tokens */
+  --bg: #060a13;
+  --bg2: #0a1120;
+  --card: #0e1729;
+  --card2: #122036;
+  --line: #22345a;
+  --line-soft: #1a2947;
+  --ink: #eef4ff;
+  --ink-soft: #c3d2ea;
+  --ink-mute: #a9bedd;
+  --cyan: #2fd8f2;
+  --cyan-deep: #0e7d99;
+  --amber: #ffb02e;
+  --amber-ink: #1a1200;
+  --green: #3ddc84;
+  --focus: #2fd8f2;
+
+  /* Compat tokens (Tailwind config maps these names) */
+  --bg-base: #060a13;
+  --bg-surface: #0e1729;
+  --text-primary: #eef4ff;
+  --text-secondary: #a9bedd;
+  --accent-primary: #2fd8f2;
+  --accent-secondary: #ffb02e;
+  --success: #3ddc84;
+  --border: #1a2947;
 
   /* Derived tokens */
-  --bg-surface-hover: #1a2235;
-  --accent-primary-hover: #2563EB;
-  --glow-primary: rgba(59, 130, 246, 0.15);
-  --glow-secondary: rgba(6, 182, 212, 0.15);
+  --bg-surface-hover: #122036;
+  --accent-primary-hover: #0e7d99;
+  --glow-primary: rgba(47, 216, 242, 0.15);
+  --glow-secondary: rgba(255, 176, 46, 0.15);
 }
-
-/* ═══════════════════════════════════════════════════════
-   LIGHT MODE — Activated via next-themes class="light"
-   Same accent hues for brand consistency.
-   ═══════════════════════════════════════════════════════ */
-.light {
-  --bg-base: #FAFAFA;
-  --bg-surface: #FFFFFF;
-  --text-primary: #111827;
-  --text-secondary: #6B7280;
-  --accent-primary: #3B82F6;
-  --accent-secondary: #06B6D4;
-  --success: #16A34A;
-  --border: #E5E7EB;
-
-  --bg-surface-hover: #F3F4F6;
-  --accent-primary-hover: #2563EB;
-  --glow-primary: rgba(59, 130, 246, 0.08);
-  --glow-secondary: rgba(6, 182, 212, 0.08);
-}
-
 
 /* ═══════════════════════════════════════════════════════
    BASE BODY STYLES
    ═══════════════════════════════════════════════════════ */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--bg-base);
-  color: var(--text-primary);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-manrope), 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 17px;
+  line-height: 1.6;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+[id] {
+  scroll-margin-top: 96px;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+/* Selection + focus (R4) */
+::selection {
+  background: var(--cyan);
+  color: #04121a;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.focus-ring:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Scrollbar styling (Webkit) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cyan-deep);
+}
+
 /* ═══════════════════════════════════════════════════════
-   UTILITY CLASSES
-   Reusable across all components.
+   LAYOUT PRIMITIVES
    ═══════════════════════════════════════════════════════ */
 
-/* Gradient text: accent-primary → accent-secondary */
+/* Ambient background: fine grid + two soft colour fields (decoration only).
+   Rendered by a fixed <div class="bg-fx" aria-hidden="true">. */
+.bg-fx {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(560px 380px at 88% -60px, rgba(47, 216, 242, 0.14), transparent 65%),
+    radial-gradient(640px 420px at -120px 34%, rgba(255, 176, 46, 0.08), transparent 65%),
+    var(--bg);
+}
+.bg-fx::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 0.35;
+  -webkit-mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 30%, transparent 78%);
+  mask-image: radial-gradient(ellipse 90% 60% at 50% 0%, #000 30%, transparent 78%);
+}
+
+/* Content wrapper: max 1220px */
+.wrap {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 0 21px;
+}
+@media (min-width: 760px) {
+  .wrap {
+    padding: 0 34px;
+  }
+}
+
+/* Legacy container utility (kept for existing components) */
+.container {
+  width: 100%;
+  max-width: 1280px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FLOATING GLASS DOCK NAV
+   ═══════════════════════════════════════════════════════ */
+.dock {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 12px;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  padding: 6px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  max-width: calc(100vw - 20px);
+}
+.dock a {
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+  padding: 9px 13px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  color: var(--ink-soft);
+}
+.dock a:hover {
+  color: var(--ink);
+  background: var(--card2);
+}
+.dock a.dock-hire {
+  background: var(--amber);
+  color: var(--amber-ink);
+  font-weight: 800;
+}
+.dock a.dock-hire:hover {
+  background: var(--cyan);
+  color: #04121a;
+}
+/* ≥900px: show Services / Skills / Story */
+.dock .hide-m {
+  display: none;
+}
+@media (min-width: 900px) {
+  .dock .hide-m {
+    display: inline-flex;
+  }
+}
+/* <640px (phone dock): only Work / Blog / Hire me */
+.dock .hide-s {
+  display: none;
+}
+@media (min-width: 640px) {
+  .dock .hide-s {
+    display: inline-flex;
+  }
+}
+@media (max-width: 480px) {
+  .dock a {
+    padding: 9px 10px;
+    font-size: 13.5px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   BUTTONS
+   ═══════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 52px;
+  padding: 13px 24px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 16px;
+  text-decoration: none;
+  border: 2px solid var(--line);
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+.btn-amber {
+  background: var(--amber);
+  border-color: var(--amber);
+  color: var(--amber-ink);
+}
+.btn-amber:hover {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #04121a;
+}
+.btn-hire {
+  min-height: 60px;
+  padding: 16px 34px;
+  font-size: 18px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(255, 176, 46, 0.28);
+}
+.btn-ghost {
+  background: var(--card);
+  color: var(--ink);
+}
+.btn-ghost:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+/* Legacy button classes (used by existing components) — R4 amber style */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: var(--amber);
+  color: var(--amber-ink);
+  font-weight: 800;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(255, 176, 46, 0.28);
+}
+.btn-primary:hover {
+  background: var(--cyan);
+  color: #04121a;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(47, 216, 242, 0.25);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SECTION HEADS
+   ═══════════════════════════════════════════════════════ */
+section.block {
+  padding: 64px 0 6px;
+}
+.sec-tag {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: var(--cyan);
+  text-transform: uppercase;
+}
+.sec-head h2 {
+  font-family: var(--font-display), 'Unbounded', sans-serif;
+  font-weight: 700;
+  font-size: clamp(27px, 4.6vw, 42px);
+  line-height: 1.12;
+  margin-top: 8px;
+}
+.sec-head p {
+  color: var(--ink-soft);
+  font-size: 17.5px;
+  max-width: 64ch;
+  margin-top: 10px;
+}
+.sec-head p strong {
+  color: var(--ink);
+}
+
+/* ═══════════════════════════════════════════════════════
+   REVEAL ON SCROLL (.rv → .in via IntersectionObserver)
+   ═══════════════════════════════════════════════════════ */
+.rv {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.rv.in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rv {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   MARQUEE (seamless loop; track content duplicated in JSX)
+   ═══════════════════════════════════════════════════════ */
+.marquee {
+  margin-top: 44px;
+  border-top: 1.5px solid var(--line-soft);
+  border-bottom: 1.5px solid var(--line-soft);
+  overflow: hidden;
+  padding: 13px 0;
+}
+.mq-track {
+  display: flex;
+  width: max-content;
+  animation: mq 34s linear infinite;
+  gap: 0;
+}
+.mq-track span {
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  color: var(--ink-mute);
+  white-space: nowrap;
+  padding-right: 12px;
+}
+.mq-track b {
+  color: var(--cyan);
+  font-weight: 400;
+  padding-right: 12px;
+}
+@keyframes mq {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mq-track {
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════ */
+.foot-name {
+  font-family: var(--font-display), 'Unbounded', sans-serif;
+  font-weight: 900;
+  font-size: clamp(24px, 5vw, 44px);
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+.foot-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  margin-top: 16px;
+  font-size: 14.5px;
+  color: var(--ink-mute);
+  align-items: center;
+}
+.foot-row a {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.foot-row a:hover {
+  color: var(--cyan);
+}
+
+/* ═══════════════════════════════════════════════════════
+   LEGACY UTILITIES (kept for existing components)
+   ═══════════════════════════════════════════════════════ */
+
+/* Gradient text: cyan → amber (R4) */
 .gradient-text {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  background: linear-gradient(135deg, var(--cyan), var(--amber));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -73,70 +432,11 @@ body {
 
 /* Glassmorphism card */
 .glass-card {
-  background: rgba(19, 25, 38, 0.6);
+  background: rgba(14, 23, 41, 0.6);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-.light .glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-}
-
-/* Primary filled button */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  background: var(--accent-primary);
-  color: white;
-  font-weight: 600;
-  border-radius: 0.75rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 14px var(--glow-primary);
-}
-.btn-primary:hover {
-  background: var(--accent-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px var(--glow-primary);
-}
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-/* Ghost/outline button */
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-primary);
-  font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 0.75rem;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
-}
-.light .btn-ghost {
-  background: rgba(0, 0, 0, 0.04);
-  color: var(--text-primary);
-  border: 1px solid rgba(0, 0, 0, 0.15);
-}
-.btn-ghost:hover {
-  color: #ffffff;
-  border-color: var(--accent-primary);
-  background: var(--glow-primary);
-}
-.light .btn-ghost:hover {
-  color: var(--accent-primary);
-  border-color: var(--accent-primary);
-  background: var(--glow-primary);
 }
 
 /* Animated border glow */
@@ -148,7 +448,7 @@ body {
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-primary));
+  background: linear-gradient(135deg, var(--cyan), var(--amber), var(--cyan));
   background-size: 200% 200%;
   animation: glow-shift 3s ease-in-out infinite;
   z-index: -1;
@@ -164,75 +464,21 @@ body {
   50% { background-position: 100% 50%; }
 }
 
-/* Focus ring — accessible keyboard focus */
-.focus-ring:focus-visible {
-  outline: 2px solid var(--accent-primary);
-  outline-offset: 2px;
-}
-
-/* Smooth scroll behavior */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Selection color */
-::selection {
-  background: var(--accent-primary);
-  color: white;
-}
-
-/* Scrollbar styling (Webkit) */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-base);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
-}
-
 /* ═══════════════════════════════════════════════════════
    MOBILE-FIRST RESPONSIVE IMPROVEMENTS
    ═══════════════════════════════════════════════════════ */
-
-/* Prevent horizontal overflow on mobile */
-body {
-  overflow-x: hidden;
-}
-
-/* Responsive container utility */
-.container {
-  width: 100%;
-  max-width: 1280px;
-}
 
 /* Better touch targets on mobile */
 @media (max-width: 640px) {
   button, a, [role="button"] {
     min-height: 36px;
   }
-  
+
   /* Reduce heavy backdrop blur on low-end devices */
   .backdrop-blur-xl {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
-  
-  /* Ensure images don't overflow */
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-}
-
-/* Responsive image handling */
-img {
-  max-width: 100%;
 }
 
 /* Ensure grid doesn't break on small screens */
@@ -240,7 +486,7 @@ img {
   .grid {
     min-width: 0;
   }
-  
+
   .flex-shrink-0 {
     flex-shrink: 0;
   }
@@ -259,7 +505,7 @@ img {
    MERMAID ARCHITECTURE DIAGRAM STYLES
    Ensures SVG diagram nodes, edge labels, clusters, and
    foreignObject text remain high-contrast and fully visible
-   in both light and dark modes.
+   in dark mode.
    ═══════════════════════════════════════════════════════ */
 .mermaid-diagram-wrapper {
   color: #f1f5f9;

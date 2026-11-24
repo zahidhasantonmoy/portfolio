@@ -30,7 +30,7 @@ export default function CaseStudyCard({ caseStudy, lang }: CaseStudyCardProps) {
 
   return (
     <article
-      className="group relative flex flex-col overflow-hidden rounded-3xl border shadow-sm hover:shadow-xl transition-all duration-300 backdrop-blur-sm hover:border-blue-500/50 hover:shadow-glow-sm"
+      className="group relative flex flex-col overflow-hidden rounded-3xl border shadow-sm hover:shadow-xl transition-all duration-300 backdrop-blur-sm hover:border-[#0e7d99] hover:shadow-glow-sm"
       style={{
         background: "var(--bg-surface)",
         borderColor: "var(--border)",
@@ -143,7 +143,7 @@ export default function CaseStudyCard({ caseStudy, lang }: CaseStudyCardProps) {
         <div className="mt-auto pt-2">
           <Link
             href={detailHref}
-            className="w-full inline-flex items-center justify-between px-5 py-3 rounded-2xl text-sm font-semibold transition-all group/btn border shadow-sm hover:border-blue-500 hover:text-blue-500"
+            className="w-full inline-flex items-center justify-between px-5 py-3 rounded-2xl text-sm font-semibold transition-all group/btn border shadow-sm hover:border-[#2fd8f2] hover:text-[#2fd8f2]"
             style={{
               background: "var(--bg-base)",
               borderColor: "var(--border)",

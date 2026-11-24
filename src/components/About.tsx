@@ -1,98 +1,74 @@
 "use client";
 import React from 'react';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
+import TimelineSection from './TimelineSection';
 
-interface AboutProps {
-  aboutMe: string;
-}
-
-const About = ({ aboutMe }: AboutProps) => {
-  // Split text into lines for "code" feel, or just wrap it
-  const bioLines = aboutMe.split('\n').filter(line => line.length > 0);
-
+const About = () => {
   return (
-    <section id="about" className="py-16 sm:py-20 md:py-24 transition-colors duration-300" style={{ background: 'var(--bg-base)' }}>
-      <div className="container mx-auto px-4 sm:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="max-w-5xl mx-auto"
+    <section id="story" className="wrap pb-1.5 pt-16">
+      <div className="sec-head">
+        <span className="sec-tag">04 · My story</span>
+        <h2>The short version</h2>
+        <p>The projects above are the long version.</p>
+      </div>
+
+      <div className="mt-[26px] grid gap-[26px] lg:grid-cols-[0.82fr_1.18fr] lg:gap-10">
+        <figure className="overflow-hidden rounded-[22px] border-[1.5px] border-line-soft">
+          <div className="relative h-[420px] w-full sm:h-[540px]">
+            <Image
+              src="/images/portrait-cafe.jpg"
+              alt="Zahid Hasan Tonmoy out and about in Dhaka"
+              fill
+              sizes="(max-width: 900px) 100vw, 40vw"
+              loading="lazy"
+              className="object-cover"
+            />
+          </div>
+        </figure>
+
+        <div>
+          <div className="text-[17.5px] text-ink-soft">
+            <p className="mb-[13px]">
+              My name is <strong className="text-ink">Zahid Hasan Tonmoy</strong>. I live in Mirpur, Dhaka,
+              and I study Computer Science at BUBT university. I build things for the web, for phones, and
+              with data.
+            </p>
+            <p className="mb-[13px]">
+              What I enjoy most: taking a real problem and turning it into simple software that works. A shop
+              that needs to sell online. Files that need to move from one phone to another. A drain that
+              overflows in the rain. If it is a real problem, I like building the fix.
+            </p>
+            <p className="mb-[13px]">
+              My mix is a little unusual: I write code, I work with data, and I also understand how people
+              find and buy things online. So what I build is not just correct — it is made for real people to
+              use.
+            </p>
+          </div>
+          <TimelineSection />
+        </div>
+      </div>
+
+      <div className="mt-[30px] overflow-hidden rounded-[22px] border-[1.5px] border-line-soft bg-card transition-colors hover:border-cyan-deep">
+        <video
+          controls
+          preload="none"
+          poster="/images/intro-poster.jpg"
+          playsInline
+          aria-label="Video: Zahid Hasan Tonmoy introduces himself in 10 seconds"
+          className="block aspect-video w-full bg-black"
         >
-          <div className="flex items-center gap-4 mb-12 justify-center">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold" style={{ color: 'var(--text-primary)' }}>
-              About Me
-              <span className="gradient-text">.ts</span>
-            </h2>
-          </div>
-
-          {/* VS Code Window */}
-          <div className="rounded-xl overflow-hidden shadow-2xl font-mono text-xs sm:text-sm md:text-base" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
-            {/* Window Header */}
-            <div className="px-4 py-2 flex items-center gap-2" style={{ background: 'var(--bg-surface-hover)', borderBottom: '1px solid var(--border)' }}>
-              <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                <div className="w-3 h-3 rounded-full bg-green-500" />
-              </div>
-              <div className="ml-4 text-xs text-center flex-1" style={{ color: 'var(--text-secondary)' }}>
-                zahid_portfolio.tsx
-              </div>
-            </div>
-
-            {/* Editor Content */}
-            <div className="p-3 sm:p-4 md:p-8 flex overflow-x-auto">
-              {/* Line Numbers */}
-              <div className="text-right pr-4 select-none mr-4 font-mono" style={{ color: 'var(--text-secondary)', borderRight: '1px solid var(--border)' }}>
-                {Array.from({ length: 12 + bioLines.length }).map((_, i) => (
-                  <div key={i} className="leading-relaxed">{i + 1}</div>
-                ))}
-              </div>
-
-              {/* Code */}
-              <div className="flex-1 leading-relaxed font-mono whitespace-pre-wrap break-words" style={{ color: 'var(--text-secondary)' }}>
-                <div>
-                  <span className="text-purple-400">const</span> <span style={{ color: 'var(--accent-primary)' }}>developer</span> <span style={{ color: 'var(--text-primary)' }}>=</span> <span className="text-yellow-400">{'{'}</span>
-                </div>
-                <div className="pl-4">
-                  <span style={{ color: 'var(--accent-secondary)' }}>name</span>: <span className="text-[#ce9178]">"Zahid Hasan Tonmoy"</span>,
-                </div>
-                <div className="pl-4">
-                  <span style={{ color: 'var(--accent-secondary)' }}>role</span>: <span className="text-[#ce9178]">"Web Developer & AI Enthusiast"</span>,
-                </div>
-                <div className="pl-4">
-                  <span style={{ color: 'var(--accent-secondary)' }}>location</span>: <span className="text-[#ce9178]">"Dhaka, Bangladesh"</span>,
-                </div>
-                <div className="pl-4">
-                  <span style={{ color: 'var(--accent-secondary)' }}>skills</span>: <span className="text-yellow-400">['React', 'Next.js', 'Python', 'AI Agents']</span>,
-                </div>
-                <div className="pl-4">
-                  <span style={{ color: 'var(--accent-secondary)' }}>bio</span>: <span className="text-yellow-400">`</span>
-                </div>
-                {bioLines.map((line, idx) => (
-                  <div key={idx} className="pl-8" style={{ color: 'var(--accent-primary)' }}>
-                    {line}
-                  </div>
-                ))}
-                <div className="pl-4">
-                  <span className="text-yellow-400">`</span>,
-                </div>
-                <div className="pl-4">
-                  <span style={{ color: 'var(--accent-secondary)' }}>contact</span>: <span className="text-[#ce9178]">"Via the paper plane below ✈️"</span>,
-                </div>
-                <div>
-                  <span className="text-yellow-400">{'}'}</span>;
-                </div>
-                <br />
-                <div>
-                  <span className="text-purple-400">export default</span> <span style={{ color: 'var(--accent-primary)' }}>developer</span>;
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+          <source src="/videos/intro.mp4" type="video/mp4" />
+          Your browser cannot play this video — everything in it is written in the story above.
+        </video>
+        <div className="flex flex-wrap items-baseline gap-x-[18px] gap-y-1 px-5 pb-[18px] pt-4">
+          <h3 className="text-[19px] font-extrabold">Meet me in 10 seconds</h3>
+          <p className="text-[15px] text-ink-soft">
+            A short video intro, recorded at my desk in Dhaka. Press play — it has sound.
+          </p>
+          <span className="ml-auto whitespace-nowrap font-mono text-xs uppercase tracking-[0.08em] text-cyan">
+            0:10 · WITH SOUND
+          </span>
+        </div>
       </div>
     </section>
   );

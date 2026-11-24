@@ -200,45 +200,36 @@ export default function ServicesView({ lang }: ServicesViewProps) {
               {tx.servicesDesc}
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-[14px]">
             {servicesBilingual.map((svc) => {
               const Icon = svc.icon;
               const d = svc[lang];
               return (
                 <article
                   key={d.title}
-                  className="relative rounded-3xl border p-8 shadow-sm transition-all duration-300 group backdrop-blur-sm hover:border-blue-500/50 hover:shadow-glow-sm"
-                  style={{
-                    background: "var(--bg-surface)",
-                    borderColor: "var(--border)",
-                  }}
+                  className="relative rounded-[20px] border-[1.5px] border-line-soft bg-card p-[22px] shadow-sm transition-colors duration-300 group hover:border-cyan-deep"
                 >
                   <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 shadow-sm group-hover:scale-110 transition-transform duration-300 border"
-                    style={{
-                      background: "var(--bg-base)",
-                      borderColor: "var(--border)",
-                    }}
+                    className="w-[50px] h-[50px] rounded-[15px] flex items-center justify-center mb-[14px] shadow-sm group-hover:scale-110 transition-transform duration-300 border-[1.5px] border-line bg-card2 text-cyan"
                   >
                     <Icon className={`text-xl ${svc.iconColor}`} />
                   </div>
-                  <h3 className="text-xl font-extrabold mb-1" style={{ color: "var(--text-primary)" }}>
+                  <h3 className="text-[19.5px] font-extrabold leading-[1.2] mb-[7px] text-ink">
                     {d.title}
                   </h3>
-                  <p className="text-xs font-medium mb-4 font-mono" style={{ color: "var(--accent-secondary)" }}>
+                  <p className="text-xs font-medium mb-4 font-mono text-amber">
                     {d.subtitle}
                   </p>
-                  <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--text-secondary)" }}>
+                  <p className="text-[15px] leading-relaxed mb-5 text-ink-soft">
                     {d.description}
                   </p>
-                  <ul className="space-y-2">
+                  <ul className="space-y-1">
                     {d.deliverables.map((item) => (
                       <li
                         key={item}
-                        className="flex items-start gap-2 text-sm"
-                        style={{ color: "var(--text-primary)" }}
+                        className="flex items-start gap-2 text-[14.5px] text-ink-soft"
                       >
-                        <FaCheckCircle className="flex-shrink-0 mt-0.5 text-xs text-blue-500" />
+                        <FaCheckCircle className="flex-shrink-0 mt-0.5 text-xs text-cyan" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -266,24 +257,16 @@ export default function ServicesView({ lang }: ServicesViewProps) {
                 {tx.processDesc}
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[14px]">
               {processBilingual.map((step) => {
                 const d = step[lang];
                 return (
-                  <div key={step.step} className="text-center">
-                    <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
-                      style={{
-                        background: "linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))",
-                        boxShadow: "0 8px 24px var(--glow-primary)",
-                      }}
-                    >
-                      <span className="text-white font-extrabold text-lg">{step.step}</span>
-                    </div>
-                    <h3 className="font-bold text-base mb-2" style={{ color: "var(--text-primary)" }}>
+                  <div key={step.step} className="rounded-[20px] border-[1.5px] border-line-soft bg-card2 p-5 text-left">
+                    <div className="font-display text-[26px] font-black text-amber">{step.step}</div>
+                    <h3 className="font-extrabold text-[17px] mb-1 mt-[7px] text-ink">
                       {d.title}
                     </h3>
-                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                    <p className="text-[14.5px] leading-relaxed text-ink-soft">
                       {d.desc}
                     </p>
                   </div>
@@ -305,14 +288,10 @@ export default function ServicesView({ lang }: ServicesViewProps) {
             {tx.pricingTiers.map((tier) => (
               <div
                 key={tier.label}
-                className="p-6 rounded-2xl text-left border shadow-sm transition-all hover:border-blue-500/50"
-                style={{
-                  background: "var(--bg-surface)",
-                  borderColor: "var(--border)",
-                }}
+                className="p-6 rounded-[20px] text-left border-[1.5px] border-line-soft bg-card shadow-sm transition-colors hover:border-cyan-deep"
               >
-                <p className="font-bold text-sm mb-2" style={{ color: "var(--text-primary)" }}>{tier.label}</p>
-                <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                <p className="font-bold text-sm mb-2 text-ink">{tier.label}</p>
+                <p className="text-xs leading-relaxed text-ink-soft">
                   {tier.desc}
                 </p>
               </div>

@@ -2,6 +2,10 @@ import dynamic from 'next/dynamic';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
 import ScrollProgress from '@/components/ScrollProgress';
+import ServicesSection from '@/components/ServicesSection';
+import BentoSection from '@/components/BentoSection';
+import FaqSection from '@/components/FaqSection';
+import HomeBlogSection from '@/components/HomeBlogSection';
 import data from '@/data/data.json';
 import { FilterProvider } from '@/context/FilterContext';
 
@@ -15,13 +19,10 @@ const SkillSection = dynamic(() => import('@/components/SkillSection'), {
   ),
 });
 const Projects = dynamic(() => import('@/components/Projects'), { ssr: true });
-const Achievements = dynamic(() => import('@/components/Achievements'), { ssr: false });
 const GitHubSection = dynamic(() => import('@/components/GitHubSection'), { ssr: false });
-const TimelineSection = dynamic(() => import('@/components/TimelineSection'), { ssr: false });
-const ReviewForm = dynamic(() => import('@/components/ReviewForm'), { ssr: false });
 const Contact = dynamic(() => import('@/components/Contact'), { ssr: true });
 
-export default function HomePageContent({ dbProjects, dbSkills }: { dbProjects?: any[], dbSkills?: any[] }) {
+export default function HomePageContent({ dbProjects, dbSkills, postCount }: { dbProjects?: any[], dbSkills?: any[], postCount?: number }) {
   // Map DB projects to frontend expected format
   const mappedProjects = (dbProjects && dbProjects.length > 0) ? dbProjects.map(p => {
     const matching = data.projects.find((dp: any) => 
@@ -77,19 +78,15 @@ export default function HomePageContent({ dbProjects, dbSkills }: { dbProjects?:
     <FilterProvider>
       <ScrollProgress />
       <main className="min-h-screen" style={{ background: 'var(--bg-base)' }}>
-        <Hero name={data.name} title={data.title} />
-        <About aboutMe={data.aboutMe} />
-        <section id="skills" className="py-16 sm:py-20" style={{ background: 'var(--bg-base)' }}>
-          <div className="container mx-auto px-4 sm:px-6">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 gradient-text">My Skills</h2>
-            <SkillSection skills={finalSkills} />
-          </div>
-        </section>
+        <Hero name={data.name} projectCount={finalProjects.length} postCount={postCount} />
+        <BentoSection projectCount={finalProjects.length} postCount={postCount} />
         <Projects projects={finalProjects} />
-        <Achievements />
+        <ServicesSection />
+        <SkillSection skills={finalSkills} projects={finalProjects} postCount={postCount} />
+        <About />
+        <HomeBlogSection />
         <GitHubSection />
-        <TimelineSection />
-        <ReviewForm />
+        <FaqSection />
         <Contact />
       </main>
     </FilterProvider>

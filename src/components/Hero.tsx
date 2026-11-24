@@ -1,363 +1,231 @@
 "use client";
-import React, { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
-import { FaGithub, FaLinkedin, FaFacebook, FaTwitter, FaBrain, FaDatabase, FaChartLine, FaMedium, FaDev, FaCoffee } from 'react-icons/fa';
-import GradientText from './GradientText';
-import TypewriterText from './TypewriterText';
-import DecryptedText from './DecryptedText';
+import AskAssistant from '@/components/AskAssistant';
+
+const ROLE_WORDS = ['websites', 'mobile apps', 'AI agents', 'data tools', 'online shops'];
+const MARQUEE_ITEMS = ['REACT', 'NODE.JS', 'NEXT.JS', 'TYPESCRIPT', 'PYTHON', 'AI AGENTS', 'FLUTTER', 'SUPABASE', 'MONGODB', 'PANDAS', 'DHAKA → WORLDWIDE'];
 
 interface HeroProps {
   name: string;
-  title: string;
+  projectCount: number;
+  postCount?: number;
 }
 
-const Hero = ({ name, title }: HeroProps) => {
-  const containerRef = useRef<HTMLElement>(null);
+const Hero = ({ name, projectCount, postCount }: HeroProps) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [roleIndex, setRoleIndex] = useState(0);
+  const [wordVisible, setWordVisible] = useState(true);
+  const [repoCount, setRepoCount] = useState<number | null>(null);
 
-  // Parallax Mouse Stuff
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
+  // Rotating role word (2.6s) — skipped when the user prefers reduced motion.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const timer = setInterval(() => {
+      setWordVisible(false);
+      window.setTimeout(() => {
+        setRoleIndex((i) => (i + 1) % ROLE_WORDS.length);
+        setWordVisible(true);
+      }, 180);
+    }, 2600);
+    return () => clearInterval(timer);
+  }, []);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    const { clientX, clientY } = e;
-    const { innerWidth, innerHeight } = window;
-    const x = clientX / innerWidth - 0.5;
-    const y = clientY / innerHeight - 0.5;
-    mouseX.set(x);
-    mouseY.set(y);
-  }
+  // Respect reduced motion for the background video too.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      video.removeAttribute('autoplay');
+      void video.pause();
+    }
+  }, []);
 
-  // Smooth springs for parallax
-  const springX = useSpring(mouseX, { stiffness: 50, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 50, damping: 20 });
-
-  // Layer transforms (opposite directions for depth)
-  const layer1X = useTransform(springX, [-0.5, 0.5], [20, -20]);
-  const layer1Y = useTransform(springY, [-0.5, 0.5], [20, -20]);
-
-  const layer2X = useTransform(springX, [-0.5, 0.5], [-40, 40]);
-  const layer2Y = useTransform(springY, [-0.5, 0.5], [-40, 40]);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 10,
-      },
-    },
-  };
-
-  const heroItemVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  };
-
-  const iconVariants = {
-    hidden: { scale: 0, opacity: 0 },
-    visible: {
-      scale: 1,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 15,
-      },
-    },
-    hover: {
-      scale: 1.2,
-      transition: {
-        duration: 0.2,
-      },
-    },
-  };
+  // Live public repo count from GitHub (no hardcoded number).
+  useEffect(() => {
+    let cancelled = false;
+    fetch('https://api.github.com/users/zahidhasantonmoy')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data && typeof data.public_repos === 'number') {
+          setRepoCount(data.public_repos);
+        }
+      })
+      .catch(() => {
+        // Repo count stays hidden instead of showing a made-up number.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
-    <section
-      id="home"
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      className="relative min-h-screen py-20 sm:py-24 md:py-0 flex items-center justify-center text-center overflow-hidden"
-      style={{ background: 'var(--bg-base)' }}
-    >
-      {/* Dynamic Background Elements */}
-      <div className="absolute inset-0 z-0">
-        {/* Radial gradient accent glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full opacity-20 blur-[120px]"
-          style={{ background: 'radial-gradient(ellipse, var(--accent-primary), transparent 70%)' }}
-        />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full opacity-15 blur-[100px]"
-          style={{ background: 'radial-gradient(ellipse, var(--accent-secondary), transparent 70%)' }}
-        />
-
-        {/* Animated Grid/Pattern - Parallax Layer 1 */}
-        <motion.div
-          className="absolute inset-0 bg-grid-pattern opacity-[0.05]"
-          style={{ x: layer1X, y: layer1Y }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.05 }}
-          transition={{ duration: 3, ease: "easeInOut" }}
-        ></motion.div>
-
-        {/* Abstract Data Flow / Neural Network Lines */}
-        <motion.div
-          className="absolute top-0 left-0 w-full h-full"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.2 }}
-          transition={{ duration: 2, delay: 0.5 }}
+    <section id="home" className="relative overflow-hidden pb-2.5 pt-24 sm:pt-[104px]">
+      {/* Video background */}
+      <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/images/hero-poster.jpg"
+          tabIndex={-1}
+          className="h-full w-full object-cover opacity-85"
         >
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <motion.path
-              d="M0,10 Q50,0 100,10 T0,20 Q50,30 100,40 T0,50 Q50,60 100,70 T0,80 Q50,90 100,100"
-              stroke="url(#gradient1)"
-              strokeWidth="0.3"
-              fill="none"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.path
-              d="M100,0 Q50,10 0,20 T100,30 Q50,40 0,50 T100,60 Q50,70 0,80 T100,90 Q50,100 0,100"
-              stroke="url(#gradient2)"
-              strokeWidth="0.3"
-              fill="none"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 12, repeat: Infinity, ease: "linear", delay: 1 }}
-            />
-            <defs>
-              <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="var(--accent-primary)" />
-                <stop offset="100%" stopColor="var(--accent-secondary)" />
-              </linearGradient>
-              <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="var(--accent-secondary)" />
-                <stop offset="100%" stopColor="var(--accent-primary)" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </motion.div>
-
-        {/* Iconic Overlays - Parallax Layer 2 */}
-        <motion.div
-          className="absolute top-1/4 left-1/4"
-          style={{ x: layer2X, y: layer2Y, color: 'var(--accent-primary)', opacity: 0.03 }}
-          initial={{ scale: 0, rotate: 0 }}
-          animate={{ scale: 1, rotate: 360 }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        >
-          <FaBrain size={150} />
-        </motion.div>
-        <motion.div
-          className="absolute bottom-1/4 right-1/4"
-          style={{ x: layer2X, y: layer2Y, color: 'var(--accent-secondary)', opacity: 0.03 }}
-          initial={{ scale: 0, rotate: 0 }}
-          animate={{ scale: 1, rotate: -360 }}
-          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-        >
-          <FaDatabase size={150} />
-        </motion.div>
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-          style={{ x: layer1X, y: layer1Y, color: 'var(--accent-primary)', opacity: 0.03 }}
-          initial={{ scale: 0, rotate: 0 }}
-          animate={{ scale: 1, rotate: 180 }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        >
-          <FaChartLine size={150} />
-        </motion.div>
+          <source src="/videos/hero-dhaka-night.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,10,19,0.78)_0%,rgba(6,10,19,0.62)_46%,var(--bg)_97%)]" />
       </div>
 
-      <motion.div
-        className="relative z-10 flex flex-col items-center p-4"
-        style={{ color: 'var(--text-primary)' }}
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {/* Profile Image with accent gradient glow ring */}
-        <motion.div variants={itemVariants} className="mb-5 sm:mb-6 relative w-28 h-28 sm:w-40 sm:h-40 md:w-52 md:h-52 rounded-full overflow-hidden flex-shrink-0">
-          <Image
-            src="/images/profile.jpg"
-            alt="Zahid Hasan Tonmoy — profile photo"
-            fill
-            sizes="(max-width: 640px) 112px, (max-width: 768px) 160px, 208px"
-            priority
-            className="object-cover transform hover:scale-105 transition-transform duration-300 ease-in-out"
-          />
-          {/* Accent gradient glow ring */}
-          <motion.div
-            className="absolute inset-0 rounded-full border-4 border-transparent"
-            animate={{
-              boxShadow: [
-                "0 0 15px rgba(59,130,246,0.7)",
-                "0 0 25px rgba(6,182,212,0.7)",
-                "0 0 15px rgba(59,130,246,0.7)"
-              ],
-            }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          ></motion.div>
-        </motion.div>
-
-        {/* Live "Available for Freelance" pulsing badge — uses --success (Von Restorff) */}
-        <motion.div
-          variants={itemVariants}
-          className="inline-flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs md:text-sm font-medium mb-5 backdrop-blur-md cursor-default transition-all duration-300 max-w-[320px] sm:max-w-none text-center"
-          style={{
-            background: 'rgba(34, 197, 94, 0.1)',
-            border: '1px solid rgba(34, 197, 94, 0.3)',
-            color: 'var(--success)',
-            boxShadow: '0 0 20px rgba(34, 197, 94, 0.18)',
-          }}
-        >
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-          </span>
-          <span className="font-semibold tracking-wide">Available for Freelance & Full-time Roles</span>
-        </motion.div>
-
-        {/*
-          CLS fix for h1: render the real name text as an invisible spacer so the
-          container is always the correct intrinsic width, then overlay the
-          animated DecryptedText on top. This prevents the browser from seeing a
-          zero-width element that later expands.
-        */}
-        <motion.h1
-          className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold mb-2 drop-shadow-lg relative w-full text-center tracking-tight"
-          variants={heroItemVariants}
-        >
-          {/* Invisible spacer — reserves the final width/height from first paint */}
-          <span className="invisible select-none" aria-hidden="true">{name}</span>
-          {/* Animated overlay — absolutely positioned so it never contributes to layout */}
-          <span className="absolute inset-0 flex items-center justify-center gradient-text">
-            <DecryptedText text={name} speed={30} revealSpeed={50} />
-          </span>
-        </motion.h1>
-
-        {/*
-          CLS fix for rotating role subtitle:
-          Ghost copies of every possible string are rendered as
-          position:absolute so they never affect document flow, but they
-          DO force the inline-block container to size itself to the
-          widest variant ('AI Agent Developer') from the first paint.
-          The live TypewriterText then renders on top at the same fixed size.
-        */}
-        <motion.div
-          className="text-base sm:text-xl md:text-3xl lg:text-4xl font-light leading-relaxed mb-6 sm:mb-8"
-          style={{ color: 'var(--text-secondary)' }}
-          variants={heroItemVariants}
-        >
-          <span className="relative inline-block">
-            {/* Ghost elements — invisible, absolutely stacked; size the container */}
-            {['Data Analyst', 'AI Agent Developer', 'Digital Marketer'].map((t) => (
-              <span
-                key={t}
-                className="invisible select-none block h-0 overflow-hidden"
-                aria-hidden="true"
-              >
-                {t}
-              </span>
-            ))}
-            {/* Live animated text */}
-            <span className="absolute inset-x-0 top-0 flex items-center justify-center">
-              <TypewriterText
-                texts={['Data Analyst', 'AI Agent Developer', 'Digital Marketer']}
-                typingSpeed={100}
-                deleteSpeed={50}
-                delay={2000}
-                className="gradient-text"
-              />
+      <div className="wrap relative z-[1] grid gap-[30px] lg:grid-cols-[1.12fr_0.88fr] lg:gap-11 lg:items-start">
+        {/* Left column */}
+        <div>
+          <span className="inline-flex items-center gap-[9px] rounded-full border-[1.5px] border-line bg-card py-2 pl-3 pr-4 text-sm font-bold text-ink-soft">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green" />
             </span>
+            Open for work — freelance &amp; full-time
           </span>
-        </motion.div>
 
-        {/* CTA Buttons */}
-        <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 w-full max-w-xs sm:max-w-none"
-          variants={containerVariants}
-        >
-          {/* PRIMARY CTA — View My Work */}
-          <motion.a
-            href="#projects"
-            className="px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold rounded-xl text-white bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300 w-full sm:w-auto text-center inline-flex items-center justify-center"
-            variants={itemVariants}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            View My Work
-          </motion.a>
+          <h1 className="mb-1.5 mt-5 font-display text-[clamp(37px,7.2vw,74px)] font-black uppercase leading-[1.04] tracking-[-0.01em]">
+            Zahid
+            <br />
+            Hasan <span className="font-medium text-cyan">Tonmoy</span>
+          </h1>
 
-          {/* SECONDARY CTA — Read Blog */}
-          <motion.a
-            href="/blog"
-            className="px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold rounded-xl text-white bg-purple-600 hover:bg-purple-500 shadow-lg shadow-purple-600/25 hover:shadow-purple-600/40 transition-all duration-300 w-full sm:w-auto text-center inline-flex items-center justify-center gap-2"
-            variants={itemVariants}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <span>Read Blog</span>
-          </motion.a>
-
-          {/* TERTIARY CTA — Contact Me */}
-          <motion.a
-            href="#contact"
-            className="px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold rounded-xl text-gray-800 dark:text-white bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 border-2 border-gray-300 dark:border-white/20 hover:border-gray-400 dark:hover:border-white/50 backdrop-blur-md shadow-lg transition-all duration-300 w-full sm:w-auto text-center inline-flex items-center justify-center"
-            variants={itemVariants}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Contact Me
-          </motion.a>
-        </motion.div>
-
-        {/* Social icon links — aria-label added for accessibility (#3) */}
-        <motion.div
-          className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 md:gap-6 max-w-full px-2"
-          variants={containerVariants}
-        >
-          {[
-            { href: "https://github.com/zahidhasantonmoy", label: "GitHub profile", icon: FaGithub, size: 30 },
-            { href: "https://www.linkedin.com/in/zahidhasantonmoy/", label: "LinkedIn profile", icon: FaLinkedin, size: 30 },
-            { href: "https://www.facebook.com/zahidhasantonmoybd", label: "Facebook profile", icon: FaFacebook, size: 30 },
-            { href: "https://x.com/zahidhasan_bd", label: "Twitter / X profile", icon: FaTwitter, size: 30 },
-            { href: "https://medium.com/@zahidhasantonmoy", label: "Medium profile", icon: FaMedium, size: 30 },
-            { href: "https://dev.to/zahidhasantonmoy", label: "Dev.to profile", icon: FaDev, size: 30 },
-            { href: "https://buymeacoffee.com/zahidhasantonmoy", label: "Buy Me a Coffee", icon: FaCoffee, size: 28 },
-          ].map(({ href, label, icon: Icon, size }) => (
-            <motion.a
-              key={href}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              className="transition-colors duration-300"
-              style={{ color: 'var(--text-secondary)' }}
-              variants={iconVariants}
-              whileHover="hover"
-              whileTap={{ scale: 0.9 }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent-primary)'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'; }}
+          <p className="mt-3 text-[clamp(20px,3vw,27px)] font-extrabold leading-[1.3]">
+            I build{' '}
+            <span
+              className="inline-block min-w-[7.5ch] border-b-[3px] border-amber text-amber transition-opacity duration-200"
+              style={{ opacity: wordVisible ? 1 : 0 }}
             >
-              <Icon size={size} aria-hidden="true" />
-            </motion.a>
+              {ROLE_WORDS[roleIndex]}
+            </span>
+            <br />
+            that solve real problems.
+          </p>
+
+          <p className="mt-3.5 max-w-[52ch] text-lg text-ink-soft">
+            MERN full-stack developer, data analyst and AI agent builder from{' '}
+            <strong className="text-ink">Mirpur, Dhaka</strong> — and a computer science student at BUBT.
+            Online shops, mobile apps, and smart tools that use data and AI to do useful work.{' '}
+            <strong className="text-ink">Everything here is explained in plain words.</strong>
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a className="btn btn-amber btn-hire" href="#contact">
+              Hire me →
+            </a>
+            <a className="btn btn-ghost" href="#work">
+              See my work ↓
+            </a>
+            <a
+              href="#ask"
+              className="inline-flex min-h-[52px] items-center gap-[9px] rounded-full border-[1.5px] border-cyan-deep bg-card py-2.5 pl-3 pr-5 text-[15.5px] font-extrabold text-ink transition-transform duration-150 hover:-translate-y-0.5 hover:border-cyan"
+            >
+              <span className="rounded-full bg-cyan px-2.5 py-[5px] font-display text-xs font-black leading-none text-[#04121a]">
+                AI
+              </span>
+              Ask me anything
+            </a>
+          </div>
+
+          <div className="mt-[22px] flex flex-wrap gap-x-[22px] gap-y-2 text-[14.5px] font-semibold text-ink-mute">
+            <span>
+              <b className="text-ink">{projectCount}</b> finished projects
+            </span>
+            {typeof postCount === 'number' && (
+              <span>
+                <b className="text-ink">{postCount}</b> blog posts
+              </span>
+            )}
+            <span>
+              <b className="text-ink">2024</b> competition winner
+            </span>
+            {repoCount !== null && (
+              <span>
+                <b className="text-ink">{repoCount}</b> public GitHub repos
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Right column: portrait stage + ask assistant */}
+        <div className="relative">
+          <div className="relative overflow-hidden rounded-[26px] border-[1.5px] border-cyan-deep bg-card shadow-[0_0_44px_rgba(47,216,242,0.16),0_24px_60px_rgba(0,0,0,0.5)]">
+            <div className="relative h-[400px] w-full sm:h-[480px]">
+              <Image
+                src="/images/portrait-suit.jpg"
+                alt={`Portrait of ${name}`}
+                fill
+                sizes="(max-width: 960px) 100vw, 45vw"
+                priority
+                className="object-cover object-top"
+              />
+            </div>
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(4,10,20,0.72))]" />
+            <div className="absolute bottom-[14px] left-[18px] z-[2] text-white">
+              <div className="font-display text-[19px] font-bold leading-[1.15]">Zahid Hasan Tonmoy</div>
+              <div className="mt-[3px] font-mono text-[12.5px] tracking-[0.05em] text-[#bfe9ff]">
+                MIRPUR · DHAKA · WORKING WORLDWIDE
+              </div>
+            </div>
+          </div>
+
+          <div className="absolute left-2 top-4 z-[3] flex animate-float items-center gap-[9px] rounded-[14px] border-[1.5px] border-line bg-card/95 p-[9px_14px] text-[13.5px] font-extrabold leading-[1.25] shadow-[0_10px_26px_rgba(0,0,0,0.3)] sm:-left-2">
+            <span className="text-[19px] leading-none" aria-hidden="true">
+              🏆
+            </span>
+            <span>
+              Winner 2024
+              <small className="block text-xs font-semibold text-ink-mute">Software competition</small>
+            </span>
+          </div>
+          <div
+            className="absolute right-2 top-[118px] z-[3] flex animate-float items-center gap-[9px] rounded-[14px] border-[1.5px] border-line bg-card/95 p-[9px_14px] text-[13.5px] font-extrabold leading-[1.25] shadow-[0_10px_26px_rgba(0,0,0,0.3)] sm:-right-2"
+            style={{ animationDelay: '1.4s' }}
+          >
+            <span className="text-[19px] leading-none" aria-hidden="true">
+              🛠️
+            </span>
+            <span>
+              {projectCount} projects
+              <small className="block text-xs font-semibold text-ink-mute">Web · apps · data · AI</small>
+            </span>
+          </div>
+          <div
+            className="absolute right-2 top-[312px] z-[3] flex animate-float items-center gap-[9px] rounded-[14px] border-[1.5px] border-line bg-card/95 p-[9px_14px] text-[13.5px] font-extrabold leading-[1.25] shadow-[0_10px_26px_rgba(0,0,0,0.3)] sm:-right-1.5 sm:top-[396px]"
+            style={{ animationDelay: '2.6s' }}
+          >
+            <span className="text-[19px] leading-none" aria-hidden="true">
+              ✍️
+            </span>
+            <span>
+              {typeof postCount === 'number' ? `${postCount} articles` : 'Blog articles'}
+              <small className="block text-xs font-semibold text-ink-mute">Mostly about AI agents</small>
+            </span>
+          </div>
+
+          <AskAssistant />
+        </div>
+      </div>
+
+      {/* Marquee strip */}
+      <div className="marquee relative z-[1]" aria-hidden="true">
+        <div className="mq-track">
+          {[0, 1].map((copy) => (
+            <span key={copy}>
+              {MARQUEE_ITEMS.map((item) => (
+                <span key={`${copy}-${item}`}>
+                  {item} <b>◆</b>
+                </span>
+              ))}
+            </span>
           ))}
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 };

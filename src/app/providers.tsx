@@ -6,7 +6,7 @@ import PwaRegister from '@/components/PwaRegister';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
       <PwaRegister />
       <Toaster
         position="bottom-right"

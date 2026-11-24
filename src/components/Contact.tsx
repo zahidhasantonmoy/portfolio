@@ -1,233 +1,264 @@
 "use client";
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaPaperPlane, FaCheck, FaGithub, FaLinkedin, FaMedium, FaDev, FaCoffee } from 'react-icons/fa';
+import { FaCheck, FaPaperPlane } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 
-import { useAudio } from '@/hooks/useAudio';
+const NEED_OPTIONS = [
+  'A website or web app',
+  'A smart AI tool',
+  'Connecting my tools / automation',
+  'Advice & checking',
+  'Something else',
+];
+
+const BUDGET_OPTIONS = [
+  '৳25,000 or less',
+  '৳25,000 – ৳100,000',
+  'More than ৳100,000',
+  "Let's discuss",
+];
+
+const WHEN_OPTIONS = ['As soon as possible', 'Within 1 month', 'In 2–3 months', 'No hurry'];
+
+const WHATSAPP_URL =
+  'https://wa.me/8801850077786?text=Hi%20Zahid%2C%20I%20saw%20your%20portfolio%20and%20want%20to%20discuss%20a%20project.';
 
 const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [showPlane, setShowPlane] = useState(false);
 
-  const { playSwoosh, playSuccess } = useAudio();
-
-  const sendEmail = async (e: React.FormEvent<HTMLFormElement>) => {
+  const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formElement = e.currentTarget;
-    const formData = new FormData(formElement);
-    
-    setIsSubmitting(true);
-    setShowPlane(true);
-    playSwoosh();
+    const formData = new FormData(e.currentTarget);
+    const name = String(formData.get('name') || '').trim();
+    const email = String(formData.get('email') || '').trim();
+    const need = String(formData.get('need') || '');
+    const budget = String(formData.get('budget') || '');
+    const when = String(formData.get('when') || '');
+    const message = String(formData.get('message') || '').trim();
 
+    setIsSubmitting(true);
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      // /api/contact only accepts name/email/message, so need, budget and
+      // when travel inside the message body (no mailto downgrade).
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.get("user_name"),
-          email: formData.get("user_email"),
-          message: formData.get("message"),
+          name,
+          email,
+          message: `Need: ${need}\nBudget: ${budget}\nWhen: ${when}\n\nAbout the project:\n${message}`,
         }),
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to send message");
-      }
-
-      setTimeout(() => {
-        setIsSubmitting(false);
-        setIsSuccess(true);
-        playSuccess();
-        setShowPlane(false);
-      }, 2000);
+      if (!res.ok) throw new Error('Failed to send message');
+      setIsSuccess(true);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to send message. Please try again later.");
+      toast.error('Failed to send message. Please try again later.');
+    } finally {
       setIsSubmitting(false);
-      setShowPlane(false);
     }
   };
 
   return (
-    <section id="contact" className="py-16 sm:py-20 md:py-24 transition-colors duration-300 relative overflow-hidden" style={{ background: 'var(--bg-base)' }}>
-      <div className="container mx-auto px-4 sm:px-6 relative z-10">
-        <motion.h2
-          className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 sm:mb-16 gradient-text"
-          initial={{ opacity: 0, y: -50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          viewport={{ once: true }}
-        >
-          Get In Touch
-        </motion.h2>
+    <section id="contact" className="wrap pb-1.5 pt-16">
+      <div className="sec-head">
+        <span className="sec-tag">08 · Contact</span>
+        <h2>Start a project</h2>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 md:gap-12 max-w-6xl mx-auto">
-          {/* Contact Info */}
-          <motion.div
-            className="glass-card rounded-2xl p-5 sm:p-6 md:p-8 shadow-xl h-fit"
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h3 className="text-xl sm:text-2xl font-bold mb-6 sm:mb-8" style={{ color: 'var(--text-primary)' }}>Contact Information</h3>
-            <div className="space-y-6" style={{ color: 'var(--text-secondary)' }}>
-              <div className="flex items-center p-4 rounded-xl hover:shadow-md transition-shadow" style={{ background: 'var(--bg-base)' }}>
-                <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4" style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'var(--accent-primary)' }}>
-                  <FaEnvelope size={20} />
-                </div>
-                <span>zahidhasantonmoy.dev@gmail.com</span>
-              </div>
+      <div className="mt-4 font-display text-[clamp(32px,6.6vw,62px)] font-black uppercase leading-[1.08]">
+        Have a project?
+        <br />
+        <span className="text-cyan">Let&apos;s build it.</span>
+      </div>
+      <p className="mt-3 max-w-[72ch] text-[17.5px] text-ink-soft">
+        Tell me what you want to make — a shop, an app, a tool. I reply within 24 hours with honest time and
+        price, and a clear next step. <strong className="text-ink">No sales talk.</strong>
+      </p>
 
-              <a href="tel:+8801850077786" className="flex items-center p-4 rounded-xl hover:shadow-md transition-shadow" style={{ background: 'var(--bg-base)' }}>
-                <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4" style={{ background: 'rgba(34, 197, 94, 0.1)', color: 'var(--success)' }}>
-                  <FaPhone size={20} />
-                </div>
-                <span>+880 1850 077786</span>
-              </a>
-
-              <div className="flex items-center p-4 rounded-xl hover:shadow-md transition-shadow" style={{ background: 'var(--bg-base)' }}>
-                <div className="w-12 h-12 rounded-full flex items-center justify-center mr-4" style={{ background: 'rgba(6, 182, 212, 0.1)', color: 'var(--accent-secondary)' }}>
-                  <FaMapMarkerAlt size={20} />
-                </div>
-                <span>Dhaka, Bangladesh</span>
-              </div>
+      <div className="mt-7 grid gap-7 lg:grid-cols-[1.15fr_0.85fr] lg:gap-11">
+        {isSuccess ? (
+          <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border-[1.5px] border-line-soft bg-card p-8 text-center shadow-xl">
+            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[rgba(34,197,94,0.1)]">
+              <FaCheck className="text-3xl text-green" />
             </div>
-
-            {/* Social & Developer Profiles */}
-            <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--border)' }}>
-              <h4 className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: 'var(--text-secondary)' }}>
-                Connect &amp; Follow
-              </h4>
-              <div className="flex flex-wrap gap-2.5">
-                {[
-                  { href: "https://github.com/zahidhasantonmoy", label: "GitHub", icon: FaGithub },
-                  { href: "https://www.linkedin.com/in/zahidhasantonmoy/", label: "LinkedIn", icon: FaLinkedin },
-                  { href: "https://medium.com/@zahidhasantonmoy", label: "Medium", icon: FaMedium },
-                  { href: "https://dev.to/zahidhasantonmoy", label: "Dev.to", icon: FaDev },
-                ].map(({ href, label, icon: Icon }) => (
-                  <a
-                    key={href}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${label} profile`}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all hover:shadow-md"
-                    style={{ background: 'var(--bg-base)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
-                  >
-                    <Icon size={15} />
-                    <span>{label}</span>
-                  </a>
-                ))}
-                <a
-                  href="https://buymeacoffee.com/zahidhasantonmoy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Buy Me a Coffee"
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl hover:shadow-md hover:scale-105 transition-all text-xs font-semibold"
-                  style={{ background: 'rgba(234, 179, 8, 0.1)', color: '#EAB308', border: '1px solid rgba(234, 179, 8, 0.2)' }}
-                >
-                  <FaCoffee size={15} />
-                  <span>Buy Me a Coffee</span>
-                </a>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Form Area */}
-          <div className="relative">
-            <AnimatePresence mode='wait'>
-              {!isSuccess ? (
-                <motion.div
-                  key="form"
-                  initial={{ opacity: 0, x: 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  exit={{ scale: 0, opacity: 0, rotateX: -90 }}
-                  transition={{ duration: 0.6 }}
-                  viewport={{ once: true }}
-                  className="glass-card rounded-2xl p-5 sm:p-6 md:p-8 shadow-xl"
-                >
-                  {showPlane ? (
-                    <motion.div
-                      key="plane"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{
-                        scale: [0, 1, 1, 0],
-                        x: [0, 0, 200, 500],
-                        y: [0, 0, -100, -300],
-                        rotate: [0, 0, 10, 45],
-                        opacity: [0, 1, 1, 0]
-                      }}
-                      transition={{ duration: 2, times: [0, 0.2, 0.8, 1] }}
-                      className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none"
-                    >
-                      <FaPaperPlane style={{ color: 'var(--accent-primary)' }} className="w-32 h-32" />
-                    </motion.div>
-                  ) : null}
-
-                  <motion.div
-                    animate={showPlane ? { opacity: 0, scale: 0.8 } : { opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <h3 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Send a Message</h3>
-                    <form onSubmit={sendEmail} className="space-y-6">
-                      <div>
-                        <label htmlFor="user_name" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Name</label>
-                        <input type="text" id="user_name" name="user_name" required className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-all" style={{ background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-primary)' } as any} placeholder="John Doe" />
-                      </div>
-                      <div>
-                        <label htmlFor="user_email" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Email</label>
-                        <input type="email" id="user_email" name="user_email" required className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-all" style={{ background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-primary)' } as any} placeholder="john@example.com" />
-                      </div>
-                      <div>
-                        <label htmlFor="message" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Message</label>
-                        <textarea id="message" name="message" required rows={4} className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 transition-all" style={{ background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-primary)' } as any} placeholder="Your message..."></textarea>
-                      </div>
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full font-bold py-4 px-6 rounded-lg hover:shadow-glow-sm hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-white"
-                        style={{ background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))' }}
-                      >
-                        {isSubmitting ? (
-                          <span>Sending...</span>
-                        ) : (
-                          <>
-                            Send Message <FaPaperPlane className="text-sm" />
-                          </>
-                        )}
-                      </button>
-                    </form>
-                  </motion.div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="glass-card rounded-2xl p-8 shadow-xl flex flex-col items-center justify-center text-center h-full min-h-[400px]"
-                  style={{ border: '1px solid rgba(34, 197, 94, 0.3)' }}
-                >
-                  <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: 'rgba(34, 197, 94, 0.1)' }}>
-                    <FaCheck style={{ color: 'var(--success)' }} className="text-3xl" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Message Sent!</h3>
-                  <p style={{ color: 'var(--text-secondary)' }}>
-                    Thanks for reaching out. I'll get back to you as soon as possible.
-                  </p>
-                  <button
-                    onClick={() => setIsSuccess(false)}
-                    className="btn-ghost mt-8 px-6 py-2 rounded-lg"
-                  >
-                    Send another
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <h3 className="mb-2 text-2xl font-bold text-ink">Message Sent!</h3>
+            <p className="text-ink-soft">
+              Thanks for reaching out. I&apos;ll get back to you within 24 hours.
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsSuccess(false)}
+              className="mt-8 cursor-pointer rounded-lg border-[1.5px] border-line bg-card px-6 py-2 font-bold text-ink transition-colors hover:border-cyan hover:text-cyan"
+            >
+              Send another
+            </button>
           </div>
+        ) : (
+          <form onSubmit={sendMessage} className="grid gap-[15px]">
+            <div className="grid gap-[15px] sm:grid-cols-2">
+              <div>
+                <label htmlFor="f-name" className="mb-1.5 block text-[14.5px] font-extrabold text-ink">
+                  Your name *
+                </label>
+                <input
+                  id="f-name"
+                  name="name"
+                  type="text"
+                  required
+                  autoComplete="name"
+                  className="min-h-[50px] w-full rounded-[13px] border-[1.5px] border-line bg-card px-[14px] py-3 text-base text-ink outline-none focus:border-cyan"
+                />
+              </div>
+              <div>
+                <label htmlFor="f-email" className="mb-1.5 block text-[14.5px] font-extrabold text-ink">
+                  Your email *
+                </label>
+                <input
+                  id="f-email"
+                  name="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  className="min-h-[50px] w-full rounded-[13px] border-[1.5px] border-line bg-card px-[14px] py-3 text-base text-ink outline-none focus:border-cyan"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-[15px] sm:grid-cols-2">
+              <div>
+                <label htmlFor="f-need" className="mb-1.5 block text-[14.5px] font-extrabold text-ink">
+                  What do you need?
+                </label>
+                <select
+                  id="f-need"
+                  name="need"
+                  className="min-h-[50px] w-full rounded-[13px] border-[1.5px] border-line bg-card px-[14px] py-3 text-base text-ink outline-none focus:border-cyan"
+                >
+                  {NEED_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="f-budget" className="mb-1.5 block text-[14.5px] font-extrabold text-ink">
+                  Budget
+                </label>
+                <select
+                  id="f-budget"
+                  name="budget"
+                  className="min-h-[50px] w-full rounded-[13px] border-[1.5px] border-line bg-card px-[14px] py-3 text-base text-ink outline-none focus:border-cyan"
+                >
+                  {BUDGET_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="f-when" className="mb-1.5 block text-[14.5px] font-extrabold text-ink">
+                When do you need it?
+              </label>
+              <select
+                id="f-when"
+                name="when"
+                className="min-h-[50px] w-full rounded-[13px] border-[1.5px] border-line bg-card px-[14px] py-3 text-base text-ink outline-none focus:border-cyan"
+              >
+                {WHEN_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="f-msg" className="mb-1.5 block text-[14.5px] font-extrabold text-ink">
+                Tell me about the project *
+              </label>
+              <textarea
+                id="f-msg"
+                name="message"
+                required
+                rows={4}
+                className="min-h-[118px] w-full resize-y rounded-[13px] border-[1.5px] border-line bg-card px-[14px] py-3 text-base text-ink outline-none focus:border-cyan"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex min-h-[54px] w-full cursor-pointer items-center justify-center gap-2 rounded-[14px] border-2 border-amber bg-amber px-6 py-[13px] text-[16.5px] font-black text-amber-ink transition-colors hover:border-cyan hover:bg-cyan hover:text-[#04121a] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isSubmitting ? (
+                'Sending...'
+              ) : (
+                <>
+                  Send message <FaPaperPlane className="text-sm" />
+                </>
+              )}
+            </button>
+            <p className="text-[13.5px] text-ink-mute">
+              Your message goes straight to me — I reply within 24 hours.
+            </p>
+          </form>
+        )}
+
+        <div>
+          <div className="grid gap-[10px]">
+            <div className="rounded-2xl border-[1.5px] border-line-soft bg-card px-[18px] py-[15px]">
+              <b className="mb-[3px] block font-mono text-[11.5px] uppercase tracking-[0.08em] text-cyan">
+                Email
+              </b>
+              <a
+                href="mailto:zahidhasantonmoy.dev@gmail.com"
+                className="text-[17.5px] font-extrabold break-words hover:text-cyan"
+              >
+                zahidhasantonmoy.dev@gmail.com
+              </a>
+            </div>
+            <div className="rounded-2xl border-[1.5px] border-line-soft bg-card px-[18px] py-[15px]">
+              <b className="mb-[3px] block font-mono text-[11.5px] uppercase tracking-[0.08em] text-cyan">
+                Phone / WhatsApp
+              </b>
+              <a href="tel:+8801850077786" className="text-[17.5px] font-extrabold hover:text-cyan">
+                +880 1850 077786
+              </a>
+            </div>
+            <div className="rounded-2xl border-[1.5px] border-line-soft bg-card px-[18px] py-[15px]">
+              <b className="mb-[3px] block font-mono text-[11.5px] uppercase tracking-[0.08em] text-cyan">
+                Where
+              </b>
+              <p className="text-[16.5px]">Mirpur, Dhaka, Bangladesh</p>
+            </div>
+            <div className="rounded-2xl border-[1.5px] border-line-soft bg-card px-[18px] py-[15px]">
+              <b className="mb-[3px] block font-mono text-[11.5px] uppercase tracking-[0.08em] text-cyan">
+                My main website
+              </b>
+              <a
+                href="https://zahidhasantonmoy.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[17.5px] font-extrabold break-words hover:text-cyan"
+              >
+                zahidhasantonmoy.vercel.app ↗
+              </a>
+            </div>
+          </div>
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-[14px] flex min-h-[54px] items-center justify-center gap-[9px] rounded-[14px] border-2 border-[#128c4b] bg-[#128c4b] px-5 py-[13px] text-[16.5px] font-extrabold text-white transition-colors hover:border-[#0d7040] hover:bg-[#0d7040]"
+          >
+            Chat on WhatsApp — fastest reply
+          </a>
         </div>
       </div>
     </section>

@@ -48,7 +48,7 @@ export default function CaseStudyList({ caseStudies, lang }: CaseStudyListProps)
           <Link
             href={t.switchHref}
             id="work-lang-switch"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all mb-5 shadow-sm border hover:border-blue-500"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all mb-5 shadow-sm border hover:border-[#2fd8f2]"
             style={{
               background: "var(--bg-surface)",
               borderColor: "var(--border)",

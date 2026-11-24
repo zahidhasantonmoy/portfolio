@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Manrope, Unbounded, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 
-const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
+const manrope = Manrope({ subsets: ["latin"], display: "swap", variable: "--font-manrope" });
+const unbounded = Unbounded({ subsets: ["latin"], display: "swap", variable: "--font-display", weight: ["500", "700", "900"] });
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], display: "swap", variable: "--font-mono" });
 
 export const metadata: Metadata = {
@@ -127,7 +128,7 @@ export default function RootLayout({
         {/* Dynamic RSS 2.0 Feed for Blog Syndication & Readers */}
         <link rel="alternate" type="application/rss+xml" title="Zahid Hasan Tonmoy's Blog" href="https://zahidhasantonmoy.vercel.app/rss.xml" />
       </head>
-      <body className={`${inter.className} ${jetbrainsMono.variable}`} style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }} suppressHydrationWarning>
+      <body className={`${manrope.variable} ${unbounded.variable} ${jetbrainsMono.variable}`} style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }} suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

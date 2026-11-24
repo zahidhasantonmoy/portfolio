@@ -1,152 +1,40 @@
 "use client";
 import React from 'react';
-import { motion } from 'framer-motion';
-import { FaGraduationCap, FaBriefcase, FaAward, FaLightbulb, FaCode, FaChartBar } from 'react-icons/fa';
 
-const timelineEvents = [
+const TIMELINE = [
   {
-    date: 'Ongoing',
-    title: 'BSc in Computer Science and Engineering',
-    institution: 'Bangladesh University of Business and Technology',
-    description: 'Pursuing my undergraduate degree with a focus on AI, Machine Learning, and Software Development. Actively involved in project creation.',
-    icon: <FaGraduationCap />,
-    type: 'education',
-    color: 'primary',
+    year: '2022',
+    title: 'First real job experience',
+    text: 'Worked as a data analysis intern at Tech Solutions Ltd. — learning how data is used in a real company.',
   },
   {
-    date: '2019',
-    title: 'Higher Secondary Certificate (HSC) - GPA: 5.00',
-    institution: 'Dhaka Udyan Government College',
-    description: 'Completed my higher secondary education with a focus on science and mathematics, laying a strong foundation for engineering studies.',
-    icon: <FaGraduationCap />,
-    type: 'education',
-    color: 'primary',
+    year: '2024',
+    title: 'Won a competition',
+    text: 'Winner of a software development competition — for a working project built under time pressure.',
   },
   {
-    date: '2017',
-    title: 'Secondary School Certificate (SSC) - GPA: 4.78',
-    institution: 'Moharkaya High School',
-    description: 'Completed my secondary education, where I first discovered my passion for technology and problem-solving.',
-    icon: <FaGraduationCap />,
-    type: 'education',
-    color: 'primary',
-  },
-  {
-    date: '2024',
-    title: '2nd Position in Project Showcase',
-    institution: 'Brainstorming Week',
-    description: 'Awarded 2nd position for an outstanding project showcase, demonstrating creative problem-solving and technical innovation.',
-    icon: <FaAward />,
-    type: 'achievement',
-    color: 'secondary',
-  },
-  {
-    date: '2025',
-    title: 'Digital Marketing - Top Performer',
-    institution: 'BUBT-TAFE',
-    description: 'Recognized as Top Performer in comprehensive Digital Marketing certification program.',
-    icon: <FaLightbulb />,
-    type: 'certificate',
-    color: 'success',
-  },
-  {
-    date: '2019',
-    title: 'Best Talent of the Year',
-    institution: 'Creative Talent Search',
-    description: 'Honored with the Best Talent of the Year award recognizing well-rounded capabilities and creativity.',
-    icon: <FaAward />,
-    type: 'achievement',
-    color: 'secondary',
+    year: 'Now',
+    title: 'Studying and building',
+    text: 'B.Sc in Computer Science at BUBT, focused on AI and software. Building projects and taking freelance work.',
   },
 ];
 
-const colorMap = {
-  primary: { bg: 'var(--accent-primary)', text: 'var(--accent-primary)', border: 'var(--accent-primary)' },
-  secondary: { bg: 'var(--accent-secondary)', text: 'var(--accent-secondary)', border: 'var(--accent-secondary)' },
-  success: { bg: 'var(--success)', text: 'var(--success)', border: 'var(--success)' },
-};
-
 const TimelineSection = () => {
-  const cardVariants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
-  };
-
-  const iconCircleVariants = {
-    hidden: { scale: 0, opacity: 0 },
-    visible: { scale: 1, opacity: 1, transition: { type: "spring", stiffness: 200, damping: 10 } },
-    hover: { scale: 1.2, transition: { duration: 0.2 } },
-  };
-
   return (
-    <section id="timeline" className="py-16 sm:py-20 pb-28 sm:pb-40" style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
-      <div className="container mx-auto px-4 sm:px-6">
-        <motion.h2
-          className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 sm:mb-16 gradient-text"
-          initial={{ opacity: 0, y: -50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          viewport={{ once: true }}
+    <div className="mt-[18px] grid gap-3">
+      {TIMELINE.map((row) => (
+        <div
+          key={row.year}
+          className="grid grid-cols-[78px_1fr] gap-4 rounded-2xl border-[1.5px] border-line-soft bg-card px-[18px] py-4"
         >
-          My Journey
-        </motion.h2>
-
-        <div className="relative flex flex-col items-center">
-          {/* Central Connecting Line */}
-          <motion.div
-            className="absolute h-full w-1 rounded-full"
-            style={{ background: 'linear-gradient(to bottom, var(--accent-primary), var(--accent-secondary), var(--accent-primary))' }}
-            initial={{ scaleY: 0 }}
-            whileInView={{ scaleY: 1 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-            viewport={{ once: true, amount: 0.5 }}
-          ></motion.div>
-
-          {timelineEvents.map((event, index) => {
-            const colors = colorMap[event.color as keyof typeof colorMap];
-            return (
-              <motion.div
-                key={index}
-                className={`relative flex items-center w-full mb-10 sm:mb-16 justify-center md:${index % 2 === 0 ? 'justify-start' : 'justify-end'}`}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.3 }}
-              >
-                {/* Event Card */}
-                <motion.div
-                  className="w-full md:w-5/12 p-5 sm:p-6 md:p-8 rounded-xl shadow-xl transition-colors duration-300"
-                  style={{
-                    background: 'var(--bg-surface)',
-                    border: `1px solid var(--border)`,
-                  }}
-                  whileHover={{ translateY: -5, borderColor: colors.border }}
-                >
-                  <p className="text-sm mb-2 font-semibold" style={{ color: colors.text }}>{event.date}</p>
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{event.title}</h3>
-                  <h4 className="text-lg font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>{event.institution}</h4>
-                  <p className="leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{event.description}</p>
-                </motion.div>
-
-                {/* Icon Circle */}
-                <motion.div
-                  className="absolute hidden md:flex items-center justify-center w-14 h-14 md:w-20 md:h-20 rounded-full text-white text-xl md:text-3xl shadow-lg z-10"
-                  style={{ background: colors.bg }}
-                  variants={iconCircleVariants}
-                  initial="hidden"
-                  whileInView="visible"
-                  whileHover="hover"
-                  viewport={{ once: true, amount: 0.5 }}
-                  // Keep the positioning exactly as before
-                >
-                  {event.icon}
-                </motion.div>
-              </motion.div>
-            );
-          })}
+          <span className="font-display text-[19px] font-bold text-amber">{row.year}</span>
+          <div>
+            <h4 className="text-[16.5px] font-extrabold">{row.title}</h4>
+            <p className="text-[14.5px] text-ink-soft">{row.text}</p>
+          </div>
         </div>
-      </div>
-    </section>
+      ))}
+    </div>
   );
 };
 

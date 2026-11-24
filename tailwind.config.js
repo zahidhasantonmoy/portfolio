@@ -9,6 +9,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        /* Legacy names — mapped to R4 values (see globals.css) */
         base: 'var(--bg-base)',
         surface: 'var(--bg-surface)',
         'surface-hover': 'var(--bg-surface-hover)',
@@ -19,8 +20,25 @@ module.exports = {
         border: 'var(--border)',
         'text-primary': 'var(--text-primary)',
         'text-secondary': 'var(--text-secondary)',
+        /* R4 tokens */
+        bg: 'var(--bg)',
+        bg2: 'var(--bg2)',
+        card: 'var(--card)',
+        card2: 'var(--card2)',
+        line: 'var(--line)',
+        'line-soft': 'var(--line-soft)',
+        ink: 'var(--ink)',
+        'ink-soft': 'var(--ink-soft)',
+        'ink-mute': 'var(--ink-mute)',
+        cyan: 'var(--cyan)',
+        'cyan-deep': 'var(--cyan-deep)',
+        amber: 'var(--amber)',
+        'amber-ink': 'var(--amber-ink)',
+        green: 'var(--green)',
       },
       fontFamily: {
+        sans: ['var(--font-manrope)', 'Manrope', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['var(--font-display)', 'Unbounded', 'sans-serif'],
         mono: ['var(--font-mono)', 'JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       animation: {

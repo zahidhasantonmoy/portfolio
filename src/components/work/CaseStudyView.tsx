@@ -76,7 +76,7 @@ export default function CaseStudyView({ caseStudy, lang }: CaseStudyViewProps) {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 mb-8 flex items-center justify-between">
           <Link
             href={backHref}
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors"
+            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#a9bedd] hover:text-[#2fd8f2] transition-colors"
           >
             <FaArrowLeft className="text-xs" />
             <span>{isBn ? "সকল কেস স্টাডি" : "All Case Studies"}</span>
@@ -85,7 +85,7 @@ export default function CaseStudyView({ caseStudy, lang }: CaseStudyViewProps) {
           <Link
             href={switchHref}
             id="casestudy-lang-switch"
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 transition-all shadow-sm"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#22345a] bg-[#0e1729] text-xs font-semibold text-[#c3d2ea] hover:border-[#2fd8f2] hover:text-[#2fd8f2] transition-all shadow-sm"
           >
             <FaLanguage className="text-sm" />
             <span>{isBn ? "View in English" : "বাংলায় দেখুন"}</span>
@@ -130,7 +130,7 @@ export default function CaseStudyView({ caseStudy, lang }: CaseStudyViewProps) {
                   href={caseStudy.project_links.live_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-500/20 hover:scale-105 transition-all"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0e7d99] hover:bg-[#2fd8f2] text-[#04121a] text-xs font-bold shadow-md shadow-[#2fd8f2]/20 hover:scale-105 transition-all"
                 >
                   <span>{isBn ? "লাইভ অ্যাপ দেখুন" : "Live Demo"}</span>
                   <FaExternalLinkAlt className="text-[10px]" />
@@ -211,7 +211,7 @@ export default function CaseStudyView({ caseStudy, lang }: CaseStudyViewProps) {
 
         {/* ── Conversion CTA ── */}
         <section className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="relative overflow-hidden rounded-3xl border border-indigo-200/80 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-600 via-purple-700 to-indigo-800 p-8 sm:p-12 text-white shadow-xl text-center">
+          <div className="relative overflow-hidden rounded-3xl border border-[#0e7d99] bg-gradient-to-br from-[#0e7d99] via-[#122036] to-[#0e1729] p-8 sm:p-12 text-white shadow-xl text-center">
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-4">
               {isBn
                 ? "আপনার প্রজেক্টের জন্য একই মানের আর্কিটেকচার চান?"

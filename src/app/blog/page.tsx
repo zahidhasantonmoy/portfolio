@@ -62,8 +62,11 @@ export default async function BlogPage({
     getCategories(),
   ]);
 
+  // Live total from the DB — never hardcoded.
+  const totalPosts = posts.length;
+
   return (
-    <main className="min-h-screen bg-white dark:bg-gray-900">
+    <main className="min-h-screen bg-[#060a13] text-[#eef4ff]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -81,31 +84,32 @@ export default async function BlogPage({
           })
         }}
       />
-      {/* Hero Header */}
-      <section className="bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 py-14 sm:py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm mb-6">
-            <span>✍️</span>
-            <span>Engineering & AI Blog</span>
-          </div>
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-            Thoughts, Tutorials &amp;{" "}
-            <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-              Dev Notes
-            </span>
+      <div className="max-w-[1220px] mx-auto px-[21px] md:px-[34px] pt-16 pb-20">
+        {/* R4 section head */}
+        <div>
+          <span className="font-mono text-[13px] tracking-[0.12em] text-[#2fd8f2] uppercase">
+            05 · Blog
+          </span>
+          <h1 className="font-['Unbounded',sans-serif] font-bold text-[clamp(27px,4.6vw,42px)] leading-[1.15] text-[#eef4ff] mt-3">
+            My blog — {totalPosts} posts, mostly on how AI agents are built
           </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Practical insights on MERN Stack, Next.js, AI Agents, Python ML, and scalable web architecture — everything I&apos;m building and learning as an engineer. Also available in{" "}
-            <Link href="/bn/blog" className="text-indigo-400 hover:text-indigo-300 underline underline-offset-4">
+          <p className="text-[#c3d2ea] text-[17.5px] max-w-[64ch] mt-4">
+            I write to teach what I learn. The{" "}
+            <strong className="text-[#eef4ff]">6 newest posts</strong> come
+            with a one-line summary in simple words; all {totalPosts} are
+            here — <strong className="text-[#eef4ff]">search or filter</strong>{" "}
+            to find a topic. Also available in{" "}
+            <Link
+              href="/bn/blog"
+              className="text-[#2fd8f2] hover:text-[#ffb02e] underline underline-offset-4 transition-colors"
+            >
               বাংলা
             </Link>
             .
           </p>
         </div>
-      </section>
 
-      <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12">
-        {/* Real-time Search, Category Pills & Filtered Posts Grid */}
+        {/* Real-time Search, Category Chips & Filtered Post Rows */}
         <LiveBlogList
           initialPosts={posts}
           categories={categories}
@@ -115,15 +119,15 @@ export default async function BlogPage({
         />
 
         {/* Journal CTA */}
-        <div className="mt-16 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-700 text-center">
-          <p className="text-gray-600 dark:text-gray-400 mb-3">
+        <div className="mt-16 p-6 bg-[#0e1729] rounded-[20px] border-[1.5px] border-[#1a2947] text-center">
+          <p className="text-[#c3d2ea] mb-4">
             Looking for daily learning notes? Check my Development Journal.
           </p>
           <Link
             href="/journal"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
+            className="inline-flex items-center gap-2 min-h-[52px] px-5 py-2.5 bg-[#0e1729] border-[1.5px] border-[#22345a] rounded-[14px] text-sm font-extrabold text-[#eef4ff] hover:border-[#2fd8f2] transition-colors"
           >
-            📓 View Dev Journal →
+            View Dev Journal →
           </Link>
         </div>
       </div>
