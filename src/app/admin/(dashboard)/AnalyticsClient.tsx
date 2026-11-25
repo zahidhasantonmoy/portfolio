@@ -144,20 +144,16 @@ export default function AnalyticsClient({
 
   return (
     <div className="max-w-6xl space-y-8 pb-10">
-      {/* Header & Live Status */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Live Visitor &amp; Post Analytics
+            <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
+              Visitor &amp; Post Analytics
             </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-950/60 border border-emerald-500/40 text-emerald-400">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-              Live Sync
-            </span>
           </div>
-          <p className="text-gray-400 text-sm mt-1">
-            Real-time traffic metrics, reader engagement, and content performance across your portfolio.
+          <p className="text-ink-mute text-sm mt-1">
+            Traffic metrics, reader engagement, and content performance across your portfolio — updated when the page loads.
           </p>
         </div>
 
@@ -165,7 +161,7 @@ export default function AnalyticsClient({
           <button
             type="button"
             onClick={() => setIsBackupModalOpen(true)}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-gray-900 hover:bg-gray-800 text-emerald-400 hover:text-emerald-300 border border-emerald-500/20 hover:border-emerald-500/40 transition active:scale-95 shadow-sm"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-card hover:bg-card2 text-cyan hover:text-cyan border border-cyan/20 hover:border-cyan/40 transition active:scale-95 shadow-sm"
             title="Backup, Restore & Cloud Snapshots"
           >
             <FaDatabase className="text-xs" />
@@ -177,15 +173,15 @@ export default function AnalyticsClient({
             type="button"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-gray-900 hover:bg-gray-800 text-gray-300 hover:text-white border border-gray-800 transition active:scale-95 shadow-sm"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-card hover:bg-card2 text-ink-soft hover:text-ink border border-line-soft transition active:scale-95 shadow-sm"
           >
-            <FaSyncAlt className={`text-xs text-indigo-400 ${isRefreshing ? "animate-spin" : ""}`} />
+            <FaSyncAlt className={`text-xs text-cyan ${isRefreshing ? "animate-spin" : ""}`} />
             <span>{isRefreshing ? "Syncing..." : "Refresh Data"}</span>
           </button>
 
           <Link
             href="/admin/posts/new"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30 transition active:scale-95"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-deep hover:bg-cyan-deep text-ink shadow-sm transition active:scale-95"
           >
             <HiSparkles className="text-sm" />
             <span>New Post</span>
@@ -196,12 +192,12 @@ export default function AnalyticsClient({
       {/* Primary KPI Metrics Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         {/* Total Views */}
-        <div className="bg-gray-900/90 border border-indigo-500/20 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:border-indigo-500/40 transition">
-          <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-sm mb-2.5">
+        <div className="bg-card/90 border border-cyan/20 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:border-cyan/40 transition">
+          <div className="w-8 h-8 rounded-lg bg-cyan/10 text-cyan flex items-center justify-center text-sm mb-2.5">
             <FaEye />
           </div>
-          <p className="text-2xl font-bold text-white tracking-tight">{totalViews.toLocaleString()}</p>
-          <p className="text-xs text-gray-400 mt-0.5 font-medium">Total Post Views</p>
+          <p className="text-2xl font-bold text-ink tracking-tight">{totalViews.toLocaleString()}</p>
+          <p className="text-xs text-ink-mute mt-0.5 font-medium">Total Post Views</p>
           <div className="mt-2 flex items-center gap-1 text-[10px] text-emerald-400">
             <FaArrowUp className="text-[9px]" />
             <span>Avg {avgViewsPerPost} / post</span>
@@ -209,60 +205,60 @@ export default function AnalyticsClient({
         </div>
 
         {/* Reader Claps */}
-        <div className="bg-gray-900/90 border border-rose-500/20 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:border-rose-500/40 transition">
-          <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center text-sm mb-2.5">
+        <div className="bg-card/90 border border-cyan/20 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:border-cyan/40 transition">
+          <div className="w-8 h-8 rounded-lg bg-cyan/10 text-cyan flex items-center justify-center text-sm mb-2.5">
             <FaHeart />
           </div>
-          <p className="text-2xl font-bold text-white tracking-tight">{totalLikes.toLocaleString()}</p>
-          <p className="text-xs text-gray-400 mt-0.5 font-medium">Reader Claps</p>
+          <p className="text-2xl font-bold text-ink tracking-tight">{totalLikes.toLocaleString()}</p>
+          <p className="text-xs text-ink-mute mt-0.5 font-medium">Reader Claps</p>
           <div className="mt-2 flex items-center gap-1 text-[10px] text-rose-300">
             <span>{overallEngagementRate}% clap rate</span>
           </div>
         </div>
 
         {/* Published Posts */}
-        <div className="bg-gray-900/90 border border-blue-500/20 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:border-blue-500/40 transition">
-          <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-sm mb-2.5">
+        <div className="bg-card/90 border border-cyan/20 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:border-cyan/40 transition">
+          <div className="w-8 h-8 rounded-lg bg-cyan/10 text-cyan flex items-center justify-center text-sm mb-2.5">
             <FaBookOpen />
           </div>
-          <p className="text-2xl font-bold text-white tracking-tight">{totalPublished}</p>
-          <p className="text-xs text-gray-400 mt-0.5 font-medium">Live Articles</p>
-          <div className="mt-2 text-[10px] text-gray-500">
+          <p className="text-2xl font-bold text-ink tracking-tight">{totalPublished}</p>
+          <p className="text-xs text-ink-mute mt-0.5 font-medium">Live Articles</p>
+          <div className="mt-2 text-[10px] text-ink-mute">
             <span>+{totalDrafts} drafts pending</span>
           </div>
         </div>
 
         {/* Dev Journal Logs */}
-        <div className="bg-gray-900/90 border border-emerald-500/20 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:border-emerald-500/40 transition">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm mb-2.5">
+        <div className="bg-card/90 border border-cyan/20 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:border-cyan/40 transition">
+          <div className="w-8 h-8 rounded-lg bg-cyan/10 text-cyan flex items-center justify-center text-sm mb-2.5">
             <FaChartLine />
           </div>
-          <p className="text-2xl font-bold text-white tracking-tight">{totalDevLogs}</p>
-          <p className="text-xs text-gray-400 mt-0.5 font-medium">Journal Entries</p>
+          <p className="text-2xl font-bold text-ink tracking-tight">{totalDevLogs}</p>
+          <p className="text-xs text-ink-mute mt-0.5 font-medium">Journal Entries</p>
           <div className="mt-2 text-[10px] text-emerald-400/80">
             <span>Daily dev logs</span>
           </div>
         </div>
 
         {/* Newsletter Subscribers */}
-        <div className="bg-gray-900/90 border border-purple-500/20 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:border-purple-500/40 transition">
-          <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-sm mb-2.5">
+        <div className="bg-card/90 border border-cyan/20 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:border-cyan/40 transition">
+          <div className="w-8 h-8 rounded-lg bg-cyan/10 text-cyan flex items-center justify-center text-sm mb-2.5">
             <FaUserFriends />
           </div>
-          <p className="text-2xl font-bold text-white tracking-tight">{totalSubscribers}</p>
-          <p className="text-xs text-gray-400 mt-0.5 font-medium">Subscribers</p>
-          <div className="mt-2 text-[10px] text-purple-300">
+          <p className="text-2xl font-bold text-ink tracking-tight">{totalSubscribers}</p>
+          <p className="text-xs text-ink-mute mt-0.5 font-medium">Subscribers</p>
+          <div className="mt-2 text-[10px] text-cyan">
             <span>Active readers</span>
           </div>
         </div>
 
         {/* Inquiries / Unread Leads */}
-        <div className="bg-gray-900/90 border border-amber-500/20 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:border-amber-500/40 transition">
-          <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-sm mb-2.5">
+        <div className="bg-card/90 border border-cyan/20 rounded-2xl p-4 shadow-sm relative overflow-hidden group hover:border-cyan/40 transition">
+          <div className="w-8 h-8 rounded-lg bg-cyan/10 text-cyan flex items-center justify-center text-sm mb-2.5">
             <FaEnvelope />
           </div>
-          <p className="text-2xl font-bold text-white tracking-tight">{unreadMessagesCount}</p>
-          <p className="text-xs text-gray-400 mt-0.5 font-medium">Unread Leads</p>
+          <p className="text-2xl font-bold text-ink tracking-tight">{unreadMessagesCount}</p>
+          <p className="text-xs text-ink-mute mt-0.5 font-medium">Unread Leads</p>
           <div className="mt-2 text-[10px] text-amber-400">
             <span>Contact inquiries</span>
           </div>
@@ -272,17 +268,17 @@ export default function AnalyticsClient({
       {/* Visual Analytics Row: Top 5 Posts Bar Chart & Category Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Top 5 Most Read Posts Visual Bar Chart (2 Cols) */}
-        <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-2xl p-5 sm:p-6 shadow-sm">
-          <div className="flex items-center justify-between pb-4 mb-5 border-b border-gray-800">
+        <div className="lg:col-span-2 bg-card border border-line-soft rounded-2xl p-5 sm:p-6 shadow-sm">
+          <div className="flex items-center justify-between pb-4 mb-5 border-b border-line-soft">
             <div className="flex items-center gap-2">
               <FaFire className="text-amber-400 text-sm" />
-              <h2 className="font-bold text-white text-base">Top 5 Most Read Articles</h2>
+              <h2 className="font-bold text-ink text-base">Top 5 Most Read Articles</h2>
             </div>
-            <span className="text-xs text-gray-500">Ranked by verified view counts</span>
+            <span className="text-xs text-ink-mute">Ranked by view count</span>
           </div>
 
           {top5Posts.length === 0 ? (
-            <p className="text-gray-500 text-sm py-8 text-center">No posts with view records yet.</p>
+            <p className="text-ink-mute text-sm py-8 text-center">No posts with view records yet.</p>
           ) : (
             <div className="space-y-4">
               {top5Posts.map((post, idx) => {
@@ -291,13 +287,13 @@ export default function AnalyticsClient({
                   <div key={post.id} className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs gap-3">
                       <div className="flex items-center gap-2 truncate">
-                        <span className="w-5 h-5 rounded-full bg-gray-800 text-gray-400 flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                        <span className="w-5 h-5 rounded-full bg-card2 text-ink-mute flex items-center justify-center text-[10px] font-bold flex-shrink-0">
                           #{idx + 1}
                         </span>
                         <Link
                           href={`/blog/${post.slug}`}
                           target="_blank"
-                          className="text-white hover:text-indigo-400 font-medium truncate transition"
+                          className="text-ink hover:text-cyan font-medium truncate transition"
                         >
                           {post.title_en}
                         </Link>
@@ -305,7 +301,7 @@ export default function AnalyticsClient({
                           <span
                             className="text-[10px] px-1.5 py-0.2 rounded font-medium truncate hidden sm:inline"
                             style={{
-                              backgroundColor: `${post.category_color || "#6366f1"}20`,
+                              backgroundColor: `${post.category_color || "#2fd8f2"}20`,
                               color: post.category_color || "#818cf8",
                             }}
                           >
@@ -315,15 +311,15 @@ export default function AnalyticsClient({
                       </div>
 
                       <div className="flex items-center gap-3 flex-shrink-0 text-[11px] font-mono">
-                        <span className="text-indigo-300 font-semibold">{post.views.toLocaleString()} views</span>
+                        <span className="text-cyan font-semibold">{post.views.toLocaleString()} views</span>
                         <span className="text-rose-400 hidden xs:inline">{post.likes.toLocaleString()} claps</span>
                       </div>
                     </div>
 
                     {/* Visual Bar with Gradient Fill */}
-                    <div className="w-full bg-gray-800/80 rounded-full h-2.5 overflow-hidden relative">
+                    <div className="w-full bg-card2/80 rounded-full h-2.5 overflow-hidden relative">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-rose-500 transition-all duration-500"
+                        className="h-full rounded-full bg-cyan transition-all duration-500"
                         style={{ width: `${Math.max(percentage, 4)}%` }}
                       />
                     </div>
@@ -335,14 +331,14 @@ export default function AnalyticsClient({
         </div>
 
         {/* Category & Topic Distribution (1 Col) */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+        <div className="bg-card border border-line-soft rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-800">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-line-soft">
               <div className="flex items-center gap-2">
-                <FaTags className="text-indigo-400 text-sm" />
-                <h2 className="font-bold text-white text-base">Category Performance</h2>
+                <FaTags className="text-cyan text-sm" />
+                <h2 className="font-bold text-ink text-base">Category Performance</h2>
               </div>
-              <span className="text-xs text-gray-500">{categories.length} topics</span>
+              <span className="text-xs text-ink-mute">{categories.length} topics</span>
             </div>
 
             <div className="space-y-3.5">
@@ -352,15 +348,15 @@ export default function AnalyticsClient({
                 return (
                   <div key={cat.name} className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-gray-300 font-medium truncate">{cat.name}</span>
-                      <span className="text-gray-400 font-mono text-[11px]">{totalCatViews.toLocaleString()} views ({sharePercent}%)</span>
+                      <span className="text-ink-soft font-medium truncate">{cat.name}</span>
+                      <span className="text-ink-mute font-mono text-[11px]">{totalCatViews.toLocaleString()} views ({sharePercent}%)</span>
                     </div>
-                    <div className="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
+                    <div className="w-full bg-card2 rounded-full h-1.5 overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{
                           width: `${Math.max(sharePercent, 3)}%`,
-                          backgroundColor: cat.color || "#6366f1",
+                          backgroundColor: cat.color || "#2fd8f2",
                         }}
                       />
                     </div>
@@ -370,9 +366,9 @@ export default function AnalyticsClient({
             </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-gray-800/80 flex items-center justify-between text-xs text-gray-400">
+          <div className="mt-6 pt-4 border-t border-line-soft/80 flex items-center justify-between text-xs text-ink-mute">
             <span>Tech focus: Next.js, MERN, AI</span>
-            <Link href="/admin/posts" className="text-indigo-400 hover:text-indigo-300 font-medium">
+            <Link href="/admin/posts" className="text-cyan hover:text-cyan font-medium">
               Manage Posts →
             </Link>
           </div>
@@ -380,11 +376,11 @@ export default function AnalyticsClient({
       </div>
 
       {/* Comprehensive Post Performance Table with Search & Sort */}
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 sm:p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 mb-4 border-b border-gray-800">
+      <div className="bg-card border border-line-soft rounded-2xl p-5 sm:p-6 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 mb-4 border-b border-line-soft">
           <div>
-            <h2 className="font-bold text-white text-lg">All Posts Engagement Breakdown</h2>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <h2 className="font-bold text-ink text-lg">All Posts Engagement Breakdown</h2>
+            <p className="text-xs text-ink-mute mt-0.5">
               Filter by type, search titles, or sort by engagement metrics.
             </p>
           </div>
@@ -392,23 +388,23 @@ export default function AnalyticsClient({
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Search Box */}
             <div className="relative">
-              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs" />
+              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-mute text-xs" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search post title..."
-                className="bg-gray-800/80 border border-gray-700 text-white placeholder-gray-500 text-xs rounded-xl pl-8 pr-3 py-1.5 focus:outline-none focus:border-indigo-500 transition w-44 sm:w-56"
+                className="bg-card2/80 border border-line text-ink placeholder-ink-mute text-xs rounded-xl pl-8 pr-3 py-1.5 focus:outline-none focus:border-cyan transition w-44 sm:w-56"
               />
             </div>
 
             {/* Type Filter Buttons */}
-            <div className="flex rounded-xl bg-gray-800/80 p-0.5 border border-gray-700 text-xs">
+            <div className="flex rounded-xl bg-card2/80 p-0.5 border border-line text-xs">
               <button
                 type="button"
                 onClick={() => setTypeFilter("all")}
                 className={`px-2.5 py-1 rounded-lg font-medium transition ${
-                  typeFilter === "all" ? "bg-indigo-600 text-white" : "text-gray-400 hover:text-white"
+                  typeFilter === "all" ? "bg-cyan-deep text-ink" : "text-ink-mute hover:text-ink"
                 }`}
               >
                 All
@@ -417,7 +413,7 @@ export default function AnalyticsClient({
                 type="button"
                 onClick={() => setTypeFilter("blog")}
                 className={`px-2.5 py-1 rounded-lg font-medium transition ${
-                  typeFilter === "blog" ? "bg-indigo-600 text-white" : "text-gray-400 hover:text-white"
+                  typeFilter === "blog" ? "bg-cyan-deep text-ink" : "text-ink-mute hover:text-ink"
                 }`}
               >
                 Blogs
@@ -426,7 +422,7 @@ export default function AnalyticsClient({
                 type="button"
                 onClick={() => setTypeFilter("journal")}
                 className={`px-2.5 py-1 rounded-lg font-medium transition ${
-                  typeFilter === "journal" ? "bg-indigo-600 text-white" : "text-gray-400 hover:text-white"
+                  typeFilter === "journal" ? "bg-cyan-deep text-ink" : "text-ink-mute hover:text-ink"
                 }`}
               >
                 Journals
@@ -438,7 +434,7 @@ export default function AnalyticsClient({
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
               aria-label="Sort articles by"
-              className="bg-gray-800/80 border border-gray-700 text-gray-300 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-indigo-500 transition"
+              className="bg-card2/80 border border-line text-ink-soft text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-cyan transition"
             >
               <option value="views">Sort by Views</option>
               <option value="likes">Sort by Claps</option>
@@ -451,7 +447,7 @@ export default function AnalyticsClient({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-gray-800 text-gray-400 font-semibold uppercase tracking-wider text-[10px]">
+              <tr className="border-b border-line-soft text-ink-mute font-semibold uppercase tracking-wider text-[10px]">
                 <th className="py-2.5 px-3">Article</th>
                 <th className="py-2.5 px-3">Type</th>
                 <th className="py-2.5 px-3">Category</th>
@@ -461,10 +457,10 @@ export default function AnalyticsClient({
                 <th className="py-2.5 px-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800/60">
+            <tbody className="divide-y divide-line-soft/60">
               {filteredPosts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-gray-500">
+                  <td colSpan={7} className="py-8 text-center text-ink-mute">
                     No articles match your query.
                   </td>
                 </tr>
@@ -472,18 +468,18 @@ export default function AnalyticsClient({
                 filteredPosts.map((post) => {
                   const engagement = post.views > 0 ? ((post.likes / post.views) * 100).toFixed(1) : "0.0";
                   return (
-                    <tr key={post.id} className="hover:bg-gray-800/40 transition group">
+                    <tr key={post.id} className="hover:bg-card2/40 transition group">
                       <td className="py-3 px-3">
-                        <p className="font-semibold text-white truncate max-w-xs sm:max-w-md">
+                        <p className="font-semibold text-ink truncate max-w-xs sm:max-w-md">
                           {post.title_en}
                         </p>
-                        <p className="text-[11px] text-gray-500 font-mono truncate">
+                        <p className="text-[11px] text-ink-mute font-mono truncate">
                           /{post.post_type === "journal" ? "journal" : "blog"}/{post.slug}
                         </p>
                       </td>
                       <td className="py-3 px-3">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                          post.post_type === "journal" ? "bg-emerald-950/60 text-emerald-400 border border-emerald-500/30" : "bg-indigo-950/60 text-indigo-300 border border-indigo-500/30"
+                          post.post_type === "journal" ? "bg-emerald-950/60 text-emerald-400 border border-emerald-500/30" : "bg-cyan/10 text-cyan border border-cyan/30"
                         }`}>
                           {post.post_type}
                         </span>
@@ -493,23 +489,23 @@ export default function AnalyticsClient({
                           <span
                             className="px-2 py-0.5 rounded text-[10px] font-medium"
                             style={{
-                              backgroundColor: `${post.category_color || "#6366f1"}20`,
+                              backgroundColor: `${post.category_color || "#2fd8f2"}20`,
                               color: post.category_color || "#818cf8",
                             }}
                           >
                             {post.category_name}
                           </span>
                         ) : (
-                          <span className="text-gray-600">—</span>
+                          <span className="text-ink-mute">—</span>
                         )}
                       </td>
-                      <td className="py-3 px-3 text-right font-mono font-medium text-indigo-300">
+                      <td className="py-3 px-3 text-right font-mono font-medium text-cyan">
                         {post.views.toLocaleString()}
                       </td>
                       <td className="py-3 px-3 text-right font-mono font-medium text-rose-300">
                         {post.likes.toLocaleString()}
                       </td>
-                      <td className="py-3 px-3 text-right font-mono text-gray-400">
+                      <td className="py-3 px-3 text-right font-mono text-ink-mute">
                         <span className={Number(engagement) >= 5 ? "text-emerald-400 font-semibold" : ""}>
                           {engagement}%
                         </span>
@@ -520,14 +516,14 @@ export default function AnalyticsClient({
                             href={`/${post.post_type === "journal" ? "journal" : "blog"}/${post.slug}`}
                             target="_blank"
                             title="View post on site"
-                            className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition"
+                            className="p-1.5 rounded-lg bg-card2 hover:bg-card2 text-ink-soft hover:text-ink transition"
                           >
                             <FaExternalLinkAlt className="text-[10px]" />
                           </Link>
                           <Link
                             href={`/admin/posts/${post.id}/edit`}
                             title="Edit post"
-                            className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-indigo-400 hover:text-indigo-300 transition"
+                            className="p-1.5 rounded-lg bg-card2 hover:bg-card2 text-cyan hover:text-cyan transition"
                           >
                             <FaEdit className="text-[10px]" />
                           </Link>
@@ -543,19 +539,19 @@ export default function AnalyticsClient({
       </div>
 
       {/* Real-time Activity Feed: Messages & Subscribers */}
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 sm:p-6 shadow-sm">
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-gray-800">
+      <div className="bg-card border border-line-soft rounded-2xl p-5 sm:p-6 shadow-sm">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-line-soft">
           <div className="flex items-center gap-2">
             <span className="text-base">⚡</span>
-            <h2 className="font-bold text-white text-base">Community Activity Feed</h2>
+            <h2 className="font-bold text-ink text-base">Community Activity Feed</h2>
           </div>
 
-          <div className="flex rounded-xl bg-gray-800 p-0.5 border border-gray-700 text-xs">
+          <div className="flex rounded-xl bg-card2 p-0.5 border border-line text-xs">
             <button
               type="button"
               onClick={() => setActivityTab("messages")}
               className={`px-3 py-1 rounded-lg font-medium transition ${
-                activityTab === "messages" ? "bg-indigo-600 text-white" : "text-gray-400 hover:text-white"
+                activityTab === "messages" ? "bg-cyan-deep text-ink" : "text-ink-mute hover:text-ink"
               }`}
             >
               Inquiries ({recentMessages.length})
@@ -564,7 +560,7 @@ export default function AnalyticsClient({
               type="button"
               onClick={() => setActivityTab("subscribers")}
               className={`px-3 py-1 rounded-lg font-medium transition ${
-                activityTab === "subscribers" ? "bg-indigo-600 text-white" : "text-gray-400 hover:text-white"
+                activityTab === "subscribers" ? "bg-cyan-deep text-ink" : "text-ink-mute hover:text-ink"
               }`}
             >
               Subscribers ({recentSubscribers.length})
@@ -575,31 +571,31 @@ export default function AnalyticsClient({
         {activityTab === "messages" ? (
           <div className="space-y-3">
             {recentMessages.length === 0 ? (
-              <p className="text-gray-500 text-sm py-4 text-center">No contact inquiries yet.</p>
+              <p className="text-ink-mute text-sm py-4 text-center">No contact inquiries yet.</p>
             ) : (
               recentMessages.map((msg) => (
                 <div
                   key={msg.id}
-                  className="p-3 rounded-xl bg-gray-800/40 border border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                  className="p-3 rounded-xl bg-card2/40 border border-line-soft flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-white truncate">{msg.name}</span>
-                      <span className="text-gray-500 truncate font-mono text-[11px]">&lt;{msg.email}&gt;</span>
+                      <span className="font-semibold text-ink truncate">{msg.name}</span>
+                      <span className="text-ink-mute truncate font-mono text-[11px]">&lt;{msg.email}&gt;</span>
                       <span className={`text-[10px] px-2 py-0.2 rounded-full font-medium ${
-                        msg.status === "unread" ? "bg-amber-950/60 text-amber-400 border border-amber-500/40" : "bg-gray-700 text-gray-300"
+                        msg.status === "unread" ? "bg-amber-950/60 text-amber-400 border border-amber-500/40" : "bg-card2 text-ink-soft"
                       }`}>
                         {msg.status}
                       </span>
                     </div>
-                    <p className="text-gray-400 mt-1 line-clamp-1 italic">&ldquo;{msg.message}&rdquo;</p>
+                    <p className="text-ink-mute mt-1 line-clamp-1 italic">&ldquo;{msg.message}&rdquo;</p>
                   </div>
 
-                  <div className="flex items-center gap-3 flex-shrink-0 text-[11px] text-gray-500">
+                  <div className="flex items-center gap-3 flex-shrink-0 text-[11px] text-ink-mute">
                     <span suppressHydrationWarning>{new Date(msg.created_at).toLocaleDateString("en-BD", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                     <Link
                       href="/admin/messages"
-                      className="text-indigo-400 hover:text-indigo-300 font-medium"
+                      className="text-cyan hover:text-cyan font-medium"
                     >
                       Reply →
                     </Link>
@@ -611,22 +607,22 @@ export default function AnalyticsClient({
         ) : (
           <div className="space-y-3">
             {recentSubscribers.length === 0 ? (
-              <p className="text-gray-500 text-sm py-4 text-center">No subscribers yet.</p>
+              <p className="text-ink-mute text-sm py-4 text-center">No subscribers yet.</p>
             ) : (
               recentSubscribers.map((sub) => (
                 <div
                   key={sub.id}
-                  className="p-3 rounded-xl bg-gray-800/40 border border-gray-800 flex items-center justify-between gap-2 text-xs"
+                  className="p-3 rounded-xl bg-card2/40 border border-line-soft flex items-center justify-between gap-2 text-xs"
                 >
                   <div className="flex items-center gap-2 truncate">
                     <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span className="font-semibold text-white truncate">{sub.email}</span>
+                    <span className="font-semibold text-ink truncate">{sub.email}</span>
                     <span className="text-[10px] px-2 py-0.2 rounded-full font-medium bg-emerald-950/60 text-emerald-400 border border-emerald-500/40">
                       {sub.status}
                     </span>
                   </div>
 
-                  <div className="text-[11px] text-gray-500 flex-shrink-0" suppressHydrationWarning>
+                  <div className="text-[11px] text-ink-mute flex-shrink-0" suppressHydrationWarning>
                     {new Date(sub.subscribed_at).toLocaleDateString("en-BD", { month: "short", day: "numeric" })}
                   </div>
                 </div>

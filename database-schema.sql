@@ -230,3 +230,12 @@ INSERT INTO skills (category, name, display_order) VALUES
   ('tools', 'Git', 1)
 ON CONFLICT DO NOTHING;
 
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- MIGRATION — posts.views / posts.likes (existing databases)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- The CREATE TABLE posts above already includes views/likes for fresh
+-- installs. For databases created before those columns existed, run once:
+-- (Moved here from src/app/admin/(dashboard)/page.tsx, which used to run
+-- this DDL on every dashboard load — 2026-11-25 admin sweep.)
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS views INTEGER DEFAULT 0;
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS likes INTEGER DEFAULT 0;

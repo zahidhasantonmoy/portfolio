@@ -227,20 +227,20 @@ export default async function BnBlogPostPage({
             {post.categories && (
               <Link
                 href={`/bn/blog?category=${post.categories.slug}`}
-                className="inline-block font-mono text-[11px] tracking-[0.07em] uppercase px-4 py-1.5 rounded-full text-[#2fd8f2] font-semibold mb-6 bg-black/40 backdrop-blur-md border border-white/20 transition-colors hover:border-[#2fd8f2]"
+                className="inline-block font-mono text-[11px] tracking-[0.07em] uppercase px-4 py-1.5 rounded-full text-[#2fd8f2] font-semibold mb-6 bg-black/40 border border-white/20 transition-colors hover:border-[#2fd8f2]"
               >
                 {post.categories.name_bn || post.categories.name_en}
               </Link>
             )}
 
             {/* Title */}
-            <h1 className="font-['Unbounded',sans-serif] font-bold text-4xl md:text-5xl lg:text-[52px] leading-[1.15] text-white mb-6 drop-shadow-md">
+            <h1 className="font-['Unbounded',sans-serif] font-bold text-4xl md:text-5xl lg:text-[52px] leading-[1.15] text-white mb-6">
               {post.title_bn}
             </h1>
 
             {/* Meta Info */}
             <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-sm text-gray-200 font-medium">
-              <div className="flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10">
+              <div className="flex items-center gap-2 bg-black/30 px-3 py-1.5 rounded-full border border-white/10">
                 <div className="w-6 h-6 rounded-full bg-[#ffb02e] flex items-center justify-center text-[#1a1200] text-xs font-bold shadow-inner">
                   Z
                 </div>
@@ -248,20 +248,20 @@ export default async function BnBlogPostPage({
               </div>
               
               {publishDate && (
-                <div className="flex items-center gap-1.5 bg-black/30 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10">
+                <div className="flex items-center gap-1.5 bg-black/30 px-3 py-1.5 rounded-full border border-white/10">
                   <FaRegCalendarAlt className="opacity-80" />
                   <span>{publishDate}</span>
                 </div>
               )}
               
-              <div className="flex items-center gap-1.5 bg-black/30 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/10">
+              <div className="flex items-center gap-1.5 bg-black/30 px-3 py-1.5 rounded-full border border-white/10">
                 <FaRegClock className="opacity-80" />
                 <span>{post.read_time_min} মিনিটের পড়া</span>
               </div>
 
               <Link
                 href={`/blog/${slug}`}
-                className="flex items-center gap-1.5 bg-[#ffb02e] hover:bg-[#2fd8f2] px-4 py-1.5 rounded-full backdrop-blur-sm text-[#1a1200] font-extrabold transition-colors"
+                className="flex items-center gap-1.5 bg-[#ffb02e] hover:bg-[#2fd8f2] px-4 py-1.5 rounded-full text-[#1a1200] font-extrabold transition-colors"
               >
                 🇬🇧 Read in English
               </Link>
@@ -315,7 +315,11 @@ export default async function BnBlogPostPage({
                 lang="bn"
               />
 
-              <div className="w-full my-6">
+              {/* Comfortable long-form measure: ~70ch column with roomier
+                  body line-height. ArticleContent.tsx itself is untouched;
+                  the override below (higher specificity than its
+                  prose-p:leading-relaxed) applies to its paragraphs. */}
+              <div className="mx-auto my-6 w-full max-w-[70ch] [&_p]:leading-[1.8]">
                 <ArticleContent content={post.content_bn ?? ""} />
               </div>
 
@@ -354,8 +358,6 @@ export default async function BnBlogPostPage({
               
               {/* Premium Author Card */}
               <div className="mt-12 p-8 bg-[#0e1729] rounded-[20px] border-[1.5px] border-[#1a2947] relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#2fd8f2]/10 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#ffb02e]/10 rounded-full blur-3xl"></div>
                 
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
                   <div className="w-20 h-20 rounded-full bg-[#ffb02e] flex items-center justify-center text-[#1a1200] font-bold text-3xl ring-4 ring-[#122036] flex-shrink-0">

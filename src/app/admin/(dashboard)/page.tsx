@@ -10,13 +10,6 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AdminDashboard() {
-  // Ensure views & likes columns exist safely
-  try {
-    await sql`ALTER TABLE posts ADD COLUMN IF NOT EXISTS views INTEGER DEFAULT 0`;
-    await sql`ALTER TABLE posts ADD COLUMN IF NOT EXISTS likes INTEGER DEFAULT 0`;
-  } catch {
-    // ignore
-  }
 
   // Fetch all metrics concurrently
   const [
@@ -45,6 +38,7 @@ export default async function AdminDashboard() {
       FROM posts p
       LEFT JOIN categories c ON p.category_id = c.id
       ORDER BY p.views DESC NULLS LAST, p.created_at DESC
+      LIMIT 200
     `.catch(() => []),
     sql`
       SELECT c.name_en as name, c.color, count(p.id) as post_count,
@@ -95,7 +89,7 @@ export default async function AdminDashboard() {
 
   const categories: CategoryAnalyticsItem[] = (categoriesRows || []).map((row: any) => ({
     name: row.name,
-    color: row.color || "#6366f1",
+    color: row.color || "#2fd8f2",
     post_count: Number(row.post_count || 0),
     total_views: Number(row.total_views || 0),
     total_likes: Number(row.total_likes || 0),

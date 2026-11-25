@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { PiHandsClappingFill } from 'react-icons/pi';
 import {
   FaFacebookF,
@@ -19,13 +19,6 @@ interface ArticleFloatingBarProps {
   lang?: 'en' | 'bn';
 }
 
-interface Particle {
-  id: number;
-  x: number;
-  y: number;
-  icon: string;
-}
-
 /**
  * Sticky reading bar (desktop) / bottom bar (mobile): clap button, share
  * links (real navigator.share/share URLs), copy-link, font size, scroll
@@ -40,7 +33,6 @@ export default function ArticleFloatingBar({
 }: ArticleFloatingBarProps) {
   const { fontSize, increaseFontSize, decreaseFontSize, likes, userClaps, clap } =
     useBlogReader();
-  const [particles, setParticles] = useState<Particle[]>([]);
   const [copied, setCopied] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [url, setUrl] = useState('');
@@ -72,15 +64,6 @@ export default function ArticleFloatingBar({
       );
       return;
     }
-
-    // Particle burst animation (visual only — the count lives in context)
-    const newParticle: Particle = {
-      id: Date.now() + Math.random(),
-      x: (Math.random() - 0.5) * 45,
-      y: -40 - Math.random() * 25,
-      icon: ['👏', '❤️', '🔥', '✨'][Math.floor(Math.random() * 4)],
-    };
-    setParticles((prev) => [...prev.slice(-6), newParticle]);
   };
 
   const handleCopyLink = async () => {
@@ -127,7 +110,7 @@ export default function ArticleFloatingBar({
       {/* Desktop Sticky Floating Bar */}
       <aside
         aria-label="Reading actions"
-        className="hidden md:flex flex-col items-center gap-4 py-4 px-2.5 rounded-2xl bg-[#0e1729]/95 backdrop-blur-md border-[1.5px] border-[#1a2947] shadow-lg sticky top-28 self-start w-16 select-none z-30 transition-all"
+        className="hidden md:flex flex-col items-center gap-4 py-4 px-2.5 rounded-2xl bg-[#0e1729] border-[1.5px] border-[#1a2947] shadow-sm sticky top-28 self-start w-16 select-none z-30 transition-all"
       >
         {/* Claps Button */}
         <div className="relative flex flex-col items-center">
@@ -148,24 +131,6 @@ export default function ArticleFloatingBar({
           <span className="text-[11px] font-bold text-[#c3d2ea] mt-1">
             {likes.toLocaleString()}
           </span>
-
-          {/* Particle animation */}
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <AnimatePresence>
-              {particles.map((p) => (
-                <motion.span
-                  key={p.id}
-                  initial={{ opacity: 1, scale: 0.8, x: 0, y: 0 }}
-                  animate={{ opacity: 0, scale: 1.5, x: p.x, y: p.y }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.75, ease: 'easeOut' }}
-                  className="absolute text-base font-bold"
-                >
-                  {p.icon}
-                </motion.span>
-              ))}
-            </AnimatePresence>
-          </div>
         </div>
 
         <div className="w-8 h-[1px] bg-[#22345a] my-0.5" />
@@ -256,7 +221,7 @@ export default function ArticleFloatingBar({
       </aside>
 
       {/* Mobile Bottom Sticky Bar */}
-      <div className="md:hidden fixed bottom-4 left-4 right-4 z-40 flex items-center justify-between px-4 py-2.5 rounded-full bg-[#0e1729]/95 backdrop-blur-lg border-[1.5px] border-[#1a2947] shadow-2xl">
+      <div className="md:hidden fixed bottom-4 left-4 right-4 z-40 flex items-center justify-between px-4 py-2.5 rounded-full bg-[#0e1729] border-[1.5px] border-[#1a2947] shadow-sm">
         {/* Claps */}
         <button
           onClick={handleClap}

@@ -27,8 +27,9 @@ export interface PostAuditItem {
   title_bn: string;
   slug: string;
   excerpt_en: string;
-  content_en: string;
-  content_bn: string;
+  // Length of the Bangla content only — the audit checks need presence/length,
+  // not the full text, so the page query selects LENGTH(content_bn) instead.
+  content_bn_length: number;
   cover_image_url: string;
   published_at: string | null;
   updated_at: string;
@@ -157,7 +158,7 @@ export default function AuditClient({
       }
 
       // 4. Bangla Localization Check
-      if (!post.title_bn || !post.title_bn.trim() || !post.content_bn || post.content_bn.trim().length < 20) {
+      if (!post.title_bn || !post.title_bn.trim() || post.content_bn_length < 20) {
         issues.push({ type: "warning", message: "Missing Bengali (বাংলা) Translation" });
       }
 
@@ -178,13 +179,13 @@ export default function AuditClient({
     });
   }, [initialPosts]);
 
-  // Overall System Health Score
+  // Overall SEO checklist score
   const healthStats = useMemo(() => {
     const totalPosts = analyzedPosts.length;
     const cleanPosts = analyzedPosts.filter((p) => !p.hasIssues).length;
     const brokenLinks = linkResults.filter((l) => !l.ok).length;
     const missingCovers = analyzedPosts.filter((p) => !p.cover_image_url).length;
-    const missingTranslations = analyzedPosts.filter((p) => !p.title_bn || !p.content_bn).length;
+    const missingTranslations = analyzedPosts.filter((p) => !p.title_bn || p.content_bn_length === 0).length;
 
     const postQualityAvg = totalPosts > 0 ? Math.round(analyzedPosts.reduce((acc, p) => acc + p.score, 0) / totalPosts) : 100;
     const overallScore = Math.max(10, Math.min(100, postQualityAvg - brokenLinks * 5));
@@ -230,7 +231,7 @@ export default function AuditClient({
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
               Site SEO &amp; Broken Link Diagnostic Audit
             </h1>
             <span
@@ -243,11 +244,11 @@ export default function AuditClient({
               }`}
             >
               <HiSparkles className="text-xs" />
-              {healthStats.overallScore}/100 Health Score
+              {healthStats.overallScore}/100 SEO checklist score
             </span>
           </div>
-          <p className="text-gray-400 text-sm mt-1">
-            Automated crawler detecting 404 broken links, search snippet readability, missing translations, and image assets.
+          <p className="text-ink-mute text-sm mt-1">
+            Automated crawler detecting 404 broken links, search snippet readability, missing translations, and image assets. The score is a checklist heuristic based on the checks below — not a search-engine score.
           </p>
         </div>
 
@@ -257,7 +258,7 @@ export default function AuditClient({
             type="button"
             onClick={handleScanLinks}
             disabled={scanningLinks}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-red-600 via-rose-600 to-indigo-600 hover:opacity-95 text-white shadow-md shadow-rose-900/30 transition active:scale-95 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-cyan-deep hover:opacity-95 text-ink shadow-sm transition active:scale-95 disabled:opacity-50"
           >
             <FaSyncAlt className={`text-xs ${scanningLinks ? "animate-spin" : ""}`} />
             <span>{scanningLinks ? "Scanning All Links..." : "🕷️ Run Full Link Crawler"}</span>
@@ -268,8 +269,8 @@ export default function AuditClient({
       {/* KPI Diagnostic Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {/* Broken Links */}
-        <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-4 shadow-sm space-y-1">
-          <p className="text-xs font-medium text-gray-400">Broken External Links</p>
+        <div className="bg-card/80 border border-line-soft rounded-2xl p-4 shadow-sm space-y-1">
+          <p className="text-xs font-medium text-ink-mute">Broken External Links</p>
           <p
             className={`text-2xl font-bold ${
               healthStats.brokenLinks > 0 ? "text-red-400" : "text-emerald-400"
@@ -277,7 +278,7 @@ export default function AuditClient({
           >
             {healthStats.brokenLinks}
           </p>
-          <p className="text-[11px] text-gray-500">
+          <p className="text-[11px] text-ink-mute">
             {healthStats.scannedLinksCount > 0
               ? `out of ${healthStats.scannedLinksCount} checked`
               : "Click crawler to scan"}
@@ -285,55 +286,55 @@ export default function AuditClient({
         </div>
 
         {/* Clean Posts */}
-        <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-4 shadow-sm space-y-1">
-          <p className="text-xs font-medium text-gray-400">100% SEO Ready Posts</p>
+        <div className="bg-card/80 border border-line-soft rounded-2xl p-4 shadow-sm space-y-1">
+          <p className="text-xs font-medium text-ink-mute">100% SEO Ready Posts</p>
           <p className="text-2xl font-bold text-emerald-400">
             {healthStats.cleanPosts} / {healthStats.totalPosts}
           </p>
-          <p className="text-[11px] text-gray-500">Passed all SEO checklists</p>
+          <p className="text-[11px] text-ink-mute">Passed all SEO checklists</p>
         </div>
 
         {/* Missing Covers */}
-        <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-4 shadow-sm space-y-1">
-          <p className="text-xs font-medium text-gray-400">Missing Cover Images</p>
+        <div className="bg-card/80 border border-line-soft rounded-2xl p-4 shadow-sm space-y-1">
+          <p className="text-xs font-medium text-ink-mute">Missing Cover Images</p>
           <p
             className={`text-2xl font-bold ${
-              healthStats.missingCovers > 0 ? "text-amber-400" : "text-gray-300"
+              healthStats.missingCovers > 0 ? "text-amber-400" : "text-ink-soft"
             }`}
           >
             {healthStats.missingCovers}
           </p>
-          <p className="text-[11px] text-gray-500">Need thumbnail for social sharing</p>
+          <p className="text-[11px] text-ink-mute">Need thumbnail for social sharing</p>
         </div>
 
         {/* Missing Translations */}
-        <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-4 shadow-sm space-y-1">
-          <p className="text-xs font-medium text-gray-400">Missing Bangla Content</p>
+        <div className="bg-card/80 border border-line-soft rounded-2xl p-4 shadow-sm space-y-1">
+          <p className="text-xs font-medium text-ink-mute">Missing Bangla Content</p>
           <p
             className={`text-2xl font-bold ${
-              healthStats.missingTranslations > 0 ? "text-purple-400" : "text-gray-300"
+              healthStats.missingTranslations > 0 ? "text-cyan" : "text-ink-soft"
             }`}
           >
             {healthStats.missingTranslations}
           </p>
-          <p className="text-[11px] text-gray-500">Regional audience discovery</p>
+          <p className="text-[11px] text-ink-mute">Regional audience discovery</p>
         </div>
 
         {/* Total Projects */}
-        <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-4 shadow-sm space-y-1">
-          <p className="text-xs font-medium text-gray-400">Live Projects</p>
-          <p className="text-2xl font-bold text-indigo-400">{initialProjects.length}</p>
-          <p className="text-[11px] text-gray-500">Portfolios &amp; Case Studies</p>
+        <div className="bg-card/80 border border-line-soft rounded-2xl p-4 shadow-sm space-y-1">
+          <p className="text-xs font-medium text-ink-mute">Live Projects</p>
+          <p className="text-2xl font-bold text-cyan">{initialProjects.length}</p>
+          <p className="text-[11px] text-ink-mute">Portfolios &amp; Case Studies</p>
         </div>
       </div>
 
       {/* Manual Quick Link Tester Bar */}
       <form
         onSubmit={handleTestCustomUrl}
-        className="bg-gray-900/90 border border-gray-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-3"
+        className="bg-card/90 border border-line-soft rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-3"
       >
-        <div className="flex items-center gap-2 text-xs font-semibold text-gray-300 shrink-0">
-          <FaLink className="text-indigo-400" />
+        <div className="flex items-center gap-2 text-xs font-semibold text-ink-soft shrink-0">
+          <FaLink className="text-cyan" />
           <span>Quick Single Link Test:</span>
         </div>
         <input
@@ -342,27 +343,27 @@ export default function AuditClient({
           value={customTestUrl}
           onChange={(e) => setCustomTestUrl(e.target.value)}
           placeholder="https://example.com/demo or https://github.com/..."
-          className="flex-1 w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 font-mono"
+          className="flex-1 w-full bg-bg border border-line-soft rounded-xl px-3.5 py-2 text-xs text-ink placeholder-ink-mute focus:outline-none focus:border-cyan font-mono"
         />
         <button
           type="submit"
           disabled={testingCustomUrl}
-          className="px-4 py-2 rounded-xl text-xs font-semibold bg-gray-800 hover:bg-gray-700 text-white transition active:scale-95 shrink-0 disabled:opacity-50"
+          className="px-4 py-2 rounded-xl text-xs font-semibold bg-card2 hover:bg-card2 text-ink transition active:scale-95 shrink-0 disabled:opacity-50"
         >
           {testingCustomUrl ? "Testing..." : "Test URL"}
         </button>
       </form>
 
       {/* Tab Selectors & Filter Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line-soft pb-3">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setActiveTab("seo")}
             className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${
               activeTab === "seo"
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800"
+                ? "bg-cyan-deep text-ink shadow-sm"
+                : "bg-card text-ink-mute hover:text-ink hover:bg-card2"
             }`}
           >
             📝 Blog SEO Health ({analyzedPosts.length})
@@ -372,13 +373,13 @@ export default function AuditClient({
             onClick={() => setActiveTab("links")}
             className={`px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
               activeTab === "links"
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800"
+                ? "bg-cyan-deep text-ink shadow-sm"
+                : "bg-card text-ink-mute hover:text-ink hover:bg-card2"
             }`}
           >
             <span>🔗 Scanned Links</span>
             {healthStats.brokenLinks > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-red-500 text-white font-bold">
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-red-500 text-ink font-bold">
                 {healthStats.brokenLinks}
               </span>
             )}
@@ -388,8 +389,8 @@ export default function AuditClient({
             onClick={() => setActiveTab("projects")}
             className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${
               activeTab === "projects"
-                ? "bg-indigo-600 text-white shadow-sm"
-                : "bg-gray-900 text-gray-400 hover:text-white hover:bg-gray-800"
+                ? "bg-cyan-deep text-ink shadow-sm"
+                : "bg-card text-ink-mute hover:text-ink hover:bg-card2"
             }`}
           >
             🚀 Projects Portfolio ({initialProjects.length})
@@ -398,13 +399,13 @@ export default function AuditClient({
 
         {/* Search */}
         <div className="relative max-w-xs w-full">
-          <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs" />
+          <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-mute text-xs" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter by title or URL..."
-            className="w-full bg-gray-950 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition"
+            className="w-full bg-bg border border-line-soft rounded-xl pl-9 pr-4 py-2 text-xs text-ink placeholder-ink-mute focus:outline-none focus:border-cyan transition"
           />
         </div>
       </div>
@@ -417,7 +418,7 @@ export default function AuditClient({
               <button
                 onClick={() => setSeoFilter("all")}
                 className={`px-3 py-1 rounded-lg transition ${
-                  seoFilter === "all" ? "bg-gray-800 text-white font-medium" : "text-gray-400 hover:text-white"
+                  seoFilter === "all" ? "bg-card2 text-ink font-medium" : "text-ink-mute hover:text-ink"
                 }`}
               >
                 All Articles ({analyzedPosts.length})
@@ -425,7 +426,7 @@ export default function AuditClient({
               <button
                 onClick={() => setSeoFilter("issues_only")}
                 className={`px-3 py-1 rounded-lg transition ${
-                  seoFilter === "issues_only" ? "bg-amber-950/60 text-amber-300 font-semibold border border-amber-500/30" : "text-gray-400 hover:text-white"
+                  seoFilter === "issues_only" ? "bg-amber-950/60 text-amber-300 font-semibold border border-amber-500/30" : "text-ink-mute hover:text-ink"
                 }`}
               >
                 Needs Optimization ({analyzedPosts.filter((p) => p.hasIssues).length})
@@ -437,7 +438,7 @@ export default function AuditClient({
             {filteredPosts.map((post) => (
               <div
                 key={post.id}
-                className="bg-gray-900/90 border border-gray-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 hover:border-gray-700 transition"
+                className="bg-card/90 border border-line-soft rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 hover:border-line transition"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="space-y-1">
@@ -453,14 +454,14 @@ export default function AuditClient({
                       >
                         {post.score}% Score
                       </span>
-                      <span className="text-xs text-gray-500 font-mono">/{post.slug}</span>
+                      <span className="text-xs text-ink-mute font-mono">/{post.slug}</span>
                     </div>
-                    <h3 className="text-sm sm:text-base font-bold text-white">{post.title_en}</h3>
+                    <h3 className="text-sm sm:text-base font-bold text-ink">{post.title_en}</h3>
                   </div>
 
                   <Link
                     href={`/admin/posts/${post.id}/edit`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition self-start sm:self-auto shrink-0 shadow-sm"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-cyan-deep hover:bg-cyan-deep text-ink transition self-start sm:self-auto shrink-0 shadow-sm"
                   >
                     <span>Fix in Editor</span>
                     <FaPen className="text-[10px]" />
@@ -508,7 +509,7 @@ export default function AuditClient({
               <button
                 onClick={() => setLinkFilter("all")}
                 className={`px-3 py-1 rounded-lg transition ${
-                  linkFilter === "all" ? "bg-gray-800 text-white font-medium" : "text-gray-400 hover:text-white"
+                  linkFilter === "all" ? "bg-card2 text-ink font-medium" : "text-ink-mute hover:text-ink"
                 }`}
               >
                 All Links ({linkResults.length})
@@ -516,7 +517,7 @@ export default function AuditClient({
               <button
                 onClick={() => setLinkFilter("broken")}
                 className={`px-3 py-1 rounded-lg transition ${
-                  linkFilter === "broken" ? "bg-red-950/60 text-red-300 font-semibold border border-red-500/30" : "text-gray-400 hover:text-white"
+                  linkFilter === "broken" ? "bg-red-950/60 text-red-300 font-semibold border border-red-500/30" : "text-ink-mute hover:text-ink"
                 }`}
               >
                 Broken Only ({linkResults.filter((l) => !l.ok).length})
@@ -524,7 +525,7 @@ export default function AuditClient({
               <button
                 onClick={() => setLinkFilter("ok")}
                 className={`px-3 py-1 rounded-lg transition ${
-                  linkFilter === "ok" ? "bg-emerald-950/60 text-emerald-300 font-semibold border border-emerald-500/30" : "text-gray-400 hover:text-white"
+                  linkFilter === "ok" ? "bg-emerald-950/60 text-emerald-300 font-semibold border border-emerald-500/30" : "text-ink-mute hover:text-ink"
                 }`}
               >
                 Healthy Only ({linkResults.filter((l) => l.ok).length})
@@ -533,17 +534,17 @@ export default function AuditClient({
           </div>
 
           {linkResults.length === 0 ? (
-            <div className="py-20 text-center bg-gray-900/30 border border-gray-800 rounded-2xl space-y-3">
-              <FaLink className="text-4xl text-gray-600 mx-auto" />
-              <h3 className="text-sm font-semibold text-gray-300">No links scanned yet</h3>
-              <p className="text-xs text-gray-500 max-w-md mx-auto">
+            <div className="py-20 text-center bg-card/30 border border-line-soft rounded-2xl space-y-3">
+              <FaLink className="text-4xl text-ink-mute mx-auto" />
+              <h3 className="text-sm font-semibold text-ink-soft">No links scanned yet</h3>
+              <p className="text-xs text-ink-mute max-w-md mx-auto">
                 Click the &ldquo;Run Full Link Crawler&rdquo; button above to automatically test all external GitHub, live demo, and blog citation links.
               </p>
               <button
                 type="button"
                 onClick={handleScanLinks}
                 disabled={scanningLinks}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition"
+                className="px-4 py-2 bg-cyan-deep hover:bg-cyan-deep text-ink text-xs font-semibold rounded-xl transition"
               >
                 Start Crawler Now 🚀
               </button>
@@ -553,8 +554,8 @@ export default function AuditClient({
               {filteredLinks.map((l, idx) => (
                 <div
                   key={idx}
-                  className={`bg-gray-900/90 border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition ${
-                    l.ok ? "border-gray-800/80" : "border-red-500/40 bg-red-950/10"
+                  className={`bg-card/90 border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition ${
+                    l.ok ? "border-line-soft/80" : "border-red-500/40 bg-red-950/10"
                   }`}
                 >
                   <div className="space-y-1 min-w-0">
@@ -568,13 +569,13 @@ export default function AuditClient({
                       >
                         {l.status > 0 ? `HTTP ${l.status}` : "FAILED"}
                       </span>
-                      <span className="text-gray-400 font-medium truncate">
+                      <span className="text-ink-mute font-medium truncate">
                         Source: {l.sourceTitle}
                       </span>
-                      <span className="text-[10px] text-gray-500 font-mono">({l.latencyMs}ms)</span>
+                      <span className="text-[10px] text-ink-mute font-mono">({l.latencyMs}ms)</span>
                     </div>
 
-                    <p className="font-mono text-gray-300 text-xs break-all" title={l.url}>
+                    <p className="font-mono text-ink-soft text-xs break-all" title={l.url}>
                       {l.url}
                     </p>
 
@@ -588,7 +589,7 @@ export default function AuditClient({
                       href={l.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition"
+                      className="p-2 rounded-xl bg-card2 hover:bg-card2 text-ink-soft hover:text-ink transition"
                       title="Open target URL in new tab"
                     >
                       <FaExternalLinkAlt className="text-xs" />
@@ -599,7 +600,7 @@ export default function AuditClient({
                           ? "/admin/projects"
                           : `/admin/posts/${l.sourceId}/edit`
                       }
-                      className="px-3 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-indigo-400 hover:text-indigo-300 transition font-medium"
+                      className="px-3 py-2 rounded-xl bg-card2 hover:bg-card2 text-cyan hover:text-cyan transition font-medium"
                     >
                       Edit Source
                     </Link>
@@ -622,16 +623,16 @@ export default function AuditClient({
             return (
               <div
                 key={prj.id}
-                className="bg-gray-900/90 border border-gray-800 rounded-2xl p-5 shadow-sm space-y-3"
+                className="bg-card/90 border border-line-soft rounded-2xl p-5 shadow-sm space-y-3"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h4 className="text-base font-bold text-white">{prj.title}</h4>
-                    <p className="text-xs text-gray-400 line-clamp-2 mt-1">{prj.description}</p>
+                    <h4 className="text-base font-bold text-ink">{prj.title}</h4>
+                    <p className="text-xs text-ink-mute line-clamp-2 mt-1">{prj.description}</p>
                   </div>
                   <Link
                     href="/admin/projects"
-                    className="p-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition shrink-0"
+                    className="p-2 rounded-xl bg-card2 hover:bg-card2 text-ink-soft hover:text-ink transition shrink-0"
                     title="Edit in Projects Manager"
                   >
                     <FaPen className="text-xs" />
@@ -639,7 +640,7 @@ export default function AuditClient({
                 </div>
 
                 {/* Health Check Badges */}
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-gray-800/80 text-[11px]">
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-line-soft/80 text-[11px]">
                   <div
                     className={`flex items-center gap-1.5 p-2 rounded-xl border ${
                       hasLive

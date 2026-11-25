@@ -24,8 +24,9 @@ export default async function EditPostPage({
   return (
     <div className="max-w-5xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Edit Post</h1>
-        <p className="text-gray-400 text-sm mt-1 truncate">{post.title_en}</p>
+        <p className="font-mono text-[11px] tracking-[0.12em] text-cyan uppercase">Admin · Blog</p>
+        <h1 className="text-2xl font-bold text-ink font-display">Edit Post</h1>
+        <p className="text-ink-mute text-sm mt-1 truncate">{post.title_en}</p>
       </div>
       <PostEditor
         post={post as any}

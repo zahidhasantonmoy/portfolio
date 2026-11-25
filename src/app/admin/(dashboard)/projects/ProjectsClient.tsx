@@ -19,6 +19,7 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
   const [isEditing, setIsEditing] = useState(false);
   const [currentProject, setCurrentProject] = useState<Partial<Project>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,8 +63,12 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this project?")) return;
-    
+    if (confirmingDeleteId !== id) {
+      setConfirmingDeleteId(id);
+      return;
+    }
+    setConfirmingDeleteId(null);
+
     try {
       const res = await fetch(`/api/admin/projects/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete project");
@@ -80,65 +85,65 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Projects</h1>
-          <p className="text-gray-400">Manage your portfolio projects</p>
+          <h1 className="text-2xl font-bold text-ink">Projects</h1>
+          <p className="text-ink-mute">Manage your portfolio projects</p>
         </div>
         <button
           onClick={() => {
             setCurrentProject({ display_order: 0 });
             setIsEditing(true);
           }}
-          className="self-start sm:self-auto bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition active:scale-95"
+          className="self-start sm:self-auto bg-cyan-deep hover:bg-cyan-deep text-ink px-4 py-2 rounded-lg font-medium transition active:scale-95"
         >
           + Add Project
         </button>
       </div>
 
       {isEditing && (
-        <form onSubmit={handleSave} className="bg-gray-900 border border-gray-800 p-6 rounded-xl mb-8 space-y-4">
-          <h2 className="text-xl font-bold text-white mb-4">
+        <form onSubmit={handleSave} className="bg-card border border-line-soft p-6 rounded-xl mb-8 space-y-4">
+          <h2 className="text-xl font-bold text-ink mb-4">
             {currentProject.id ? "Edit Project" : "New Project"}
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Title</label>
-              <input required type="text" value={currentProject.title || ""} onChange={e => setCurrentProject({...currentProject, title: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-indigo-500 focus:outline-none" />
+              <label className="block text-sm text-ink-mute mb-1">Title</label>
+              <input required type="text" value={currentProject.title || ""} onChange={e => setCurrentProject({...currentProject, title: e.target.value})} className="w-full bg-card2 border border-line rounded-lg px-4 py-2 text-ink focus:border-cyan focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Tech Stack (comma separated)</label>
-              <input required type="text" value={Array.isArray(currentProject.tech_stack) ? currentProject.tech_stack.join(", ") : (currentProject.tech_stack || "")} onChange={e => setCurrentProject({...currentProject, tech_stack: e.target.value as unknown as string[]})} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-indigo-500 focus:outline-none" />
+              <label className="block text-sm text-ink-mute mb-1">Tech Stack (comma separated)</label>
+              <input required type="text" value={Array.isArray(currentProject.tech_stack) ? currentProject.tech_stack.join(", ") : (currentProject.tech_stack || "")} onChange={e => setCurrentProject({...currentProject, tech_stack: e.target.value as unknown as string[]})} className="w-full bg-card2 border border-line rounded-lg px-4 py-2 text-ink focus:border-cyan focus:outline-none" />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Description</label>
-            <textarea required rows={3} value={currentProject.description || ""} onChange={e => setCurrentProject({...currentProject, description: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-indigo-500 focus:outline-none" />
+            <label className="block text-sm text-ink-mute mb-1">Description</label>
+            <textarea required rows={3} value={currentProject.description || ""} onChange={e => setCurrentProject({...currentProject, description: e.target.value})} className="w-full bg-card2 border border-line rounded-lg px-4 py-2 text-ink focus:border-cyan focus:outline-none" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">GitHub URL</label>
-              <input type="url" value={currentProject.github_url || ""} onChange={e => setCurrentProject({...currentProject, github_url: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-indigo-500 focus:outline-none" />
+              <label className="block text-sm text-ink-mute mb-1">GitHub URL</label>
+              <input type="url" value={currentProject.github_url || ""} onChange={e => setCurrentProject({...currentProject, github_url: e.target.value})} className="w-full bg-card2 border border-line rounded-lg px-4 py-2 text-ink focus:border-cyan focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Live URL</label>
-              <input type="url" value={currentProject.live_url || ""} onChange={e => setCurrentProject({...currentProject, live_url: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-indigo-500 focus:outline-none" />
+              <label className="block text-sm text-ink-mute mb-1">Live URL</label>
+              <input type="url" value={currentProject.live_url || ""} onChange={e => setCurrentProject({...currentProject, live_url: e.target.value})} className="w-full bg-card2 border border-line rounded-lg px-4 py-2 text-ink focus:border-cyan focus:outline-none" />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Image URL</label>
-              <input type="url" value={currentProject.image_url || ""} onChange={e => setCurrentProject({...currentProject, image_url: e.target.value})} className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-indigo-500 focus:outline-none" />
+              <label className="block text-sm text-ink-mute mb-1">Image URL</label>
+              <input type="url" value={currentProject.image_url || ""} onChange={e => setCurrentProject({...currentProject, image_url: e.target.value})} className="w-full bg-card2 border border-line rounded-lg px-4 py-2 text-ink focus:border-cyan focus:outline-none" />
             </div>
           </div>
           
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Display Order (lower is first)</label>
-            <input type="number" value={currentProject.display_order || 0} onChange={e => setCurrentProject({...currentProject, display_order: Number(e.target.value)})} className="w-full md:w-1/3 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-indigo-500 focus:outline-none" />
+            <label className="block text-sm text-ink-mute mb-1">Display Order (lower is first)</label>
+            <input type="number" value={currentProject.display_order || 0} onChange={e => setCurrentProject({...currentProject, display_order: Number(e.target.value)})} className="w-full md:w-1/3 bg-card2 border border-line rounded-lg px-4 py-2 text-ink focus:border-cyan focus:outline-none" />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-800">
-            <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 text-gray-400 hover:text-white transition">Cancel</button>
-            <button type="submit" disabled={isSaving} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition">
+          <div className="flex justify-end gap-3 pt-4 border-t border-line-soft">
+            <button type="button" onClick={() => setIsEditing(false)} className="px-4 py-2 text-ink-mute hover:text-ink transition">Cancel</button>
+            <button type="submit" disabled={isSaving} className="px-4 py-2 bg-cyan-deep hover:bg-cyan-deep text-ink rounded-lg transition">
               {isSaving ? "Saving..." : "Save Project"}
             </button>
           </div>
@@ -147,29 +152,42 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: P
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {projects.map(project => (
-          <div key={project.id} className="bg-gray-900 border border-gray-800 p-5 rounded-xl flex flex-col justify-between">
+          <div key={project.id} className="bg-card border border-line-soft p-5 rounded-xl flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-xl font-bold text-white">{project.title}</h3>
-                <span className="text-xs text-gray-500">Order: {project.display_order}</span>
+                <h3 className="text-xl font-bold text-ink">{project.title}</h3>
+                <span className="text-xs text-ink-mute">Order: {project.display_order}</span>
               </div>
-              <p className="text-gray-400 text-sm mb-3 line-clamp-2">{project.description}</p>
+              <p className="text-ink-mute text-sm mb-3 line-clamp-2">{project.description}</p>
               <div className="flex flex-wrap gap-2 mb-4">
                 {project.tech_stack?.map(tech => (
-                  <span key={tech} className="text-xs px-2 py-1 bg-gray-800 text-gray-300 rounded-md">{tech}</span>
+                  <span key={tech} className="text-xs px-2 py-1 bg-card2 text-ink-soft rounded-md">{tech}</span>
                 ))}
               </div>
             </div>
             
-            <div className="flex gap-2 justify-end border-t border-gray-800 pt-3">
-              <button onClick={() => { setCurrentProject(project); setIsEditing(true); }} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded transition">Edit</button>
-              <button onClick={() => handleDelete(project.id)} className="text-xs px-3 py-1.5 bg-red-900/30 hover:bg-red-900/60 text-red-400 border border-red-900/50 rounded transition">Delete</button>
+            <div className="flex gap-2 justify-end border-t border-line-soft pt-3">
+              <button onClick={() => { setCurrentProject(project); setIsEditing(true); }} className="text-xs px-3 py-1.5 bg-card2 hover:bg-card2 text-ink rounded transition">Edit</button>
+              <button
+                onClick={() => handleDelete(project.id)}
+                onBlur={() => {
+                  // Give the second click a chance to land before resetting.
+                  window.setTimeout(() => setConfirmingDeleteId(null), 2500);
+                }}
+                className={
+                  confirmingDeleteId === project.id
+                    ? "text-xs px-3 py-1.5 bg-rose-500/15 text-rose-300 border border-rose-500/40 rounded transition"
+                    : "text-xs px-3 py-1.5 bg-red-900/30 hover:bg-red-900/60 text-red-400 border border-red-900/50 rounded transition"
+                }
+              >
+                {confirmingDeleteId === project.id ? "Confirm delete?" : "Delete"}
+              </button>
             </div>
           </div>
         ))}
         
         {projects.length === 0 && (
-          <div className="col-span-full text-center py-12 text-gray-500 bg-gray-900/50 rounded-xl border border-dashed border-gray-800">
+          <div className="col-span-full text-center py-12 text-ink-mute bg-card/50 rounded-xl border border-dashed border-line-soft">
             No projects found. Add your first project!
           </div>
         )}

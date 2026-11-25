@@ -1,40 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import { FaEye } from 'react-icons/fa';
 import { PiHandsClappingFill } from 'react-icons/pi';
 import { useBlogReader } from './BlogReaderContext';
-
-interface Particle {
-  id: number;
-  x: number;
-  y: number;
-  icon: string;
-}
 
 /**
  * Views badge + clap button. Pure view over BlogReaderContext — likes, views
  * and the reader's claps (one 20-clap cap) are shared with ArticleFloatingBar
  * and the second BlogInteractions instance on the page (fixes B6).
  * R4-styled: --card / --line-soft / --cyan / --amber tokens.
+ * Reading-calm pass: the clap particle burst was removed (visual noise, no
+ * information); the clap count in context is the only feedback.
  */
 export default function BlogInteractions() {
   const { likes, views, userClaps, clap } = useBlogReader();
-  const [particles, setParticles] = useState<Particle[]>([]);
 
   const handleClap = () => {
-    const counted = clap();
-    if (!counted) return;
-
-    // Particle burst (visual only — the count lives in context)
-    const newParticle: Particle = {
-      id: Date.now() + Math.random(),
-      x: (Math.random() - 0.5) * 50,
-      y: -50 - Math.random() * 30,
-      icon: ['👏', '❤️', '🔥', '✨'][Math.floor(Math.random() * 4)],
-    };
-    setParticles((prev) => [...prev.slice(-8), newParticle]);
+    clap();
   };
 
   return (
@@ -70,24 +54,6 @@ export default function BlogInteractions() {
             </span>
           )}
         </motion.button>
-
-        {/* Floating particles */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <AnimatePresence>
-            {particles.map((p) => (
-              <motion.span
-                key={p.id}
-                initial={{ opacity: 1, scale: 0.8, x: 0, y: 0 }}
-                animate={{ opacity: 0, scale: 1.4, x: p.x, y: p.y }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-                className="absolute text-lg font-bold"
-              >
-                {p.icon}
-              </motion.span>
-            ))}
-          </AnimatePresence>
-        </div>
       </div>
     </div>
   );

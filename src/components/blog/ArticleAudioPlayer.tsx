@@ -353,11 +353,7 @@ export default function ArticleAudioPlayer({
   };
 
   return (
-    <div className="my-8 relative overflow-hidden rounded-2xl border-[1.5px] border-[#1a2947] bg-[#0e1729] backdrop-blur-md shadow-sm p-4 sm:p-5 transition-all duration-300">
-      {/* Ambient background glow when playing */}
-      {isPlaying && (
-        <div className="absolute inset-0 bg-[#2fd8f2]/5 animate-pulse pointer-events-none" />
-      )}
+    <div className="my-8 relative overflow-hidden rounded-2xl border-[1.5px] border-[#1a2947] bg-[#0e1729] shadow-sm p-4 sm:p-5 transition-all duration-300">
 
       {/* Mode Selector Header */}
       <div className="flex items-center gap-1.5 mb-3.5 pb-2.5 border-b border-[#1a2947]">
@@ -419,13 +415,6 @@ export default function ArticleAudioPlayer({
             <div className="flex items-center gap-2 text-xs text-[#a9bedd] mt-0.5">
               {isPlaying ? (
                 <div className="flex items-center gap-1.5 text-[#2fd8f2] font-medium">
-                  {/* Animated Equalizer Waveform */}
-                  <span className="flex items-end gap-[2px] h-3">
-                    <span className="w-0.5 h-full bg-[#2fd8f2] rounded-full animate-[bounce_0.8s_infinite_ease-in-out]" />
-                    <span className="w-0.5 h-2/3 bg-[#2fd8f2] rounded-full animate-[bounce_0.6s_infinite_ease-in-out]" />
-                    <span className="w-0.5 h-full bg-[#2fd8f2] rounded-full animate-[bounce_0.9s_infinite_ease-in-out]" />
-                    <span className="w-0.5 h-1/2 bg-[#2fd8f2] rounded-full animate-[bounce_0.7s_infinite_ease-in-out]" />
-                  </span>
                   <span>{t.playing}</span>
                 </div>
               ) : isPaused ? (
@@ -482,7 +471,7 @@ export default function ArticleAudioPlayer({
       {(isPlaying || isPaused || progressPercent > 0) && (
         <div className="mt-3 w-full bg-[#22345a] rounded-full h-1.5 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-[#2fd8f2] to-[#ffb02e] h-full rounded-full transition-all duration-300"
+            className="bg-[#2fd8f2] h-full rounded-full transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>

@@ -12,20 +12,13 @@ export default function ArticleCTA({ lang = 'en' }: ArticleCTAProps) {
   const isBn = lang === 'bn';
 
   return (
-    <div className="relative my-12 overflow-hidden rounded-3xl border-[1.5px] border-[#1a2947] bg-[#0e1729] p-8 sm:p-10 shadow-xl backdrop-blur-sm">
-      {/* Decorative ambient background glows */}
-      <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#2fd8f2]/10 blur-3xl" />
-      <div className="pointer-events-none absolute -left-16 -bottom-16 h-56 w-56 rounded-full bg-[#ffb02e]/10 blur-3xl" />
-
+    <div className="relative my-12 overflow-hidden rounded-3xl border-[1.5px] border-[#1a2947] bg-[#0e1729] p-8 sm:p-10 shadow-sm">
       <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
         {/* Left side: Heading, status pill, and value proposition */}
         <div className="max-w-2xl space-y-4">
           {/* Availability Status Badge */}
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-[#3ddc84]/10 border border-[#3ddc84]/30 text-[#3ddc84] text-xs font-semibold tracking-wide shadow-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#3ddc84] opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#3ddc84]" />
-            </span>
+            <span className="inline-flex rounded-full h-2 w-2 bg-[#3ddc84]" />
             <span>
               {isBn
                 ? '🟢 ফ্রিল্যান্স ও কনট্রাক্ট প্রজেক্টের জন্য উন্মুক্ত'

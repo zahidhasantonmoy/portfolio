@@ -32,25 +32,25 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-bg flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-cyan-deep mb-4">
+            <svg className="w-8 h-8 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-white">Admin Login</h1>
-          <p className="text-gray-400 mt-1 text-sm">Zahid&apos;s Portfolio CMS</p>
+          <h1 className="text-2xl font-bold text-ink">Admin Login</h1>
+          <p className="text-ink-mute mt-1 text-sm">Zahid&apos;s Portfolio CMS</p>
         </div>
 
         {/* Card */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-card border border-line-soft rounded-2xl p-8 shadow-sm">
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+              <label htmlFor="email" className="block text-sm font-medium text-ink-soft mb-2">Email</label>
               <input
                 id="email"
                 type="email"
@@ -58,12 +58,12 @@ export default function AdminLoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your@email.com"
-                className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                className="w-full px-4 py-3 rounded-lg bg-card2 border border-line text-ink placeholder-ink-mute focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan transition"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium text-ink-soft mb-2">Password</label>
               <input
                 id="password"
                 type="password"
@@ -71,7 +71,7 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                className="w-full px-4 py-3 rounded-lg bg-card2 border border-line text-ink placeholder-ink-mute focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan transition"
               />
             </div>
 
@@ -84,7 +84,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition duration-200"
+              className="w-full py-3 bg-cyan-deep hover:bg-cyan-deep disabled:bg-cyan-deep/60 disabled:cursor-not-allowed text-ink font-semibold rounded-lg transition duration-200"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -99,7 +99,7 @@ export default function AdminLoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-gray-600 text-xs mt-6">
+        <p className="text-center text-ink-mute text-xs mt-6">
           Private admin area — portfolio owner only
         </p>
       </div>

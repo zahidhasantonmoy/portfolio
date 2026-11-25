@@ -32,11 +32,11 @@ interface MessagesManagerClientProps {
 type CrmStage = 'new' | 'in_discussion' | 'proposal_sent' | 'hired' | 'archived';
 
 const STAGE_CONFIG: Record<CrmStage, { label: string; badge: string; icon: string }> = {
-  new: { label: 'New Inquiry', badge: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30', icon: '📥' },
+  new: { label: 'New Inquiry', badge: 'bg-cyan/20 text-cyan border-cyan/30', icon: '📥' },
   in_discussion: { label: 'In Discussion', badge: 'bg-amber-500/20 text-amber-300 border-amber-500/30', icon: '💬' },
-  proposal_sent: { label: 'Proposal Sent', badge: 'bg-purple-500/20 text-purple-300 border-purple-500/30', icon: '📄' },
+  proposal_sent: { label: 'Proposal Sent', badge: 'bg-cyan/20 text-cyan border-cyan/30', icon: '📄' },
   hired: { label: 'Hired / Closed', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', icon: '🏆' },
-  archived: { label: 'Archived', badge: 'bg-gray-700/40 text-gray-400 border-gray-700', icon: '📦' },
+  archived: { label: 'Archived', badge: 'bg-card2/40 text-ink-mute border-line', icon: '📦' },
 };
 
 export default function MessagesManagerClient({
@@ -50,6 +50,9 @@ export default function MessagesManagerClient({
   const [selectedStage, setSelectedStage] = useState<string>('all');
   const [crmStages, setCrmStages] = useState<Record<string, CrmStage>>({});
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
+  const [phoneInputFor, setPhoneInputFor] = useState<string | null>(null);
+  const [phoneInput, setPhoneInput] = useState("");
 
   // Load CRM stages from localStorage
   useEffect(() => {
@@ -84,7 +87,11 @@ export default function MessagesManagerClient({
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this message?')) return;
+    if (confirmingDeleteId !== id) {
+      setConfirmingDeleteId(id);
+      return;
+    }
+    setConfirmingDeleteId(null);
     setIsDeleting(id);
     try {
       await onDelete(id);
@@ -97,22 +104,27 @@ export default function MessagesManagerClient({
     }
   };
 
-  // WhatsApp helper
-  const handleWhatsAppReply = (msg: ContactMessage) => {
+  // WhatsApp helper — the phone number is guessed from the message body
+  // (first 10–14 digit run); when none is found, ask for it inline in the
+  // card instead of a prompt() dialog.
+  const handleWhatsAppReply = (msg: ContactMessage, manualPhone?: string) => {
     const phoneMatch = msg.message.match(/(\+?\d{10,14})/);
-    const phone = phoneMatch ? phoneMatch[0].replace(/[^\d+]/g, '') : '';
+    const phone = manualPhone
+      ? manualPhone.replace(/[^\d]/g, '')
+      : phoneMatch
+        ? phoneMatch[0].replace(/[^\d+]/g, '')
+        : '';
     const text = encodeURIComponent(
       `Hi ${msg.name}, thank you for reaching out through my portfolio (zahidhasantonmoy.vercel.app)! Regarding your message: "${msg.message.slice(0, 60)}..." — I'd love to connect.`
     );
 
     if (phone) {
       window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+      setPhoneInputFor(null);
+      setPhoneInput('');
     } else {
-      const inputPhone = prompt('Enter client WhatsApp number (with country code, e.g., 8801700000000):');
-      if (inputPhone) {
-        const cleanNumber = inputPhone.replace(/[^\d]/g, '');
-        window.open(`https://wa.me/${cleanNumber}?text=${text}`, '_blank');
-      }
+      setPhoneInputFor(msg.id);
+      setPhoneInput('');
     }
   };
 
@@ -160,23 +172,23 @@ export default function MessagesManagerClient({
       {/* Top Header & Search Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-ink flex items-center gap-2">
             <span>💼 Client Lead Pipeline & CRM</span>
           </h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-ink-mute text-sm mt-1">
             Track inquiries, manage proposal stages, and reply with 1 click.
           </p>
         </div>
 
         {/* Search */}
         <div className="relative w-full sm:w-72">
-          <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs" />
+          <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-mute text-xs" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name, email, keywords..."
-            className="w-full bg-gray-900 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-white text-xs focus:outline-none focus:border-indigo-500"
+            className="w-full bg-card border border-line-soft rounded-xl pl-9 pr-4 py-2 text-ink text-xs focus:outline-none focus:border-cyan"
           />
         </div>
       </div>
@@ -187,8 +199,8 @@ export default function MessagesManagerClient({
           onClick={() => setSelectedStage('all')}
           className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
             selectedStage === 'all'
-              ? 'bg-indigo-600 text-white shadow-md'
-              : 'bg-gray-900 border border-gray-800 text-gray-400 hover:text-white'
+              ? 'bg-cyan-deep text-ink shadow-sm'
+              : 'bg-card border border-line-soft text-ink-mute hover:text-ink'
           }`}
         >
           <span>All Messages</span>
@@ -201,8 +213,8 @@ export default function MessagesManagerClient({
             onClick={() => setSelectedStage(stageKey)}
             className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border ${
               selectedStage === stageKey
-                ? 'bg-gray-800 border-indigo-500 text-white shadow-md'
-                : 'bg-gray-900/80 border-gray-800 text-gray-400 hover:text-white'
+                ? 'bg-card2 border-cyan text-ink shadow-sm'
+                : 'bg-card/80 border-line-soft text-ink-mute hover:text-ink'
             }`}
           >
             <span>{config.icon}</span>
@@ -215,10 +227,10 @@ export default function MessagesManagerClient({
       {/* Messages List */}
       <div className="space-y-4">
         {filteredMessages.length === 0 ? (
-          <div className="text-center py-16 bg-gray-900/60 border border-gray-800 rounded-2xl">
+          <div className="text-center py-16 bg-card/60 border border-line-soft rounded-2xl">
             <p className="text-4xl mb-3">📭</p>
-            <p className="text-gray-300 font-semibold text-sm">No messages found in this stage.</p>
-            <p className="text-gray-500 text-xs mt-1">Try selecting a different filter or clearing search.</p>
+            <p className="text-ink-soft font-semibold text-sm">No messages found in this stage.</p>
+            <p className="text-ink-mute text-xs mt-1">Try selecting a different filter or clearing search.</p>
           </div>
         ) : (
           filteredMessages.map((msg) => {
@@ -230,24 +242,24 @@ export default function MessagesManagerClient({
                 key={msg.id}
                 className={`p-5 sm:p-6 rounded-2xl border transition-all ${
                   currentStage === 'new'
-                    ? 'bg-gray-900/90 border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.08)]'
+                    ? 'bg-card/90 border-cyan/40'
                     : currentStage === 'hired'
                     ? 'bg-emerald-950/20 border-emerald-800/40'
-                    : 'bg-gray-900/60 border-gray-800'
+                    : 'bg-card/60 border-line-soft'
                 }`}
               >
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between gap-3 mb-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
-                      <h3 className="text-base font-bold text-white">{msg.name}</h3>
+                      <h3 className="text-base font-bold text-ink">{msg.name}</h3>
 
                       {/* Stage Selector Dropdown */}
                       <select
                         value={currentStage}
                         onChange={(e) => updateStage(msg.id, e.target.value as CrmStage)}
                         aria-label="Update CRM pipeline stage"
-                        className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none bg-gray-950 ${stageInfo.badge}`}
+                        className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border cursor-pointer focus:outline-none bg-bg ${stageInfo.badge}`}
                       >
                         <option value="new">📥 New Inquiry</option>
                         <option value="in_discussion">💬 In Discussion</option>
@@ -259,14 +271,14 @@ export default function MessagesManagerClient({
 
                     <a
                       href={`mailto:${msg.email}`}
-                      className="text-indigo-400 hover:text-indigo-300 text-xs font-mono flex items-center gap-1.5 transition"
+                      className="text-cyan hover:text-cyan text-xs font-mono flex items-center gap-1.5 transition"
                     >
                       <FaEnvelope className="w-3 h-3 opacity-80" />
                       <span>{msg.email}</span>
                     </a>
                   </div>
 
-                  <div className="text-xs text-gray-500 font-medium whitespace-nowrap self-start sm:self-auto">
+                  <div className="text-xs text-ink-mute font-medium whitespace-nowrap self-start sm:self-auto">
                     {new Date(msg.created_at).toLocaleString('en-US', {
                       month: 'short',
                       day: 'numeric',
@@ -278,12 +290,12 @@ export default function MessagesManagerClient({
                 </div>
 
                 {/* Message Body */}
-                <div className="bg-gray-950/70 p-4 rounded-xl text-gray-200 text-xs sm:text-sm whitespace-pre-wrap break-words border border-gray-800/80 leading-relaxed font-sans">
+                <div className="bg-bg/70 p-4 rounded-xl text-ink-soft text-xs sm:text-sm whitespace-pre-wrap break-words border border-line-soft/80 leading-relaxed font-sans">
                   {msg.message}
                 </div>
 
                 {/* Bottom Action Toolbar */}
-                <div className="mt-4 pt-3.5 border-t border-gray-800/80 flex flex-wrap items-center justify-between gap-3">
+                <div className="mt-4 pt-3.5 border-t border-line-soft/80 flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     {/* WhatsApp Button */}
                     <button
@@ -295,38 +307,67 @@ export default function MessagesManagerClient({
                       <span>WhatsApp Reply</span>
                     </button>
 
+                    {phoneInputFor === msg.id && (
+                      <span className="flex items-center gap-1.5">
+                        <input
+                          type="tel"
+                          value={phoneInput}
+                          onChange={(e) => setPhoneInput(e.target.value)}
+                          placeholder="WhatsApp no. e.g. 8801700000000"
+                          aria-label="Client WhatsApp number"
+                          className="w-44 bg-bg border border-line rounded-lg px-2.5 py-1.5 text-xs text-ink placeholder-ink-mute focus:outline-none focus:border-cyan"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleWhatsAppReply(msg, phoneInput)}
+                          disabled={!phoneInput.trim()}
+                          className="px-2.5 py-1.5 bg-cyan-deep text-ink rounded-lg text-xs font-semibold transition disabled:opacity-50"
+                        >
+                          Open WhatsApp
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPhoneInputFor(null)}
+                          aria-label="Cancel"
+                          className="px-2 py-1.5 text-xs text-ink-mute hover:text-ink transition"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    )}
+
                     {/* Quick Email Templates Dropdown */}
                     <div className="relative group">
                       <button
                         type="button"
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition active:scale-95"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-deep hover:bg-cyan-deep text-ink rounded-lg text-xs font-semibold transition active:scale-95"
                       >
                         <FaPaperPlane className="text-xs" />
-                        <span>Reply Email ▾</span>
+                        <span>Open email draft ▾</span>
                       </button>
 
                       {/* Dropdown Menu */}
-                      <div className="absolute left-0 bottom-full mb-1 hidden group-hover:block bg-gray-900 border border-gray-700 rounded-xl shadow-2xl p-1.5 w-60 z-20 space-y-1">
+                      <div className="absolute left-0 bottom-full mb-1 hidden group-hover:block bg-card border border-line rounded-xl shadow-sm p-1.5 w-60 z-20 space-y-1">
                         <button
                           type="button"
                           onClick={() => handleEmailReply(msg, 'welcome')}
-                          className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-gray-200 hover:bg-indigo-600 hover:text-white transition"
+                          className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-ink-soft hover:bg-cyan-deep hover:text-ink transition"
                         >
                           👋 Welcome & Acknowledge
                         </button>
                         <button
                           type="button"
                           onClick={() => handleEmailReply(msg, 'meeting')}
-                          className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-gray-200 hover:bg-indigo-600 hover:text-white transition"
+                          className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-ink-soft hover:bg-cyan-deep hover:text-ink transition"
                         >
                           📅 Request 15-min Scope Call
                         </button>
                         <button
                           type="button"
                           onClick={() => handleEmailReply(msg, 'proposal')}
-                          className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-gray-200 hover:bg-indigo-600 hover:text-white transition"
+                          className="w-full text-left px-3 py-1.5 rounded-lg text-xs text-ink-soft hover:bg-cyan-deep hover:text-ink transition"
                         >
-                          📄 Send Portfolio & Pricing
+                          📄 Portfolio & Pricing draft
                         </button>
                       </div>
                     </div>
@@ -341,7 +382,7 @@ export default function MessagesManagerClient({
                           ? updateStage(msg.id, 'in_discussion')
                           : updateStage(msg.id, 'new')
                       }
-                      className="px-2.5 py-1.5 text-xs text-gray-400 hover:text-white bg-gray-800/80 hover:bg-gray-800 rounded-lg transition"
+                      className="px-2.5 py-1.5 text-xs text-ink-mute hover:text-ink bg-card2/80 hover:bg-card2 rounded-lg transition"
                     >
                       {currentStage === 'new' ? 'Mark Read' : 'Mark Unread'}
                     </button>
@@ -349,11 +390,23 @@ export default function MessagesManagerClient({
                     <button
                       type="button"
                       onClick={() => handleDelete(msg.id)}
+                      onBlur={() => {
+                        // Give the second click a chance to land before resetting.
+                        window.setTimeout(() => setConfirmingDeleteId(null), 2500);
+                      }}
                       disabled={isDeleting === msg.id}
-                      className="p-2 text-xs text-gray-500 hover:text-red-400 rounded-lg hover:bg-red-500/10 transition"
-                      title="Delete Message"
+                      className={
+                        confirmingDeleteId === msg.id
+                          ? "px-2.5 py-1.5 text-xs font-medium text-rose-300 bg-rose-500/15 border border-rose-500/40 rounded-lg transition disabled:opacity-50"
+                          : "p-2 text-xs text-ink-mute hover:text-red-400 rounded-lg hover:bg-red-500/10 transition"
+                      }
+                      title={confirmingDeleteId === msg.id ? "Click again to confirm deleting this message" : "Delete Message"}
                     >
-                      <FaTrash className="w-3.5 h-3.5" />
+                      {confirmingDeleteId === msg.id
+                        ? isDeleting === msg.id
+                          ? "Deleting…"
+                          : "Confirm delete?"
+                        : <FaTrash className="w-3.5 h-3.5" />}
                     </button>
                   </div>
                 </div>

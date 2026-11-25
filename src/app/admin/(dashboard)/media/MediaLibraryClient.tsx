@@ -15,6 +15,7 @@ import {
   FaTimes,
   FaDownload,
   FaLink,
+  FaTrash,
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi2";
 
@@ -72,6 +73,25 @@ export default function MediaLibraryClient({
     } catch {
       // ignore
     }
+  };
+
+  // Remove a localStorage-only upload (source === "upload"). DB-backed
+  // items (post covers / project images) have no remove affordance here —
+  // clearing those means clearing the post/project image itself.
+  const handleRemoveUpload = (item: MediaItem) => {
+    setMediaList((prev) => prev.filter((m) => m.id !== item.id));
+    try {
+      const stored = localStorage.getItem("admin_custom_media");
+      const parsed: MediaItem[] = stored ? JSON.parse(stored) : [];
+      localStorage.setItem(
+        "admin_custom_media",
+        JSON.stringify(parsed.filter((m) => m.id !== item.id))
+      );
+    } catch {
+      // ignore
+    }
+    if (activeModalItem?.id === item.id) setActiveModalItem(null);
+    toast.success("Upload removed from this browser's media library.");
   };
 
   const handleUploadSuccess = (result: any) => {
@@ -150,15 +170,15 @@ export default function MediaLibraryClient({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-ink tracking-tight">
               Media &amp; Image Assets Library
             </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-950/70 border border-indigo-500/40 text-indigo-400">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan/10 border border-cyan/40 text-cyan">
               <FaImage className="text-xs" />
               {stats.total} Assets
             </span>
           </div>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-ink-mute text-sm mt-1">
             Browse, upload, and quickly copy CDN URLs or Markdown tags for your blog posts, projects, and social feeds.
           </p>
         </div>
@@ -168,9 +188,9 @@ export default function MediaLibraryClient({
           <button
             type="button"
             onClick={() => setShowAddUrlModal(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-gray-900 hover:bg-gray-800 text-gray-300 hover:text-white border border-gray-800 transition active:scale-95 shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-card hover:bg-card2 text-ink-soft hover:text-ink border border-line-soft transition active:scale-95 shadow-sm"
           >
-            <FaLink className="text-xs text-indigo-400" />
+            <FaLink className="text-xs text-cyan" />
             <span>Add Image URL</span>
           </button>
 
@@ -182,7 +202,7 @@ export default function MediaLibraryClient({
               <button
                 type="button"
                 onClick={() => open()}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-md shadow-indigo-600/30 transition active:scale-95"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-cyan-deep text-ink shadow-sm transition active:scale-95"
               >
                 <FaCloudUploadAlt className="text-sm" />
                 <span>Upload Media</span>
@@ -198,23 +218,23 @@ export default function MediaLibraryClient({
           onClick={() => setFilter("all")}
           className={`cursor-pointer p-3.5 rounded-xl border transition ${
             filter === "all"
-              ? "bg-indigo-950/40 border-indigo-500/60 shadow-sm"
-              : "bg-gray-900/60 border-gray-800/80 hover:border-gray-700"
+              ? "bg-card border-cyan/60 shadow-sm"
+              : "bg-card/60 border-line-soft/80 hover:border-line"
           }`}
         >
-          <p className="text-xs text-gray-400 font-medium">All Media</p>
-          <p className="text-xl font-bold text-white mt-0.5">{stats.total}</p>
+          <p className="text-xs text-ink-mute font-medium">All Media</p>
+          <p className="text-xl font-bold text-ink mt-0.5">{stats.total}</p>
         </div>
 
         <div
           onClick={() => setFilter("blog")}
           className={`cursor-pointer p-3.5 rounded-xl border transition ${
             filter === "blog"
-              ? "bg-blue-950/40 border-blue-500/60 shadow-sm"
-              : "bg-gray-900/60 border-gray-800/80 hover:border-gray-700"
+              ? "bg-card border-cyan/60 shadow-sm"
+              : "bg-card/60 border-line-soft/80 hover:border-line"
           }`}
         >
-          <p className="text-xs text-gray-400 font-medium">Blog Covers</p>
+          <p className="text-xs text-ink-mute font-medium">Blog Covers</p>
           <p className="text-xl font-bold text-blue-400 mt-0.5">{stats.blog}</p>
         </div>
 
@@ -222,11 +242,11 @@ export default function MediaLibraryClient({
           onClick={() => setFilter("journal")}
           className={`cursor-pointer p-3.5 rounded-xl border transition ${
             filter === "journal"
-              ? "bg-purple-950/40 border-purple-500/60 shadow-sm"
-              : "bg-gray-900/60 border-gray-800/80 hover:border-gray-700"
+              ? "bg-card border-cyan/60 shadow-sm"
+              : "bg-card/60 border-line-soft/80 hover:border-line"
           }`}
         >
-          <p className="text-xs text-gray-400 font-medium">Dev Journals</p>
+          <p className="text-xs text-ink-mute font-medium">Dev Journals</p>
           <p className="text-xl font-bold text-purple-400 mt-0.5">{stats.journal}</p>
         </div>
 
@@ -234,11 +254,11 @@ export default function MediaLibraryClient({
           onClick={() => setFilter("project")}
           className={`cursor-pointer p-3.5 rounded-xl border transition ${
             filter === "project"
-              ? "bg-emerald-950/40 border-emerald-500/60 shadow-sm"
-              : "bg-gray-900/60 border-gray-800/80 hover:border-gray-700"
+              ? "bg-card border-cyan/60 shadow-sm"
+              : "bg-card/60 border-line-soft/80 hover:border-line"
           }`}
         >
-          <p className="text-xs text-gray-400 font-medium">Projects</p>
+          <p className="text-xs text-ink-mute font-medium">Projects</p>
           <p className="text-xl font-bold text-emerald-400 mt-0.5">{stats.project}</p>
         </div>
 
@@ -246,31 +266,31 @@ export default function MediaLibraryClient({
           onClick={() => setFilter("upload")}
           className={`cursor-pointer p-3.5 rounded-xl border transition ${
             filter === "upload"
-              ? "bg-amber-950/40 border-amber-500/60 shadow-sm"
-              : "bg-gray-900/60 border-gray-800/80 hover:border-gray-700"
+              ? "bg-card border-cyan/60 shadow-sm"
+              : "bg-card/60 border-line-soft/80 hover:border-line"
           }`}
         >
-          <p className="text-xs text-gray-400 font-medium">Direct Uploads</p>
+          <p className="text-xs text-ink-mute font-medium">Direct Uploads</p>
           <p className="text-xl font-bold text-amber-400 mt-0.5">{stats.upload}</p>
         </div>
       </div>
 
       {/* Filter Bar & Search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-900/80 border border-gray-800 p-3 rounded-2xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card/80 border border-line-soft p-3 rounded-2xl">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs" />
+          <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-mute text-xs" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search assets by title or URL..."
-            className="w-full bg-gray-950 border border-gray-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition"
+            className="w-full bg-bg border border-line-soft rounded-xl pl-9 pr-4 py-2 text-xs text-ink placeholder-ink-mute focus:outline-none focus:border-cyan transition"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-xs"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-mute hover:text-ink text-xs"
             >
               ✕
             </button>
@@ -285,8 +305,8 @@ export default function MediaLibraryClient({
               onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition ${
                 filter === f
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "bg-gray-800/60 text-gray-400 hover:text-white hover:bg-gray-800"
+                  ? "bg-cyan-deep text-ink shadow-sm"
+                  : "bg-card2/60 text-ink-mute hover:text-ink hover:bg-card2"
               }`}
             >
               {f === "all" ? "All Assets" : f}
@@ -297,10 +317,10 @@ export default function MediaLibraryClient({
 
       {/* Media Gallery Grid */}
       {filteredMedia.length === 0 ? (
-        <div className="text-center py-20 bg-gray-900/30 border border-gray-800/80 rounded-2xl">
-          <FaImage className="text-4xl text-gray-600 mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-gray-300">No media assets found</h3>
-          <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+        <div className="text-center py-20 bg-card/30 border border-line-soft/80 rounded-2xl">
+          <FaImage className="text-4xl text-ink-mute mx-auto mb-3" />
+          <h3 className="text-base font-semibold text-ink-soft">No media assets found</h3>
+          <p className="text-xs text-ink-mute mt-1 max-w-sm mx-auto">
             {searchQuery
               ? `No images match "${searchQuery}". Try a different search term.`
               : "Upload an image using Cloudinary or add an external URL to start building your media library."}
@@ -312,7 +332,7 @@ export default function MediaLibraryClient({
             const isCopiedUrl = copiedId === item.id && copiedType === "url";
             const isCopiedMarkdown = copiedId === item.id && copiedType === "markdown";
 
-            let badgeBg = "bg-gray-800 text-gray-300";
+            let badgeBg = "bg-card2 text-ink-soft";
             if (item.source === "blog") badgeBg = "bg-blue-950/80 text-blue-400 border border-blue-500/30";
             if (item.source === "journal") badgeBg = "bg-purple-950/80 text-purple-400 border border-purple-500/30";
             if (item.source === "project") badgeBg = "bg-emerald-950/80 text-emerald-400 border border-emerald-500/30";
@@ -321,11 +341,11 @@ export default function MediaLibraryClient({
             return (
               <div
                 key={item.id}
-                className="group bg-gray-900/90 border border-gray-800/80 hover:border-indigo-500/50 rounded-2xl overflow-hidden shadow-sm hover:shadow-indigo-950/30 transition duration-200 flex flex-col"
+                className="group bg-card/90 border border-line-soft/80 hover:border-cyan/50 rounded-2xl overflow-hidden shadow-sm transition duration-200 flex flex-col"
               >
                 {/* Image Container with Hover Overlay */}
                 <div
-                  className="relative aspect-[16/10] bg-gray-950 overflow-hidden cursor-pointer"
+                  className="relative aspect-[16/10] bg-bg overflow-hidden cursor-pointer"
                   onClick={() => setActiveModalItem(item)}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -336,7 +356,7 @@ export default function MediaLibraryClient({
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <span className="px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-sm text-white text-[11px] font-medium flex items-center gap-1.5">
+                    <span className="px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-sm text-ink text-[11px] font-medium flex items-center gap-1.5">
                       <FaExternalLinkAlt className="text-[10px]" /> Full Preview
                     </span>
                   </div>
@@ -347,31 +367,45 @@ export default function MediaLibraryClient({
                   >
                     {item.source}
                   </span>
+
+                  {item.source === "upload" && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveUpload(item);
+                      }}
+                      title="Remove this upload from the library"
+                      className="absolute top-2.5 right-2.5 p-1.5 rounded-lg bg-black/70 text-ink hover:text-rose-400 text-[11px] transition"
+                    >
+                      <FaTrash className="text-[10px]" />
+                    </button>
+                  )}
                 </div>
 
                 {/* Details & Actions */}
                 <div className="p-3.5 flex-1 flex flex-col justify-between space-y-3">
                   <div>
                     <h4
-                      className="text-xs font-semibold text-white line-clamp-1 group-hover:text-indigo-300 transition"
+                      className="text-xs font-semibold text-ink line-clamp-1 group-hover:text-cyan transition"
                       title={item.title}
                     >
                       {item.title}
                     </h4>
-                    <p className="text-[10px] text-gray-500 font-mono truncate mt-0.5" title={item.url}>
+                    <p className="text-[10px] text-ink-mute font-mono truncate mt-0.5" title={item.url}>
                       {item.url}
                     </p>
                   </div>
 
                   {/* Copy Action Buttons */}
-                  <div className="grid grid-cols-2 gap-1.5 pt-2 border-t border-gray-800/70">
+                  <div className="grid grid-cols-2 gap-1.5 pt-2 border-t border-line-soft/70">
                     <button
                       type="button"
                       onClick={() => copyToClipboard(item.url, item.id, "url")}
                       className={`flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition active:scale-95 ${
                         isCopiedUrl
-                          ? "bg-emerald-600 text-white"
-                          : "bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white"
+                          ? "bg-emerald-600 text-ink"
+                          : "bg-card2/80 hover:bg-card2 text-ink-soft hover:text-ink"
                       }`}
                       title="Copy direct image URL"
                     >
@@ -386,8 +420,8 @@ export default function MediaLibraryClient({
                       }
                       className={`flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition active:scale-95 ${
                         isCopiedMarkdown
-                          ? "bg-emerald-600 text-white"
-                          : "bg-indigo-950/60 hover:bg-indigo-900/70 text-indigo-300 border border-indigo-500/30"
+                          ? "bg-emerald-600 text-ink"
+                          : "bg-cyan/10 hover:bg-cyan/20 text-cyan border border-cyan/30"
                       }`}
                       title="Copy Markdown image tag ![alt](url)"
                     >
@@ -405,30 +439,41 @@ export default function MediaLibraryClient({
       {/* Lightbox / Full Image Modal */}
       {activeModalItem && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 sm:p-6"
           onClick={() => setActiveModalItem(null)}
         >
           <div
-            className="bg-gray-900 border border-gray-800 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl space-y-4 p-5 sm:p-6 relative animate-in fade-in zoom-in duration-150"
+            className="bg-card border border-line-soft rounded-2xl max-w-3xl w-full overflow-hidden shadow-sm space-y-4 p-5 sm:p-6 relative animate-in fade-in zoom-in duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+            <div className="flex items-center justify-between border-b border-line-soft pb-3">
               <div>
-                <h3 className="text-sm font-semibold text-white">{activeModalItem.title}</h3>
-                <p className="text-xs text-gray-400 capitalize">Source: {activeModalItem.source}</p>
+                <h3 className="text-sm font-semibold text-ink">{activeModalItem.title}</h3>
+                <p className="text-xs text-ink-mute capitalize">Source: {activeModalItem.source}</p>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveModalItem(null)}
-                className="w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white flex items-center justify-center transition"
-              >
-                <FaTimes className="text-xs" />
-              </button>
+              <div className="flex items-center gap-2">
+                {activeModalItem.source === "upload" && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveUpload(activeModalItem)}
+                    className="px-3 py-2 rounded-lg bg-rose-500/15 border border-rose-500/40 text-rose-300 hover:text-rose-200 text-xs font-medium transition"
+                  >
+                    Remove upload
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setActiveModalItem(null)}
+                  className="w-8 h-8 rounded-lg bg-card2 hover:bg-card2 text-ink-mute hover:text-ink flex items-center justify-center transition"
+                >
+                  <FaTimes className="text-xs" />
+                </button>
+              </div>
             </div>
 
             {/* Image Preview Container */}
-            <div className="bg-gray-950 rounded-xl overflow-hidden flex items-center justify-center max-h-[55vh]">
+            <div className="bg-bg rounded-xl overflow-hidden flex items-center justify-center max-h-[55vh]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={activeModalItem.url}
@@ -439,18 +484,18 @@ export default function MediaLibraryClient({
 
             {/* URL Display & Actions */}
             <div className="space-y-2">
-              <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Image CDN Link</label>
+              <label className="text-[11px] font-semibold text-ink-mute uppercase tracking-wider">Image CDN Link</label>
               <div className="flex items-center gap-2">
                 <input
                   type="text"
                   readOnly
                   value={activeModalItem.url}
-                  className="flex-1 bg-gray-950 border border-gray-800 rounded-xl px-3 py-2 text-xs font-mono text-gray-300 select-all focus:outline-none"
+                  className="flex-1 bg-bg border border-line-soft rounded-xl px-3 py-2 text-xs font-mono text-ink-soft select-all focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => copyToClipboard(activeModalItem.url, activeModalItem.id, "url")}
-                  className="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shrink-0"
+                  className="px-3 py-2 bg-cyan-deep hover:bg-cyan-deep text-ink rounded-xl text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shrink-0"
                 >
                   <FaCopy className="text-xs" />
                   <span>Copy</span>
@@ -459,7 +504,7 @@ export default function MediaLibraryClient({
                   href={activeModalItem.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-xl text-xs transition"
+                  className="p-2 bg-card2 hover:bg-card2 text-ink-soft hover:text-ink rounded-xl text-xs transition"
                   title="Open full size in new tab"
                 >
                   <FaExternalLinkAlt className="text-xs" />
@@ -469,15 +514,15 @@ export default function MediaLibraryClient({
 
             {/* Quick Links */}
             {activeModalItem.sourceId && (
-              <div className="pt-2 border-t border-gray-800/80 flex items-center justify-between text-xs">
-                <span className="text-gray-400">Attached Resource:</span>
+              <div className="pt-2 border-t border-line-soft/80 flex items-center justify-between text-xs">
+                <span className="text-ink-mute">Attached Resource:</span>
                 <Link
                   href={
                     activeModalItem.source === "project"
                       ? "/admin/projects"
                       : `/admin/posts/${activeModalItem.sourceId}/edit`
                   }
-                  className="text-indigo-400 hover:text-indigo-300 font-medium inline-flex items-center gap-1"
+                  className="text-cyan hover:text-cyan font-medium inline-flex items-center gap-1"
                 >
                   <span>Edit in {activeModalItem.source === "project" ? "Projects" : "Post Editor"}</span>
                   <FaExternalLinkAlt className="text-[10px]" />
@@ -491,23 +536,23 @@ export default function MediaLibraryClient({
       {/* Manual Add External URL Modal */}
       {showAddUrlModal && (
         <div
-          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4"
           onClick={() => setShowAddUrlModal(false)}
         >
           <form
             onSubmit={handleAddManualUrl}
-            className="bg-gray-900 border border-gray-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl"
+            className="bg-card border border-line-soft rounded-2xl max-w-md w-full p-6 space-y-4 shadow-sm"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-gray-800 pb-3">
-              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                <FaLink className="text-indigo-400" />
+            <div className="flex items-center justify-between border-b border-line-soft pb-3">
+              <h3 className="text-sm font-semibold text-ink flex items-center gap-2">
+                <FaLink className="text-cyan" />
                 Add External Image URL
               </h3>
               <button
                 type="button"
                 onClick={() => setShowAddUrlModal(false)}
-                className="text-gray-400 hover:text-white text-xs"
+                className="text-ink-mute hover:text-ink text-xs"
               >
                 ✕
               </button>
@@ -515,25 +560,25 @@ export default function MediaLibraryClient({
 
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-semibold text-gray-300 block mb-1">Image URL *</label>
+                <label className="text-xs font-semibold text-ink-soft block mb-1">Image URL *</label>
                 <input
                   type="url"
                   required
                   value={newUrl}
                   onChange={(e) => setNewUrl(e.target.value)}
                   placeholder="https://images.unsplash.com/... or https://res.cloudinary.com/..."
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 font-mono"
+                  className="w-full bg-bg border border-line-soft rounded-xl px-3.5 py-2.5 text-xs text-ink placeholder-ink-mute focus:outline-none focus:border-cyan font-mono"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-300 block mb-1">Title / Caption</label>
+                <label className="text-xs font-semibold text-ink-soft block mb-1">Title / Caption</label>
                 <input
                   type="text"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="e.g. Next.js Architecture Diagram"
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-bg border border-line-soft rounded-xl px-3.5 py-2.5 text-xs text-ink placeholder-ink-mute focus:outline-none focus:border-cyan"
                 />
               </div>
             </div>
@@ -542,13 +587,13 @@ export default function MediaLibraryClient({
               <button
                 type="button"
                 onClick={() => setShowAddUrlModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 transition"
+                className="px-4 py-2 rounded-xl text-xs font-medium text-ink-mute hover:text-ink bg-card2 hover:bg-card2 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition shadow-md shadow-indigo-600/30"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-ink bg-cyan-deep hover:bg-cyan-deep transition shadow-sm"
               >
                 Add to Library
               </button>

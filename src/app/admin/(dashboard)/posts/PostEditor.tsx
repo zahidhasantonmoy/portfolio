@@ -18,6 +18,14 @@ const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 // draft, rose/red = danger, blue-derived info accents are cyan. No feature,
 // tab, button, field, API call, validation or state shape was changed by
 // the restyle; the localStorage media tray works exactly as before.
+// Minimal-redesign pass (2026-11-25, branch redesign-4): focus mode (focusMode
+// boolean — hides but never unmounts the SEO card / secondary actions / inline
+// media hubs), schedule modal deleted (the Settings controller is the single
+// schedule UI; toolbar + bottom Schedule buttons switch to the Settings tab),
+// SEO title/meta fields moved from the AI tab to Settings, AI quota dashboard
+// collapsed to a one-line status, delete uses a two-step inline confirm (no
+// window.confirm), and new posts accept a validated ?scheduleDate= prefill via
+// the initialScheduleDate prop. No feature, API call, validation or tab was removed.
 
 interface Category {
   id: string;
@@ -37,6 +45,8 @@ interface PostEditorProps {
   tags: Tag[];
   selectedTagIds?: string[];
   mode: "create" | "edit";
+  /** Prefilled schedule datetime (YYYY-MM-DDTHH:mm) from ?scheduleDate= on /admin/posts/new. Validated server-side in posts/new/page.tsx and re-validated here; never a raw query string. Only applied to a new post with no existing schedule. */
+  initialScheduleDate?: string;
 }
 
 function slugify(text: string) {
@@ -102,6 +112,25 @@ function parsePublishDate(rawDateStr?: string): { isFuture: boolean; isoString?:
     isoString: dt.toISOString(),
     formattedInput,
   };
+}
+
+// Validate a prefilled schedule datetime for a new post (calendar deep link).
+// Accepts YYYY-MM-DD (defaults to 10:00 local) or YYYY-MM-DDTHH:mm; anything
+// else — including non-dates and impossible calendar dates — returns "".
+function parseInitialScheduleDate(raw?: string): string {
+  if (!raw || typeof raw !== "string") return "";
+  const trimmed = raw.trim();
+  const m = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?$/.exec(trimmed);
+  if (!m) return "";
+  const y = Number(m[1]);
+  const mo = Number(m[2]);
+  const d = Number(m[3]);
+  const h = m[4] ? Number(m[4]) : 10;
+  const min = m[5] ? Number(m[5]) : 0;
+  if (mo < 1 || mo > 12 || d < 1 || d > 31 || h > 23 || min > 59) return "";
+  const dt = new Date(y, mo - 1, d, h, min, 0);
+  if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return "";
+  return formatForDatetimeInput(dt);
 }
 
 // Quick presets generator
@@ -178,8 +207,20 @@ export default function PostEditor({
   tags,
   selectedTagIds = [],
   mode,
+  initialScheduleDate,
 }: PostEditorProps) {
   const router = useRouter();
+
+  // Calendar deep-link prefill (?scheduleDate= on /admin/posts/new): only for a
+  // new post with no existing schedule. Never overwrites an existing scheduled
+  // date on edit. Lands in both scheduleDate and form.published_at so the
+  // chosen date is visible in the Settings schedule controller. Status is NOT
+  // auto-flipped to "scheduled" — the author still picks Draft / Publish /
+  // Schedule; if they pick Schedule, the date is already filled in.
+  const prefilledScheduleDate =
+    mode === "create" && !post?.published_at
+      ? parseInitialScheduleDate(initialScheduleDate)
+      : "";
   const [activeTab, setActiveTab] = useState<TabType>("english");
   const [saving, setSaving] = useState(false);
   const [generatingSEO, setGeneratingSEO] = useState(false);
@@ -189,8 +230,15 @@ export default function PostEditor({
   const [generatingImagePrompt, setGeneratingImagePrompt] = useState(false);
   const [autoOptimizingSEO, setAutoOptimizingSEO] = useState(false);
   const [showSerpPreview, setShowSerpPreview] = useState(false);
-  const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [scheduleDate, setScheduleDate] = useState("");
+  // Focus mode (P1-10): hides (never unmounts) the SEO score card and the
+  // secondary toolbar actions, collapses the inline media hubs, and widens
+  // the writing column. Save/Publish stay visible. Component-only state —
+  // not persisted to localStorage.
+  const [focusMode, setFocusMode] = useState(false);
+  const [showOverflowMenu, setShowOverflowMenu] = useState(false);
+  const [mediaExpandedEn, setMediaExpandedEn] = useState(false);
+  const [mediaExpandedBn, setMediaExpandedBn] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState(prefilledScheduleDate);
   const [imagePrompt, setImagePrompt] = useState("");
   const [imageModel, setImageModel] = useState("Flux Pro (1280x720)");
   const [imageStyle, setImageStyle] = useState("auto");
@@ -282,13 +330,16 @@ export default function PostEditor({
     category_id: post?.category_id ?? "",
     published_at: post?.published_at
       ? (typeof post.published_at === "string" ? post.published_at : new Date(post.published_at).toISOString()).slice(0, 16)
-      : "",
+      : prefilledScheduleDate,
     is_featured: post?.is_featured ?? false,
     tag_ids: selectedTagIds,
     read_time_min: post?.read_time_min ?? 3,
   });
 
   const [pingingIndex, setPingingIndex] = useState(false);
+  // Two-step inline delete confirm (P1-11d, mirrors DeletePostButton.tsx).
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deletingPost, setDeletingPost] = useState(false);
   const [showSeoDetails, setShowSeoDetails] = useState(false);
 
   // Cross-posting state
@@ -1031,32 +1082,23 @@ export default function PostEditor({
     }
   }
 
-  async function handleScheduleSubmit(selectedDatetime: string) {
-    if (!selectedDatetime) {
-      toast.error("Please select a date and time");
-      return;
-    }
-    const targetTime = new Date(selectedDatetime).getTime();
-    if (targetTime <= Date.now()) {
-      toast.error("Scheduled date must be in the future");
-      return;
-    }
-    setForm((prev) => ({ ...prev, status: "scheduled", published_at: selectedDatetime }));
-    setShowScheduleModal(false);
-    await handleSave("scheduled", selectedDatetime);
-  }
-
   async function handleUnschedule() {
     setForm((prev) => ({ ...prev, status: "draft", published_at: "" }));
     setScheduleDate("");
-    setShowScheduleModal(false);
     toast.success("Schedule cancelled. Post reverted to draft.");
     await handleSave("draft", "");
   }
 
 
+  // Two-step inline delete confirm (mirrors DeletePostButton.tsx): first click
+  // arms the confirm, second click deletes. No window.confirm.
   async function handleDelete() {
-    if (!post?.id || !confirm("Delete this post permanently?")) return;
+    if (!post?.id) return;
+    if (!confirmingDelete) {
+      setConfirmingDelete(true);
+      return;
+    }
+    setDeletingPost(true);
     try {
       const res = await fetch(`/api/admin/posts/${post.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete");
@@ -1064,6 +1106,8 @@ export default function PostEditor({
       router.push("/admin/posts");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Error deleting post");
+      setDeletingPost(false);
+      setConfirmingDelete(false);
     }
   }
 
@@ -2495,7 +2539,7 @@ export default function PostEditor({
   ];
 
   return (
-    <div className="space-y-6">
+    <div className={focusMode ? "space-y-6 sm:-mx-2 lg:-mx-6" : "space-y-6"}>
       {/* Top toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card border border-line-soft rounded-xl px-4 py-3">
         <div className="flex items-center gap-3">
@@ -2507,12 +2551,12 @@ export default function PostEditor({
               type="button"
               onClick={() => {
                 setScheduleDate(form.published_at || formatForDatetimeInput(new Date()));
-                setShowScheduleModal(true);
+                setActiveTab("settings");
               }}
               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-deep/80 text-cyan border border-cyan/50 hover:bg-cyan-deep/60 transition active:scale-95 group shadow-sm cursor-pointer"
-              title="Click to view, adjust or unschedule"
+              title="Click to adjust the schedule in Settings"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan animate-ping"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan"></span>
               <span>
                 ⏰ Scheduled:{" "}
                 {form.published_at
@@ -2550,18 +2594,29 @@ export default function PostEditor({
             onClick={handlePingIndexing}
             disabled={pingingIndex || !form.slug}
             title="Submit this article and sitemap directly to Google & Bing for rapid indexing"
-            className="inline-flex items-center gap-1.5 px-3 py-1 text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg transition font-medium disabled:opacity-50"
+            className={`${focusMode ? "hidden " : ""}inline-flex items-center gap-1.5 px-3 py-1 text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg transition font-medium disabled:opacity-50`}
           >
-            <span>{pingingIndex ? "⚡ Pinging..." : "⚡ Ping Google & Bing"}</span>
+            <span>{pingingIndex ? "⚡ Pinging..." : "⚡ Ping Google"}</span>
           </button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {mode === "edit" && (
             <button
+              type="button"
               onClick={handleDelete}
-              className="px-3 py-1.5 text-sm text-red-400 hover:bg-red-900/20 rounded-lg transition"
+              onBlur={() => {
+                // Give the second click a chance to land before resetting (mirrors DeletePostButton).
+                window.setTimeout(() => setConfirmingDelete(false), 2500);
+              }}
+              disabled={deletingPost}
+              title={confirmingDelete ? "Click again to confirm deleting this post" : "Delete post"}
+              className={`${focusMode ? "hidden " : ""}px-3 py-1.5 text-sm rounded-lg transition disabled:opacity-50 ${
+                confirmingDelete
+                  ? "text-rose-300 bg-rose-500/15 border border-rose-500/40"
+                  : "text-red-400 hover:bg-red-900/20"
+              }`}
             >
-              Delete
+              {deletingPost ? "Deleting…" : confirmingDelete ? "Confirm delete?" : "Delete"}
             </button>
           )}
           {/* DEV.to quick cross-post button */}
@@ -2592,6 +2647,88 @@ export default function PostEditor({
               )}
             </button>
           )}
+          {/* Focus mode toggle — always visible; Save/Publish stay visible in focus mode */}
+          <button
+            type="button"
+            onClick={() => {
+              setFocusMode((v) => !v);
+              setShowOverflowMenu(false);
+            }}
+            aria-pressed={focusMode}
+            title={focusMode ? "Exit focus mode — show the SEO card and all toolbar actions" : "Focus mode — hide the SEO card and secondary actions while writing"}
+            className={`px-3 py-1.5 text-xs sm:text-sm rounded-lg transition font-medium border ${
+              focusMode
+                ? "bg-cyan text-[#060a13] border-cyan"
+                : "bg-card2 hover:bg-card text-ink-soft border-line"
+            }`}
+          >
+            {focusMode ? "◉ Exit Focus" : "◎ Focus"}
+          </button>
+          {/* Overflow menu — focus mode only; holds the secondary actions (hidden, not unmounted) */}
+          {focusMode && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowOverflowMenu((v) => !v)}
+                aria-haspopup="menu"
+                aria-expanded={showOverflowMenu}
+                aria-label="More actions"
+                title="More actions (Ping, SERP preview, Delete)"
+                className="px-3 py-1.5 text-xs sm:text-sm bg-card2 hover:bg-card text-ink-soft rounded-lg transition border border-line"
+              >
+                ⋯ More
+              </button>
+              {showOverflowMenu && (
+                <div
+                  role="menu"
+                  className="absolute right-0 z-20 mt-1 w-52 bg-card border border-line-soft rounded-xl shadow-lg p-1"
+                >
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setShowOverflowMenu(false);
+                      handlePingIndexing();
+                    }}
+                    disabled={pingingIndex || !form.slug}
+                    className="w-full text-left px-3 py-2 text-xs text-amber-300 hover:bg-card2 rounded-lg transition disabled:opacity-50"
+                  >
+                    {pingingIndex ? "⚡ Pinging..." : "⚡ Ping Google"}
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setShowOverflowMenu(false);
+                      setShowSerpPreview(true);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs text-cyan-300 hover:bg-card2 rounded-lg transition"
+                  >
+                    🔍 Preview SERP
+                  </button>
+                  {mode === "edit" && (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleDelete}
+                      onBlur={() => {
+                        window.setTimeout(() => setConfirmingDelete(false), 2500);
+                      }}
+                      disabled={deletingPost}
+                      title={confirmingDelete ? "Click again to confirm deleting this post" : "Delete post"}
+                      className={`w-full text-left px-3 py-2 text-xs rounded-lg transition disabled:opacity-50 ${
+                        confirmingDelete
+                          ? "text-rose-300 bg-rose-500/15"
+                          : "text-red-400 hover:bg-card2"
+                      }`}
+                    >
+                      {deletingPost ? "Deleting…" : confirmingDelete ? "Confirm delete?" : "🗑 Delete post"}
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
           <button
             type="button"
             onClick={() => handleSave("draft")}
@@ -2604,11 +2741,11 @@ export default function PostEditor({
             type="button"
             onClick={() => {
               setScheduleDate(form.published_at || "");
-              setShowScheduleModal(true);
+              setActiveTab("settings");
             }}
             disabled={saving}
             className="px-3.5 py-1.5 text-xs sm:text-sm bg-cyan-deep/25 hover:bg-cyan-deep/40 text-cyan border border-cyan/40 rounded-lg transition disabled:opacity-50 font-medium flex items-center gap-1.5"
-            title="Schedule post for future publication"
+            title="Open schedule settings"
           >
             <span>⏰ Schedule</span>
           </button>
@@ -2642,8 +2779,8 @@ export default function PostEditor({
         </div>
       </div>
 
-      {/* ── Live SEO & GEO Score Meter ── */}
-      <div className="bg-card/90 border border-line-soft rounded-xl p-4 shadow-lg backdrop-blur-md transition-all">
+      {/* ── Live SEO & GEO Score Meter ── (hidden in focus mode — not unmounted; toggle Focus off to restore) */}
+      <div className={focusMode ? "hidden" : "bg-card/90 border border-line-soft rounded-xl p-4 shadow-lg backdrop-blur-md transition-all"}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3.5">
             {/* Score Badge */}
@@ -2819,8 +2956,21 @@ export default function PostEditor({
               </label>
             </div>
 
-            {/* Post Media Hub & Direct Uploader */}
-            {renderMediaHub("en", false)}
+            {/* Post Media Hub & Direct Uploader — in focus mode it collapses behind a disclosure (hub stays mounted, only hidden) */}
+            {focusMode && (
+              <button
+                type="button"
+                onClick={() => setMediaExpandedEn((v) => !v)}
+                aria-expanded={mediaExpandedEn}
+                className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-ink-soft bg-card2 hover:bg-card border border-line-soft rounded-lg transition mb-2"
+              >
+                <span>🖼️ Media ({mediaAssets.length})</span>
+                <span>{mediaExpandedEn ? "▲ Hide" : "▼ Show"}</span>
+              </button>
+            )}
+            <div className={focusMode && !mediaExpandedEn ? "hidden" : undefined}>
+              {renderMediaHub("en", false)}
+            </div>
 
             <p className="text-xs text-ink-mute mb-2">💡 Tip: Paste screenshots (Ctrl+V) or drag & drop images directly here!</p>
             <MDEditor
@@ -2935,8 +3085,21 @@ export default function PostEditor({
               </label>
             </div>
 
-            {/* Post Media Hub & Direct Uploader (Bangla) */}
-            {renderMediaHub("bn", false)}
+            {/* Post Media Hub & Direct Uploader (Bangla) — in focus mode it collapses behind a disclosure (hub stays mounted, only hidden) */}
+            {focusMode && (
+              <button
+                type="button"
+                onClick={() => setMediaExpandedBn((v) => !v)}
+                aria-expanded={mediaExpandedBn}
+                className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-ink-soft bg-card2 hover:bg-card border border-line-soft rounded-lg transition mb-2"
+              >
+                <span>🖼️ Media ({mediaAssets.length})</span>
+                <span>{mediaExpandedBn ? "▲ Hide" : "▼ Show"}</span>
+              </button>
+            )}
+            <div className={focusMode && !mediaExpandedBn ? "hidden" : undefined}>
+              {renderMediaHub("bn", false)}
+            </div>
 
             <MDEditor
               value={form.content_bn}
@@ -2959,53 +3122,45 @@ export default function PostEditor({
       {activeTab === "ai" && (
         <div className="space-y-6">
           
-          {/* Quota Dashboard */}
-          <div className="bg-card2/50 border border-line/50 rounded-xl p-5 shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h3 className="text-lg font-bold text-ink flex items-center gap-2">
-                  <span>⚡ AI API Quota Status</span>
-                </h3>
-                <p className="text-sm text-ink-mute mt-1">Real-time status of your AI API providers.</p>
-              </div>
-              <div className="flex gap-2">
-                <select
-                  value={preferredProvider}
-                  onChange={(e) => setPreferredProvider(e.target.value)}
-                  className="text-xs bg-card border border-line hover:border-ink-mute rounded-lg text-ink px-2 py-1.5 transition-colors focus:outline-none"
-                >
-                  <option value="auto">🤖 Auto-Routing (Smart Fallback)</option>
-                  <option value="openrouter">🌐 OpenRouter (Llama 3)</option>
-                  <option value="gemini">✨ Gemini (Flash/Lite)</option>
-                  <option value="groq">⚡ Groq (Llama 3 8B)</option>
-                </select>
-                <button 
-                  onClick={fetchQuotas} 
-                  disabled={loadingQuotas}
-                  className="text-xs bg-card hover:bg-line px-3 py-1.5 rounded-lg text-ink transition-colors"
-                >
-                  {loadingQuotas ? "Refreshing..." : "🔄 Refresh"}
-                </button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {quotas.map((q, idx) => (
-                <div key={idx} className="bg-card rounded-lg p-4 border border-line/50 relative overflow-hidden">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className={`w-2.5 h-2.5 rounded-full ${q.isConfigured ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'}`}></div>
-                    <span className="font-semibold text-ink-soft">{q.provider}</span>
-                  </div>
-                  <div className="text-xs text-ink-mute mb-1">Status: {q.isConfigured ? '✅ Configured' : '❌ Missing Key'}</div>
-                  {q.isConfigured && (
-                    <>
-                      <div className="text-xs font-medium text-emerald-400 mt-2">Limit: {q.limitInfo}</div>
-                      <div className="text-xs text-ink-mute mt-1">Usage: {q.usageInfo}</div>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
+          {/* AI quota — one-line status (was a 3-column dashboard). Same numbers, calmer. */}
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 bg-card2/50 border border-line/50 rounded-xl px-4 py-2.5 text-xs text-ink-mute">
+            <span className="font-semibold text-ink-soft shrink-0">⚡ AI quota</span>
+            {loadingQuotas ? (
+              <span>Checking…</span>
+            ) : quotas.length === 0 ? (
+              <span>No quota data yet — refresh to check.</span>
+            ) : (
+              quotas.map((q, idx) => (
+                <span key={idx} className="inline-flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${q.isConfigured ? "bg-emerald-500" : "bg-red-500"}`} />
+                  <span className="font-medium text-ink-soft">{q.provider}</span>
+                  <span>
+                    {q.isConfigured
+                      ? `Configured · Limit: ${q.limitInfo} · Usage: ${q.usageInfo}`
+                      : "Missing key"}
+                  </span>
+                </span>
+              ))
+            )}
+            <span className="ml-auto flex items-center gap-2">
+              <select
+                value={preferredProvider}
+                onChange={(e) => setPreferredProvider(e.target.value)}
+                className="text-xs bg-card border border-line hover:border-ink-mute rounded-lg text-ink px-2 py-1.5 transition-colors focus:outline-none"
+              >
+                <option value="auto">🤖 Auto-Routing (Smart Fallback)</option>
+                <option value="openrouter">🌐 OpenRouter (Llama 3)</option>
+                <option value="gemini">✨ Gemini (Flash/Lite)</option>
+                <option value="groq">⚡ Groq (Llama 3 8B)</option>
+              </select>
+              <button
+                onClick={fetchQuotas}
+                disabled={loadingQuotas}
+                className="text-xs bg-card hover:bg-line px-3 py-1.5 rounded-lg text-ink transition-colors"
+              >
+                {loadingQuotas ? "Refreshing..." : "🔄 Refresh"}
+              </button>
+            </span>
           </div>
 
           {/* Action 1: Translation */}
@@ -3591,62 +3746,6 @@ export default function PostEditor({
             </div>
           </div>
           <div className="grid grid-cols-1 gap-5">
-            <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2">
-                SEO Title (English)
-                <span className="ml-2 text-xs text-ink-mute">{form.seo_title_en.length}/60</span>
-              </label>
-              <input
-                type="text"
-                value={form.seo_title_en}
-                onChange={(e) => setForm({ ...form, seo_title_en: e.target.value })}
-                placeholder={form.title_en || "SEO title..."}
-                maxLength={60}
-                className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2">
-                Meta Description (English)
-                <span className="ml-2 text-xs text-ink-mute">{form.meta_desc_en.length}/160</span>
-              </label>
-              <textarea
-                value={form.meta_desc_en}
-                onChange={(e) => setForm({ ...form, meta_desc_en: e.target.value })}
-                placeholder="Compelling description for search results..."
-                maxLength={160}
-                rows={3}
-                className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan resize-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2">
-                SEO Title (বাংলা)
-              </label>
-              <input
-                type="text"
-                value={form.seo_title_bn}
-                onChange={(e) => setForm({ ...form, seo_title_bn: e.target.value })}
-                placeholder="বাংলা SEO শিরোনাম..."
-                className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink-soft mb-2">
-                Meta Description (বাংলা)
-              </label>
-              <textarea
-                value={form.meta_desc_bn}
-                onChange={(e) => setForm({ ...form, meta_desc_bn: e.target.value })}
-                placeholder="বাংলা meta description..."
-                rows={3}
-                className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan resize-none"
-              />
-            </div>
-
             <div>
               <label className="block text-sm font-medium text-ink-soft mb-2">
                 Cover Image URL
@@ -4787,7 +4886,7 @@ export default function PostEditor({
 
               {form.status === "scheduled" && form.published_at && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-deep/80 border border-cyan/40 text-cyan">
-                  <span className="w-2 h-2 rounded-full bg-cyan animate-ping" />
+                  <span className="w-2 h-2 rounded-full bg-cyan" />
                   <span>Scheduled: {getRelativeTimeMessage(form.published_at)}</span>
                 </span>
               )}
@@ -5108,6 +5207,73 @@ export default function PostEditor({
               </label>
             </div>
           </div>
+
+          {/* SEO Titles & Meta Descriptions — moved here from the AI tab (P1-11a); same fields, same form state, no behaviour change */}
+          <div className="bg-card/90 border border-line-soft rounded-2xl p-5 sm:p-6 space-y-5 shadow-lg">
+            <div>
+              <h3 className="text-sm font-bold text-ink tracking-tight">SEO Titles &amp; Meta Descriptions</h3>
+              <p className="text-xs text-ink-mute mt-0.5">
+                Search titles and descriptions for Google and social previews. Generate them with the AI Assistant tab.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-5">
+              <div>
+                <label className="block text-sm font-medium text-ink-soft mb-2">
+                  SEO Title (English)
+                  <span className="ml-2 text-xs text-ink-mute">{form.seo_title_en.length}/60</span>
+                </label>
+                <input
+                  type="text"
+                  value={form.seo_title_en}
+                  onChange={(e) => setForm({ ...form, seo_title_en: e.target.value })}
+                  placeholder={form.title_en || "SEO title..."}
+                  maxLength={60}
+                  className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-ink-soft mb-2">
+                  Meta Description (English)
+                  <span className="ml-2 text-xs text-ink-mute">{form.meta_desc_en.length}/160</span>
+                </label>
+                <textarea
+                  value={form.meta_desc_en}
+                  onChange={(e) => setForm({ ...form, meta_desc_en: e.target.value })}
+                  placeholder="Compelling description for search results..."
+                  maxLength={160}
+                  rows={3}
+                  className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-ink-soft mb-2">
+                  SEO Title (বাংলা)
+                </label>
+                <input
+                  type="text"
+                  value={form.seo_title_bn}
+                  onChange={(e) => setForm({ ...form, seo_title_bn: e.target.value })}
+                  placeholder="বাংলা SEO শিরোনাম..."
+                  className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-ink-soft mb-2">
+                  Meta Description (বাংলা)
+                </label>
+                <textarea
+                  value={form.meta_desc_bn}
+                  onChange={(e) => setForm({ ...form, meta_desc_bn: e.target.value })}
+                  placeholder="বাংলা meta description..."
+                  rows={3}
+                  className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan resize-none"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -5133,7 +5299,7 @@ export default function PostEditor({
             type="button"
             onClick={() => {
               setScheduleDate(form.published_at || "");
-              setShowScheduleModal(true);
+              setActiveTab("settings");
             }}
             disabled={saving}
             className="px-4 py-2 text-xs sm:text-sm bg-cyan-deep/25 hover:bg-cyan-deep/40 text-cyan border border-cyan/40 rounded-lg transition disabled:opacity-50 font-medium flex items-center gap-1.5"
@@ -5162,165 +5328,6 @@ export default function PostEditor({
         coverImage={form.cover_image_url}
         publishDate={form.published_at}
       />
-
-      {/* Schedule Post Modal */}
-      {showScheduleModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
-          onClick={() => setShowScheduleModal(false)}
-        >
-          <div
-            className="bg-card border border-line-soft rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in duration-150"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-line-soft pb-3.5">
-              <div className="flex items-center gap-2.5">
-                <span className="w-9 h-9 rounded-xl bg-cyan/10 text-cyan flex items-center justify-center text-base border border-cyan/20">
-                  ⏰
-                </span>
-                <div>
-                  <h3 className="text-sm font-bold text-ink tracking-tight">
-                    Schedule Article Publication
-                  </h3>
-                  <p className="text-[11px] text-ink-mute">
-                    Auto-publishes to blog, sitemap &amp; RSS when this time arrives.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowScheduleModal(false)}
-                className="text-ink-mute hover:text-ink text-xs w-7 h-7 rounded-lg bg-card2 hover:bg-card flex items-center justify-center transition cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Presets Grid */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-ink-mute uppercase tracking-wider block">
-                Quick Preset Times:
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {getSchedulePresets().map((p) => {
-                  const isSelected = scheduleDate === p.dt;
-                  return (
-                    <button
-                      key={p.label}
-                      type="button"
-                      onClick={() => setScheduleDate(p.dt)}
-                      className={`px-3 py-2 text-xs rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
-                        isSelected
-                          ? "bg-cyan-deep/30 border-cyan text-ink font-semibold shadow-sm"
-                          : "bg-card2/60 border-line/60 text-ink-soft hover:bg-card2 hover:text-ink"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 truncate">
-                        <span>{p.icon}</span>
-                        <span className="truncate">{p.label}</span>
-                      </div>
-                      <span className="text-[10px] text-ink-mute font-mono">{p.sub}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Custom Datetime Input & Hour Adjusters */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] font-semibold text-ink-mute uppercase tracking-wider block">
-                  Exact Datetime Selection:
-                </label>
-                <span className="text-[10px] text-ink-mute font-mono">
-                  {Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Dhaka"}
-                </span>
-              </div>
-              <input
-                type="datetime-local"
-                value={scheduleDate}
-                onChange={(e) => setScheduleDate(e.target.value)}
-                className="w-full bg-bg border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink font-mono focus:outline-none focus:border-cyan transition"
-              />
-
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {[
-                  { label: "+1h", h: 1 },
-                  { label: "+3h", h: 3 },
-                  { label: "+1 Day", h: 24 },
-                  { label: "+1 Week", h: 168 },
-                ].map((adj) => (
-                  <button
-                    key={adj.label}
-                    type="button"
-                    onClick={() => setScheduleDate(adjustScheduleTime(adj.h, scheduleDate))}
-                    className="px-2.5 py-1 text-[11px] font-medium bg-card2 hover:bg-card text-cyan border border-cyan/20 rounded-lg transition cursor-pointer"
-                  >
-                    {adj.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Live Countdown in Modal */}
-            {scheduleDate && (
-              <div className={`p-3 rounded-xl border text-xs ${
-                new Date(scheduleDate).getTime() > Date.now()
-                  ? "bg-cyan-deep/40 border-cyan/40 text-cyan"
-                  : "bg-amber-950/40 border-amber-500/40 text-amber-300"
-              }`}>
-                {new Date(scheduleDate).getTime() > Date.now() ? (
-                  <div className="flex items-center gap-2">
-                    <span className="animate-spin text-base">⏱️</span>
-                    <div>
-                      <p className="font-semibold text-ink">
-                        Will go live {getRelativeTimeMessage(scheduleDate)}
-                      </p>
-                      <p className="text-[11px] text-cyan font-mono mt-0.5">
-                        Target: {new Date(scheduleDate).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric", year: "numeric" })} at {new Date(scheduleDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <p>⚠️ Selected time is in the past! Please pick a future date &amp; time.</p>
-                )}
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex items-center justify-between pt-2 border-t border-line-soft">
-              {form.status === "scheduled" ? (
-                <button
-                  type="button"
-                  onClick={handleUnschedule}
-                  className="px-3 py-2 rounded-xl text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/30 border border-rose-500/30 transition cursor-pointer"
-                >
-                  Unschedule / Revert to Draft
-                </button>
-              ) : (
-                <div />
-              )}
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowScheduleModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-ink-mute hover:text-ink bg-card2 hover:bg-card transition cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleScheduleSubmit(scheduleDate)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-ink bg-cyan-deep hover:bg-cyan transition shadow-md shadow-cyan-deep/30 cursor-pointer"
-                >
-                  Confirm Schedule ⏰
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );

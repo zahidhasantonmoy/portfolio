@@ -33,6 +33,7 @@ export default async function MessagesPage() {
   const messagesRows = await sql`
     SELECT * FROM contact_messages
     ORDER BY created_at DESC
+    LIMIT 200
   `.catch(() => []); // Fallback if table doesn't exist yet
 
   return (

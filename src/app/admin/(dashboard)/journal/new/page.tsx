@@ -57,7 +57,7 @@ export default function NewJournalPage() {
       }
 
       toast.success("Journal entry saved!");
-      router.push("/admin");
+      router.push("/admin/journal");
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to save");
     } finally {
@@ -68,24 +68,24 @@ export default function NewJournalPage() {
   return (
     <div className="max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">New Journal Entry</h1>
-        <p className="text-gray-400 text-sm mt-1">Log today&apos;s learning journey 📓</p>
+        <h1 className="text-2xl font-bold text-ink">New Journal Entry</h1>
+        <p className="text-ink-mute text-sm mt-1">Log today&apos;s learning journey 📓</p>
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-5">
+      <div className="bg-card border border-line-soft rounded-xl p-6 space-y-5">
         {/* Date + Title */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Date</label>
+            <label className="block text-sm font-medium text-ink-soft mb-2">Date</label>
             <input
               type="date"
               value={form.log_date}
               onChange={(e) => setForm({ ...form, log_date: e.target.value })}
-              className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2.5 bg-card2 border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Mood</label>
+            <label className="block text-sm font-medium text-ink-soft mb-2">Mood</label>
             <div className="flex gap-2">
               {MOODS.map((m) => (
                 <button
@@ -93,13 +93,14 @@ export default function NewJournalPage() {
                   type="button"
                   onClick={() => setForm({ ...form, mood: m.value })}
                   title={m.label}
-                  className={`flex-1 py-2.5 rounded-lg text-lg transition ${
+                  className={`flex-1 py-2 rounded-lg transition flex flex-col items-center gap-0.5 ${
                     form.mood === m.value
-                      ? "bg-indigo-600 ring-2 ring-indigo-400"
-                      : "bg-gray-800 hover:bg-gray-700"
+                      ? "bg-cyan-deep ring-2 ring-cyan"
+                      : "bg-card2 hover:bg-line"
                   }`}
                 >
-                  {m.emoji}
+                  <span className="text-lg leading-none">{m.emoji}</span>
+                  <span className="text-[11px] font-medium leading-none">{m.label}</span>
                 </button>
               ))}
             </div>
@@ -107,17 +108,17 @@ export default function NewJournalPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">Title</label>
+          <label className="block text-sm font-medium text-ink-soft mb-2">Title</label>
           <input
             type="text"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
+            className="w-full px-4 py-3 bg-card2 border border-line rounded-lg text-ink focus:outline-none focus:border-cyan"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-ink-soft mb-2">
             Tech Stack (comma-separated)
           </label>
           <input
@@ -125,12 +126,12 @@ export default function NewJournalPage() {
             value={form.tech_stack}
             onChange={(e) => setForm({ ...form, tech_stack: e.target.value })}
             placeholder="Laravel, PHP, PostgreSQL, React"
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500"
+            className="w-full px-4 py-3 bg-card2 border border-line rounded-lg text-ink placeholder-ink-mute text-sm focus:outline-none focus:border-cyan"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-ink-soft mb-2">
             What did I learn? (English) <span className="text-red-400">*</span>
           </label>
           <textarea
@@ -138,12 +139,12 @@ export default function NewJournalPage() {
             onChange={(e) => setForm({ ...form, content_en: e.target.value })}
             placeholder="Today I learned about Laravel middleware. I discovered that..."
             rows={8}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 resize-y font-mono"
+            className="w-full px-4 py-3 bg-card2 border border-line rounded-lg text-ink placeholder-ink-mute text-sm focus:outline-none focus:border-cyan resize-y font-mono"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-ink-soft mb-2">
             আজ কী শিখলাম? (বাংলা)
           </label>
           <textarea
@@ -151,7 +152,7 @@ export default function NewJournalPage() {
             onChange={(e) => setForm({ ...form, content_bn: e.target.value })}
             placeholder="আজ আমি Laravel middleware সম্পর্কে শিখলাম..."
             rows={5}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 text-sm focus:outline-none focus:border-indigo-500 resize-y"
+            className="w-full px-4 py-3 bg-card2 border border-line rounded-lg text-ink placeholder-ink-mute text-sm focus:outline-none focus:border-cyan resize-y"
           />
         </div>
 
@@ -161,24 +162,24 @@ export default function NewJournalPage() {
             id="is_public"
             checked={form.is_public}
             onChange={(e) => setForm({ ...form, is_public: e.target.checked })}
-            className="w-4 h-4 accent-indigo-600"
+            className="w-4 h-4 accent-cyan"
           />
-          <label htmlFor="is_public" className="text-sm text-gray-300">
+          <label htmlFor="is_public" className="text-sm text-ink-soft">
             Make this entry public (visible on /journal)
           </label>
         </div>
 
-        <div className="flex justify-end gap-3 pt-2 border-t border-gray-800">
+        <div className="flex justify-end gap-3 pt-2 border-t border-line-soft">
           <button
             onClick={() => router.back()}
-            className="px-4 py-2 text-sm text-gray-500 hover:text-gray-300 transition"
+            className="px-4 py-2 text-sm text-ink-mute hover:text-ink-soft transition"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-6 py-2 text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-medium transition disabled:opacity-50"
+            className="px-6 py-2 text-sm bg-cyan-deep hover:bg-cyan-deep text-ink rounded-lg font-medium transition disabled:opacity-50"
           >
             {saving ? "Saving..." : "Save Entry"}
           </button>

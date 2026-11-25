@@ -324,12 +324,12 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
   return (
     <div className="space-y-8 pb-16">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line-soft pb-6">
         <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
+          <h1 className="text-2xl font-extrabold text-ink flex items-center gap-2.5">
             <span>📡 Social Posts & Syndication Hub</span>
           </h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-ink-mute text-sm mt-1">
             Manage, generate AI copy, and cross-post to LinkedIn, DEV.to, Medium, and X from one place.
           </p>
         </div>
@@ -338,7 +338,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
         <button
           onClick={handleGenerateAll}
           disabled={generating || !selectedPost}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white text-sm font-semibold shadow-lg shadow-indigo-500/25 transition-all disabled:opacity-50 active:scale-95 whitespace-nowrap"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-deep text-ink text-sm font-semibold shadow-sm transition-all disabled:opacity-50 active:scale-95 whitespace-nowrap"
         >
           <FaRobot className="text-base" />
           <span>{generating ? 'Generating AI Content...' : '✨ Generate All Platforms'}</span>
@@ -346,16 +346,16 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
       </div>
 
       {/* Post Selector Bar */}
-      <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-card/80 border border-line-soft rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3 w-full md:w-auto flex-1">
-          <label htmlFor="post-select" className="text-xs font-bold uppercase tracking-wider text-gray-400 whitespace-nowrap">
+          <label htmlFor="post-select" className="text-xs font-bold uppercase tracking-wider text-ink-mute whitespace-nowrap">
             Select Article:
           </label>
           <select
             id="post-select"
             value={selectedPostId}
             onChange={(e) => setSelectedPostId(e.target.value)}
-            className="w-full bg-gray-950 border border-gray-700 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
+            className="w-full bg-bg border border-line rounded-xl px-4 py-2 text-ink text-sm focus:outline-none focus:border-cyan"
           >
             {initialPosts.map((post) => (
               <option key={post.id} value={post.id}>
@@ -366,13 +366,13 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
         </div>
 
         {selectedPost && (
-          <div className="flex items-center gap-3 text-xs text-gray-400 w-full md:w-auto justify-end">
-            <span className="truncate max-w-[240px] text-gray-300">/blog/{selectedPost.slug}</span>
+          <div className="flex items-center gap-3 text-xs text-ink-mute w-full md:w-auto justify-end">
+            <span className="truncate max-w-[240px] text-ink-soft">/blog/{selectedPost.slug}</span>
             <a
               href={canonicalUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-indigo-400 hover:text-white transition"
+              className="p-2 rounded-lg bg-card2 hover:bg-card2 text-cyan hover:text-ink transition"
               title="Preview Live Article"
             >
               <FaExternalLinkAlt className="w-3 h-3" />
@@ -386,13 +386,13 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
         {/* Left Column: Platform Switcher & Editors (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
           {/* Platform Tabs */}
-          <div className="flex items-center gap-2 p-1.5 bg-gray-900/80 border border-gray-800 rounded-2xl overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-2 p-1.5 bg-card/80 border border-line-soft rounded-2xl overflow-x-auto scrollbar-none">
             <button
               onClick={() => setActivePlatform('linkedin')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activePlatform === 'linkedin'
-                  ? 'bg-[#0A66C2] text-white shadow-md'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-[#0A66C2] text-ink shadow-sm'
+                  : 'text-ink-mute hover:text-ink hover:bg-card2'
               }`}
             >
               <FaLinkedin className="text-base" />
@@ -403,8 +403,8 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
               onClick={() => setActivePlatform('devto')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activePlatform === 'devto'
-                  ? 'bg-gradient-to-r from-gray-800 to-black text-white border border-gray-700 shadow-md'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-card2 text-ink border border-line shadow-sm'
+                  : 'text-ink-mute hover:text-ink hover:bg-card2'
               }`}
             >
               <span className="font-extrabold border border-current px-1 py-0.2 rounded text-[10px]">DEV</span>
@@ -415,8 +415,8 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
               onClick={() => setActivePlatform('medium')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activePlatform === 'medium'
-                  ? 'bg-[#12100E] text-white border border-green-500/40 shadow-md'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-[#12100E] text-ink border border-green-500/40 shadow-sm'
+                  : 'text-ink-mute hover:text-ink hover:bg-card2'
               }`}
             >
               <FaMedium className="text-base text-green-400" />
@@ -427,8 +427,8 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
               onClick={() => setActivePlatform('twitter')}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activePlatform === 'twitter'
-                  ? 'bg-[#1DA1F2] text-white shadow-md'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  ? 'bg-[#1DA1F2] text-ink shadow-sm'
+                  : 'text-ink-mute hover:text-ink hover:bg-card2'
               }`}
             >
               <FaTwitter className="text-base" />
@@ -438,7 +438,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
 
           {/* Tab 1: LinkedIn Content Editor */}
           {activePlatform === 'linkedin' && (
-            <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 space-y-4">
+            <div className="bg-card/60 border border-line-soft rounded-2xl p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
                   <FaLinkedin /> LinkedIn Post Editor
@@ -446,7 +446,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                 <div className="flex items-center gap-2">
                   <span
                     className={`text-xs font-mono font-bold ${
-                      linkedinCharCount > 3000 ? 'text-red-400' : 'text-gray-400'
+                      linkedinCharCount > 3000 ? 'text-red-400' : 'text-ink-mute'
                     }`}
                   >
                     {linkedinCharCount.toLocaleString()} / 3,000 chars
@@ -464,12 +464,12 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                   }))
                 }
                 placeholder="Write or auto-generate your LinkedIn post here..."
-                className="w-full bg-gray-950 border border-gray-800 rounded-xl p-4 text-gray-200 text-sm focus:outline-none focus:border-blue-500 leading-relaxed font-sans"
+                className="w-full bg-bg border border-line-soft rounded-xl p-4 text-ink-soft text-sm focus:outline-none focus:border-cyan leading-relaxed font-sans"
               />
 
               {/* Hashtag Editor */}
               <div>
-                <label className="text-xs font-semibold text-gray-400 block mb-1.5">Hashtags (space or comma separated):</label>
+                <label className="text-xs font-semibold text-ink-mute block mb-1.5">Hashtags (space or comma separated):</label>
                 <input
                   type="text"
                   value={social.linkedin.hashtags.join(' ')}
@@ -482,7 +482,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                       },
                     }))
                   }
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-2 text-blue-400 text-xs font-medium focus:outline-none focus:border-blue-500"
+                  className="w-full bg-bg border border-line-soft rounded-xl px-4 py-2 text-blue-400 text-xs font-medium focus:outline-none focus:border-cyan"
                 />
               </div>
 
@@ -496,7 +496,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                       'LinkedIn Post'
                     )
                   }
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold transition"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card2 hover:bg-card2 text-ink text-xs font-semibold transition"
                 >
                   {copiedKey === 'linkedin_copy' ? <FaCheck className="text-emerald-400" /> : <FaCopy />}
                   <span>Copy Formatted Post</span>
@@ -504,7 +504,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
 
                 <button
                   onClick={handleShareLinkedIn}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-semibold shadow-md transition"
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-ink text-xs font-semibold shadow-sm transition"
                 >
                   <FaPaperPlane className="text-xs" />
                   <span>Copy & Share to LinkedIn</span>
@@ -515,16 +515,16 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
 
           {/* Tab 2: DEV.to Content Editor */}
           {activePlatform === 'devto' && (
-            <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 space-y-4">
+            <div className="bg-card/60 border border-line-soft rounded-2xl p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-300 flex items-center gap-1.5">
-                  <span className="border border-gray-500 px-1 py-0.2 rounded text-[10px]">DEV</span> DEV.to Article
+                <span className="text-xs font-bold uppercase tracking-wider text-ink-soft flex items-center gap-1.5">
+                  <span className="border border-line px-1 py-0.2 rounded text-[10px]">DEV</span> DEV.to Article
                 </span>
                 <span className="text-xs text-yellow-400/90 font-medium">Posts as Draft with Canonical Link</span>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-400 block mb-1">Title:</label>
+                <label className="text-xs font-semibold text-ink-mute block mb-1">Title:</label>
                 <input
                   type="text"
                   value={social.devto.title}
@@ -534,12 +534,12 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                       devto: { ...prev.devto, title: e.target.value },
                     }))
                   }
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-indigo-500 font-semibold"
+                  className="w-full bg-bg border border-line-soft rounded-xl px-4 py-2 text-ink text-sm focus:outline-none focus:border-cyan font-semibold"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-400 block mb-1">Tags (max 4, lowercase):</label>
+                <label className="text-xs font-semibold text-ink-mute block mb-1">Tags (max 4, lowercase):</label>
                 <input
                   type="text"
                   value={social.devto.tags.join(', ')}
@@ -552,12 +552,12 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                       },
                     }))
                   }
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-2 text-indigo-300 text-xs font-mono focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-bg border border-line-soft rounded-xl px-4 py-2 text-cyan text-xs font-mono focus:outline-none focus:border-cyan"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-400 block mb-1">Markdown Body:</label>
+                <label className="text-xs font-semibold text-ink-mute block mb-1">Markdown Body:</label>
                 <textarea
                   rows={10}
                   value={social.devto.article}
@@ -567,7 +567,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                       devto: { ...prev.devto, article: e.target.value },
                     }))
                   }
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl p-4 text-gray-200 text-xs font-mono focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-bg border border-line-soft rounded-xl p-4 text-ink-soft text-xs font-mono focus:outline-none focus:border-cyan"
                 />
               </div>
 
@@ -576,7 +576,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                 <button
                   onClick={handlePublishDevTo}
                   disabled={crossPosting.devto}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold shadow-md transition disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-cyan-deep text-ink text-xs font-semibold shadow-sm transition disabled:opacity-50"
                 >
                   <FaPaperPlane className="text-xs" />
                   <span>{crossPosting.devto ? 'Publishing...' : '🚀 1-Click Publish to DEV.to (Draft)'}</span>
@@ -590,7 +590,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                       'DEV.to Markdown'
                     )
                   }
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold transition"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card2 hover:bg-card2 text-ink text-xs font-semibold transition"
                 >
                   {copiedKey === 'devto_copy' ? <FaCheck className="text-emerald-400" /> : <FaCopy />}
                   <span>Copy Markdown</span>
@@ -601,16 +601,16 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
 
           {/* Tab 3: Medium Content Editor */}
           {activePlatform === 'medium' && (
-            <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 space-y-4">
+            <div className="bg-card/60 border border-line-soft rounded-2xl p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-green-400 flex items-center gap-1.5">
                   <FaMedium /> Medium Story Editor
                 </span>
-                <span className="text-xs text-gray-400">Canonical SEO Protected</span>
+                <span className="text-xs text-ink-mute">Canonical SEO Protected</span>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-400 block mb-1">Story Title:</label>
+                <label className="text-xs font-semibold text-ink-mute block mb-1">Story Title:</label>
                 <input
                   type="text"
                   value={social.medium.title}
@@ -620,12 +620,12 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                       medium: { ...prev.medium, title: e.target.value },
                     }))
                   }
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-2 text-white text-sm font-semibold focus:outline-none focus:border-green-500"
+                  className="w-full bg-bg border border-line-soft rounded-xl px-4 py-2 text-ink text-sm font-semibold focus:outline-none focus:border-cyan"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-400 block mb-1">Subtitle:</label>
+                <label className="text-xs font-semibold text-ink-mute block mb-1">Subtitle:</label>
                 <input
                   type="text"
                   value={social.medium.subtitle}
@@ -635,12 +635,12 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                       medium: { ...prev.medium, subtitle: e.target.value },
                     }))
                   }
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-2 text-gray-300 text-xs focus:outline-none focus:border-green-500"
+                  className="w-full bg-bg border border-line-soft rounded-xl px-4 py-2 text-ink-soft text-xs focus:outline-none focus:border-cyan"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-400 block mb-1">Tags (up to 5):</label>
+                <label className="text-xs font-semibold text-ink-mute block mb-1">Tags (up to 5):</label>
                 <input
                   type="text"
                   value={social.medium.tags.join(', ')}
@@ -653,12 +653,12 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                       },
                     }))
                   }
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl px-4 py-2 text-green-400 text-xs font-medium focus:outline-none focus:border-green-500"
+                  className="w-full bg-bg border border-line-soft rounded-xl px-4 py-2 text-green-400 text-xs font-medium focus:outline-none focus:border-cyan"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-400 block mb-1">Story Content:</label>
+                <label className="text-xs font-semibold text-ink-mute block mb-1">Story Content:</label>
                 <textarea
                   rows={8}
                   value={social.medium.story}
@@ -668,7 +668,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                       medium: { ...prev.medium, story: e.target.value },
                     }))
                   }
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl p-4 text-gray-200 text-xs font-mono focus:outline-none focus:border-green-500"
+                  className="w-full bg-bg border border-line-soft rounded-xl p-4 text-ink-soft text-xs font-mono focus:outline-none focus:border-cyan"
                 />
               </div>
 
@@ -677,7 +677,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                 <button
                   onClick={handlePublishMedium}
                   disabled={crossPosting.medium}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold shadow-md transition disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-ink text-xs font-semibold shadow-sm transition disabled:opacity-50"
                 >
                   <FaPaperPlane className="text-xs" />
                   <span>{crossPosting.medium ? 'Publishing...' : '🚀 1-Click Publish to Medium'}</span>
@@ -691,7 +691,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                       'Medium Story'
                     )
                   }
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold transition"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card2 hover:bg-card2 text-ink text-xs font-semibold transition"
                 >
                   {copiedKey === 'medium_copy' ? <FaCheck className="text-emerald-400" /> : <FaCopy />}
                   <span>Copy Markdown</span>
@@ -701,7 +701,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                   href="https://medium.com/new-story"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-medium transition"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-card2 hover:bg-card2 text-ink-soft text-xs font-medium transition"
                 >
                   <span>Open Medium Editor</span>
                   <FaExternalLinkAlt className="w-2.5 h-2.5" />
@@ -712,14 +712,14 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
 
           {/* Tab 4: Twitter / X Editor */}
           {activePlatform === 'twitter' && (
-            <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-6 space-y-4">
+            <div className="bg-card/60 border border-line-soft rounded-2xl p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
                   <FaTwitter /> X (Twitter) Post & Thread
                 </span>
                 <span
                   className={`text-xs font-mono font-bold ${
-                    social.twitter.tweet.length > 280 ? 'text-red-400' : 'text-gray-400'
+                    social.twitter.tweet.length > 280 ? 'text-red-400' : 'text-ink-mute'
                   }`}
                 >
                   {social.twitter.tweet.length} / 280 chars
@@ -727,7 +727,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-gray-400 block mb-1">Main Tweet:</label>
+                <label className="text-xs font-semibold text-ink-mute block mb-1">Main Tweet:</label>
                 <textarea
                   rows={4}
                   value={social.twitter.tweet}
@@ -737,15 +737,15 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                       twitter: { ...prev.twitter, tweet: e.target.value },
                     }))
                   }
-                  className="w-full bg-gray-950 border border-gray-800 rounded-xl p-4 text-white text-sm focus:outline-none focus:border-sky-500"
+                  className="w-full bg-bg border border-line-soft rounded-xl p-4 text-ink text-sm focus:outline-none focus:border-cyan"
                 />
               </div>
 
               {social.twitter.thread && social.twitter.thread.length > 0 && (
                 <div className="space-y-2 pt-2">
-                  <label className="text-xs font-semibold text-gray-400 block">Thread Breakdown:</label>
+                  <label className="text-xs font-semibold text-ink-mute block">Thread Breakdown:</label>
                   {social.twitter.thread.map((t, idx) => (
-                    <div key={idx} className="p-3 bg-gray-950 border border-gray-800 rounded-xl text-xs text-gray-300">
+                    <div key={idx} className="p-3 bg-bg border border-line-soft rounded-xl text-xs text-ink-soft">
                       <span className="font-bold text-sky-400 block mb-1">Part {idx + 1}:</span>
                       {t}
                     </div>
@@ -757,7 +757,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button
                   onClick={handleShareTwitter}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#1DA1F2] hover:bg-[#0c85d0] text-white text-xs font-semibold shadow-md transition"
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#1DA1F2] hover:bg-[#0c85d0] text-ink text-xs font-semibold shadow-sm transition"
                 >
                   <FaTwitter />
                   <span>Tweet on X</span>
@@ -765,7 +765,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
 
                 <button
                   onClick={() => copyToClipboard(social.twitter.tweet, 'twitter_copy', 'Tweet text')}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold transition"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card2 hover:bg-card2 text-ink text-xs font-semibold transition"
                 >
                   {copiedKey === 'twitter_copy' ? <FaCheck className="text-emerald-400" /> : <FaCopy />}
                   <span>Copy Tweet</span>
@@ -777,22 +777,22 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
 
         {/* Right Column: Live Feed Simulation Card & History (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Real-time LinkedIn Feed Simulation Card */}
-          <div className="bg-white dark:bg-[#1b1f23] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-xl overflow-hidden text-gray-900 dark:text-gray-100">
-            {/* Mock LinkedIn Header */}
-            <div className="p-4 border-b border-gray-100 dark:border-gray-800/80 flex items-center justify-between">
+          {/* LinkedIn Preview Card (live generated text) */}
+          <div className="bg-[#1b1f23] rounded-2xl border border-line-soft shadow-sm overflow-hidden text-gray-100">
+            {/* LinkedIn preview header */}
+            <div className="p-4 border-b border-line-soft/80 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-sm">
+                <div className="w-10 h-10 rounded-full bg-cyan-deep flex items-center justify-center text-ink font-bold text-base shadow-sm">
                   Z
                 </div>
                 <div>
-                  <h4 className="font-bold text-xs sm:text-sm leading-tight text-gray-900 dark:text-white">
+                  <h4 className="font-bold text-xs sm:text-sm leading-tight text-ink">
                     Zahid Hasan Tonmoy
                   </h4>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">
+                  <p className="text-[10px] text-ink-mute leading-tight">
                     MERN Full Stack Developer • 1st
                   </p>
-                  <p className="text-[9px] text-gray-400 flex items-center gap-1 mt-0.5">
+                  <p className="text-[9px] text-ink-mute flex items-center gap-1 mt-0.5">
                     <span>Just now</span> • 🌐
                   </p>
                 </div>
@@ -802,22 +802,22 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
               </span>
             </div>
 
-            {/* Mock Post Body */}
+            {/* LinkedIn preview body */}
             <div className="p-4 space-y-3">
-              <p className="text-xs whitespace-pre-wrap leading-relaxed text-gray-800 dark:text-gray-200 max-h-56 overflow-y-auto">
+              <p className="text-xs whitespace-pre-wrap leading-relaxed text-ink-soft max-h-56 overflow-y-auto">
                 {social.linkedin.post || 'Your LinkedIn post text will be previewed here in real-time...'}
               </p>
 
               {social.linkedin.hashtags.length > 0 && (
-                <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                <p className="text-xs font-medium text-cyan">
                   {social.linkedin.hashtags.join(' ')}
                 </p>
               )}
             </div>
 
-            {/* Mock Article Link Card */}
+            {/* LinkedIn preview article card */}
             {selectedPost && (
-              <div className="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 p-3">
+              <div className="border-t border-line-soft bg-card/60 p-3">
                 {selectedPost.cover_image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -826,14 +826,14 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                     className="w-full h-32 object-cover rounded-lg mb-2"
                   />
                 ) : (
-                  <div className="w-full h-24 bg-gradient-to-r from-indigo-900 to-purple-900 rounded-lg mb-2 flex items-center justify-center text-white text-xs font-bold">
+                  <div className="w-full h-24 bg-card2 rounded-lg mb-2 flex items-center justify-center text-ink text-xs font-bold">
                     {selectedPost.title_en}
                   </div>
                 )}
-                <p className="text-[10px] uppercase tracking-wider text-gray-400 font-mono">
+                <p className="text-[10px] uppercase tracking-wider text-ink-mute font-mono">
                   zahidhasantonmoy.vercel.app
                 </p>
-                <p className="text-xs font-bold text-gray-900 dark:text-white line-clamp-1 mt-0.5">
+                <p className="text-xs font-bold text-ink line-clamp-1 mt-0.5">
                   {selectedPost.title_en}
                 </p>
               </div>
@@ -841,9 +841,9 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
           </div>
 
           {/* Cross-Posting History Box */}
-          <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-5 space-y-4">
+          <div className="bg-card/60 border border-line-soft rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-ink-mute flex items-center gap-1.5">
                 <FaHistory /> Cross-Post History
               </h3>
               {history.length > 0 && (
@@ -852,7 +852,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                     setHistory([]);
                     localStorage.removeItem('admin_social_history');
                   }}
-                  className="text-[10px] text-gray-500 hover:text-red-400 transition"
+                  className="text-[10px] text-ink-mute hover:text-red-400 transition"
                 >
                   Clear
                 </button>
@@ -860,7 +860,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
             </div>
 
             {history.length === 0 ? (
-              <p className="text-xs text-gray-500 italic py-2">
+              <p className="text-xs text-ink-mute italic py-2">
                 No recent syndication activity recorded yet. When you publish to DEV.to or Medium, it will be logged here.
               </p>
             ) : (
@@ -868,14 +868,14 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                 {history.map((log) => (
                   <div
                     key={log.id}
-                    className="p-2.5 rounded-xl bg-gray-950/80 border border-gray-800 flex items-center justify-between text-xs"
+                    className="p-2.5 rounded-xl bg-bg/80 border border-line-soft flex items-center justify-between text-xs"
                   >
                     <div className="min-w-0 flex-1 pr-2">
                       <div className="flex items-center gap-1.5 mb-1">
                         <span
                           className={`text-[10px] font-bold px-1.5 py-0.2 rounded uppercase ${
                             log.platform === 'devto'
-                              ? 'bg-gray-800 text-white'
+                              ? 'bg-card2 text-ink'
                               : log.platform === 'medium'
                               ? 'bg-green-950 text-green-300'
                               : 'bg-blue-950 text-blue-300'
@@ -883,9 +883,9 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                         >
                           {log.platform}
                         </span>
-                        <span className="text-[10px] text-gray-500">{log.timestamp}</span>
+                        <span className="text-[10px] text-ink-mute">{log.timestamp}</span>
                       </div>
-                      <p className="text-gray-300 truncate font-medium">{log.postTitle}</p>
+                      <p className="text-ink-soft truncate font-medium">{log.postTitle}</p>
                     </div>
 
                     {log.url && (
@@ -893,7 +893,7 @@ export default function SocialManagerClient({ initialPosts }: { initialPosts: Po
                         href={log.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-indigo-400 hover:text-white transition"
+                        className="p-1.5 rounded-lg bg-card2 hover:bg-card2 text-cyan hover:text-ink transition"
                       >
                         <FaExternalLinkAlt className="w-2.5 h-2.5" />
                       </a>

@@ -6,7 +6,7 @@ export const revalidate = 0; // Dynamic route
 export default async function AuditPage() {
   const [postsRes, projectsRes] = await Promise.all([
     sql`
-      SELECT id, title_en, title_bn, slug, excerpt_en, content_en, content_bn, cover_image_url, published_at, updated_at, post_type, status
+      SELECT id, title_en, title_bn, slug, excerpt_en, LENGTH(content_bn) AS content_bn_length, cover_image_url, published_at, updated_at, post_type, status
       FROM posts
       ORDER BY created_at DESC
     `.catch(() => []),
@@ -23,8 +23,7 @@ export default async function AuditPage() {
     title_bn: p.title_bn || "",
     slug: p.slug || "",
     excerpt_en: p.excerpt_en || "",
-    content_en: p.content_en || "",
-    content_bn: p.content_bn || "",
+    content_bn_length: Number(p.content_bn_length || 0),
     cover_image_url: p.cover_image_url || "",
     published_at: p.published_at ? new Date(p.published_at).toISOString() : null,
     updated_at: p.updated_at ? new Date(p.updated_at).toISOString() : new Date().toISOString(),
