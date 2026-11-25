@@ -73,14 +73,14 @@ export default function AdminNav({
   return (
     <>
       {/* Mobile Top App Bar (Visible on < lg screens) */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-gray-900/95 backdrop-blur-md border-b border-gray-800 flex items-center justify-between px-4 z-40">
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card/95 backdrop-blur-md border-b border-line-soft flex items-center justify-between px-4 z-40">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-sm font-bold text-white shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-cyan flex items-center justify-center text-sm font-bold text-[#060a13] shadow-sm">
             Z
           </div>
           <div>
-            <p className="font-semibold text-sm text-white leading-tight">Admin CMS</p>
-            <p className="text-[11px] text-gray-400 truncate max-w-[130px] sm:max-w-[200px]">{userEmail}</p>
+            <p className="font-semibold text-sm text-ink leading-tight">Admin CMS</p>
+            <p className="text-[11px] text-ink-mute truncate max-w-[130px] sm:max-w-[200px]">{userEmail}</p>
           </div>
         </div>
 
@@ -99,7 +99,7 @@ export default function AdminNav({
             onClick={() => setIsMobileOpen(!isMobileOpen)}
             type="button"
             aria-label="Toggle admin navigation menu"
-            className="p-2 rounded-lg bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 transition active:scale-95"
+            className="p-2 rounded-lg bg-card2 text-ink-soft hover:text-ink hover:bg-card transition active:scale-95"
           >
             {isMobileOpen ? (
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -124,25 +124,25 @@ export default function AdminNav({
 
       {/* Main Sidebar (Desktop persistent + Mobile Drawer) */}
       <aside
-        className={`fixed left-0 top-0 h-full w-64 bg-gray-900 border-r border-gray-800 flex flex-col z-50 transition-transform duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 h-full w-64 bg-card border-r border-line-soft flex flex-col z-50 transition-transform duration-300 ease-in-out ${
           isMobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-800 flex items-center justify-between">
+        <div className="px-6 py-5 border-b border-line-soft flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-sm font-bold text-white shadow-sm">
+            <div className="w-8 h-8 rounded-lg bg-cyan flex items-center justify-center text-sm font-bold text-[#060a13] shadow-sm">
               Z
             </div>
             <div>
-              <p className="font-semibold text-sm text-white">Admin CMS</p>
-              <p className="text-xs text-gray-500 truncate max-w-[130px]">{userEmail}</p>
+              <p className="font-semibold text-sm text-ink">Admin CMS</p>
+              <p className="text-xs text-ink-mute truncate max-w-[130px]">{userEmail}</p>
             </div>
           </div>
           {/* Mobile close icon inside drawer */}
           <button
             onClick={() => setIsMobileOpen(false)}
-            className="lg:hidden p-1.5 rounded-md text-gray-400 hover:text-white hover:bg-gray-800 transition"
+            className="lg:hidden p-1.5 rounded-md text-ink-mute hover:text-ink hover:bg-card2 transition"
             aria-label="Close menu"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -166,7 +166,7 @@ export default function AdminNav({
                 href={item.href}
                 target="_blank"
                 onClick={() => setIsMobileOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-ink-mute hover:text-ink hover:bg-card2 transition"
               >
                 <span>{item.icon}</span>
                 <span>{item.label}</span>
@@ -178,8 +178,8 @@ export default function AdminNav({
                 onClick={() => setIsMobileOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition relative ${
                   isActive
-                    ? "bg-indigo-600 text-white font-medium"
-                    : "text-gray-400 hover:text-white hover:bg-gray-800"
+                    ? "bg-cyan text-[#060a13] font-bold"
+                    : "text-ink-mute hover:text-ink hover:bg-card2"
                 }`}
               >
                 <span className="relative">
@@ -200,18 +200,18 @@ export default function AdminNav({
         </nav>
 
         {/* Quick Actions */}
-        <div className="px-3 py-4 border-t border-gray-800 space-y-1">
+        <div className="px-3 py-4 border-t border-line-soft space-y-1">
           <Link
             href="/admin/posts/new"
             onClick={() => setIsMobileOpen(false)}
-            className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-lg text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition active:scale-95"
+            className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-lg text-sm bg-cyan hover:bg-amber text-[#060a13] font-bold transition active:scale-95"
           >
             <span>+</span>
             <span>New Post</span>
           </Link>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:text-red-400 hover:bg-gray-800 transition w-full"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-ink-mute hover:text-red-400 hover:bg-card2 transition w-full"
           >
             <span>🚪</span>
             <span>Logout</span>

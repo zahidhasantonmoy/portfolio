@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PiHandsClappingFill } from 'react-icons/pi';
 import {
@@ -12,10 +12,9 @@ import {
   FaArrowUp,
 } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
-import { useBlogReader, FontSize } from './BlogReaderContext';
+import { useBlogReader, MAX_CLAPS_PER_READER } from './BlogReaderContext';
 
 interface ArticleFloatingBarProps {
-  slug: string;
   title: string;
   lang?: 'en' | 'bn';
 }
@@ -27,40 +26,27 @@ interface Particle {
   icon: string;
 }
 
+/**
+ * Sticky reading bar (desktop) / bottom bar (mobile): clap button, share
+ * links (real navigator.share/share URLs), copy-link, font size, scroll
+ * progress, back-to-top. Pure view over BlogReaderContext — likes and the
+ * reader's claps (one 20-clap cap) are shared with BlogInteractions (fixes
+ * B6). This is the sole share UI; no share count is shown (none exists).
+ * R4-styled: --card / --line-soft / --cyan / --amber tokens.
+ */
 export default function ArticleFloatingBar({
-  slug,
   title,
   lang = 'en',
 }: ArticleFloatingBarProps) {
-  const { fontSize, increaseFontSize, decreaseFontSize } = useBlogReader();
-  const [likes, setLikes] = useState(0);
-  const [userClaps, setUserClaps] = useState(0);
+  const { fontSize, increaseFontSize, decreaseFontSize, likes, userClaps, clap } =
+    useBlogReader();
   const [particles, setParticles] = useState<Particle[]>([]);
   const [copied, setCopied] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [url, setUrl] = useState('');
 
-  const pendingClapsRef = useRef(0);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-
   useEffect(() => {
     setUrl(typeof window !== 'undefined' ? window.location.href : '');
-
-    // Fetch live stats
-    fetch(`/api/blog/${slug}/stats`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.likes !== undefined) setLikes(data.likes);
-      })
-      .catch(() => {});
-
-    // Load stored user claps
-    try {
-      const stored = localStorage.getItem(`claps_${slug}`);
-      if (stored) {
-        setUserClaps(parseInt(stored, 10));
-      }
-    } catch {}
 
     // Track scroll progress
     const handleScroll = () => {
@@ -73,25 +59,21 @@ export default function ArticleFloatingBar({
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [slug]);
+  }, []);
 
   const handleClap = () => {
-    if (userClaps >= 25) {
-      toast(lang === 'bn' ? 'সর্বোচ্চ ২৫টি হাততালি দিতে পারবেন!' : 'Maximum 25 claps reached!', {
-        icon: '👏',
-      });
+    const counted = clap();
+    if (!counted) {
+      toast(
+        lang === 'bn'
+          ? `সর্বোচ্চ ${MAX_CLAPS_PER_READER}টি হাততালি দিতে পারবেন!`
+          : `Maximum ${MAX_CLAPS_PER_READER} claps reached!`,
+        { icon: '👏' }
+      );
       return;
     }
 
-    const newClapCount = userClaps + 1;
-    setUserClaps(newClapCount);
-    setLikes((prev) => prev + 1);
-
-    try {
-      localStorage.setItem(`claps_${slug}`, String(newClapCount));
-    } catch {}
-
-    // Particle burst animation
+    // Particle burst animation (visual only — the count lives in context)
     const newParticle: Particle = {
       id: Date.now() + Math.random(),
       x: (Math.random() - 0.5) * 45,
@@ -99,24 +81,6 @@ export default function ArticleFloatingBar({
       icon: ['👏', '❤️', '🔥', '✨'][Math.floor(Math.random() * 4)],
     };
     setParticles((prev) => [...prev.slice(-6), newParticle]);
-
-    // Debounced API dispatch
-    pendingClapsRef.current += 1;
-    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    debounceTimerRef.current = setTimeout(() => {
-      const countToSend = pendingClapsRef.current;
-      pendingClapsRef.current = 0;
-      fetch(`/api/blog/${slug}/like`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ count: countToSend }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.likes) setLikes(data.likes);
-        })
-        .catch(() => {});
-    }, 600);
   };
 
   const handleCopyLink = async () => {
@@ -163,7 +127,7 @@ export default function ArticleFloatingBar({
       {/* Desktop Sticky Floating Bar */}
       <aside
         aria-label="Reading actions"
-        className="hidden md:flex flex-col items-center gap-4 py-4 px-2.5 rounded-2xl bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border border-gray-200/80 dark:border-gray-800 shadow-lg shadow-gray-200/40 dark:shadow-none sticky top-28 self-start w-16 select-none z-30 transition-all"
+        className="hidden md:flex flex-col items-center gap-4 py-4 px-2.5 rounded-2xl bg-[#0e1729]/95 backdrop-blur-md border-[1.5px] border-[#1a2947] shadow-lg sticky top-28 self-start w-16 select-none z-30 transition-all"
       >
         {/* Claps Button */}
         <div className="relative flex flex-col items-center">
@@ -173,15 +137,15 @@ export default function ArticleFloatingBar({
             whileTap={{ scale: 0.9 }}
             className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
               userClaps > 0
-                ? 'bg-rose-500/15 text-rose-500 border border-rose-500/30'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-transparent'
+                ? 'bg-[#ffb02e]/15 text-[#ffb02e] border border-[#ffb02e]/40'
+                : 'bg-[#122036] text-[#a9bedd] hover:text-[#ffb02e] hover:bg-[#ffb02e]/10 border border-transparent'
             }`}
             title={lang === 'bn' ? 'হাততালি দিন' : 'Applaud this post'}
           >
             <PiHandsClappingFill className={`text-xl ${userClaps > 0 ? 'scale-110' : ''}`} />
           </motion.button>
-          
-          <span className="text-[11px] font-bold text-gray-700 dark:text-gray-300 mt-1">
+
+          <span className="text-[11px] font-bold text-[#c3d2ea] mt-1">
             {likes.toLocaleString()}
           </span>
 
@@ -204,30 +168,30 @@ export default function ArticleFloatingBar({
           </div>
         </div>
 
-        <div className="w-8 h-[1px] bg-gray-200 dark:bg-gray-800 my-0.5" />
+        <div className="w-8 h-[1px] bg-[#22345a] my-0.5" />
 
         {/* Font Size Adjusters */}
         <div className="flex flex-col items-center gap-1.5" title={lang === 'bn' ? 'ফন্ট সাইজ পরিবর্তন' : 'Adjust Text Size'}>
           <button
             onClick={increaseFontSize}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition border border-transparent hover:border-indigo-200 dark:hover:border-indigo-800"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-[#a9bedd] hover:text-[#2fd8f2] hover:bg-[#2fd8f2]/10 transition border border-transparent hover:border-[#0e7d99]"
             title="Increase font size (A+)"
           >
             A+
           </button>
-          <span className="text-[10px] uppercase font-mono tracking-widest text-gray-400 dark:text-gray-500">
+          <span className="text-[10px] uppercase font-mono tracking-widest text-[#a9bedd]">
             {fontSize}
           </span>
           <button
             onClick={decreaseFontSize}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-gray-600 dark:text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition border border-transparent hover:border-indigo-200 dark:hover:border-indigo-800"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-[#a9bedd] hover:text-[#2fd8f2] hover:bg-[#2fd8f2]/10 transition border border-transparent hover:border-[#0e7d99]"
             title="Decrease font size (A-)"
           >
             A-
           </button>
         </div>
 
-        <div className="w-8 h-[1px] bg-gray-200 dark:bg-gray-800 my-0.5" />
+        <div className="w-8 h-[1px] bg-[#22345a] my-0.5" />
 
         {/* Share Buttons */}
         <div className="flex flex-col items-center gap-2">
@@ -237,7 +201,7 @@ export default function ArticleFloatingBar({
               href={share.href}
               target="_blank"
               rel="noopener noreferrer"
-              className={`w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/60 border border-gray-200/60 dark:border-gray-700/60 transition-colors ${share.hoverColor}`}
+              className={`w-9 h-9 rounded-lg flex items-center justify-center text-[#a9bedd] bg-[#122036] border border-[#22345a] transition-colors ${share.hoverColor}`}
               title={`Share on ${share.name}`}
             >
               {share.icon}
@@ -247,36 +211,36 @@ export default function ArticleFloatingBar({
           {/* Copy Link Button */}
           <button
             onClick={handleCopyLink}
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/60 border border-gray-200/60 dark:border-gray-700/60 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 transition-colors"
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-[#a9bedd] bg-[#122036] border border-[#22345a] hover:text-[#2fd8f2] hover:bg-[#2fd8f2]/10 transition-colors"
             title={lang === 'bn' ? 'লিঙ্ক কপি করুন' : 'Copy link'}
           >
             {copied ? (
-              <FaCheck className="w-3.5 h-3.5 text-emerald-500" />
+              <FaCheck className="w-3.5 h-3.5 text-[#3ddc84]" />
             ) : (
               <FaLink className="w-3.5 h-3.5" />
             )}
           </button>
         </div>
 
-        <div className="w-8 h-[1px] bg-gray-200 dark:bg-gray-800 my-0.5" />
+        <div className="w-8 h-[1px] bg-[#22345a] my-0.5" />
 
         {/* Reading Progress & Scroll to Top */}
         <button
           onClick={scrollToTop}
-          className="group relative w-10 h-10 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
+          className="group relative w-10 h-10 rounded-full flex items-center justify-center text-[#a9bedd] hover:text-[#2fd8f2] transition"
           title={lang === 'bn' ? 'উপরে যান' : 'Scroll to top'}
         >
           {/* Circular progress SVG */}
           <svg className="w-9 h-9 transform -rotate-90" viewBox="0 0 36 36">
             <path
-              className="text-gray-200 dark:text-gray-800"
+              className="text-[#22345a]"
               strokeWidth="2.5"
               stroke="currentColor"
               fill="none"
               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
             />
             <path
-              className="text-indigo-600 dark:text-indigo-400 transition-all duration-150"
+              className="text-[#2fd8f2] transition-all duration-150"
               strokeDasharray={`${scrollProgress}, 100`}
               strokeWidth="2.5"
               strokeLinecap="round"
@@ -292,14 +256,14 @@ export default function ArticleFloatingBar({
       </aside>
 
       {/* Mobile Bottom Sticky Bar */}
-      <div className="md:hidden fixed bottom-4 left-4 right-4 z-40 flex items-center justify-between px-4 py-2.5 rounded-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border border-gray-200/90 dark:border-gray-800 shadow-2xl">
+      <div className="md:hidden fixed bottom-4 left-4 right-4 z-40 flex items-center justify-between px-4 py-2.5 rounded-full bg-[#0e1729]/95 backdrop-blur-lg border-[1.5px] border-[#1a2947] shadow-2xl">
         {/* Claps */}
         <button
           onClick={handleClap}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${
             userClaps > 0
-              ? 'bg-rose-500/10 text-rose-500'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
+              ? 'bg-[#ffb02e]/10 text-[#ffb02e]'
+              : 'bg-[#122036] text-[#c3d2ea]'
           }`}
         >
           <PiHandsClappingFill className="text-base" />
@@ -307,17 +271,17 @@ export default function ArticleFloatingBar({
         </button>
 
         {/* Font size toggle */}
-        <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-full px-2 py-1">
+        <div className="flex items-center gap-1 bg-[#122036] rounded-full px-2 py-1">
           <button
             onClick={decreaseFontSize}
-            className="text-[11px] font-bold px-1.5 py-0.5 text-gray-600 dark:text-gray-300"
+            className="text-[11px] font-bold px-1.5 py-0.5 text-[#c3d2ea]"
           >
             A-
           </button>
-          <span className="text-[10px] text-gray-400 font-mono">|</span>
+          <span className="text-[10px] text-[#a9bedd] font-mono">|</span>
           <button
             onClick={increaseFontSize}
-            className="text-[11px] font-bold px-1.5 py-0.5 text-gray-600 dark:text-gray-300"
+            className="text-[11px] font-bold px-1.5 py-0.5 text-[#c3d2ea]"
           >
             A+
           </button>
@@ -327,14 +291,14 @@ export default function ArticleFloatingBar({
         <div className="flex items-center gap-2">
           <button
             onClick={handleCopyLink}
-            className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300"
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-[#122036] text-[#a9bedd]"
             title="Copy link"
           >
-            {copied ? <FaCheck className="w-3 h-3 text-emerald-500" /> : <FaLink className="w-3 h-3" />}
+            {copied ? <FaCheck className="w-3 h-3 text-[#3ddc84]" /> : <FaLink className="w-3 h-3" />}
           </button>
           <button
             onClick={scrollToTop}
-            className="w-8 h-8 rounded-full flex items-center justify-center bg-indigo-600 text-white shadow-sm"
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-[#ffb02e] text-[#1a1200] shadow-sm"
             title="Back to top"
           >
             <FaArrowUp className="w-3 h-3" />

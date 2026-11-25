@@ -11,6 +11,14 @@ import SerpPreviewModal from "@/components/admin/SerpPreviewModal";
 // Markdown editor — dynamically imported to avoid SSR issues
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
+// Admin chrome uses the Redesign 4 tokens (see DESIGN-SPEC-R4.md):
+// bg-bg / bg-card / bg-card2 surfaces, border-line / border-line-soft,
+// text-ink / text-ink-soft / text-ink-mute, primary cyan, accent amber.
+// Semantic colours are kept: emerald = success/published, amber = warning/
+// draft, rose/red = danger, blue-derived info accents are cyan. No feature,
+// tab, button, field, API call, validation or state shape was changed by
+// the restyle; the localStorage media tray works exactly as before.
+
 interface Category {
   id: string;
   name_en: string;
@@ -2014,22 +2022,22 @@ export default function PostEditor({
       <div
         className={`border rounded-2xl transition-all shadow-md ${
           isDedicatedTab
-            ? "p-6 bg-gray-900/90 border-gray-800 space-y-6"
-            : "p-4 bg-gray-950/80 border-gray-800/90 space-y-4 mb-4"
+            ? "p-6 bg-card/90 border-line-soft space-y-6"
+            : "p-4 bg-bg/80 border-line-soft/90 space-y-4 mb-4"
         }`}
       >
         {/* Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-800/70">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-line-soft/70">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-cyan/10 border border-cyan/20 text-cyan flex items-center justify-center text-lg shrink-0">
               🖼️
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h4 className="text-sm font-bold text-white tracking-tight">
+                <h4 className="text-sm font-bold text-ink tracking-tight">
                   {isDedicatedTab ? "Dedicated Post Media & Visuals Studio" : "Post Media & Image Upload Hub"}
                 </h4>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-950/80 text-indigo-300 border border-indigo-700/50">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-deep/80 text-cyan border border-cyan-deep/50">
                   {mediaAssets.length} Image{mediaAssets.length !== 1 ? "s" : ""}
                 </span>
                 {bulkUploading && (
@@ -2039,7 +2047,7 @@ export default function PostEditor({
                   </span>
                 )}
               </div>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-ink-mute mt-0.5">
                 {isDedicatedTab
                   ? "Upload all images at once. Preview files, inspect filenames, and 1-click assign to Cover, Image 1, Image 2, or insert into articles."
                   : "Upload all images at once or assign Cover, Image 1 & Image 2 without leaving this tab."}
@@ -2050,7 +2058,7 @@ export default function PostEditor({
           {/* Quick Action Upload Buttons */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Batch Upload Button */}
-            <label className="cursor-pointer px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold rounded-lg shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50">
+            <label className="cursor-pointer px-3.5 py-1.5 bg-cyan-deep hover:bg-cyan-deep text-ink text-xs font-semibold rounded-lg shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50">
               <span>📁 Batch Upload Images</span>
               <input
                 type="file"
@@ -2085,7 +2093,7 @@ export default function PostEditor({
             </label>
 
             {/* Direct Slot 1 Upload */}
-            <label className="cursor-pointer px-3 py-1.5 bg-indigo-950/70 hover:bg-indigo-900/80 text-indigo-200 border border-indigo-700/60 text-xs font-medium rounded-lg transition-colors flex items-center gap-1">
+            <label className="cursor-pointer px-3 py-1.5 bg-cyan-deep/70 hover:bg-cyan-deep/80 text-cyan border border-cyan-deep/60 text-xs font-medium rounded-lg transition-colors flex items-center gap-1">
               <span>1️⃣ Upload img-1</span>
               <input
                 type="file"
@@ -2102,7 +2110,7 @@ export default function PostEditor({
             </label>
 
             {/* Direct Slot 2 Upload */}
-            <label className="cursor-pointer px-3 py-1.5 bg-purple-950/70 hover:bg-purple-900/80 text-purple-200 border border-purple-700/60 text-xs font-medium rounded-lg transition-colors flex items-center gap-1">
+            <label className="cursor-pointer px-3 py-1.5 bg-cyan-deep/70 hover:bg-cyan-deep/80 text-amber border border-cyan-deep/60 text-xs font-medium rounded-lg transition-colors flex items-center gap-1">
               <span>2️⃣ Upload img-2</span>
               <input
                 type="file"
@@ -2122,7 +2130,7 @@ export default function PostEditor({
               <button
                 type="button"
                 onClick={() => setIsMediaDrawerOpen(!isMediaDrawerOpen)}
-                className="px-2.5 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 text-xs rounded-lg transition ml-auto cursor-pointer"
+                className="px-2.5 py-1.5 bg-card2 hover:bg-card text-ink-soft border border-line text-xs rounded-lg transition ml-auto cursor-pointer"
                 title={isMediaDrawerOpen ? "Collapse image tray" : "Expand image tray"}
               >
                 {isMediaDrawerOpen ? "▲ Hide Tray" : `▼ Show Tray (${mediaAssets.length})`}
@@ -2137,7 +2145,7 @@ export default function PostEditor({
             {/* Quick Slot Status Bar */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* Cover Status Card */}
-              <div className="p-3 bg-gray-900/70 border border-gray-800 rounded-xl flex items-center justify-between gap-3">
+              <div className="p-3 bg-card/70 border border-line-soft rounded-xl flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   {form.cover_image_url ? (
                     <div className="w-14 h-10 rounded-md overflow-hidden bg-black border border-amber-500/40 shrink-0">
@@ -2145,15 +2153,15 @@ export default function PostEditor({
                       <img src={form.cover_image_url} alt="Cover" className="w-full h-full object-cover" />
                     </div>
                   ) : (
-                    <div className="w-14 h-10 rounded-md border border-dashed border-gray-700 bg-black/40 flex items-center justify-center text-[10px] text-gray-500 shrink-0">
+                    <div className="w-14 h-10 rounded-md border border-dashed border-line bg-black/40 flex items-center justify-center text-[10px] text-ink-mute shrink-0">
                       Empty
                     </div>
                   )}
                   <div className="min-w-0">
-                    <span className="text-xs font-bold text-white block truncate">
+                    <span className="text-xs font-bold text-ink block truncate">
                       ⭐ Cover / Thumbnail
                     </span>
-                    <span className="text-[10px] text-gray-400 block truncate font-mono">
+                    <span className="text-[10px] text-ink-mute block truncate font-mono">
                       {coverAsset ? coverAsset.name : form.cover_image_url ? "Cover Set ✓" : "Not configured"}
                     </span>
                   </div>
@@ -2165,7 +2173,7 @@ export default function PostEditor({
                       <button
                         type="button"
                         onClick={() => insertCoverIntoContent(currentLang || "en")}
-                        className="px-2 py-1 bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/50 rounded text-[10px] font-semibold transition cursor-pointer"
+                        className="px-2 py-1 bg-cyan-deep/80 hover:bg-cyan-deep text-cyan border border-cyan-deep/50 rounded text-[10px] font-semibold transition cursor-pointer"
                         title="Insert at top of active article"
                       >
                         Insert
@@ -2173,7 +2181,7 @@ export default function PostEditor({
                       <button
                         type="button"
                         onClick={() => setForm((p) => ({ ...p, cover_image_url: "" }))}
-                        className="text-gray-500 hover:text-red-400 p-1 text-xs transition cursor-pointer"
+                        className="text-ink-mute hover:text-red-400 p-1 text-xs transition cursor-pointer"
                         title="Clear cover image"
                       >
                         ✕
@@ -2184,23 +2192,23 @@ export default function PostEditor({
               </div>
 
               {/* Slot 1 Status Card */}
-              <div className="p-3 bg-gray-900/70 border border-gray-800 rounded-xl flex items-center justify-between gap-3">
+              <div className="p-3 bg-card/70 border border-line-soft rounded-xl flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   {img1?.url ? (
-                    <div className="w-14 h-10 rounded-md overflow-hidden bg-black border border-indigo-500/40 shrink-0">
+                    <div className="w-14 h-10 rounded-md overflow-hidden bg-black border border-cyan/40 shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={img1.url} alt="img-1" className="w-full h-full object-cover" />
                     </div>
                   ) : (
-                    <div className="w-14 h-10 rounded-md border border-dashed border-gray-700 bg-black/40 flex items-center justify-center text-[10px] text-gray-500 shrink-0">
+                    <div className="w-14 h-10 rounded-md border border-dashed border-line bg-black/40 flex items-center justify-center text-[10px] text-ink-mute shrink-0">
                       Empty
                     </div>
                   )}
                   <div className="min-w-0">
-                    <span className="text-xs font-bold text-white block truncate">
+                    <span className="text-xs font-bold text-ink block truncate">
                       1️⃣ Image 1 (img-1)
                     </span>
-                    <span className="text-[10px] text-gray-400 block truncate font-mono">
+                    <span className="text-[10px] text-ink-mute block truncate font-mono">
                       {img1Asset ? img1Asset.name : img1?.url ? "Image 1 Set ✓" : "{{IMAGE:img-1}}"}
                     </span>
                   </div>
@@ -2212,7 +2220,7 @@ export default function PostEditor({
                       <button
                         type="button"
                         onClick={() => insertImageIntoContent(img1, currentLang || "en")}
-                        className="px-2 py-1 bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/50 rounded text-[10px] font-semibold transition cursor-pointer"
+                        className="px-2 py-1 bg-cyan-deep/80 hover:bg-cyan-deep text-cyan border border-cyan-deep/50 rounded text-[10px] font-semibold transition cursor-pointer"
                         title="Insert Image 1 into active article"
                       >
                         Insert
@@ -2224,7 +2232,7 @@ export default function PostEditor({
                             prev.map((item) => (item.id === "img-1" ? { ...item, url: null, status: "pending" } : item))
                           );
                         }}
-                        className="text-gray-500 hover:text-red-400 p-1 text-xs transition cursor-pointer"
+                        className="text-ink-mute hover:text-red-400 p-1 text-xs transition cursor-pointer"
                         title="Clear Image 1 slot"
                       >
                         ✕
@@ -2235,23 +2243,23 @@ export default function PostEditor({
               </div>
 
               {/* Slot 2 Status Card */}
-              <div className="p-3 bg-gray-900/70 border border-gray-800 rounded-xl flex items-center justify-between gap-3">
+              <div className="p-3 bg-card/70 border border-line-soft rounded-xl flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   {img2?.url ? (
-                    <div className="w-14 h-10 rounded-md overflow-hidden bg-black border border-purple-500/40 shrink-0">
+                    <div className="w-14 h-10 rounded-md overflow-hidden bg-black border border-amber/40 shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={img2.url} alt="img-2" className="w-full h-full object-cover" />
                     </div>
                   ) : (
-                    <div className="w-14 h-10 rounded-md border border-dashed border-gray-700 bg-black/40 flex items-center justify-center text-[10px] text-gray-500 shrink-0">
+                    <div className="w-14 h-10 rounded-md border border-dashed border-line bg-black/40 flex items-center justify-center text-[10px] text-ink-mute shrink-0">
                       Empty
                     </div>
                   )}
                   <div className="min-w-0">
-                    <span className="text-xs font-bold text-white block truncate">
+                    <span className="text-xs font-bold text-ink block truncate">
                       2️⃣ Image 2 (img-2)
                     </span>
-                    <span className="text-[10px] text-gray-400 block truncate font-mono">
+                    <span className="text-[10px] text-ink-mute block truncate font-mono">
                       {img2Asset ? img2Asset.name : img2?.url ? "Image 2 Set ✓" : "{{IMAGE:img-2}}"}
                     </span>
                   </div>
@@ -2263,7 +2271,7 @@ export default function PostEditor({
                       <button
                         type="button"
                         onClick={() => insertImageIntoContent(img2, currentLang || "en")}
-                        className="px-2 py-1 bg-purple-950/80 hover:bg-purple-900 text-purple-300 border border-purple-700/50 rounded text-[10px] font-semibold transition cursor-pointer"
+                        className="px-2 py-1 bg-cyan-deep/80 hover:bg-cyan-deep text-amber border border-cyan-deep/50 rounded text-[10px] font-semibold transition cursor-pointer"
                         title="Insert Image 2 into active article"
                       >
                         Insert
@@ -2275,7 +2283,7 @@ export default function PostEditor({
                             prev.map((item) => (item.id === "img-2" ? { ...item, url: null, status: "pending" } : item))
                           );
                         }}
-                        className="text-gray-500 hover:text-red-400 p-1 text-xs transition cursor-pointer"
+                        className="text-ink-mute hover:text-red-400 p-1 text-xs transition cursor-pointer"
                         title="Clear Image 2 slot"
                       >
                         ✕
@@ -2295,7 +2303,7 @@ export default function PostEditor({
                 }
               }}
               onDragOver={(e) => e.preventDefault()}
-              className="border-2 border-dashed border-indigo-800/40 hover:border-indigo-600/80 rounded-xl p-4 bg-indigo-950/10 hover:bg-indigo-950/20 transition-all text-center flex flex-col items-center justify-center gap-1.5 group cursor-pointer"
+              className="border-2 border-dashed border-line/40 hover:border-cyan-deep/80 rounded-xl p-4 bg-cyan-deep/10 hover:bg-cyan-deep/20 transition-all text-center flex flex-col items-center justify-center gap-1.5 group cursor-pointer"
               onClick={() => {
                 const el = document.getElementById(
                   isDedicatedTab ? "bulk-upload-media-tab" : `bulk-upload-${currentLang || "tray"}`
@@ -2317,14 +2325,14 @@ export default function PostEditor({
                   }
                 }}
               />
-              <div className="w-8 h-8 rounded-full bg-indigo-600/10 text-indigo-400 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
+              <div className="w-8 h-8 rounded-full bg-cyan-deep/10 text-cyan flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
                 📤
               </div>
               <div>
-                <p className="text-xs font-semibold text-white">
-                  Drop multiple images here, or <span className="text-indigo-400 underline">browse files to batch upload</span>
+                <p className="text-xs font-semibold text-ink">
+                  Drop multiple images here, or <span className="text-cyan underline">browse files to batch upload</span>
                 </p>
-                <p className="text-[11px] text-gray-400 mt-0.5">
+                <p className="text-[11px] text-ink-mute mt-0.5">
                   Upload Cover, Diagram 1, Diagram 2, or screenshots all at once.
                 </p>
               </div>
@@ -2332,7 +2340,7 @@ export default function PostEditor({
 
             {/* Uploaded Gallery Grid */}
             {mediaAssets.length === 0 ? (
-              <div className="py-5 px-4 text-center rounded-xl border border-gray-800/80 bg-black/20 text-gray-500 text-xs">
+              <div className="py-5 px-4 text-center rounded-xl border border-line-soft/80 bg-black/20 text-ink-mute text-xs">
                 <span>📁 No images uploaded yet. Upload images above to see previews, filenames, and selection buttons.</span>
               </div>
             ) : (
@@ -2345,20 +2353,20 @@ export default function PostEditor({
                   return (
                     <div
                       key={asset.id}
-                      className="bg-gray-950/90 border border-gray-800 hover:border-gray-700 rounded-xl p-3 flex flex-col justify-between space-y-2.5 transition shadow-sm group"
+                      className="bg-bg/90 border border-line-soft hover:border-line rounded-xl p-3 flex flex-col justify-between space-y-2.5 transition shadow-sm group"
                     >
                       {/* Image Preview & Zoom Link */}
-                      <div className="relative aspect-video rounded-lg overflow-hidden bg-black border border-gray-800">
+                      <div className="relative aspect-video rounded-lg overflow-hidden bg-black border border-line-soft">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={asset.url} alt={asset.name} className="w-full h-full object-cover" />
-                        <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-black/80 text-gray-200 border border-white/10">
+                        <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-black/80 text-ink-soft border border-white/10">
                           {isCover ? "⭐ Cover" : isImg1 ? "1️⃣ img-1" : isImg2 ? "2️⃣ img-2" : "🖼️ Image"}
                         </span>
                         <a
                           href={asset.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="absolute top-1 right-1 p-1 bg-black/70 hover:bg-black text-gray-300 rounded text-[10px]"
+                          className="absolute top-1 right-1 p-1 bg-black/70 hover:bg-black text-ink-soft rounded text-[10px]"
                           title="Open full image"
                         >
                           ↗
@@ -2367,17 +2375,17 @@ export default function PostEditor({
 
                       {/* File Name & Details */}
                       <div>
-                        <p className="text-xs font-bold text-white truncate font-mono" title={asset.name}>
+                        <p className="text-xs font-bold text-ink truncate font-mono" title={asset.name}>
                           {asset.name}
                         </p>
-                        <p className="text-[10px] text-gray-500 font-mono mt-0.5">
+                        <p className="text-[10px] text-ink-mute font-mono mt-0.5">
                           {asset.size ? `${(asset.size / 1024).toFixed(0)} KB • ` : ""}
                           {new Date(asset.uploadedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </p>
                       </div>
 
                       {/* Dedicated Select / Assign Actions */}
-                      <div className="space-y-1.5 pt-1.5 border-t border-gray-900">
+                      <div className="space-y-1.5 pt-1.5 border-t border-line">
                         {/* Assignment Buttons */}
                         <div className="grid grid-cols-3 gap-1">
                           <button
@@ -2386,7 +2394,7 @@ export default function PostEditor({
                             className={`px-1.5 py-1 rounded text-[10px] font-bold border transition text-center cursor-pointer ${
                               isCover
                                 ? "bg-amber-950/80 border-amber-500/60 text-amber-300"
-                                : "bg-gray-900 border-gray-800 hover:border-amber-500/40 text-gray-300 hover:text-amber-200"
+                                : "bg-card border-line-soft hover:border-amber-500/40 text-ink-soft hover:text-amber-200"
                             }`}
                             title="Set this image as Cover / Thumbnail"
                           >
@@ -2398,8 +2406,8 @@ export default function PostEditor({
                             onClick={() => assignAssetToSlot(asset, "img-1")}
                             className={`px-1.5 py-1 rounded text-[10px] font-bold border transition text-center cursor-pointer ${
                               isImg1
-                                ? "bg-indigo-950/80 border-indigo-500/60 text-indigo-300"
-                                : "bg-gray-900 border-gray-800 hover:border-indigo-500/40 text-gray-300 hover:text-indigo-200"
+                                ? "bg-cyan-deep/80 border-cyan/60 text-cyan"
+                                : "bg-card border-line-soft hover:border-cyan/40 text-ink-soft hover:text-cyan"
                             }`}
                             title="Assign to Image 1 (img-1) slot"
                           >
@@ -2411,8 +2419,8 @@ export default function PostEditor({
                             onClick={() => assignAssetToSlot(asset, "img-2")}
                             className={`px-1.5 py-1 rounded text-[10px] font-bold border transition text-center cursor-pointer ${
                               isImg2
-                                ? "bg-purple-950/80 border-purple-500/60 text-purple-300"
-                                : "bg-gray-900 border-gray-800 hover:border-purple-500/40 text-gray-300 hover:text-purple-200"
+                                ? "bg-cyan-deep/80 border-amber/60 text-amber"
+                                : "bg-card border-line-soft hover:border-amber/40 text-ink-soft hover:text-amber"
                             }`}
                             title="Assign to Image 2 (img-2) slot"
                           >
@@ -2425,7 +2433,7 @@ export default function PostEditor({
                           <button
                             type="button"
                             onClick={() => insertAssetIntoContent(asset, "en")}
-                            className="px-2 py-1 bg-blue-950/60 hover:bg-blue-900 text-blue-200 border border-blue-800/50 rounded text-[11px] font-medium transition flex items-center justify-center gap-1 cursor-pointer"
+                            className="px-2 py-1 bg-cyan-deep/60 hover:bg-cyan-deep text-cyan border border-line/50 rounded text-[11px] font-medium transition flex items-center justify-center gap-1 cursor-pointer"
                             title="Insert into English markdown at cursor or end"
                           >
                             <span>🇬🇧 Insert EN</span>
@@ -2450,7 +2458,7 @@ export default function PostEditor({
                               navigator.clipboard.writeText(`![${alt}](${asset.url})`);
                               toast.success("📋 Copied markdown tag!");
                             }}
-                            className="text-gray-400 hover:text-white transition flex items-center gap-1 cursor-pointer"
+                            className="text-ink-mute hover:text-ink transition flex items-center gap-1 cursor-pointer"
                           >
                             <span>📋 Copy MD</span>
                           </button>
@@ -2458,7 +2466,7 @@ export default function PostEditor({
                           <button
                             type="button"
                             onClick={() => removeMediaAsset(asset.id)}
-                            className="text-gray-500 hover:text-red-400 transition cursor-pointer"
+                            className="text-ink-mute hover:text-red-400 transition cursor-pointer"
                             title="Remove from post media tray"
                           >
                             ✕ Remove
@@ -2489,9 +2497,9 @@ export default function PostEditor({
   return (
     <div className="space-y-6">
       {/* Top toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-900 border border-gray-800 rounded-xl px-4 py-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card border border-line-soft rounded-xl px-4 py-3">
         <div className="flex items-center gap-3">
-          <span className="text-white text-sm font-medium bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-700">
+          <span className="text-ink text-sm font-medium bg-card2 px-3 py-1.5 rounded-lg border border-line">
             📝 Blog Post
           </span>
           {form.status === "scheduled" ? (
@@ -2501,10 +2509,10 @@ export default function PostEditor({
                 setScheduleDate(form.published_at || formatForDatetimeInput(new Date()));
                 setShowScheduleModal(true);
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-950/80 text-blue-300 border border-blue-500/50 hover:bg-blue-900/60 transition active:scale-95 group shadow-sm cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-deep/80 text-cyan border border-cyan/50 hover:bg-cyan-deep/60 transition active:scale-95 group shadow-sm cursor-pointer"
               title="Click to view, adjust or unschedule"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan animate-ping"></span>
               <span>
                 ⏰ Scheduled:{" "}
                 {form.published_at
@@ -2512,11 +2520,11 @@ export default function PostEditor({
                   : "Pick time"}
               </span>
               {form.published_at && (
-                <span className="text-[10px] text-blue-400/90 font-mono bg-blue-900/60 px-1.5 py-0.2 rounded border border-blue-500/30">
+                <span className="text-[10px] text-cyan/90 font-mono bg-cyan-deep/60 px-1.5 py-0.2 rounded border border-cyan/30">
                   {getRelativeTimeMessage(form.published_at)}
                 </span>
               )}
-              <span className="text-[10px] text-blue-400 underline group-hover:text-white transition ml-0.5">
+              <span className="text-[10px] text-cyan underline group-hover:text-ink transition ml-0.5">
                 Edit ↗
               </span>
             </button>
@@ -2533,7 +2541,7 @@ export default function PostEditor({
           <button
             type="button"
             onClick={() => setActiveTab("json")}
-            className="inline-flex items-center gap-1.5 px-3 py-1 text-xs bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 rounded-lg transition font-medium"
+            className="inline-flex items-center gap-1.5 px-3 py-1 text-xs bg-cyan-deep/25 hover:bg-cyan-deep/40 text-cyan border border-cyan/40 rounded-lg transition font-medium"
           >
             <span>📥 Auto-Fill from JSON</span>
           </button>
@@ -2572,7 +2580,7 @@ export default function PostEditor({
               onClick={handleCrossPost}
               disabled={crossPosting.devto || !form.title_en.trim() || !form.content_en.trim()}
               title="Post to DEV.to as draft with canonical URL"
-              className="inline-flex items-center gap-1.5 px-3 py-1 text-xs bg-gray-700/60 hover:bg-indigo-600/25 text-gray-300 hover:text-indigo-300 border border-gray-600 hover:border-indigo-500/50 rounded-lg transition font-medium disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 px-3 py-1 text-xs bg-card/60 hover:bg-cyan-deep/25 text-ink-soft hover:text-cyan border border-line hover:border-cyan/50 rounded-lg transition font-medium disabled:opacity-40"
             >
               {crossPosting.devto ? (
                 <>
@@ -2588,7 +2596,7 @@ export default function PostEditor({
             type="button"
             onClick={() => handleSave("draft")}
             disabled={saving}
-            className="px-3.5 py-1.5 text-xs sm:text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition disabled:opacity-50"
+            className="px-3.5 py-1.5 text-xs sm:text-sm bg-card2 hover:bg-card text-ink-soft rounded-lg transition disabled:opacity-50"
           >
             Save Draft
           </button>
@@ -2599,7 +2607,7 @@ export default function PostEditor({
               setShowScheduleModal(true);
             }}
             disabled={saving}
-            className="px-3.5 py-1.5 text-xs sm:text-sm bg-blue-600/25 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 rounded-lg transition disabled:opacity-50 font-medium flex items-center gap-1.5"
+            className="px-3.5 py-1.5 text-xs sm:text-sm bg-cyan-deep/25 hover:bg-cyan-deep/40 text-cyan border border-cyan/40 rounded-lg transition disabled:opacity-50 font-medium flex items-center gap-1.5"
             title="Schedule post for future publication"
           >
             <span>⏰ Schedule</span>
@@ -2608,7 +2616,7 @@ export default function PostEditor({
             type="button"
             onClick={() => handleSave("published")}
             disabled={saving}
-            className="px-4 py-1.5 text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition disabled:opacity-50 font-medium"
+            className="px-4 py-1.5 text-xs sm:text-sm bg-cyan-deep hover:bg-cyan text-ink rounded-lg transition disabled:opacity-50 font-medium"
           >
             {saving ? "Saving..." : "Publish"}
           </button>
@@ -2616,7 +2624,7 @@ export default function PostEditor({
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-800">
+      <div className="border-b border-line-soft">
         <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
           {tabs.map((tab) => (
             <button
@@ -2624,8 +2632,8 @@ export default function PostEditor({
               onClick={() => setActiveTab(tab.id)}
               className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition border-b-2 -mb-px ${
                 activeTab === tab.id
-                  ? "border-indigo-500 text-indigo-400"
-                  : "border-transparent text-gray-500 hover:text-gray-300"
+                  ? "border-cyan text-cyan"
+                  : "border-transparent text-ink-mute hover:text-ink-soft"
               }`}
             >
               {tab.label}
@@ -2635,7 +2643,7 @@ export default function PostEditor({
       </div>
 
       {/* ── Live SEO & GEO Score Meter ── */}
-      <div className="bg-gray-900/90 border border-gray-800 rounded-xl p-4 shadow-lg backdrop-blur-md transition-all">
+      <div className="bg-card/90 border border-line-soft rounded-xl p-4 shadow-lg backdrop-blur-md transition-all">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3.5">
             {/* Score Badge */}
@@ -2643,16 +2651,16 @@ export default function PostEditor({
               className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center border font-mono font-bold text-base shadow-sm shrink-0 ${seoScoreData.badgeColor}`}
             >
               <span>{seoScoreData.score}</span>
-              <span className="text-[9px] uppercase tracking-wider -mt-1 font-sans text-gray-400">/ 100</span>
+              <span className="text-[9px] uppercase tracking-wider -mt-1 font-sans text-ink-mute">/ 100</span>
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-bold text-white tracking-wide">Live SEO & GEO Score</span>
+                <span className="text-sm font-bold text-ink tracking-wide">Live SEO & GEO Score</span>
                 <span className={`text-[11px] px-2 py-0.5 rounded-full border font-semibold ${seoScoreData.badgeColor}`}>
                   {seoScoreData.grade}
                 </span>
               </div>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-ink-mute mt-0.5">
                 Real-time check for Google SERP Top 1 ranking & AI Overviews (ChatGPT, Perplexity, Gemini).
               </p>
             </div>
@@ -2663,7 +2671,7 @@ export default function PostEditor({
               type="button"
               onClick={handleAutoOptimizeSEO}
               disabled={autoOptimizingSEO || !form.title_en}
-              className="px-3.5 py-1.5 text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg transition font-bold flex items-center gap-1.5 shadow-sm shadow-emerald-900/40 disabled:opacity-50 active:scale-95"
+              className="px-3.5 py-1.5 text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-ink rounded-lg transition font-bold flex items-center gap-1.5 shadow-sm shadow-emerald-900/40 disabled:opacity-50 active:scale-95"
               title="1-Click Auto Optimize SEO & GEO score with AI"
             >
               <span>{autoOptimizingSEO ? "✨ Optimizing..." : "✨ Auto Optimize SEO"}</span>
@@ -2671,7 +2679,7 @@ export default function PostEditor({
             <button
               type="button"
               onClick={() => setShowSeoDetails(!showSeoDetails)}
-              className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 rounded-lg transition flex items-center gap-1"
+              className="px-3 py-1.5 text-xs bg-card2 hover:bg-card text-ink-soft border border-line rounded-lg transition flex items-center gap-1"
             >
               <span>{showSeoDetails ? "Hide Checklist ▲" : "View Checklist ▼"}</span>
             </button>
@@ -2679,14 +2687,14 @@ export default function PostEditor({
               type="button"
               onClick={handlePingIndexing}
               disabled={pingingIndex || !form.slug}
-              className="px-3 py-1.5 text-xs bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/50 rounded-lg transition font-medium flex items-center gap-1 disabled:opacity-50"
+              className="px-3 py-1.5 text-xs bg-cyan-deep/30 hover:bg-cyan-deep/50 text-cyan border border-cyan/50 rounded-lg transition font-medium flex items-center gap-1 disabled:opacity-50"
             >
               <span>{pingingIndex ? "⚡ Pinging..." : "⚡ Ping Google"}</span>
             </button>
             <button
               type="button"
               onClick={() => setShowSerpPreview(true)}
-              className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-cyan-300 border border-cyan-500/30 rounded-lg transition font-medium flex items-center gap-1.5 active:scale-95"
+              className="px-3 py-1.5 text-xs bg-card2 hover:bg-card text-cyan-300 border border-cyan-500/30 rounded-lg transition font-medium flex items-center gap-1.5 active:scale-95"
               title="Preview Google SERP and Social Card snippet"
             >
               <span>🔍 Preview SERP</span>
@@ -2695,7 +2703,7 @@ export default function PostEditor({
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-gray-800 h-2 rounded-full mt-3 overflow-hidden">
+        <div className="w-full bg-card2 h-2 rounded-full mt-3 overflow-hidden">
           <div
             className={`h-full transition-all duration-500 ${seoScoreData.progressColor}`}
             style={{ width: `${seoScoreData.score}%` }}
@@ -2704,20 +2712,20 @@ export default function PostEditor({
 
         {/* Detailed Checklist */}
         {showSeoDetails && (
-          <div className="mt-4 pt-4 border-t border-gray-800 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <div className="mt-4 pt-4 border-t border-line-soft grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
             {seoScoreData.checks.map((c, i) => (
               <div
                 key={i}
                 className={`p-2.5 rounded-lg border flex items-start gap-2.5 ${
                   c.passed
                     ? "bg-emerald-950/20 border-emerald-900/40 text-emerald-300"
-                    : "bg-gray-950/60 border-gray-800 text-gray-400"
+                    : "bg-bg/60 border-line-soft text-ink-mute"
                 }`}
               >
                 <span className="text-sm mt-0.5">{c.passed ? "✅" : "⚠️"}</span>
                 <div className="flex-1 min-w-0">
-                  <span className="font-semibold block text-gray-200">{c.label}</span>
-                  <span className="text-[11px] text-gray-400 block mt-0.5">{c.tip}</span>
+                  <span className="font-semibold block text-ink-soft">{c.label}</span>
+                  <span className="text-[11px] text-ink-mute block mt-0.5">{c.tip}</span>
                 </div>
               </div>
             ))}
@@ -2729,7 +2737,7 @@ export default function PostEditor({
       {activeTab === "english" && (
         <div className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-ink-soft mb-2">
               Title (English) <span className="text-red-400">*</span>
             </label>
             <input
@@ -2737,33 +2745,33 @@ export default function PostEditor({
               value={form.title_en}
               onChange={(e) => handleTitleChange(e.target.value)}
               placeholder="My First Laravel Tutorial"
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-lg font-medium"
+              className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink placeholder-ink-mute focus:outline-none focus:border-cyan text-lg font-medium"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-ink-soft mb-2">
               Slug <span className="text-red-400">*</span>
             </label>
             <div className="flex items-center gap-2">
-              <span className="text-gray-500 text-sm">/blog/</span>
+              <span className="text-ink-mute text-sm">/blog/</span>
               <input
                 type="text"
                 value={form.slug}
                 onChange={(e) => setForm({ ...form, slug: slugify(e.target.value) })}
-                className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-indigo-500"
+                className="flex-1 px-3 py-2 bg-card border border-line rounded-lg text-ink text-sm font-mono focus:outline-none focus:border-cyan"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Excerpt (English)</label>
+            <label className="block text-sm font-medium text-ink-soft mb-2">Excerpt (English)</label>
             <textarea
               value={form.excerpt_en}
               onChange={(e) => setForm({ ...form, excerpt_en: e.target.value })}
               placeholder="A brief summary of this post (shown in listings)..."
               rows={2}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm resize-none"
+              className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink placeholder-ink-mute focus:outline-none focus:border-cyan text-sm resize-none"
             />
           </div>
 
@@ -2794,10 +2802,10 @@ export default function PostEditor({
             onDragOver={(e) => e.preventDefault()}
           >
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-300">
+              <label className="block text-sm font-medium text-ink-soft">
                 Content (English — Markdown)
               </label>
-              <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-indigo-300 rounded-lg border border-gray-700 transition">
+              <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1 bg-card2 hover:bg-card text-xs text-cyan rounded-lg border border-line transition">
                 <span>📷 Upload / Drop Image</span>
                 <input
                   type="file"
@@ -2814,7 +2822,7 @@ export default function PostEditor({
             {/* Post Media Hub & Direct Uploader */}
             {renderMediaHub("en", false)}
 
-            <p className="text-xs text-gray-500 mb-2">💡 Tip: Paste screenshots (Ctrl+V) or drag & drop images directly here!</p>
+            <p className="text-xs text-ink-mute mb-2">💡 Tip: Paste screenshots (Ctrl+V) or drag & drop images directly here!</p>
             <MDEditor
               value={form.content_en}
               onChange={(val) => setForm({ ...form, content_en: val ?? "" })}
@@ -2829,12 +2837,12 @@ export default function PostEditor({
       {activeTab === "bangla" && (
         <div className="space-y-5">
           {/* Quick Auto-Translate Action Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-blue-950/60 to-indigo-950/60 border border-blue-500/30 rounded-xl p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-cyan-deep/60 to-cyan-deep/60 border border-cyan/30 rounded-xl p-4">
             <div>
-              <p className="text-sm font-semibold text-white flex items-center gap-2">
+              <p className="text-sm font-semibold text-ink flex items-center gap-2">
                 <span>🌐</span> Auto-Translate from English
               </p>
-              <p className="text-xs text-blue-300/80 mt-0.5">
+              <p className="text-xs text-cyan/80 mt-0.5">
                 Automatically translates your English Title, Excerpt, and Content into natural Bengali with 1 click.
               </p>
             </div>
@@ -2842,7 +2850,7 @@ export default function PostEditor({
               type="button"
               onClick={handleAutoTranslate}
               disabled={translating || !form.title_en.trim()}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition shadow-md shadow-blue-600/30 flex items-center gap-2 shrink-0 disabled:opacity-50 active:scale-95"
+              className="px-4 py-2 bg-cyan-deep hover:bg-cyan text-ink text-xs font-semibold rounded-xl transition shadow-md shadow-cyan-deep/30 flex items-center gap-2 shrink-0 disabled:opacity-50 active:scale-95"
             >
               {translating ? (
                 <>
@@ -2857,29 +2865,29 @@ export default function PostEditor({
             </button>
           </div>
 
-          <div className="bg-gray-900/60 border border-gray-800 rounded-lg px-4 py-2.5 text-gray-400 text-xs">
+          <div className="bg-card/60 border border-line-soft rounded-lg px-4 py-2.5 text-ink-mute text-xs">
             💡 বাংলা content না থাকলেও চলবে। English version-ই default হিসেবে দেখাবে।
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">শিরোনাম (বাংলা)</label>
+            <label className="block text-sm font-medium text-ink-soft mb-2">শিরোনাম (বাংলা)</label>
             <input
               type="text"
               value={form.title_bn}
               onChange={(e) => setForm({ ...form, title_bn: e.target.value })}
               placeholder="আমার প্রথম Laravel টিউটোরিয়াল"
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-lg font-medium"
+              className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink placeholder-ink-mute focus:outline-none focus:border-cyan text-lg font-medium"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">সারসংক্ষেপ (বাংলা)</label>
+            <label className="block text-sm font-medium text-ink-soft mb-2">সারসংক্ষেপ (বাংলা)</label>
             <textarea
               value={form.excerpt_bn}
               onChange={(e) => setForm({ ...form, excerpt_bn: e.target.value })}
               placeholder="এই পোস্টের সংক্ষিপ্ত বিবরণ..."
               rows={2}
-              className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 text-sm resize-none"
+              className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink placeholder-ink-mute focus:outline-none focus:border-cyan text-sm resize-none"
             />
           </div>
 
@@ -2910,10 +2918,10 @@ export default function PostEditor({
             onDragOver={(e) => e.preventDefault()}
           >
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-300">
+              <label className="block text-sm font-medium text-ink-soft">
                 বিষয়বস্তু (বাংলা — Markdown)
               </label>
-              <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-indigo-300 rounded-lg border border-gray-700 transition">
+              <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1 bg-card2 hover:bg-card text-xs text-cyan rounded-lg border border-line transition">
                 <span>📷 ছবি আপলোড</span>
                 <input
                   type="file"
@@ -2952,19 +2960,19 @@ export default function PostEditor({
         <div className="space-y-6">
           
           {/* Quota Dashboard */}
-          <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-5 shadow-lg">
+          <div className="bg-card2/50 border border-line/50 rounded-xl p-5 shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <h3 className="text-lg font-bold text-ink flex items-center gap-2">
                   <span>⚡ AI API Quota Status</span>
                 </h3>
-                <p className="text-sm text-gray-400 mt-1">Real-time status of your AI API providers.</p>
+                <p className="text-sm text-ink-mute mt-1">Real-time status of your AI API providers.</p>
               </div>
               <div className="flex gap-2">
                 <select
                   value={preferredProvider}
                   onChange={(e) => setPreferredProvider(e.target.value)}
-                  className="text-xs bg-gray-900 border border-gray-700 hover:border-gray-500 rounded-lg text-white px-2 py-1.5 transition-colors focus:outline-none"
+                  className="text-xs bg-card border border-line hover:border-ink-mute rounded-lg text-ink px-2 py-1.5 transition-colors focus:outline-none"
                 >
                   <option value="auto">🤖 Auto-Routing (Smart Fallback)</option>
                   <option value="openrouter">🌐 OpenRouter (Llama 3)</option>
@@ -2974,7 +2982,7 @@ export default function PostEditor({
                 <button 
                   onClick={fetchQuotas} 
                   disabled={loadingQuotas}
-                  className="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded-lg text-white transition-colors"
+                  className="text-xs bg-card hover:bg-line px-3 py-1.5 rounded-lg text-ink transition-colors"
                 >
                   {loadingQuotas ? "Refreshing..." : "🔄 Refresh"}
                 </button>
@@ -2983,16 +2991,16 @@ export default function PostEditor({
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {quotas.map((q, idx) => (
-                <div key={idx} className="bg-gray-900 rounded-lg p-4 border border-gray-700/50 relative overflow-hidden">
+                <div key={idx} className="bg-card rounded-lg p-4 border border-line/50 relative overflow-hidden">
                   <div className="flex items-center gap-2 mb-2">
                     <div className={`w-2.5 h-2.5 rounded-full ${q.isConfigured ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'}`}></div>
-                    <span className="font-semibold text-gray-200">{q.provider}</span>
+                    <span className="font-semibold text-ink-soft">{q.provider}</span>
                   </div>
-                  <div className="text-xs text-gray-400 mb-1">Status: {q.isConfigured ? '✅ Configured' : '❌ Missing Key'}</div>
+                  <div className="text-xs text-ink-mute mb-1">Status: {q.isConfigured ? '✅ Configured' : '❌ Missing Key'}</div>
                   {q.isConfigured && (
                     <>
                       <div className="text-xs font-medium text-emerald-400 mt-2">Limit: {q.limitInfo}</div>
-                      <div className="text-xs text-gray-500 mt-1">Usage: {q.usageInfo}</div>
+                      <div className="text-xs text-ink-mute mt-1">Usage: {q.usageInfo}</div>
                     </>
                   )}
                 </div>
@@ -3001,57 +3009,57 @@ export default function PostEditor({
           </div>
 
           {/* Action 1: Translation */}
-          <div className="flex items-center justify-between bg-blue-900/20 border border-blue-800/50 p-4 rounded-xl">
+          <div className="flex items-center justify-between bg-cyan-deep/20 border border-line/50 p-4 rounded-xl">
             <div>
-              <h4 className="text-sm font-semibold text-blue-300">
+              <h4 className="text-sm font-semibold text-cyan">
                 Auto Translate to Bengali
                 {completedTasks.translate && <span className="ml-2 text-[10px] text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded-full border border-emerald-800/50">✅ Completed</span>}
               </h4>
-              <p className="text-xs text-blue-400/80 mt-1">Uses AI to translate your English Title, Excerpt, and Content perfectly into Bengali.</p>
+              <p className="text-xs text-cyan/80 mt-1">Uses AI to translate your English Title, Excerpt, and Content perfectly into Bengali.</p>
             </div>
             <button
               type="button"
               onClick={handleAutoTranslate}
               disabled={translating}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2 bg-cyan-deep hover:bg-cyan text-ink text-sm font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               {translating ? "Translating..." : "🌐 Translate to Bengali"}
             </button>
           </div>
 
           {/* Action 2: Excerpts & Tags */}
-          <div className="flex items-center justify-between bg-purple-900/20 border border-purple-800/50 p-4 rounded-xl">
+          <div className="flex items-center justify-between bg-cyan-deep/20 border border-line/50 p-4 rounded-xl">
             <div>
-              <h4 className="text-sm font-semibold text-purple-300">
+              <h4 className="text-sm font-semibold text-amber">
                 Generate Excerpts & Tags
                 {completedTasks.meta && <span className="ml-2 text-[10px] text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded-full border border-emerald-800/50">✅ Completed</span>}
               </h4>
-              <p className="text-xs text-purple-400/80 mt-1">Reads your English content and generates engaging excerpts for both languages, plus suggests tags.</p>
+              <p className="text-xs text-amber/80 mt-1">Reads your English content and generates engaging excerpts for both languages, plus suggests tags.</p>
             </div>
             <button
               type="button"
               onClick={handleGenerateMeta}
               disabled={generatingMeta}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2 bg-amber hover:bg-amber text-amber-ink text-sm font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               {generatingMeta ? "Generating..." : "🏷️ Generate Excerpts & Tags"}
             </button>
           </div>
 
           {/* Action 3: SEO */}
-          <div className="flex items-center justify-between bg-indigo-900/20 border border-indigo-800/50 p-4 rounded-xl">
+          <div className="flex items-center justify-between bg-cyan-deep/20 border border-line/50 p-4 rounded-xl">
             <div>
-              <h4 className="text-sm font-semibold text-indigo-300">
+              <h4 className="text-sm font-semibold text-cyan">
                 AI SEO Generator
                 {completedTasks.seo && <span className="ml-2 text-[10px] text-emerald-400 bg-emerald-900/40 px-2 py-0.5 rounded-full border border-emerald-800/50">✅ Completed</span>}
               </h4>
-              <p className="text-xs text-indigo-400/80 mt-1">Automatically write English & Bengali SEO titles and meta descriptions.</p>
+              <p className="text-xs text-cyan/80 mt-1">Automatically write English & Bengali SEO titles and meta descriptions.</p>
             </div>
             <button
               type="button"
               onClick={handleGenerateSEO}
               disabled={generatingSEO}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2 bg-cyan-deep hover:bg-cyan text-ink text-sm font-medium rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               {generatingSEO ? "Generating..." : "✨ Auto Generate SEO"}
             </button>
@@ -3080,7 +3088,7 @@ export default function PostEditor({
                 <select
                   value={imageStyle}
                   onChange={(e) => setImageStyle(e.target.value)}
-                  className="px-2.5 py-1.5 bg-gray-900 border border-teal-700/60 rounded-lg text-teal-200 text-xs focus:outline-none focus:border-teal-400"
+                  className="px-2.5 py-1.5 bg-card border border-teal-700/60 rounded-lg text-teal-200 text-xs focus:outline-none focus:border-teal-400"
                 >
                   <option value="auto">🎯 Topic-Adaptive (Recommended)</option>
                   <option value="isometric">📐 3D Isometric Tech Art</option>
@@ -3098,7 +3106,7 @@ export default function PostEditor({
                 value={imagePrompt}
                 onChange={(e) => setImagePrompt(e.target.value)}
                 placeholder="Click 'Generate Prompt' to analyze this post and craft a focused prompt..."
-                className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-teal-500 placeholder:text-gray-500"
+                className="flex-1 px-4 py-2 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-teal-500 placeholder:text-ink-mute"
               />
               {imagePrompt && (
                 <button
@@ -3107,7 +3115,7 @@ export default function PostEditor({
                     navigator.clipboard.writeText(imagePrompt);
                     toast.success("📋 Cover image prompt copied to clipboard!");
                   }}
-                  className="px-3.5 py-2 bg-gray-800 hover:bg-gray-700 text-teal-300 hover:text-white border border-gray-700 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 shadow-sm active:scale-95"
+                  className="px-3.5 py-2 bg-card2 hover:bg-card text-teal-300 hover:text-ink border border-line text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer shrink-0 shadow-sm active:scale-95"
                   title="Copy cover image prompt"
                 >
                   <span>📋 Copy</span>
@@ -3125,7 +3133,7 @@ export default function PostEditor({
               <select
                 value={imageModel}
                 onChange={(e) => setImageModel(e.target.value)}
-                className="px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-xs focus:outline-none focus:border-teal-500"
+                className="px-3 py-2 bg-card border border-line rounded-lg text-ink text-xs focus:outline-none focus:border-teal-500"
               >
                 <option value="Flux Pro (1280x720)">Flux Pro (16:9 HD)</option>
                 <option value="Pollinations High-Res">Pollinations (1280x720)</option>
@@ -3134,7 +3142,7 @@ export default function PostEditor({
                 type="button"
                 onClick={handleGenerateImage}
                 disabled={generatingImage || (!form.content_en && !imagePrompt)}
-                className="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white text-sm font-semibold rounded-lg transition-all whitespace-nowrap disabled:opacity-50 flex items-center gap-1.5 shadow-md shadow-teal-900/30"
+                className="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-ink text-sm font-semibold rounded-lg transition-all whitespace-nowrap disabled:opacity-50 flex items-center gap-1.5 shadow-md shadow-teal-900/30"
               >
                 <span>{generatingImage ? "Generating..." : "🎨 Generate Image"}</span>
               </button>
@@ -3174,7 +3182,7 @@ export default function PostEditor({
                       href={form.cover_image_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="absolute bottom-0.5 right-0.5 text-[9px] bg-black/80 text-white px-1 py-0.2 rounded font-mono"
+                      className="absolute bottom-0.5 right-0.5 text-[9px] bg-black/80 text-ink px-1 py-0.2 rounded font-mono"
                     >
                       ↗
                     </a>
@@ -3186,7 +3194,7 @@ export default function PostEditor({
                 )}
                 <div>
                   <span className="text-xs font-semibold text-teal-200 block">Dedicated Cover / Thumbnail</span>
-                  <span className="text-[11px] text-gray-400 font-mono">
+                  <span className="text-[11px] text-ink-mute font-mono">
                     {form.cover_image_url ? form.cover_image_url.slice(0, 45) + "..." : "Upload or generate AI cover"}
                   </span>
                 </div>
@@ -3210,7 +3218,7 @@ export default function PostEditor({
                   type="button"
                   onClick={() => insertCoverIntoContent("en")}
                   disabled={!form.cover_image_url}
-                  className="px-2.5 py-1.5 bg-blue-950/80 hover:bg-blue-900 text-blue-200 border border-blue-700/60 text-xs font-medium rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+                  className="px-2.5 py-1.5 bg-cyan-deep/80 hover:bg-cyan-deep text-cyan border border-cyan-deep/60 text-xs font-medium rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
                 >
                   <span>🇬🇧 Insert in EN Top</span>
                 </button>
@@ -3228,15 +3236,15 @@ export default function PostEditor({
           </div>
           
           {/* Content Images (Multi-visual diagrams & flowcharts) */}
-          <div className="flex flex-col gap-4 bg-gradient-to-b from-indigo-950/30 to-purple-950/20 border border-indigo-800/40 p-4 rounded-xl shadow-lg">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-indigo-800/40">
+          <div className="flex flex-col gap-4 bg-gradient-to-b from-cyan-deep/30 to-cyan-deep/20 border border-line/40 p-4 rounded-xl shadow-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-line/40">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-base">🖼️</span>
-                  <h4 className="text-sm font-bold text-indigo-200">
+                  <h4 className="text-sm font-bold text-cyan">
                     Dedicated Article Visuals &amp; Diagrams
                   </h4>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-900/60 text-indigo-300 border border-indigo-700/50">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-deep/60 text-cyan border border-cyan-deep/50">
                     {contentImages.length} Visual{contentImages.length !== 1 ? "s" : ""}
                   </span>
                   {contentImages.some((img) => img.url) && (
@@ -3245,8 +3253,8 @@ export default function PostEditor({
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-indigo-300/80 mt-1">
-                  Dedicated slots for <code className="text-indigo-200 bg-black/40 px-1 py-0.5 rounded">img-1</code>, <code className="text-indigo-200 bg-black/40 px-1 py-0.5 rounded">img-2</code>, etc. with 1-click upload, AI generation, and insertion into English &amp; বাংলা articles.
+                <p className="text-xs text-cyan/80 mt-1">
+                  Dedicated slots for <code className="text-cyan bg-black/40 px-1 py-0.5 rounded">img-1</code>, <code className="text-cyan bg-black/40 px-1 py-0.5 rounded">img-2</code>, etc. with 1-click upload, AI generation, and insertion into English &amp; বাংলা articles.
                 </p>
               </div>
 
@@ -3272,7 +3280,7 @@ export default function PostEditor({
                     saveImagesToStorage(updated);
                     toast.success(`Added dedicated slot ${newId}!`);
                   }}
-                  className="px-2.5 py-1.5 bg-indigo-900/60 hover:bg-indigo-800 text-indigo-300 border border-indigo-700/60 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                  className="px-2.5 py-1.5 bg-cyan-deep/60 hover:bg-line text-cyan border border-cyan-deep/60 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                   title="Add another dedicated visual slot (e.g. img-3)"
                 >
                   <span>+ Add Image Slot</span>
@@ -3281,7 +3289,7 @@ export default function PostEditor({
                 <button
                   type="button"
                   onClick={handleDetectImageMarkersFromContent}
-                  className="px-2.5 py-1.5 bg-gray-800/80 hover:bg-gray-700 text-gray-300 hover:text-white border border-gray-700 text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
+                  className="px-2.5 py-1.5 bg-card2/80 hover:bg-card text-ink-soft hover:text-ink border border-line text-xs font-medium rounded-lg transition-colors flex items-center gap-1"
                   title="Scan article content for {{IMAGE:img-N}} markers and add to this list"
                 >
                   <span>🔍 Scan Markers</span>
@@ -3293,7 +3301,7 @@ export default function PostEditor({
                       type="button"
                       onClick={handleGenerateAllContentImages}
                       disabled={generatingAllContentImages || contentImages.every((img) => img.url)}
-                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+                      className="px-3 py-1.5 bg-cyan-deep hover:bg-cyan text-ink text-xs font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
                       title="Generate all pending visuals sequentially"
                     >
                       <span>{generatingAllContentImages ? "Generating All..." : "⚡ Generate All"}</span>
@@ -3303,7 +3311,7 @@ export default function PostEditor({
                       type="button"
                       onClick={() => handleReplaceImageMarkers()}
                       disabled={!contentImages.some((img) => img.url)}
-                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-ink text-xs font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
                       title="Insert or replace all visuals into both English and Bangla content"
                     >
                       <span>🔄 Insert All in Content</span>
@@ -3315,8 +3323,8 @@ export default function PostEditor({
 
             {/* List of Content Images */}
             {contentImages.length === 0 ? (
-              <div className="py-6 px-4 text-center rounded-lg border border-dashed border-indigo-800/40 bg-black/20">
-                <p className="text-xs text-gray-400">
+              <div className="py-6 px-4 text-center rounded-lg border border-dashed border-line/40 bg-black/20">
+                <p className="text-xs text-ink-mute">
                   No content diagrams configured yet. Click{" "}
                   <button
                     type="button"
@@ -3324,7 +3332,7 @@ export default function PostEditor({
                       setContentImages(defaultContentImages);
                       saveImagesToStorage(defaultContentImages);
                     }}
-                    className="text-indigo-400 hover:underline font-medium"
+                    className="text-cyan hover:underline font-medium"
                   >
                     Reset Default Slots (img-1, img-2)
                   </button>.
@@ -3335,12 +3343,12 @@ export default function PostEditor({
                 {contentImages.map((img, idx) => (
                   <div
                     key={img.id || idx}
-                    className="p-4 bg-gray-900/90 border border-gray-800 rounded-xl flex flex-col md:flex-row gap-4 items-start relative group hover:border-indigo-700/50 transition-colors shadow-sm"
+                    className="p-4 bg-card/90 border border-line-soft rounded-xl flex flex-col md:flex-row gap-4 items-start relative group hover:border-cyan-deep/50 transition-colors shadow-sm"
                   >
                     {/* Left: Preview, Direct Upload, AI Generate, and Insert Buttons */}
                     <div className="w-full md:w-48 shrink-0">
                       {img.url ? (
-                        <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-700 bg-black shadow-inner">
+                        <div className="relative aspect-video rounded-lg overflow-hidden border border-line bg-black shadow-inner">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={img.url}
@@ -3351,24 +3359,24 @@ export default function PostEditor({
                             href={img.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="absolute bottom-1 right-1 text-[10px] bg-black/80 hover:bg-black text-white px-1.5 py-0.5 rounded font-mono"
+                            className="absolute bottom-1 right-1 text-[10px] bg-black/80 hover:bg-black text-ink px-1.5 py-0.5 rounded font-mono"
                           >
                             Open ↗
                           </a>
                         </div>
                       ) : (
-                        <div className="aspect-video rounded-lg border border-dashed border-indigo-900/60 bg-indigo-950/20 flex flex-col items-center justify-center p-2 text-center text-xs text-indigo-400">
+                        <div className="aspect-video rounded-lg border border-dashed border-cyan-deep/60 bg-cyan-deep/20 flex flex-col items-center justify-center p-2 text-center text-xs text-cyan">
                           <span className="text-xl mb-0.5">🖼️</span>
-                          <span className="font-mono text-xs font-bold text-indigo-300">
+                          <span className="font-mono text-xs font-bold text-cyan">
                             {img.id === "img-1" ? "Image 1" : img.id === "img-2" ? "Image 2" : img.id}
                           </span>
-                          <span className="text-[10px] text-gray-400">16:9 • No Text</span>
+                          <span className="text-[10px] text-ink-mute">16:9 • No Text</span>
                         </div>
                       )}
 
                       <div className="mt-2.5 flex flex-col gap-1.5">
                         {/* Direct File Upload button */}
-                        <label className="w-full py-1.5 px-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm">
+                        <label className="w-full py-1.5 px-2 bg-cyan-deep hover:bg-cyan text-ink text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-sm">
                           <span>📁 Direct Upload</span>
                           <input
                             type="file"
@@ -3386,7 +3394,7 @@ export default function PostEditor({
                           type="button"
                           onClick={() => handleGenerateContentImage(img)}
                           disabled={generatingContentImageId === img.id || generatingAllContentImages}
-                          className="w-full py-1.5 px-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-1 shadow-sm cursor-pointer"
+                          className="w-full py-1.5 px-2 bg-amber hover:bg-amber text-amber-ink text-xs font-semibold rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-1 shadow-sm cursor-pointer"
                         >
                           {generatingContentImageId === img.id ? (
                             <span>Generating...</span>
@@ -3400,7 +3408,7 @@ export default function PostEditor({
                           type="button"
                           onClick={() => insertImageIntoContent(img, "en")}
                           disabled={!img.url}
-                          className="w-full py-1.5 px-2 bg-blue-950/70 hover:bg-blue-900/80 text-blue-200 border border-blue-700/60 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                          className="w-full py-1.5 px-2 bg-cyan-deep/70 hover:bg-cyan-deep/80 text-cyan border border-cyan-deep/60 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                           title="Insert or replace into English article markdown"
                         >
                           <span>🇬🇧 Insert into English</span>
@@ -3423,21 +3431,21 @@ export default function PostEditor({
                     <div className="flex-1 w-full space-y-2">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-white bg-indigo-950/80 px-2.5 py-1 rounded-md border border-indigo-700/60">
+                          <span className="text-xs font-bold text-ink bg-cyan-deep/80 px-2.5 py-1 rounded-md border border-cyan-deep/60">
                             {img.id === "img-1"
                               ? "⭐ Dedicated Slot 1 (Image 1)"
                               : img.id === "img-2"
                               ? "⭐ Dedicated Slot 2 (Image 2)"
                               : `🖼️ Dedicated Slot (${img.id})`}
                           </span>
-                          <span className="text-[10px] font-mono text-gray-400">
-                            Marker: <code className="text-indigo-300 font-semibold">{img.placement_marker || `{{IMAGE:${img.id}}}`}</code>
+                          <span className="text-[10px] font-mono text-ink-mute">
+                            Marker: <code className="text-cyan font-semibold">{img.placement_marker || `{{IMAGE:${img.id}}}`}</code>
                           </span>
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-gray-400 font-mono">
-                            Naming: <span className="text-gray-300 font-semibold">{form.slug || "slug"}-{img.id}.png</span>
+                          <span className="text-[10px] text-ink-mute font-mono">
+                            Naming: <span className="text-ink-soft font-semibold">{form.slug || "slug"}-{img.id}.png</span>
                           </span>
 
                           {idx >= 2 && (
@@ -3448,7 +3456,7 @@ export default function PostEditor({
                                 setContentImages(updated);
                                 saveImagesToStorage(updated);
                               }}
-                              className="text-gray-500 hover:text-red-400 text-xs transition-colors p-1"
+                              className="text-ink-mute hover:text-red-400 text-xs transition-colors p-1"
                               title="Remove this extra slot"
                             >
                               ✕ Remove
@@ -3460,7 +3468,7 @@ export default function PostEditor({
                       {/* Prompt */}
                       <div>
                         <div className="flex items-center justify-between mb-1">
-                          <label className="block text-[11px] font-medium text-gray-400">
+                          <label className="block text-[11px] font-medium text-ink-mute">
                             Visual Prompt (Glassmorphism / Cyan-Purple Style):
                           </label>
                           {img.prompt && (
@@ -3470,7 +3478,7 @@ export default function PostEditor({
                                 navigator.clipboard.writeText(img.prompt);
                                 toast.success(`📋 Prompt for ${img.id || "image"} copied!`);
                               }}
-                              className="text-[10px] text-indigo-300 hover:text-white bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-700/60 px-2 py-0.5 rounded flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
+                              className="text-[10px] text-cyan hover:text-ink bg-cyan-deep/80 hover:bg-cyan-deep border border-cyan-deep/60 px-2 py-0.5 rounded flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
                               title="Copy prompt for this image"
                             >
                               <span>📋 Copy Prompt</span>
@@ -3487,14 +3495,14 @@ export default function PostEditor({
                           }}
                           rows={2}
                           placeholder="Detailed prompt for diagram generation..."
-                          className="w-full px-3 py-1.5 bg-black/40 border border-gray-800 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-indigo-500 resize-none"
+                          className="w-full px-3 py-1.5 bg-black/40 border border-line-soft rounded-lg text-ink text-xs font-mono focus:outline-none focus:border-cyan resize-none"
                         />
                       </div>
 
                       {/* Bilingual Alt & Captions */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-[10px] font-medium text-gray-400 mb-0.5">
+                          <label className="block text-[10px] font-medium text-ink-mute mb-0.5">
                             Alt Text (English)
                           </label>
                           <input
@@ -3507,12 +3515,12 @@ export default function PostEditor({
                               );
                             }}
                             placeholder="Diagram explaining flow..."
-                            className="w-full px-2.5 py-1 bg-black/40 border border-gray-800 rounded text-white text-xs focus:outline-none focus:border-indigo-500"
+                            className="w-full px-2.5 py-1 bg-black/40 border border-line-soft rounded text-ink text-xs focus:outline-none focus:border-cyan"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[10px] font-medium text-gray-400 mb-0.5">
+                          <label className="block text-[10px] font-medium text-ink-mute mb-0.5">
                             Alt Text (বাংলা)
                           </label>
                           <input
@@ -3525,7 +3533,7 @@ export default function PostEditor({
                               );
                             }}
                             placeholder="ডায়াগ্রামের বাংলা বিবরণ..."
-                            className="w-full px-2.5 py-1 bg-black/40 border border-gray-800 rounded text-white text-xs focus:outline-none focus:border-indigo-500"
+                            className="w-full px-2.5 py-1 bg-black/40 border border-line-soft rounded text-ink text-xs focus:outline-none focus:border-cyan"
                           />
                         </div>
                       </div>
@@ -3542,7 +3550,7 @@ export default function PostEditor({
                             );
                           }}
                           placeholder="Image URL (auto-filled on generation or paste Cloudinary URL)..."
-                          className="flex-1 px-2.5 py-1 bg-black/40 border border-gray-800 rounded text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
+                          className="flex-1 px-2.5 py-1 bg-black/40 border border-line-soft rounded text-ink text-xs font-mono focus:outline-none focus:border-cyan"
                         />
                       </div>
                     </div>
@@ -3570,13 +3578,13 @@ export default function PostEditor({
                 value={postTopic}
                 onChange={(e) => setPostTopic(e.target.value)}
                 placeholder="Topic (e.g., Next.js 15 Server Actions)..."
-                className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-emerald-500"
+                className="flex-1 px-4 py-2 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-emerald-500"
               />
               <button
                 type="button"
                 onClick={handleGeneratePost}
                 disabled={generatingPost}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap disabled:opacity-50"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-ink text-sm font-medium rounded-lg transition-colors whitespace-nowrap disabled:opacity-50"
               >
                 {generatingPost ? "Generating..." : "✍️ Generate Full Post"}
               </button>
@@ -3584,9 +3592,9 @@ export default function PostEditor({
           </div>
           <div className="grid grid-cols-1 gap-5">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-ink-soft mb-2">
                 SEO Title (English)
-                <span className="ml-2 text-xs text-gray-500">{form.seo_title_en.length}/60</span>
+                <span className="ml-2 text-xs text-ink-mute">{form.seo_title_en.length}/60</span>
               </label>
               <input
                 type="text"
@@ -3594,14 +3602,14 @@ export default function PostEditor({
                 onChange={(e) => setForm({ ...form, seo_title_en: e.target.value })}
                 placeholder={form.title_en || "SEO title..."}
                 maxLength={60}
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-ink-soft mb-2">
                 Meta Description (English)
-                <span className="ml-2 text-xs text-gray-500">{form.meta_desc_en.length}/160</span>
+                <span className="ml-2 text-xs text-ink-mute">{form.meta_desc_en.length}/160</span>
               </label>
               <textarea
                 value={form.meta_desc_en}
@@ -3609,12 +3617,12 @@ export default function PostEditor({
                 placeholder="Compelling description for search results..."
                 maxLength={160}
                 rows={3}
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500 resize-none"
+                className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-ink-soft mb-2">
                 SEO Title (বাংলা)
               </label>
               <input
@@ -3622,12 +3630,12 @@ export default function PostEditor({
                 value={form.seo_title_bn}
                 onChange={(e) => setForm({ ...form, seo_title_bn: e.target.value })}
                 placeholder="বাংলা SEO শিরোনাম..."
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-ink-soft mb-2">
                 Meta Description (বাংলা)
               </label>
               <textarea
@@ -3635,12 +3643,12 @@ export default function PostEditor({
                 onChange={(e) => setForm({ ...form, meta_desc_bn: e.target.value })}
                 placeholder="বাংলা meta description..."
                 rows={3}
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500 resize-none"
+                className="w-full px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm focus:outline-none focus:border-cyan resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-ink-soft mb-2">
                 Cover Image URL
               </label>
               <div className="flex gap-2">
@@ -3649,7 +3657,7 @@ export default function PostEditor({
                   value={form.cover_image_url}
                   onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })}
                   placeholder="https://... (Cloudinary URL)"
-                  className="flex-1 px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-indigo-500"
+                  className="flex-1 px-4 py-3 bg-card border border-line rounded-lg text-ink text-sm font-mono focus:outline-none focus:border-cyan"
                 />
                 <CldUploadWidget
                   uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "portfolio_preset"}
@@ -3663,7 +3671,7 @@ export default function PostEditor({
                     <button
                       type="button"
                       onClick={() => open()}
-                      className="px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors"
+                      className="px-4 py-3 bg-cyan-deep hover:bg-cyan text-ink text-sm font-medium rounded-lg transition-colors"
                     >
                       Upload
                     </button>
@@ -3682,16 +3690,16 @@ export default function PostEditor({
       {/* ── JSON Import Tab ── */}
       {activeTab === "json" && (
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-indigo-950/40 via-purple-950/30 to-gray-900 border border-indigo-500/30 rounded-xl p-5 shadow-lg">
+          <div className="bg-gradient-to-r from-cyan-deep/40 via-cyan-deep/30 to-card border border-cyan/30 rounded-xl p-5 shadow-lg">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                <h3 className="text-base font-semibold text-ink flex items-center gap-2">
                   <span>📥 Auto-Fill Blog Post from JSON</span>
-                  <span className="text-[11px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-normal">
+                  <span className="text-[11px] bg-cyan/20 text-cyan border border-cyan/30 px-2 py-0.5 rounded-full font-normal">
                     One-Click Auto Fill
                   </span>
                 </h3>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-ink-mute mt-1">
                   Paste your structured blog JSON below. It will automatically populate the English title & article, Bangla title & article, slug, excerpts, SEO meta tags, AI image prompt, and matching tags.
                 </p>
               </div>
@@ -3709,7 +3717,7 @@ export default function PostEditor({
                       toast.error("Clipboard permission denied. Please paste manually (Ctrl+V).");
                     }
                   }}
-                  className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg border border-gray-700 transition flex items-center gap-1.5"
+                  className="px-3 py-1.5 text-xs bg-card2 hover:bg-card text-ink-soft rounded-lg border border-line transition flex items-center gap-1.5"
                 >
                   📋 Paste
                 </button>
@@ -3719,7 +3727,7 @@ export default function PostEditor({
                     handleJsonInputChange(EXAMPLE_JSON_STRUCTURE);
                     toast.success("✨ Sample JSON template loaded!");
                   }}
-                  className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-indigo-300 rounded-lg border border-gray-700 transition flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 text-xs bg-card2 hover:bg-card text-cyan rounded-lg border border-line transition flex items-center gap-1.5 cursor-pointer"
                 >
                   ✨ Load Template
                 </button>
@@ -3733,7 +3741,7 @@ export default function PostEditor({
                       toast.error("Failed to copy to clipboard.");
                     }
                   }}
-                  className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-purple-300 rounded-lg border border-gray-700 transition flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 text-xs bg-card2 hover:bg-card text-amber rounded-lg border border-line transition flex items-center gap-1.5 cursor-pointer"
                 >
                   📋 Copy Template
                 </button>
@@ -3741,7 +3749,7 @@ export default function PostEditor({
                   <button
                     type="button"
                     onClick={() => handleJsonInputChange("")}
-                    className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-red-400 rounded-lg border border-gray-700 transition flex items-center gap-1.5"
+                    className="px-3 py-1.5 text-xs bg-card2 hover:bg-card text-red-400 rounded-lg border border-line transition flex items-center gap-1.5"
                   >
                     🧹 Clear
                   </button>
@@ -3753,7 +3761,7 @@ export default function PostEditor({
           {/* Textarea */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <label className="text-gray-300 font-medium flex items-center gap-2">
+              <label className="text-ink-soft font-medium flex items-center gap-2">
                 <span>JSON Input Box</span>
                 {parsedJsonData && (
                   <span className="text-emerald-400 font-mono text-[11px] bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded">
@@ -3766,7 +3774,7 @@ export default function PostEditor({
                   </span>
                 )}
               </label>
-              <span className="text-gray-500">
+              <span className="text-ink-mute">
                 {jsonInput.length > 0 ? `${jsonInput.length} characters` : "Waiting for JSON..."}
               </span>
             </div>
@@ -3777,12 +3785,12 @@ export default function PostEditor({
                 onChange={(e) => handleJsonInputChange(e.target.value)}
                 placeholder={EXAMPLE_JSON_STRUCTURE}
                 rows={16}
-                className={`w-full px-4 py-3 bg-gray-950 border rounded-xl text-gray-100 font-mono text-xs leading-relaxed placeholder-gray-600 focus:outline-none focus:ring-1 resize-y transition ${
+                className={`w-full px-4 py-3 bg-bg border rounded-xl text-ink font-mono text-xs leading-relaxed placeholder-ink-mute focus:outline-none focus:ring-1 resize-y transition ${
                   jsonError
                     ? "border-red-500/50 focus:ring-red-500"
                     : parsedJsonData
                     ? "border-emerald-500/50 focus:ring-emerald-500"
-                    : "border-gray-800 focus:border-indigo-500 focus:ring-indigo-500"
+                    : "border-line-soft focus:border-cyan focus:ring-cyan"
                 }`}
               />
             </div>
@@ -3790,15 +3798,15 @@ export default function PostEditor({
 
           {/* Real-time Field Detection Card */}
           {parsedJsonData && (
-            <div className="bg-gray-900/90 border border-gray-800 rounded-xl p-4 space-y-3">
-              <h4 className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+            <div className="bg-card/90 border border-line-soft rounded-xl p-4 space-y-3">
+              <h4 className="text-xs font-semibold text-ink-soft uppercase tracking-wider">
                 Detected Fields in JSON
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 text-xs">
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.slug || parsedJsonData.blog_url
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>🔗 Slug</span>
                   <span>{parsedJsonData.slug ? "✓" : parsedJsonData.blog_url ? "from URL" : "—"}</span>
@@ -3807,7 +3815,7 @@ export default function PostEditor({
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.english?.title && parsedJsonData.english?.article
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>🇬🇧 English Post</span>
                   <span>{parsedJsonData.english?.title ? "✓ Ready" : "—"}</span>
@@ -3816,7 +3824,7 @@ export default function PostEditor({
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.bangla?.title && parsedJsonData.bangla?.article
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>🇧🇩 বাংলা পোস্ট</span>
                   <span>{parsedJsonData.bangla?.title ? "✓ Ready" : "—"}</span>
@@ -3825,7 +3833,7 @@ export default function PostEditor({
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.excerpt?.english || parsedJsonData.excerpt?.bangla
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>📝 Excerpts</span>
                   <span>{parsedJsonData.excerpt ? "✓ Ready" : "—"}</span>
@@ -3834,7 +3842,7 @@ export default function PostEditor({
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.seo?.meta_description_en || parsedJsonData.seo?.seo_title_en
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>🔍 SEO & Keywords</span>
                   <span>{parsedJsonData.seo?.primary_keyword_bn ? "✓ EN & BN" : parsedJsonData.seo ? "✓ Ready" : "—"}</span>
@@ -3843,7 +3851,7 @@ export default function PostEditor({
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.thumbnail?.prompt
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>🎨 Image Prompt</span>
                   <div className="flex items-center gap-1.5">
@@ -3856,7 +3864,7 @@ export default function PostEditor({
                           navigator.clipboard.writeText(parsedJsonData.thumbnail.prompt);
                           toast.success("📋 Cover image prompt copied!");
                         }}
-                        className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-800 hover:bg-emerald-700 text-white rounded border border-emerald-600 transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm"
+                        className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-800 hover:bg-emerald-700 text-ink rounded border border-emerald-600 transition flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm"
                         title="Copy cover image prompt"
                       >
                         <span>📋 Copy</span>
@@ -3868,7 +3876,7 @@ export default function PostEditor({
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.social?.linkedin_post || parsedJsonData.social?.devto_article
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>📱 Social Media</span>
                   <span>{parsedJsonData.social ? "✓ Ready" : "—"}</span>
@@ -3877,7 +3885,7 @@ export default function PostEditor({
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.canonical_url || parsedJsonData.language_alternate
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>🌐 Canonical & hreflang</span>
                   <span>{parsedJsonData.canonical_url ? "✓ Set" : "—"}</span>
@@ -3886,7 +3894,7 @@ export default function PostEditor({
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.og_image_bn || parsedJsonData.og_image_en || parsedJsonData.og_image
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>🖼️ Dynamic OG Cards</span>
                   <span>{parsedJsonData.og_image_bn ? "✓ EN & BN" : parsedJsonData.og_image_en || parsedJsonData.og_image ? "✓ Set" : "—"}</span>
@@ -3895,7 +3903,7 @@ export default function PostEditor({
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.published_date || parsedJsonData.published_at
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>📅 Published Date</span>
                   <span>{parsedJsonData.published_date || parsedJsonData.published_at || "—"}</span>
@@ -3904,7 +3912,7 @@ export default function PostEditor({
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.category || (parsedJsonData.tags && parsedJsonData.tags.length > 0)
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>🏷️ Category & Tags</span>
                   <span>{parsedJsonData.category ? "✓ Matched" : parsedJsonData.tags?.length ? `${parsedJsonData.tags.length} Tags` : "—"}</span>
@@ -3913,7 +3921,7 @@ export default function PostEditor({
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   Array.isArray(parsedJsonData.faq) && parsedJsonData.faq.length > 0
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>❓ FAQ Schema (GEO)</span>
                   <span>{parsedJsonData.faq?.length ? `✓ ${parsedJsonData.faq.length} Q&As` : "—"}</span>
@@ -3932,7 +3940,7 @@ export default function PostEditor({
                   return (
                     <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                       !hasWords
-                        ? "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                        ? "bg-card2/40 border-line/40 text-ink-mute"
                         : meetsTarget
                         ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
                         : "bg-amber-950/20 border-amber-500/30 text-amber-300"
@@ -3950,7 +3958,7 @@ export default function PostEditor({
                 <div className={`p-2.5 rounded-lg border flex items-center justify-between ${
                   parsedJsonData.branding?.angle
                     ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
-                    : "bg-gray-800/40 border-gray-700/40 text-gray-500"
+                    : "bg-card2/40 border-line/40 text-ink-mute"
                 }`}>
                   <span>💡 Brand Angle</span>
                   <span>{parsedJsonData.branding?.angle ? "✓ Ready" : "—"}</span>
@@ -3965,27 +3973,27 @@ export default function PostEditor({
               type="button"
               onClick={() => applyJsonToForm()}
               disabled={!jsonInput.trim()}
-              className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/25 transition-all transform active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 text-sm cursor-pointer"
+              className="w-full sm:w-auto px-6 py-3 bg-cyan hover:bg-cyan text-[#060a13] font-semibold rounded-xl shadow-lg shadow-cyan/25 transition-all transform active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 text-sm cursor-pointer"
             >
               <span>🚀 Auto-Fill Form from JSON</span>
             </button>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-ink-mute">
               Clicking will automatically populate English, Bangla, SEO, Excerpts, Slug, and AI cover prompt, then redirect you to review in the English tab.
             </p>
           </div>
 
           {/* ── AI Image Generation Prompts Card (Cover & Content Visuals) ── */}
           {parsedJsonData && (parsedJsonData.thumbnail?.prompt || (Array.isArray(parsedJsonData.content_images) && parsedJsonData.content_images.some((i: any) => i?.prompt))) && (
-            <div className="border border-teal-800/60 bg-gradient-to-br from-teal-950/30 via-gray-900 to-indigo-950/20 rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl animate-in fade-in duration-300">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-800">
+            <div className="border border-teal-800/60 bg-gradient-to-br from-teal-950/30 via-card to-cyan-deep/20 rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl animate-in fade-in duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-line-soft">
                 <div>
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-ink flex items-center gap-2">
                     <span>🎨 AI Image Generation Prompts</span>
                     <span className="text-[11px] bg-teal-500/20 text-teal-300 border border-teal-500/30 px-2 py-0.5 rounded-full font-medium">
                       Ready to Copy & Generate
                     </span>
                   </h3>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-ink-mute mt-1">
                     Copy these pre-crafted prompts directly into Midjourney, Flux, Ideogram, Leonardo.ai, or ChatGPT / DALL-E:
                   </p>
                 </div>
@@ -4021,7 +4029,7 @@ export default function PostEditor({
               <div className="space-y-4">
                 {/* 1. Cover Thumbnail Prompt */}
                 {parsedJsonData.thumbnail?.prompt && (
-                  <div className="bg-gray-950/90 border border-teal-900/60 rounded-xl p-4 space-y-2">
+                  <div className="bg-bg/90 border border-teal-900/60 rounded-xl p-4 space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-semibold text-teal-300 flex items-center gap-1.5">
@@ -4037,13 +4045,13 @@ export default function PostEditor({
                           navigator.clipboard.writeText(parsedJsonData.thumbnail.prompt);
                           toast.success("📋 Cover image prompt copied to clipboard!");
                         }}
-                        className="px-3 py-1 bg-teal-700 hover:bg-teal-600 text-xs font-semibold text-white rounded-lg border border-teal-500/80 transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                        className="px-3 py-1 bg-teal-700 hover:bg-teal-600 text-xs font-semibold text-ink rounded-lg border border-teal-500/80 transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
                       >
                         <span>📋 Copy Cover Prompt</span>
                       </button>
                     </div>
                     <div className="relative">
-                      <p className="text-xs text-teal-100/90 font-mono bg-black/60 p-3 rounded-lg border border-gray-800/80 leading-relaxed select-all whitespace-pre-wrap">
+                      <p className="text-xs text-teal-100/90 font-mono bg-black/60 p-3 rounded-lg border border-line-soft/80 leading-relaxed select-all whitespace-pre-wrap">
                         {parsedJsonData.thumbnail.prompt}
                       </p>
                     </div>
@@ -4052,14 +4060,14 @@ export default function PostEditor({
 
                 {/* 2. In-Article Content Image Prompts */}
                 {Array.isArray(parsedJsonData.content_images) && parsedJsonData.content_images.filter((img: any) => img?.prompt).map((img: any, idx: number) => (
-                  <div key={img.id || idx} className="bg-gray-950/90 border border-indigo-900/60 rounded-xl p-4 space-y-2">
+                  <div key={img.id || idx} className="bg-bg/90 border border-cyan-deep/60 rounded-xl p-4 space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-indigo-300 flex items-center gap-1.5">
+                        <span className="text-xs font-semibold text-cyan flex items-center gap-1.5">
                           <span>📊</span> In-Article Diagram {idx + 1} ({img.id || `img-${idx + 1}`})
                         </span>
                         {img.placement_marker && (
-                          <code className="text-[10px] bg-indigo-950 text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-800/60 font-mono">
+                          <code className="text-[10px] bg-cyan-deep text-cyan px-1.5 py-0.5 rounded border border-line/60 font-mono">
                             {img.placement_marker}
                           </code>
                         )}
@@ -4070,16 +4078,16 @@ export default function PostEditor({
                           navigator.clipboard.writeText(img.prompt);
                           toast.success(`📋 Copied prompt for ${img.id || `image ${idx + 1}`}!`);
                         }}
-                        className="px-3 py-1 bg-indigo-700 hover:bg-indigo-600 text-xs font-semibold text-white rounded-lg border border-indigo-500/80 transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                        className="px-3 py-1 bg-cyan-deep hover:bg-cyan-deep text-xs font-semibold text-ink rounded-lg border border-cyan/80 transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
                       >
                         <span>📋 Copy Prompt</span>
                       </button>
                     </div>
-                    <p className="text-xs text-indigo-100/90 font-mono bg-black/60 p-3 rounded-lg border border-gray-800/80 leading-relaxed select-all whitespace-pre-wrap">
+                    <p className="text-xs text-cyan/90 font-mono bg-black/60 p-3 rounded-lg border border-line-soft/80 leading-relaxed select-all whitespace-pre-wrap">
                       {img.prompt}
                     </p>
                     {(img.alt_en || img.caption_en) && (
-                      <div className="text-[11px] text-gray-400 flex flex-wrap gap-3 pt-1">
+                      <div className="text-[11px] text-ink-mute flex flex-wrap gap-3 pt-1">
                         {img.alt_en && <span><strong>Alt:</strong> {img.alt_en}</span>}
                         {img.caption_en && <span><strong>Caption:</strong> {img.caption_en}</span>}
                       </div>
@@ -4108,15 +4116,15 @@ export default function PostEditor({
             const devtoTags = Array.isArray(activeSocial?.devto_tags) ? activeSocial.devto_tags : [];
 
             return (
-              <div className="mt-8 border border-gray-800 bg-gray-900/60 rounded-2xl p-6 space-y-6">
+              <div className="mt-8 border border-line-soft bg-card/60 rounded-2xl p-6 space-y-6">
                 <div>
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-ink flex items-center gap-2">
                     <span>📱 Social Media & Cross-Posting Content</span>
-                    <span className="text-[11px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] bg-cyan/20 text-cyan px-2 py-0.5 rounded-full">
                       Ready to Copy
                     </span>
                   </h3>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-ink-mute mt-1">
                     Pre-formatted social media posts from your JSON or AI generator:
                   </p>
                 </div>
@@ -4124,9 +4132,9 @@ export default function PostEditor({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {/* LinkedIn English Box */}
                   {linkedInPostEn && (
-                    <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
+                    <div className="bg-bg border border-line-soft rounded-xl p-4 flex flex-col justify-between space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-blue-400 flex items-center gap-1.5">
+                        <span className="text-xs font-semibold text-cyan flex items-center gap-1.5">
                           <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                           LinkedIn (English)
                         </span>
@@ -4137,15 +4145,15 @@ export default function PostEditor({
                             navigator.clipboard.writeText(linkedInPostEn + hashtags);
                             toast.success("📋 Copied English LinkedIn post!");
                           }}
-                          className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-blue-300 rounded border border-gray-700 transition cursor-pointer"
+                          className="px-2.5 py-1 bg-card2 hover:bg-card text-xs text-cyan rounded border border-line transition cursor-pointer"
                         >
                           Copy EN
                         </button>
                       </div>
-                      <p className="text-xs text-gray-300 whitespace-pre-wrap font-sans bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto">
+                      <p className="text-xs text-ink-soft whitespace-pre-wrap font-sans bg-card/50 p-3 rounded-lg max-h-48 overflow-y-auto">
                         {linkedInPostEn}
                         {linkedInTagsEn.length > 0 && (
-                          <span className="block mt-2 text-blue-400 font-medium">
+                          <span className="block mt-2 text-cyan font-medium">
                             {linkedInTagsEn.join(" ")}
                           </span>
                         )}
@@ -4155,7 +4163,7 @@ export default function PostEditor({
 
                   {/* LinkedIn Bengali Box */}
                   {linkedInPostBn && (
-                    <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
+                    <div className="bg-bg border border-line-soft rounded-xl p-4 flex flex-col justify-between space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
                           <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
@@ -4168,12 +4176,12 @@ export default function PostEditor({
                             navigator.clipboard.writeText(linkedInPostBn + hashtags);
                             toast.success("📋 Copied Bengali LinkedIn post!");
                           }}
-                          className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-emerald-300 rounded border border-gray-700 transition cursor-pointer"
+                          className="px-2.5 py-1 bg-card2 hover:bg-card text-xs text-emerald-300 rounded border border-line transition cursor-pointer"
                         >
                           Copy BN
                         </button>
                       </div>
-                      <p className="text-xs text-gray-300 whitespace-pre-wrap font-sans bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto">
+                      <p className="text-xs text-ink-soft whitespace-pre-wrap font-sans bg-card/50 p-3 rounded-lg max-h-48 overflow-y-auto">
                         {linkedInPostBn}
                         {linkedInTagsBn.length > 0 && (
                           <span className="block mt-2 text-emerald-400 font-medium">
@@ -4186,10 +4194,10 @@ export default function PostEditor({
 
                   {/* DEV.to Box */}
                   {devtoArticle && (
-                    <div className="bg-gray-950 border border-gray-800 rounded-xl p-4 flex flex-col justify-between space-y-3">
+                    <div className="bg-bg border border-line-soft rounded-xl p-4 flex flex-col justify-between space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-gray-200 flex items-center gap-1.5">
-                          <span className="font-bold border border-gray-600 px-1 py-0.2 rounded text-[10px]">DEV</span>
+                        <span className="text-xs font-semibold text-ink-soft flex items-center gap-1.5">
+                          <span className="font-bold border border-line px-1 py-0.2 rounded text-[10px]">DEV</span>
                           DEV.to Article
                         </span>
                         <button
@@ -4200,14 +4208,14 @@ export default function PostEditor({
                             navigator.clipboard.writeText(titleHeader + tagsHeader + devtoArticle);
                             toast.success("📋 Copied DEV.to article!");
                           }}
-                          className="px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-xs text-gray-200 rounded border border-gray-700 transition cursor-pointer"
+                          className="px-2.5 py-1 bg-card2 hover:bg-card text-xs text-ink-soft rounded border border-line transition cursor-pointer"
                         >
                           Copy Article
                         </button>
                       </div>
-                      <div className="text-xs text-gray-300 bg-gray-900/50 p-3 rounded-lg max-h-48 overflow-y-auto space-y-2 font-mono">
+                      <div className="text-xs text-ink-soft bg-card/50 p-3 rounded-lg max-h-48 overflow-y-auto space-y-2 font-mono">
                         {devtoTitle && (
-                          <p className="font-bold text-white font-sans">{devtoTitle}</p>
+                          <p className="font-bold text-ink font-sans">{devtoTitle}</p>
                         )}
                         <p className="whitespace-pre-wrap">{devtoArticle.slice(0, 300)}...</p>
                       </div>
@@ -4219,15 +4227,15 @@ export default function PostEditor({
           })()}
 
           {/* ── DEV.to 1-Click Cross-Posting Card ── always visible in JSON tab ── */}
-          <div className="mt-6 border border-gray-700/80 bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl p-6">
+          <div className="mt-6 border border-line/80 bg-gradient-to-br from-card to-bg rounded-2xl p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gray-800 border border-gray-700 flex items-center justify-center flex-shrink-0 text-base font-bold text-white">
+                <div className="w-10 h-10 rounded-xl bg-card2 border border-line flex items-center justify-center flex-shrink-0 text-base font-bold text-ink">
                   DEV
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">1-Click Post to DEV.to</h3>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <h3 className="text-sm font-bold text-ink">1-Click Post to DEV.to</h3>
+                  <p className="text-xs text-ink-mute mt-0.5">
                     Posts as <span className="text-yellow-400 font-medium">Draft</span> with canonical URL pointing to your portfolio — SEO safe.
                     {(socialData?.devto_article || parsedJsonData?.social?.devto_article) && (
                       <span className="ml-1 text-emerald-400">✓ DEV.to article ready</span>
@@ -4246,7 +4254,7 @@ export default function PostEditor({
                       href={crossPostResult.devto.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs bg-gray-800 hover:bg-gray-700 text-indigo-300 border border-gray-700 px-3 py-1 rounded-lg transition"
+                      className="text-xs bg-card2 hover:bg-card text-cyan border border-line px-3 py-1 rounded-lg transition"
                     >
                       Open on DEV.to →
                     </a>
@@ -4256,7 +4264,7 @@ export default function PostEditor({
                     type="button"
                     onClick={handleCrossPost}
                     disabled={crossPosting.devto || !form.title_en.trim() || !form.content_en.trim()}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-indigo-600/30 text-white border border-gray-600 hover:border-indigo-500/60 rounded-xl text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-card2 hover:bg-cyan-deep/30 text-ink border border-line hover:border-cyan/60 rounded-xl text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {crossPosting.devto ? (
                       <>
@@ -4278,10 +4286,10 @@ export default function PostEditor({
 
             {/* Canonical URL preview */}
             {form.slug && (
-              <div className="mt-4 pt-4 border-t border-gray-800">
-                <p className="text-[11px] text-gray-500">
+              <div className="mt-4 pt-4 border-t border-line-soft">
+                <p className="text-[11px] text-ink-mute">
                   Canonical URL:{" "}
-                  <span className="text-indigo-400 font-mono">
+                  <span className="text-cyan font-mono">
                     https://zahidhasantonmoy.vercel.app/blog/{form.slug}
                   </span>
                 </p>
@@ -4295,22 +4303,22 @@ export default function PostEditor({
       {activeTab === "social" && (
         <div className="space-y-6">
           {/* Hero Banner */}
-          <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-indigo-950/40 border border-gray-800 rounded-2xl p-5 sm:p-6 shadow-xl">
+          <div className="bg-gradient-to-br from-card via-card to-cyan-deep/40 border border-line-soft rounded-2xl p-5 sm:p-6 shadow-xl">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                <div className="w-12 h-12 rounded-xl bg-cyan/10 border border-cyan/30 flex items-center justify-center text-2xl shrink-0 shadow-inner">
                   📱
                 </div>
                 <div className="space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-base font-bold text-white tracking-tight">
+                    <h3 className="text-base font-bold text-ink tracking-tight">
                       Social Media &amp; Cross-Posting Studio
                     </h3>
                     <span className="text-[11px] bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-medium">
                       Permanent &amp; Auto-Saved
                     </span>
                   </div>
-                  <p className="text-xs text-gray-400 max-w-2xl leading-relaxed">
+                  <p className="text-xs text-ink-mute max-w-2xl leading-relaxed">
                     Generate high-conversion viral hooks and syndication content for LinkedIn, DEV.to, and Twitter / X. 
                     Everything you see or edit here is permanently preserved in drafts and will not disappear when saving.
                   </p>
@@ -4319,29 +4327,29 @@ export default function PostEditor({
                   <div className="flex flex-wrap items-center gap-2 pt-2 text-[11px]">
                     <span className={`px-2 py-0.5 rounded border font-mono ${
                       socialData?.linkedin_post_en || socialData?.linkedin_post
-                        ? "bg-blue-950/40 border-blue-500/40 text-blue-300"
-                        : "bg-gray-800/50 border-gray-700/50 text-gray-500"
+                        ? "bg-cyan-deep/40 border-cyan/40 text-cyan"
+                        : "bg-card2/50 border-line/50 text-ink-mute"
                     }`}>
                       LinkedIn EN: {socialData?.linkedin_post_en || socialData?.linkedin_post ? "✓ Ready" : "Empty"}
                     </span>
                     <span className={`px-2 py-0.5 rounded border font-mono ${
                       socialData?.linkedin_post_bn
                         ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-300"
-                        : "bg-gray-800/50 border-gray-700/50 text-gray-500"
+                        : "bg-card2/50 border-line/50 text-ink-mute"
                     }`}>
                       LinkedIn BN: {socialData?.linkedin_post_bn ? "✓ Ready" : "Empty"}
                     </span>
                     <span className={`px-2 py-0.5 rounded border font-mono ${
                       socialData?.devto_article
-                        ? "bg-purple-950/40 border-purple-500/40 text-purple-300"
-                        : "bg-gray-800/50 border-gray-700/50 text-gray-500"
+                        ? "bg-cyan-deep/40 border-amber/40 text-amber"
+                        : "bg-card2/50 border-line/50 text-ink-mute"
                     }`}>
                       DEV.to: {socialData?.devto_article ? "✓ Ready" : "Empty"}
                     </span>
                     <span className={`px-2 py-0.5 rounded border font-mono ${
                       socialData?.twitter_post
-                        ? "bg-sky-950/40 border-sky-500/40 text-sky-300"
-                        : "bg-gray-800/50 border-gray-700/50 text-gray-500"
+                        ? "bg-cyan-deep/40 border-cyan/40 text-cyan"
+                        : "bg-card2/50 border-line/50 text-ink-mute"
                     }`}>
                       Twitter/X: {socialData?.twitter_post ? "✓ Ready" : "Empty"}
                     </span>
@@ -4355,7 +4363,7 @@ export default function PostEditor({
                   type="button"
                   onClick={handleGenerateSocial}
                   disabled={generatingSocial || !form.title_en.trim() || !form.content_en.trim()}
-                  className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-semibold rounded-xl text-xs sm:text-sm shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-5 py-2.5 bg-cyan hover:bg-cyan text-[#060a13] font-semibold rounded-xl text-xs sm:text-sm shadow-lg shadow-cyan/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {generatingSocial ? (
                     <>
@@ -4372,7 +4380,7 @@ export default function PostEditor({
                 <button
                   type="button"
                   onClick={() => setActiveTab("json")}
-                  className="px-3 py-2 bg-gray-800/80 hover:bg-gray-700 text-gray-300 border border-gray-700 text-xs font-medium rounded-xl transition text-center"
+                  className="px-3 py-2 bg-card2/80 hover:bg-card text-ink-soft border border-line text-xs font-medium rounded-xl transition text-center"
                 >
                   📥 Import from JSON
                 </button>
@@ -4383,16 +4391,16 @@ export default function PostEditor({
           {/* Social Platform Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* 1. LinkedIn English Card */}
-            <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="bg-card/80 border border-line-soft rounded-2xl p-5 space-y-4 shadow-sm flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="flex items-center justify-between pb-3 border-b border-gray-800">
+                <div className="flex items-center justify-between pb-3 border-b border-line-soft">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                    <div className="w-7 h-7 rounded-lg bg-cyan/10 text-cyan flex items-center justify-center">
                       <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">LinkedIn (English)</h4>
-                      <span className="text-[10px] text-gray-400">Viral hook + takeaways + canonical CTA</span>
+                      <h4 className="text-sm font-bold text-ink">LinkedIn (English)</h4>
+                      <span className="text-[10px] text-ink-mute">Viral hook + takeaways + canonical CTA</span>
                     </div>
                   </div>
 
@@ -4409,16 +4417,16 @@ export default function PostEditor({
                       navigator.clipboard.writeText(full);
                       toast.success("📋 Copied LinkedIn English post!");
                     }}
-                    className="px-3 py-1.5 bg-blue-950/60 hover:bg-blue-900/80 text-blue-300 border border-blue-700/50 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    className="px-3 py-1.5 bg-cyan-deep/60 hover:bg-cyan-deep/80 text-cyan border border-cyan-deep/50 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
                   >
                     <span>📋 Copy EN</span>
                   </button>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-300 flex justify-between">
+                  <label className="text-xs font-medium text-ink-soft flex justify-between">
                     <span>Post Content</span>
-                    <span className="text-[10px] text-gray-500 font-mono">
+                    <span className="text-[10px] text-ink-mute font-mono">
                       {(socialData?.linkedin_post_en || socialData?.linkedin_post || "").length} chars
                     </span>
                   </label>
@@ -4434,14 +4442,14 @@ export default function PostEditor({
                       saveSocialToStorage(updated);
                     }}
                     placeholder="Hook: Most engineers struggle with X...\n\nHere are 3 architectural patterns that fix it:\n\n1. Pattern A...\n\nRead the complete article: https://..."
-                    className="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-sans leading-relaxed resize-y"
+                    className="w-full px-3.5 py-2.5 bg-bg border border-line-soft rounded-xl text-xs text-ink-soft placeholder-ink-mute focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan font-sans leading-relaxed resize-y"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-gray-300 flex justify-between">
+                  <label className="text-xs font-medium text-ink-soft flex justify-between">
                     <span>Hashtags</span>
-                    <span className="text-[10px] text-gray-500">Space or comma separated</span>
+                    <span className="text-[10px] text-ink-mute">Space or comma separated</span>
                   </label>
                   <input
                     type="text"
@@ -4456,23 +4464,23 @@ export default function PostEditor({
                       saveSocialToStorage(updated);
                     }}
                     placeholder="#WebDev #React #SoftwareEngineering #Performance"
-                    className="w-full px-3 py-2 bg-gray-950 border border-gray-800 rounded-lg text-xs text-blue-300 font-mono placeholder-gray-600 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-bg border border-line-soft rounded-lg text-xs text-cyan font-mono placeholder-ink-mute focus:outline-none focus:border-cyan"
                   />
                 </div>
               </div>
             </div>
 
             {/* 2. LinkedIn Bengali Card */}
-            <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="bg-card/80 border border-line-soft rounded-2xl p-5 space-y-4 shadow-sm flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="flex items-center justify-between pb-3 border-b border-gray-800">
+                <div className="flex items-center justify-between pb-3 border-b border-line-soft">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
                       <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">LinkedIn (বাংলা)</h4>
-                      <span className="text-[10px] text-gray-400">লোকাল কমিউনিটি ও বাংলা পাঠকদের জন্য</span>
+                      <h4 className="text-sm font-bold text-ink">LinkedIn (বাংলা)</h4>
+                      <span className="text-[10px] text-ink-mute">লোকাল কমিউনিটি ও বাংলা পাঠকদের জন্য</span>
                     </div>
                   </div>
 
@@ -4496,9 +4504,9 @@ export default function PostEditor({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-300 flex justify-between">
+                  <label className="text-xs font-medium text-ink-soft flex justify-between">
                     <span>পোস্টের বিষয়বস্তু (Bengali Content)</span>
-                    <span className="text-[10px] text-gray-500 font-mono">
+                    <span className="text-[10px] text-ink-mute font-mono">
                       {(socialData?.linkedin_post_bn || "").length} chars
                     </span>
                   </label>
@@ -4514,14 +4522,14 @@ export default function PostEditor({
                       saveSocialToStorage(updated);
                     }}
                     placeholder="🚀 নতুন ব্লগ আর্টিকেলে জেনে নিন কীভাবে...\n\nআজকের আলোচনায় আমরা বিস্তারিত তুলে ধরেছি...\n\n🔗 সম্পূর্ণ আর্টিকেলটি পড়ুন: https://..."
-                    className="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-sans leading-relaxed resize-y"
+                    className="w-full px-3.5 py-2.5 bg-bg border border-line-soft rounded-xl text-xs text-ink-soft placeholder-ink-mute focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-sans leading-relaxed resize-y"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-gray-300 flex justify-between">
+                  <label className="text-xs font-medium text-ink-soft flex justify-between">
                     <span>বাংলা হ্যাশট্যাগ</span>
-                    <span className="text-[10px] text-gray-500">স্পেস দিয়ে আলাদা করুন</span>
+                    <span className="text-[10px] text-ink-mute">স্পেস দিয়ে আলাদা করুন</span>
                   </label>
                   <input
                     type="text"
@@ -4536,23 +4544,23 @@ export default function PostEditor({
                       saveSocialToStorage(updated);
                     }}
                     placeholder="#বাংলা #প্রোগ্রামিং #ওয়েবডেভেলপমেন্ট #TechBangladesh"
-                    className="w-full px-3 py-2 bg-gray-950 border border-gray-800 rounded-lg text-xs text-emerald-300 font-mono placeholder-gray-600 focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-bg border border-line-soft rounded-lg text-xs text-emerald-300 font-mono placeholder-ink-mute focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
             </div>
 
             {/* 3. Twitter / X Card */}
-            <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="bg-card/80 border border-line-soft rounded-2xl p-5 space-y-4 shadow-sm flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="flex items-center justify-between pb-3 border-b border-gray-800">
+                <div className="flex items-center justify-between pb-3 border-b border-line-soft">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-cyan/10 text-cyan flex items-center justify-center font-bold text-xs">
                       𝕏
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">Twitter / X Post &amp; Thread</h4>
-                      <span className="text-[10px] text-gray-400">Under 280 chars or full thread breakdown</span>
+                      <h4 className="text-sm font-bold text-ink">Twitter / X Post &amp; Thread</h4>
+                      <span className="text-[10px] text-ink-mute">Under 280 chars or full thread breakdown</span>
                     </div>
                   </div>
 
@@ -4567,7 +4575,7 @@ export default function PostEditor({
                       navigator.clipboard.writeText(tweet);
                       toast.success("📋 Copied Twitter post!");
                     }}
-                    className="px-3 py-1.5 bg-sky-950/60 hover:bg-sky-900/80 text-sky-300 border border-sky-700/50 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    className="px-3 py-1.5 bg-cyan-deep/60 hover:bg-cyan-deep/80 text-cyan border border-cyan-deep/50 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
                   >
                     <span>📋 Copy Tweet</span>
                   </button>
@@ -4575,17 +4583,17 @@ export default function PostEditor({
 
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs">
-                    <label className="font-medium text-gray-300">Tweet Text</label>
+                    <label className="font-medium text-ink-soft">Tweet Text</label>
                     {(() => {
                       const len = (socialData?.twitter_post || "").length;
                       const isSingleTweet = len <= 280;
                       return (
                         <span className={`font-mono text-[11px] px-2 py-0.5 rounded ${
                           len === 0
-                            ? "text-gray-500"
+                            ? "text-ink-mute"
                             : isSingleTweet
                             ? "bg-emerald-950/40 text-emerald-400 border border-emerald-500/30"
-                            : "bg-purple-950/40 text-purple-300 border border-purple-500/30"
+                            : "bg-cyan-deep/40 text-amber border border-amber/30"
                         }`}>
                           {len} chars {len > 0 && (isSingleTweet ? "(Single Tweet ✓)" : "(Thread format)")}
                         </span>
@@ -4604,23 +4612,23 @@ export default function PostEditor({
                       saveSocialToStorage(updated);
                     }}
                     placeholder="Most devs don't realize this about system architecture...\n\nHere is how to structure scalable systems 🧵👇"
-                    className="w-full px-3.5 py-2.5 bg-gray-950 border border-gray-800 rounded-xl text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 font-sans leading-relaxed resize-y"
+                    className="w-full px-3.5 py-2.5 bg-bg border border-line-soft rounded-xl text-xs text-ink-soft placeholder-ink-mute focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan font-sans leading-relaxed resize-y"
                   />
                 </div>
               </div>
             </div>
 
             {/* 4. DEV.to Article & 1-Click Publishing Card */}
-            <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="bg-card/80 border border-line-soft rounded-2xl p-5 space-y-4 shadow-sm flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="flex items-center justify-between pb-3 border-b border-gray-800">
+                <div className="flex items-center justify-between pb-3 border-b border-line-soft">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-gray-800 text-white flex items-center justify-center font-bold text-[10px] border border-gray-700">
+                    <div className="w-7 h-7 rounded-lg bg-card2 text-ink flex items-center justify-center font-bold text-[10px] border border-line">
                       DEV
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-white">DEV.to Syndication</h4>
-                      <span className="text-[10px] text-gray-400">Ready formatted with canonical attribution</span>
+                      <h4 className="text-sm font-bold text-ink">DEV.to Syndication</h4>
+                      <span className="text-[10px] text-ink-mute">Ready formatted with canonical attribution</span>
                     </div>
                   </div>
 
@@ -4640,14 +4648,14 @@ export default function PostEditor({
                       navigator.clipboard.writeText(full);
                       toast.success("📋 Copied DEV.to article!");
                     }}
-                    className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    className="px-3 py-1.5 bg-card2 hover:bg-card text-ink-soft border border-line text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
                   >
                     <span>📋 Copy Article</span>
                   </button>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-300">DEV.to Article Title</label>
+                  <label className="text-xs font-medium text-ink-soft">DEV.to Article Title</label>
                   <input
                     type="text"
                     value={socialData?.devto_title || form.title_en || ""}
@@ -4660,14 +4668,14 @@ export default function PostEditor({
                       saveSocialToStorage(updated);
                     }}
                     placeholder="Engaging article title for DEV.to community"
-                    className="w-full px-3 py-2 bg-gray-950 border border-gray-800 rounded-lg text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 bg-bg border border-line-soft rounded-lg text-xs text-ink-soft placeholder-ink-mute focus:outline-none focus:border-cyan"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-300 flex justify-between">
+                  <label className="text-xs font-medium text-ink-soft flex justify-between">
                     <span>Tags (max 4, lowercase)</span>
-                    <span className="text-[10px] text-gray-500">Comma separated</span>
+                    <span className="text-[10px] text-ink-mute">Comma separated</span>
                   </label>
                   <input
                     type="text"
@@ -4682,14 +4690,14 @@ export default function PostEditor({
                       saveSocialToStorage(updated);
                     }}
                     placeholder="webdev, javascript, react, architecture"
-                    className="w-full px-3 py-2 bg-gray-950 border border-gray-800 rounded-lg text-xs text-indigo-300 font-mono placeholder-gray-600 focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 bg-bg border border-line-soft rounded-lg text-xs text-cyan font-mono placeholder-ink-mute focus:outline-none focus:border-cyan"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-medium text-gray-300 flex justify-between">
+                  <label className="text-xs font-medium text-ink-soft flex justify-between">
                     <span>DEV Markdown Body</span>
-                    <span className="text-[10px] text-gray-500 font-mono">
+                    <span className="text-[10px] text-ink-mute font-mono">
                       {(socialData?.devto_article || form.content_en || "").length} chars
                     </span>
                   </label>
@@ -4705,13 +4713,13 @@ export default function PostEditor({
                       saveSocialToStorage(updated);
                     }}
                     placeholder="DEV.to markdown body..."
-                    className="w-full px-3.5 py-2 bg-gray-950 border border-gray-800 rounded-xl text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono leading-relaxed resize-y"
+                    className="w-full px-3.5 py-2 bg-bg border border-line-soft rounded-xl text-xs text-ink-soft placeholder-ink-mute focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan font-mono leading-relaxed resize-y"
                   />
                 </div>
 
                 {/* 1-Click Publisher */}
-                <div className="pt-3 border-t border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                  <div className="text-[11px] text-gray-400">
+                <div className="pt-3 border-t border-line-soft flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <div className="text-[11px] text-ink-mute">
                     {crossPostResult.devto ? (
                       <span className="text-emerald-400 font-medium flex items-center gap-1">
                         ✓ Published on DEV.to!
@@ -4727,7 +4735,7 @@ export default function PostEditor({
                         href={crossPostResult.devto.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-indigo-400 hover:underline font-medium"
+                        className="text-xs text-cyan hover:underline font-medium"
                       >
                         Open DEV.to →
                       </a>
@@ -4736,7 +4744,7 @@ export default function PostEditor({
                       type="button"
                       onClick={handleCrossPost}
                       disabled={crossPosting.devto || !form.title_en.trim() || !form.content_en.trim()}
-                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                      className="px-4 py-2 bg-cyan-deep hover:bg-cyan text-ink rounded-lg text-xs font-semibold transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer shadow-sm"
                     >
                       {crossPosting.devto ? (
                         <>
@@ -4761,25 +4769,25 @@ export default function PostEditor({
       {activeTab === "settings" && (
         <div className="space-y-6">
           {/* Publishing Status & Automated Scheduling Manager Card */}
-          <div className="bg-gray-900/90 border border-gray-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-lg">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-800 pb-4">
+          <div className="bg-card/90 border border-line-soft rounded-2xl p-5 sm:p-6 space-y-5 shadow-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-line-soft pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-sm border border-indigo-500/20">
+                <div className="w-8 h-8 rounded-lg bg-cyan/10 text-cyan flex items-center justify-center text-sm border border-cyan/20">
                   ⏰
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white tracking-tight">
+                  <h3 className="text-sm font-bold text-ink tracking-tight">
                     Publication &amp; Schedule Controller
                   </h3>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-ink-mute">
                     Control visibility, immediate publication, or automated future release.
                   </p>
                 </div>
               </div>
 
               {form.status === "scheduled" && form.published_at && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-950/80 border border-blue-500/40 text-blue-300">
-                  <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-deep/80 border border-cyan/40 text-cyan">
+                  <span className="w-2 h-2 rounded-full bg-cyan animate-ping" />
                   <span>Scheduled: {getRelativeTimeMessage(form.published_at)}</span>
                 </span>
               )}
@@ -4796,7 +4804,7 @@ export default function PostEditor({
                 className={`p-4 rounded-xl border text-left transition flex flex-col justify-between cursor-pointer ${
                   form.status === "draft"
                     ? "bg-amber-950/40 border-amber-500/60 shadow-md shadow-amber-500/10"
-                    : "bg-gray-950/50 border-gray-800 hover:border-gray-700 opacity-70 hover:opacity-100"
+                    : "bg-bg/50 border-line-soft hover:border-line opacity-70 hover:opacity-100"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -4810,8 +4818,8 @@ export default function PostEditor({
                   />
                 </div>
                 <div className="mt-3">
-                  <p className="text-xs font-bold text-white">Draft Mode</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">
+                  <p className="text-xs font-bold text-ink">Draft Mode</p>
+                  <p className="text-[11px] text-ink-mute mt-0.5">
                     Private and hidden. Readers and search engines cannot see it.
                   </p>
                 </div>
@@ -4832,7 +4840,7 @@ export default function PostEditor({
                 className={`p-4 rounded-xl border text-left transition flex flex-col justify-between cursor-pointer ${
                   form.status === "published"
                     ? "bg-emerald-950/40 border-emerald-500/60 shadow-md shadow-emerald-500/10"
-                    : "bg-gray-950/50 border-gray-800 hover:border-gray-700 opacity-70 hover:opacity-100"
+                    : "bg-bg/50 border-line-soft hover:border-line opacity-70 hover:opacity-100"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -4852,8 +4860,8 @@ export default function PostEditor({
                   />
                 </div>
                 <div className="mt-3">
-                  <p className="text-xs font-bold text-white">Publish Live Now</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">
+                  <p className="text-xs font-bold text-ink">Publish Live Now</p>
+                  <p className="text-[11px] text-ink-mute mt-0.5">
                     Immediately live on your blog, feed.xml, and sitemap.
                   </p>
                 </div>
@@ -4875,8 +4883,8 @@ export default function PostEditor({
                 }}
                 className={`p-4 rounded-xl border text-left transition flex flex-col justify-between cursor-pointer ${
                   form.status === "scheduled"
-                    ? "bg-blue-950/50 border-blue-500/60 shadow-md shadow-blue-500/10"
-                    : "bg-gray-950/50 border-gray-800 hover:border-gray-700 opacity-70 hover:opacity-100"
+                    ? "bg-cyan-deep/50 border-cyan/60 shadow-md shadow-cyan/10"
+                    : "bg-bg/50 border-line-soft hover:border-line opacity-70 hover:opacity-100"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -4895,12 +4903,12 @@ export default function PostEditor({
                         published_at: defaultTarget,
                       });
                     }}
-                    className="accent-blue-500 cursor-pointer"
+                    className="accent-cyan cursor-pointer"
                   />
                 </div>
                 <div className="mt-3">
-                  <p className="text-xs font-bold text-white">Schedule for Later</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">
+                  <p className="text-xs font-bold text-ink">Schedule for Later</p>
+                  <p className="text-[11px] text-ink-mute mt-0.5">
                     Auto-publishes at target future date &amp; time.
                   </p>
                 </div>
@@ -4909,19 +4917,19 @@ export default function PostEditor({
 
             {/* Direct In-Page Schedule Configuration Panel (Active when Scheduled) */}
             {form.status === "scheduled" && (
-              <div className="bg-gray-950/70 border border-blue-500/30 rounded-xl p-4 sm:p-5 space-y-4 animate-fade-in">
+              <div className="bg-bg/70 border border-cyan/30 rounded-xl p-4 sm:p-5 space-y-4 animate-fade-in">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-blue-300 flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-cyan flex items-center gap-1.5">
                     <span>📅</span> Pick Future Release Date &amp; Time
                   </span>
-                  <span className="text-[11px] text-gray-400 font-mono">
+                  <span className="text-[11px] text-ink-mute font-mono">
                     Timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Dhaka"}
                   </span>
                 </div>
 
                 {/* Preset Chips */}
                 <div className="space-y-1.5">
-                  <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+                  <span className="text-[11px] font-semibold text-ink-mute uppercase tracking-wider block">
                     Quick Preset Timing:
                   </span>
                   <div className="flex flex-wrap gap-2">
@@ -4937,8 +4945,8 @@ export default function PostEditor({
                           }}
                           className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-1.5 cursor-pointer ${
                             isSelected
-                              ? "bg-blue-600 text-white border-blue-500 shadow-sm"
-                              : "bg-gray-900 border-gray-800 text-gray-300 hover:border-gray-700 hover:text-white"
+                              ? "bg-cyan-deep text-ink border-cyan shadow-sm"
+                              : "bg-card border-line-soft text-ink-soft hover:border-line hover:text-ink"
                           }`}
                         >
                           <span>{preset.icon}</span>
@@ -4952,7 +4960,7 @@ export default function PostEditor({
                 {/* Direct DateTime-Local Input & Quick Adjusters */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
                   <div className="space-y-1.5">
-                    <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+                    <label className="text-[11px] font-semibold text-ink-mute uppercase tracking-wider block">
                       Custom Exact Datetime:
                     </label>
                     <input
@@ -4962,12 +4970,12 @@ export default function PostEditor({
                         setForm({ ...form, published_at: e.target.value });
                         setScheduleDate(e.target.value);
                       }}
-                      className="w-full px-3.5 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-blue-500 transition"
+                      className="w-full px-3.5 py-2.5 bg-card border border-line rounded-xl text-ink text-xs font-mono focus:outline-none focus:border-cyan transition"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+                    <span className="text-[11px] font-semibold text-ink-mute uppercase tracking-wider block">
                       Fast Hour Adjusters:
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -4985,7 +4993,7 @@ export default function PostEditor({
                             setForm({ ...form, published_at: newDt });
                             setScheduleDate(newDt);
                           }}
-                          className="px-2.5 py-2 text-[11px] font-medium bg-gray-900 hover:bg-gray-800 text-blue-300 border border-blue-500/20 rounded-lg transition cursor-pointer"
+                          className="px-2.5 py-2 text-[11px] font-medium bg-card hover:bg-card2 text-cyan border border-cyan/20 rounded-lg transition cursor-pointer"
                         >
                           {adj.label}
                         </button>
@@ -4997,14 +5005,14 @@ export default function PostEditor({
                 {/* Live Countdown & Validation Banner */}
                 {form.published_at ? (
                   new Date(form.published_at).getTime() > Date.now() ? (
-                    <div className="p-3 rounded-xl bg-blue-950/40 border border-blue-500/40 text-blue-300 text-xs flex items-center justify-between gap-3">
+                    <div className="p-3 rounded-xl bg-cyan-deep/40 border border-cyan/40 text-cyan text-xs flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
                         <span className="text-base animate-spin">⏱️</span>
                         <div>
-                          <p className="font-semibold text-white">
+                          <p className="font-semibold text-ink">
                             Scheduled to publish {getRelativeTimeMessage(form.published_at)}
                           </p>
-                          <p className="text-[11px] text-blue-400/90 font-mono mt-0.5">
+                          <p className="text-[11px] text-cyan/90 font-mono mt-0.5">
                             Target: {new Date(form.published_at).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric", year: "numeric" })} at {new Date(form.published_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                           </p>
                         </div>
@@ -5012,7 +5020,7 @@ export default function PostEditor({
                       <button
                         type="button"
                         onClick={handleUnschedule}
-                        className="px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white text-[11px] font-medium transition cursor-pointer"
+                        className="px-2.5 py-1 rounded bg-card2 hover:bg-card text-ink-soft hover:text-ink text-[11px] font-medium transition cursor-pointer"
                       >
                         Cancel Schedule
                       </button>
@@ -5024,7 +5032,7 @@ export default function PostEditor({
                     </div>
                   )
                 ) : (
-                  <div className="p-3 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 text-xs">
+                  <div className="p-3 rounded-xl bg-card border border-line-soft text-ink-mute text-xs">
                     Please pick a date and time above to activate scheduled release.
                   </div>
                 )}
@@ -5033,14 +5041,14 @@ export default function PostEditor({
           </div>
 
           {/* Category, Tags & Featured Post */}
-          <div className="bg-gray-900/90 border border-gray-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-lg">
+          <div className="bg-card/90 border border-line-soft rounded-2xl p-5 sm:p-6 space-y-5 shadow-lg">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
+                <label className="block text-sm font-medium text-ink-soft mb-2">Category</label>
                 <select
                   value={form.category_id}
                   onChange={(e) => setForm({ ...form, category_id: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-950 border border-gray-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
+                  className="w-full px-4 py-3 bg-bg border border-line rounded-xl text-ink text-sm focus:outline-none focus:border-cyan"
                 >
                   <option value="">No category</option>
                   {categories.map((cat) => (
@@ -5051,21 +5059,21 @@ export default function PostEditor({
 
               {form.status !== "scheduled" && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-ink-soft mb-2">
                     {form.status === "published" ? "Live Publish Timestamp" : "Creation / Draft Date"}
                   </label>
                   <input
                     type="datetime-local"
                     value={form.published_at || ""}
                     onChange={(e) => setForm({ ...form, published_at: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-950 border border-gray-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
+                    className="w-full px-4 py-3 bg-bg border border-line rounded-xl text-ink text-sm focus:outline-none focus:border-cyan"
                   />
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-3">Tags</label>
+              <label className="block text-sm font-medium text-ink-soft mb-3">Tags</label>
               <div className="flex flex-wrap gap-2">
                 {tags.map((tag) => (
                   <button
@@ -5074,15 +5082,15 @@ export default function PostEditor({
                     onClick={() => toggleTag(tag.id)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition cursor-pointer ${
                       form.tag_ids.includes(tag.id)
-                        ? "bg-indigo-600 text-white"
-                        : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
+                        ? "bg-cyan-deep text-ink"
+                        : "bg-card2 text-ink-mute hover:bg-card hover:text-ink"
                     }`}
                   >
                     {tag.name_en}
                   </button>
                 ))}
                 {tags.length === 0 && (
-                  <p className="text-sm text-gray-500">No tags yet. Add tags from the database.</p>
+                  <p className="text-sm text-ink-mute">No tags yet. Add tags from the database.</p>
                 )}
               </div>
             </div>
@@ -5093,9 +5101,9 @@ export default function PostEditor({
                 id="is_featured"
                 checked={form.is_featured}
                 onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
-                className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
+                className="w-4 h-4 accent-cyan-deep rounded cursor-pointer"
               />
-              <label htmlFor="is_featured" className="text-sm text-gray-300 cursor-pointer">
+              <label htmlFor="is_featured" className="text-sm text-ink-soft cursor-pointer">
                 Featured post (shown prominently on blog listing)
               </label>
             </div>
@@ -5105,10 +5113,10 @@ export default function PostEditor({
 
 
       {/* Bottom Save Bar */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-800">
+      <div className="flex items-center justify-between pt-4 border-t border-line-soft">
         <button
           onClick={() => router.back()}
-          className="text-sm text-gray-500 hover:text-gray-300 transition"
+          className="text-sm text-ink-mute hover:text-ink-soft transition"
         >
           ← Back
         </button>
@@ -5117,7 +5125,7 @@ export default function PostEditor({
             type="button"
             onClick={() => handleSave("draft")}
             disabled={saving}
-            className="px-4 py-2 text-xs sm:text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition disabled:opacity-50"
+            className="px-4 py-2 text-xs sm:text-sm bg-card2 hover:bg-card text-ink-soft rounded-lg transition disabled:opacity-50"
           >
             Save as Draft
           </button>
@@ -5128,7 +5136,7 @@ export default function PostEditor({
               setShowScheduleModal(true);
             }}
             disabled={saving}
-            className="px-4 py-2 text-xs sm:text-sm bg-blue-600/25 hover:bg-blue-600/40 text-blue-300 border border-blue-500/40 rounded-lg transition disabled:opacity-50 font-medium flex items-center gap-1.5"
+            className="px-4 py-2 text-xs sm:text-sm bg-cyan-deep/25 hover:bg-cyan-deep/40 text-cyan border border-cyan/40 rounded-lg transition disabled:opacity-50 font-medium flex items-center gap-1.5"
           >
             <span>⏰ Schedule</span>
           </button>
@@ -5136,7 +5144,7 @@ export default function PostEditor({
             type="button"
             onClick={() => handleSave("published")}
             disabled={saving}
-            className="px-5 py-2 text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition disabled:opacity-50 font-semibold"
+            className="px-5 py-2 text-xs sm:text-sm bg-cyan-deep hover:bg-cyan text-ink rounded-lg transition disabled:opacity-50 font-semibold"
           >
             {saving ? "Saving..." : mode === "edit" ? "Update" : "Publish Now"}
           </button>
@@ -5162,19 +5170,19 @@ export default function PostEditor({
           onClick={() => setShowScheduleModal(false)}
         >
           <div
-            className="bg-gray-900 border border-gray-800 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in duration-150"
+            className="bg-card border border-line-soft rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in duration-150"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-gray-800 pb-3.5">
+            <div className="flex items-center justify-between border-b border-line-soft pb-3.5">
               <div className="flex items-center gap-2.5">
-                <span className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-base border border-blue-500/20">
+                <span className="w-9 h-9 rounded-xl bg-cyan/10 text-cyan flex items-center justify-center text-base border border-cyan/20">
                   ⏰
                 </span>
                 <div>
-                  <h3 className="text-sm font-bold text-white tracking-tight">
+                  <h3 className="text-sm font-bold text-ink tracking-tight">
                     Schedule Article Publication
                   </h3>
-                  <p className="text-[11px] text-gray-400">
+                  <p className="text-[11px] text-ink-mute">
                     Auto-publishes to blog, sitemap &amp; RSS when this time arrives.
                   </p>
                 </div>
@@ -5182,7 +5190,7 @@ export default function PostEditor({
               <button
                 type="button"
                 onClick={() => setShowScheduleModal(false)}
-                className="text-gray-400 hover:text-white text-xs w-7 h-7 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition cursor-pointer"
+                className="text-ink-mute hover:text-ink text-xs w-7 h-7 rounded-lg bg-card2 hover:bg-card flex items-center justify-center transition cursor-pointer"
               >
                 ✕
               </button>
@@ -5190,7 +5198,7 @@ export default function PostEditor({
 
             {/* Presets Grid */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+              <label className="text-[11px] font-semibold text-ink-mute uppercase tracking-wider block">
                 Quick Preset Times:
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -5203,15 +5211,15 @@ export default function PostEditor({
                       onClick={() => setScheduleDate(p.dt)}
                       className={`px-3 py-2 text-xs rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
                         isSelected
-                          ? "bg-blue-600/30 border-blue-500 text-white font-semibold shadow-sm"
-                          : "bg-gray-800/60 border-gray-700/60 text-gray-300 hover:bg-gray-800 hover:text-white"
+                          ? "bg-cyan-deep/30 border-cyan text-ink font-semibold shadow-sm"
+                          : "bg-card2/60 border-line/60 text-ink-soft hover:bg-card2 hover:text-ink"
                       }`}
                     >
                       <div className="flex items-center gap-2 truncate">
                         <span>{p.icon}</span>
                         <span className="truncate">{p.label}</span>
                       </div>
-                      <span className="text-[10px] text-gray-400 font-mono">{p.sub}</span>
+                      <span className="text-[10px] text-ink-mute font-mono">{p.sub}</span>
                     </button>
                   );
                 })}
@@ -5221,10 +5229,10 @@ export default function PostEditor({
             {/* Custom Datetime Input & Hour Adjusters */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+                <label className="text-[11px] font-semibold text-ink-mute uppercase tracking-wider block">
                   Exact Datetime Selection:
                 </label>
-                <span className="text-[10px] text-gray-500 font-mono">
+                <span className="text-[10px] text-ink-mute font-mono">
                   {Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Dhaka"}
                 </span>
               </div>
@@ -5232,7 +5240,7 @@ export default function PostEditor({
                 type="datetime-local"
                 value={scheduleDate}
                 onChange={(e) => setScheduleDate(e.target.value)}
-                className="w-full bg-gray-950 border border-gray-700 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-blue-500 transition"
+                className="w-full bg-bg border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink font-mono focus:outline-none focus:border-cyan transition"
               />
 
               <div className="flex flex-wrap gap-1.5 pt-1">
@@ -5246,7 +5254,7 @@ export default function PostEditor({
                     key={adj.label}
                     type="button"
                     onClick={() => setScheduleDate(adjustScheduleTime(adj.h, scheduleDate))}
-                    className="px-2.5 py-1 text-[11px] font-medium bg-gray-800 hover:bg-gray-700 text-blue-300 border border-blue-500/20 rounded-lg transition cursor-pointer"
+                    className="px-2.5 py-1 text-[11px] font-medium bg-card2 hover:bg-card text-cyan border border-cyan/20 rounded-lg transition cursor-pointer"
                   >
                     {adj.label}
                   </button>
@@ -5258,17 +5266,17 @@ export default function PostEditor({
             {scheduleDate && (
               <div className={`p-3 rounded-xl border text-xs ${
                 new Date(scheduleDate).getTime() > Date.now()
-                  ? "bg-blue-950/40 border-blue-500/40 text-blue-300"
+                  ? "bg-cyan-deep/40 border-cyan/40 text-cyan"
                   : "bg-amber-950/40 border-amber-500/40 text-amber-300"
               }`}>
                 {new Date(scheduleDate).getTime() > Date.now() ? (
                   <div className="flex items-center gap-2">
                     <span className="animate-spin text-base">⏱️</span>
                     <div>
-                      <p className="font-semibold text-white">
+                      <p className="font-semibold text-ink">
                         Will go live {getRelativeTimeMessage(scheduleDate)}
                       </p>
-                      <p className="text-[11px] text-blue-400 font-mono mt-0.5">
+                      <p className="text-[11px] text-cyan font-mono mt-0.5">
                         Target: {new Date(scheduleDate).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric", year: "numeric" })} at {new Date(scheduleDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
@@ -5280,7 +5288,7 @@ export default function PostEditor({
             )}
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-2 border-t border-gray-800">
+            <div className="flex items-center justify-between pt-2 border-t border-line-soft">
               {form.status === "scheduled" ? (
                 <button
                   type="button"
@@ -5297,14 +5305,14 @@ export default function PostEditor({
                 <button
                   type="button"
                   onClick={() => setShowScheduleModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 transition cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-ink-mute hover:text-ink bg-card2 hover:bg-card transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={() => handleScheduleSubmit(scheduleDate)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 transition shadow-md shadow-blue-600/30 cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-ink bg-cyan-deep hover:bg-cyan transition shadow-md shadow-cyan-deep/30 cursor-pointer"
                 >
                   Confirm Schedule ⏰
                 </button>

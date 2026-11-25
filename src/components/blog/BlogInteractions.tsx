@@ -1,15 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaEye, FaHeart } from 'react-icons/fa';
+import { FaEye } from 'react-icons/fa';
 import { PiHandsClappingFill } from 'react-icons/pi';
-
-interface BlogInteractionsProps {
-  slug: string;
-  initialLikes?: number;
-  initialViews?: number;
-}
+import { useBlogReader } from './BlogReaderContext';
 
 interface Particle {
   id: number;
@@ -18,57 +13,21 @@ interface Particle {
   icon: string;
 }
 
-export default function BlogInteractions({
-  slug,
-  initialLikes = 0,
-  initialViews = 0,
-}: BlogInteractionsProps) {
-  const [likes, setLikes] = useState(initialLikes);
-  const [views, setViews] = useState(initialViews);
-  const [userClaps, setUserClaps] = useState(0);
+/**
+ * Views badge + clap button. Pure view over BlogReaderContext — likes, views
+ * and the reader's claps (one 20-clap cap) are shared with ArticleFloatingBar
+ * and the second BlogInteractions instance on the page (fixes B6).
+ * R4-styled: --card / --line-soft / --cyan / --amber tokens.
+ */
+export default function BlogInteractions() {
+  const { likes, views, userClaps, clap } = useBlogReader();
   const [particles, setParticles] = useState<Particle[]>([]);
-  const pendingClapsRef = useRef(0);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Load stats and record view on mount
-  useEffect(() => {
-    // 1. Fetch live stats
-    fetch(`/api/blog/${slug}/stats`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.views !== undefined) setViews(data.views);
-        if (data.likes !== undefined) setLikes(data.likes);
-      })
-      .catch(() => {});
-
-    // 2. Increment view once per session
-    const viewedKey = `viewed_post_${slug}`;
-    if (!sessionStorage.getItem(viewedKey)) {
-      sessionStorage.setItem(viewedKey, '1');
-      fetch(`/api/blog/${slug}/view`, { method: 'POST' })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.views) setViews(data.views);
-        })
-        .catch(() => {});
-    }
-
-    // 3. Load user's previous claps
-    const storedClaps = localStorage.getItem(`claps_${slug}`);
-    if (storedClaps) {
-      setUserClaps(parseInt(storedClaps, 10));
-    }
-  }, [slug]);
 
   const handleClap = () => {
-    if (userClaps >= 20) return; // max 20 claps per reader
+    const counted = clap();
+    if (!counted) return;
 
-    const newClapCount = userClaps + 1;
-    setUserClaps(newClapCount);
-    setLikes((prev) => prev + 1);
-    localStorage.setItem(`claps_${slug}`, String(newClapCount));
-
-    // Particle burst
+    // Particle burst (visual only — the count lives in context)
     const newParticle: Particle = {
       id: Date.now() + Math.random(),
       x: (Math.random() - 0.5) * 50,
@@ -76,31 +35,13 @@ export default function BlogInteractions({
       icon: ['👏', '❤️', '🔥', '✨'][Math.floor(Math.random() * 4)],
     };
     setParticles((prev) => [...prev.slice(-8), newParticle]);
-
-    // Debounce network call
-    pendingClapsRef.current += 1;
-    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    debounceTimerRef.current = setTimeout(() => {
-      const countToSend = pendingClapsRef.current;
-      pendingClapsRef.current = 0;
-      fetch(`/api/blog/${slug}/like`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ count: countToSend }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.likes) setLikes(data.likes);
-        })
-        .catch(() => {});
-    }, 600);
   };
 
   return (
     <div className="flex items-center gap-4 select-none">
       {/* Views count badge */}
-      <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700/60 text-xs font-medium text-gray-600 dark:text-gray-300">
-        <FaEye className="text-gray-400 dark:text-gray-400 text-sm" />
+      <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#122036] border-[1.5px] border-[#1a2947] text-xs font-medium text-[#a9bedd]">
+        <FaEye className="text-[#2fd8f2] text-sm" />
         <span>{views.toLocaleString()} views</span>
       </div>
 
@@ -112,19 +53,19 @@ export default function BlogInteractions({
           whileTap={{ scale: 0.92 }}
           className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition shadow-sm border ${
             userClaps > 0
-              ? 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400'
-              : 'bg-gray-100 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700/60 text-gray-700 dark:text-gray-300 hover:border-rose-400/50'
+              ? 'bg-[#ffb02e]/10 border-[#ffb02e]/40 text-[#ffb02e]'
+              : 'bg-[#122036] border-[#1a2947] text-[#c3d2ea] hover:border-[#0e7d99]'
           }`}
           aria-label="Applaud this post"
         >
           <PiHandsClappingFill
             className={`text-base transition-transform ${
-              userClaps > 0 ? 'text-rose-500 scale-110' : 'text-gray-500'
+              userClaps > 0 ? 'text-[#ffb02e] scale-110' : 'text-[#a9bedd]'
             }`}
           />
           <span>{likes.toLocaleString()}</span>
           {userClaps > 0 && (
-            <span className="text-[10px] bg-rose-500 text-white rounded-full px-1.5 py-0.2 font-bold ml-0.5">
+            <span className="text-[10px] bg-[#ffb02e] text-[#1a1200] rounded-full px-1.5 py-0.5 font-bold ml-0.5">
               +{userClaps}
             </span>
           )}

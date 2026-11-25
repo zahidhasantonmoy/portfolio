@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  // B2 fix: admin-only endpoint — previously had no auth check.
+  // Note: this endpoint only pings Bing's sitemap endpoint and returns Google
+  // Search Console deep links; it does NOT submit URLs to Google.
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   try {
     let body: any = {};
     try {

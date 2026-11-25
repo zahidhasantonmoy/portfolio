@@ -70,8 +70,8 @@ export default function PostStatusToggle({
         isPublished
           ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-900/60'
           : isScheduled
-          ? 'bg-blue-950/60 text-blue-300 border border-blue-500/40 hover:bg-blue-900/60'
-          : 'bg-yellow-950/60 text-yellow-300 border border-yellow-500/40 hover:bg-yellow-900/60'
+          ? 'bg-cyan/10 text-cyan border border-cyan/40 hover:bg-cyan/20'
+          : 'bg-amber/10 text-amber border border-amber/40 hover:bg-amber/20'
       }`}
     >
       <span
@@ -79,8 +79,8 @@ export default function PostStatusToggle({
           isPublished
             ? 'bg-emerald-400'
             : isScheduled
-            ? 'bg-blue-400 animate-pulse'
-            : 'bg-yellow-400'
+            ? 'bg-cyan animate-pulse'
+            : 'bg-amber'
         }`}
       />
       <span className="capitalize">{isScheduled ? '⏰ Scheduled' : status}</span>

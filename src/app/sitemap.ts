@@ -51,18 +51,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const posts = await getAllPublishedPostsForSitemap();
 
     const postPages: MetadataRoute.Sitemap = posts.flatMap((post) => {
+      // Journal rows have no public /journal/<slug> route — the journal route
+      // is /journal/[date], keyed by a development_logs log_date that the
+      // posts row cannot map to — so journal posts are excluded here entirely.
+      // /journal has its own listing page.
+      if (post.post_type !== "blog") return [];
       const lastMod = new Date(post.updated_at ?? post.published_at ?? new Date());
       const pages: MetadataRoute.Sitemap = [
         {
-          url: `${base}/${post.post_type === "journal" ? "journal" : "blog"}/${post.slug}`,
+          url: `${base}/blog/${post.slug}`,
           lastModified: lastMod,
           changeFrequency: "weekly",
-          priority: post.post_type === "blog" ? 0.8 : 0.6,
+          priority: 0.8,
         },
       ];
 
-      // Add Bangla URL if applicable
-      if (post.post_type === "blog") {
+      // Add Bangla URL only when a Bengali version exists (else it 404s).
+      if (post.title_bn) {
         pages.push({
           url: `${base}/bn/blog/${post.slug}`,
           lastModified: lastMod,

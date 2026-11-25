@@ -19,7 +19,7 @@ export default async function Image({
 
   const title = post?.title_en || "Zahid Hasan Tonmoy's Blog";
   const category = post?.categories?.name_en || "Tech & Engineering";
-  const categoryColor = post?.categories?.color || "#6366f1";
+  const categoryColor = post?.categories?.color || "#2fd8f2";
   const readTime = post?.read_time_min ? `${post.read_time_min} min read` : "3 min read";
 
   return new ImageResponse(

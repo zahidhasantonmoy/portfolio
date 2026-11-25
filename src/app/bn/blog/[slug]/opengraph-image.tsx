@@ -19,7 +19,7 @@ export default async function Image({
 
   const title = post?.title_bn || post?.title_en || "জাহিদ হাসান তন্ময়ের ব্লগ";
   const category = post?.categories?.name_bn || post?.categories?.name_en || "প্রযুক্তি ও প্রোগ্রামিং";
-  const categoryColor = post?.categories?.color || "#6366f1";
+  const categoryColor = post?.categories?.color || "#2fd8f2";
   const readTime = post?.read_time_min ? `${post.read_time_min} মিনিট পাঠ` : "৩ মিনিট পাঠ";
 
   // Load Bengali font from fast CDN with edge caching to render crisp Bengali script without tofu boxes

@@ -40,11 +40,22 @@ export async function autoPublishScheduledPosts(): Promise<void> {
 export async function getPublishedPosts(opts?: {
   category?: string;
   search?: string;
+  tag?: string;
+  bnOnly?: boolean;
   limit?: number;
   offset?: number;
 }): Promise<Post[]> {
   const limit = opts?.limit ?? 10;
   const offset = opts?.offset ?? 0;
+  // Tag filter: "" means "no tag filter". The EXISTS clause is a no-op when
+  // tagParam is "" (the first disjunct is then true), so all four branches
+  // below can share the same WHERE shape.
+  const tagParam = opts?.tag ?? "";
+  // BN-only filter: 0 means "no BN filter". 1 restricts to posts that have a
+  // Bengali title or Bengali content — the same rule the BN listing applies
+  // client-side (see LiveBlogList), now enforced server-side so pagination
+  // counts and pages agree.
+  const bnFlag = opts?.bnOnly ? 1 : 0;
 
   try {
     // Lazy sync any due scheduled posts
@@ -55,6 +66,7 @@ export async function getPublishedPosts(opts?: {
     if (opts?.search && opts?.category) {
       rows = await sql`
         SELECT p.id, p.title_en, p.title_bn, p.slug, p.excerpt_en, p.excerpt_bn,
+               p.content_en, p.content_bn,
                p.cover_image_url, p.published_at, p.read_time_min, p.is_featured, p.post_type,
                c.id as cat_id, c.name_en as cat_name_en, c.name_bn as cat_name_bn,
                c.slug as cat_slug, c.color as cat_color
@@ -64,15 +76,24 @@ export async function getPublishedPosts(opts?: {
           AND p.post_type = 'blog'
           AND p.published_at <= NOW()
           AND c.slug = ${opts.category}
+          AND (${tagParam} = '' OR EXISTS (
+            SELECT 1 FROM post_tags pt JOIN tags t ON pt.tag_id = t.id
+            WHERE pt.post_id = p.id AND t.slug = ${tagParam}
+          ))
+          AND (${bnFlag} = 0 OR (p.title_bn IS NOT NULL AND p.title_bn <> '' OR p.content_bn IS NOT NULL AND p.content_bn <> ''))
           AND (p.title_en ILIKE ${'%' + opts.search + '%'}
             OR p.title_bn ILIKE ${'%' + opts.search + '%'}
-            OR p.excerpt_en ILIKE ${'%' + opts.search + '%'})
+            OR p.excerpt_en ILIKE ${'%' + opts.search + '%'}
+            OR p.excerpt_bn ILIKE ${'%' + opts.search + '%'}
+            OR p.content_en ILIKE ${'%' + opts.search + '%'}
+            OR p.content_bn ILIKE ${'%' + opts.search + '%'})
         ORDER BY p.published_at DESC
         LIMIT ${limit} OFFSET ${offset}
       `;
     } else if (opts?.search) {
       rows = await sql`
         SELECT p.id, p.title_en, p.title_bn, p.slug, p.excerpt_en, p.excerpt_bn,
+               p.content_en, p.content_bn,
                p.cover_image_url, p.published_at, p.read_time_min, p.is_featured, p.post_type,
                c.id as cat_id, c.name_en as cat_name_en, c.name_bn as cat_name_bn,
                c.slug as cat_slug, c.color as cat_color
@@ -81,15 +102,24 @@ export async function getPublishedPosts(opts?: {
         WHERE (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
           AND p.post_type = 'blog'
           AND p.published_at <= NOW()
+          AND (${tagParam} = '' OR EXISTS (
+            SELECT 1 FROM post_tags pt JOIN tags t ON pt.tag_id = t.id
+            WHERE pt.post_id = p.id AND t.slug = ${tagParam}
+          ))
+          AND (${bnFlag} = 0 OR (p.title_bn IS NOT NULL AND p.title_bn <> '' OR p.content_bn IS NOT NULL AND p.content_bn <> ''))
           AND (p.title_en ILIKE ${'%' + opts.search + '%'}
             OR p.title_bn ILIKE ${'%' + opts.search + '%'}
-            OR p.excerpt_en ILIKE ${'%' + opts.search + '%'})
+            OR p.excerpt_en ILIKE ${'%' + opts.search + '%'}
+            OR p.excerpt_bn ILIKE ${'%' + opts.search + '%'}
+            OR p.content_en ILIKE ${'%' + opts.search + '%'}
+            OR p.content_bn ILIKE ${'%' + opts.search + '%'})
         ORDER BY p.published_at DESC
         LIMIT ${limit} OFFSET ${offset}
       `;
     } else if (opts?.category) {
       rows = await sql`
         SELECT p.id, p.title_en, p.title_bn, p.slug, p.excerpt_en, p.excerpt_bn,
+               p.content_en, p.content_bn,
                p.cover_image_url, p.published_at, p.read_time_min, p.is_featured, p.post_type,
                c.id as cat_id, c.name_en as cat_name_en, c.name_bn as cat_name_bn,
                c.slug as cat_slug, c.color as cat_color
@@ -99,12 +129,18 @@ export async function getPublishedPosts(opts?: {
           AND p.post_type = 'blog'
           AND p.published_at <= NOW()
           AND c.slug = ${opts.category}
+          AND (${tagParam} = '' OR EXISTS (
+            SELECT 1 FROM post_tags pt JOIN tags t ON pt.tag_id = t.id
+            WHERE pt.post_id = p.id AND t.slug = ${tagParam}
+          ))
+          AND (${bnFlag} = 0 OR (p.title_bn IS NOT NULL AND p.title_bn <> '' OR p.content_bn IS NOT NULL AND p.content_bn <> ''))
         ORDER BY p.published_at DESC
         LIMIT ${limit} OFFSET ${offset}
       `;
     } else {
       rows = await sql`
         SELECT p.id, p.title_en, p.title_bn, p.slug, p.excerpt_en, p.excerpt_bn,
+               p.content_en, p.content_bn,
                p.cover_image_url, p.published_at, p.read_time_min, p.is_featured, p.post_type,
                c.id as cat_id, c.name_en as cat_name_en, c.name_bn as cat_name_bn,
                c.slug as cat_slug, c.color as cat_color
@@ -113,6 +149,11 @@ export async function getPublishedPosts(opts?: {
         WHERE (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
           AND p.post_type = 'blog'
           AND p.published_at <= NOW()
+          AND (${tagParam} = '' OR EXISTS (
+            SELECT 1 FROM post_tags pt JOIN tags t ON pt.tag_id = t.id
+            WHERE pt.post_id = p.id AND t.slug = ${tagParam}
+          ))
+          AND (${bnFlag} = 0 OR (p.title_bn IS NOT NULL AND p.title_bn <> '' OR p.content_bn IS NOT NULL AND p.content_bn <> ''))
         ORDER BY p.published_at DESC
         LIMIT ${limit} OFFSET ${offset}
       `;
@@ -122,6 +163,205 @@ export async function getPublishedPosts(opts?: {
   } catch (err) {
     console.warn("[getPublishedPosts] Database unreachable, returning fallback []:", err);
     return [];
+  }
+}
+
+/**
+ * COUNT(*) twin of getPublishedPosts — same visibility WHERE clause and the
+ * same category/search/tag/bnOnly filters, so the "SHOWING X OF N" line and
+ * pagination use the real total, not the capped page length. (Fixes B11.)
+ */
+export async function getPublishedPostCount(opts?: {
+  category?: string;
+  search?: string;
+  tag?: string;
+  bnOnly?: boolean;
+}): Promise<number> {
+  const tagParam = opts?.tag ?? "";
+  const bnFlag = opts?.bnOnly ? 1 : 0;
+
+  try {
+    await autoPublishScheduledPosts();
+
+    let rows;
+
+    if (opts?.search && opts?.category) {
+      rows = await sql`
+        SELECT COUNT(*)::int AS count
+        FROM posts p
+        LEFT JOIN categories c ON p.category_id = c.id
+        WHERE (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
+          AND p.post_type = 'blog'
+          AND p.published_at <= NOW()
+          AND c.slug = ${opts.category}
+          AND (${tagParam} = '' OR EXISTS (
+            SELECT 1 FROM post_tags pt JOIN tags t ON pt.tag_id = t.id
+            WHERE pt.post_id = p.id AND t.slug = ${tagParam}
+          ))
+          AND (${bnFlag} = 0 OR (p.title_bn IS NOT NULL AND p.title_bn <> '' OR p.content_bn IS NOT NULL AND p.content_bn <> ''))
+          AND (p.title_en ILIKE ${'%' + opts.search + '%'}
+            OR p.title_bn ILIKE ${'%' + opts.search + '%'}
+            OR p.excerpt_en ILIKE ${'%' + opts.search + '%'}
+            OR p.excerpt_bn ILIKE ${'%' + opts.search + '%'}
+            OR p.content_en ILIKE ${'%' + opts.search + '%'}
+            OR p.content_bn ILIKE ${'%' + opts.search + '%'})
+      `;
+    } else if (opts?.search) {
+      rows = await sql`
+        SELECT COUNT(*)::int AS count
+        FROM posts p
+        LEFT JOIN categories c ON p.category_id = c.id
+        WHERE (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
+          AND p.post_type = 'blog'
+          AND p.published_at <= NOW()
+          AND (${tagParam} = '' OR EXISTS (
+            SELECT 1 FROM post_tags pt JOIN tags t ON pt.tag_id = t.id
+            WHERE pt.post_id = p.id AND t.slug = ${tagParam}
+          ))
+          AND (${bnFlag} = 0 OR (p.title_bn IS NOT NULL AND p.title_bn <> '' OR p.content_bn IS NOT NULL AND p.content_bn <> ''))
+          AND (p.title_en ILIKE ${'%' + opts.search + '%'}
+            OR p.title_bn ILIKE ${'%' + opts.search + '%'}
+            OR p.excerpt_en ILIKE ${'%' + opts.search + '%'}
+            OR p.excerpt_bn ILIKE ${'%' + opts.search + '%'}
+            OR p.content_en ILIKE ${'%' + opts.search + '%'}
+            OR p.content_bn ILIKE ${'%' + opts.search + '%'})
+      `;
+    } else if (opts?.category) {
+      rows = await sql`
+        SELECT COUNT(*)::int AS count
+        FROM posts p
+        LEFT JOIN categories c ON p.category_id = c.id
+        WHERE (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
+          AND p.post_type = 'blog'
+          AND p.published_at <= NOW()
+          AND c.slug = ${opts.category}
+          AND (${tagParam} = '' OR EXISTS (
+            SELECT 1 FROM post_tags pt JOIN tags t ON pt.tag_id = t.id
+            WHERE pt.post_id = p.id AND t.slug = ${tagParam}
+          ))
+          AND (${bnFlag} = 0 OR (p.title_bn IS NOT NULL AND p.title_bn <> '' OR p.content_bn IS NOT NULL AND p.content_bn <> ''))
+      `;
+    } else {
+      rows = await sql`
+        SELECT COUNT(*)::int AS count
+        FROM posts p
+        LEFT JOIN categories c ON p.category_id = c.id
+        WHERE (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
+          AND p.post_type = 'blog'
+          AND p.published_at <= NOW()
+          AND (${tagParam} = '' OR EXISTS (
+            SELECT 1 FROM post_tags pt JOIN tags t ON pt.tag_id = t.id
+            WHERE pt.post_id = p.id AND t.slug = ${tagParam}
+          ))
+          AND (${bnFlag} = 0 OR (p.title_bn IS NOT NULL AND p.title_bn <> '' OR p.content_bn IS NOT NULL AND p.content_bn <> ''))
+      `;
+    }
+
+    return Number(rows[0]?.count ?? 0) || 0;
+  } catch (err) {
+    console.warn("[getPublishedPostCount] Database unreachable, returning fallback 0:", err);
+    return 0;
+  }
+}
+
+/**
+ * Live per-category published-post counts (same visibility rule), so category
+ * chips can hide 0-post categories even when the listing is paginated and the
+ * current page no longer carries every post.
+ */
+export async function getCategoryCounts(opts?: {
+  bnOnly?: boolean;
+}): Promise<Record<string, number>> {
+  const bnFlag = opts?.bnOnly ? 1 : 0;
+
+  try {
+    const rows = await sql`
+      SELECT c.slug, COUNT(p.id)::int AS count
+      FROM categories c
+      LEFT JOIN posts p ON p.category_id = c.id
+        AND (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
+        AND p.post_type = 'blog'
+        AND p.published_at <= NOW()
+        AND (${bnFlag} = 0 OR (p.title_bn IS NOT NULL AND p.title_bn <> '' OR p.content_bn IS NOT NULL AND p.content_bn <> ''))
+      GROUP BY c.slug
+    `;
+    const counts: Record<string, number> = {};
+    for (const r of rows as unknown as { slug: string; count: number }[]) {
+      counts[r.slug] = Number(r.count) || 0;
+    }
+    return counts;
+  } catch (err) {
+    console.warn("[getCategoryCounts] Database unreachable, returning fallback {}:", err);
+    return {};
+  }
+}
+
+/**
+ * Newest post with is_featured = true under the same visibility rule.
+ * No DB change — the flag is already written by the editor/API and selected
+ * by getPublishedPosts. Returns null when nothing is featured; callers must
+ * render nothing in that case (never invent a featured post).
+ */
+export async function getFeaturedPost(opts?: {
+  bnOnly?: boolean;
+}): Promise<Post | null> {
+  const bnFlag = opts?.bnOnly ? 1 : 0;
+
+  try {
+    await autoPublishScheduledPosts();
+    const rows = await sql`
+      SELECT p.id, p.title_en, p.title_bn, p.slug, p.excerpt_en, p.excerpt_bn,
+             p.content_en, p.content_bn,
+             p.cover_image_url, p.published_at, p.read_time_min, p.is_featured, p.post_type,
+             c.id as cat_id, c.name_en as cat_name_en, c.name_bn as cat_name_bn,
+             c.slug as cat_slug, c.color as cat_color
+      FROM posts p
+      LEFT JOIN categories c ON p.category_id = c.id
+      WHERE (p.status = 'published' OR (p.status = 'scheduled' AND p.published_at <= NOW()))
+        AND p.post_type = 'blog'
+        AND p.published_at <= NOW()
+        AND p.is_featured = true
+        AND (${bnFlag} = 0 OR (p.title_bn IS NOT NULL AND p.title_bn <> '' OR p.content_bn IS NOT NULL AND p.content_bn <> ''))
+      ORDER BY p.published_at DESC
+      LIMIT 1
+    `;
+    return rows.length ? toPost(rows[0] as Record<string, unknown>) : null;
+  } catch (err) {
+    console.warn("[getFeaturedPost] Database unreachable, returning fallback null:", err);
+    return null;
+  }
+}
+
+/**
+ * Tags for a page of listing posts, in one query. Used so listing cards can
+ * show real tag chips (linking to /blog?tag=<slug>). Returns {} on any error
+ * so a tag failure never breaks the listing.
+ */
+export async function getTagsForPostIds(
+  postIds: string[]
+): Promise<Record<string, Tag[]>> {
+  if (!postIds.length) return {};
+  try {
+    const rows = await sql`
+      SELECT pt.post_id, t.id, t.name_en, t.name_bn, t.slug
+      FROM post_tags pt
+      JOIN tags t ON pt.tag_id = t.id
+      WHERE pt.post_id = ANY(${postIds})
+      ORDER BY t.name_en
+    `;
+    const map: Record<string, Tag[]> = {};
+    for (const r of rows as unknown as ({ post_id: string } & Tag)[]) {
+      (map[r.post_id] ??= []).push({
+        id: r.id,
+        name_en: r.name_en,
+        name_bn: r.name_bn,
+        slug: r.slug,
+      });
+    }
+    return map;
+  } catch (err) {
+    console.warn("[getTagsForPostIds] Database unreachable, returning fallback {}:", err);
+    return {};
   }
 }
 

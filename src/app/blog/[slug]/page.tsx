@@ -6,7 +6,6 @@ import { getPostBySlug, getRelatedPosts, getAllPostSlugs, getAdjacentPosts, extr
 import ArticleContent from "@/components/blog/ArticleContent";
 import ArticleCTA from "@/components/blog/ArticleCTA";
 import RelatedPosts from "@/components/blog/RelatedPosts";
-import ShareButtons from "@/components/blog/ShareButtons";
 import BlogInteractions from "@/components/blog/BlogInteractions";
 import TableOfContents from "@/components/blog/TableOfContents";
 import ReadingProgressBar from "@/components/blog/ReadingProgressBar";
@@ -273,11 +272,11 @@ export default async function BlogPostPage({
         </div>
 
         {/* Content Section with 3-Column Layout */}
-        <BlogReaderProvider>
+        <BlogReaderProvider slug={slug}>
           <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row gap-6 xl:gap-10 relative justify-center items-start">
             
             {/* Left Interactive Floating Bar (Sticky on desktop, Bottom Bar on mobile) */}
-            <ArticleFloatingBar slug={slug} title={post.title_en} lang="en" />
+            <ArticleFloatingBar title={post.title_en} lang="en" />
 
             {/* Main Article Content */}
             <article className="flex-1 max-w-4xl min-w-0 w-full bg-[#0e1729] rounded-[22px] border-[1.5px] border-[#1a2947] p-6 sm:p-8 md:p-12 -mt-20 sm:-mt-24 relative z-20">
@@ -301,7 +300,7 @@ export default async function BlogPostPage({
                   <span className="text-[#22345a]">/</span>
                   <span className="text-[#eef4ff] truncate max-w-[240px]">{post.title_en}</span>
                 </nav>
-                <BlogInteractions slug={slug} />
+                <BlogInteractions />
               </div>
 
               {/* Mobile Table of Contents */}
@@ -331,7 +330,7 @@ export default async function BlogPostPage({
                   <p className="font-bold text-[#eef4ff] text-sm">Found this article helpful?</p>
                   <p className="text-xs text-[#a9bedd]">Give some claps to support more in-depth engineering logs!</p>
                 </div>
-                <BlogInteractions slug={slug} />
+                <BlogInteractions />
               </div>
 
               {/* Tags */}
@@ -342,7 +341,7 @@ export default async function BlogPostPage({
                     {post.post_tags.map(({ tags: tag }) => (
                       <Link
                         key={tag.id}
-                        href={`/blog?search=${encodeURIComponent(tag.name_en)}`}
+                        href={`/blog?tag=${encodeURIComponent(tag.slug)}`}
                         className="px-4 py-2 rounded-full font-mono text-[12.5px] bg-[#0e1729] border-[1.5px] border-[#22345a] text-[#c3d2ea] hover:text-[#2fd8f2] hover:border-[#0e7d99] transition-colors"
                       >
                         #{tag.name_en}

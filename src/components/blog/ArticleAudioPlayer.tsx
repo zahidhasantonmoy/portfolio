@@ -353,15 +353,15 @@ export default function ArticleAudioPlayer({
   };
 
   return (
-    <div className="my-8 relative overflow-hidden rounded-2xl border border-indigo-200/70 dark:border-indigo-900/60 bg-gradient-to-r from-indigo-50/70 via-white/80 to-purple-50/70 dark:from-indigo-950/40 dark:via-gray-900/70 dark:to-purple-950/40 backdrop-blur-md shadow-sm p-4 sm:p-5 transition-all duration-300">
+    <div className="my-8 relative overflow-hidden rounded-2xl border-[1.5px] border-[#1a2947] bg-[#0e1729] backdrop-blur-md shadow-sm p-4 sm:p-5 transition-all duration-300">
       {/* Ambient background glow when playing */}
       {isPlaying && (
-        <div className="absolute inset-0 bg-indigo-500/5 dark:bg-indigo-400/5 animate-pulse pointer-events-none" />
+        <div className="absolute inset-0 bg-[#2fd8f2]/5 animate-pulse pointer-events-none" />
       )}
 
       {/* Mode Selector Header */}
-      <div className="flex items-center gap-1.5 mb-3.5 pb-2.5 border-b border-indigo-100/70 dark:border-indigo-900/50">
-        <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 mr-1 hidden sm:inline">
+      <div className="flex items-center gap-1.5 mb-3.5 pb-2.5 border-b border-[#1a2947]">
+        <span className="text-[11px] font-semibold text-[#a9bedd] mr-1 hidden sm:inline">
           {lang === "bn" ? "মোড:" : "Mode:"}
         </span>
         <button
@@ -369,8 +369,8 @@ export default function ArticleAudioPlayer({
           onClick={() => handleToggleMode("summary")}
           className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
             audioMode === "summary"
-              ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/30"
-              : "bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/80 border border-gray-200/60 dark:border-gray-700/60"
+              ? "bg-[#2fd8f2] text-[#060a13] shadow-sm shadow-[#2fd8f2]/30"
+              : "bg-[#122036] text-[#c3d2ea] hover:bg-[#1a2947] border border-[#22345a]"
           }`}
         >
           {t.summaryMode}
@@ -380,8 +380,8 @@ export default function ArticleAudioPlayer({
           onClick={() => handleToggleMode("full")}
           className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
             audioMode === "full"
-              ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/30"
-              : "bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/80 border border-gray-200/60 dark:border-gray-700/60"
+              ? "bg-[#2fd8f2] text-[#060a13] shadow-sm shadow-[#2fd8f2]/30"
+              : "bg-[#122036] text-[#c3d2ea] hover:bg-[#1a2947] border border-[#22345a]"
           }`}
         >
           {t.fullMode}
@@ -395,7 +395,7 @@ export default function ArticleAudioPlayer({
           <button
             onClick={isPlaying ? handlePause : handlePlay}
             aria-label={isPlaying ? "Pause audio narration" : "Play audio narration"}
-            className="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all flex-shrink-0 group"
+            className="w-12 h-12 rounded-full bg-[#ffb02e] text-[#1a1200] flex items-center justify-center shadow-md shadow-[#ffb02e]/30 hover:scale-105 active:scale-95 transition-all flex-shrink-0 group"
           >
             {isPlaying ? (
               <FiPause className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -407,29 +407,29 @@ export default function ArticleAudioPlayer({
           {/* Title & Status */}
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-gray-900 dark:text-white truncate">
+              <span className="text-sm font-bold text-[#eef4ff] truncate">
                 {t.title}
               </span>
-              <span className="hidden xs:inline-flex items-center gap-1 text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300">
-                <HiSparkles className="w-3 h-3 text-indigo-500" />
+              <span className="hidden xs:inline-flex items-center gap-1 text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-[#122036] text-[#2fd8f2]">
+                <HiSparkles className="w-3 h-3 text-[#2fd8f2]" />
                 TTS
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            <div className="flex items-center gap-2 text-xs text-[#a9bedd] mt-0.5">
               {isPlaying ? (
-                <div className="flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 font-medium">
+                <div className="flex items-center gap-1.5 text-[#2fd8f2] font-medium">
                   {/* Animated Equalizer Waveform */}
                   <span className="flex items-end gap-[2px] h-3">
-                    <span className="w-0.5 h-full bg-indigo-500 rounded-full animate-[bounce_0.8s_infinite_ease-in-out]" />
-                    <span className="w-0.5 h-2/3 bg-indigo-500 rounded-full animate-[bounce_0.6s_infinite_ease-in-out]" />
-                    <span className="w-0.5 h-full bg-indigo-500 rounded-full animate-[bounce_0.9s_infinite_ease-in-out]" />
-                    <span className="w-0.5 h-1/2 bg-indigo-500 rounded-full animate-[bounce_0.7s_infinite_ease-in-out]" />
+                    <span className="w-0.5 h-full bg-[#2fd8f2] rounded-full animate-[bounce_0.8s_infinite_ease-in-out]" />
+                    <span className="w-0.5 h-2/3 bg-[#2fd8f2] rounded-full animate-[bounce_0.6s_infinite_ease-in-out]" />
+                    <span className="w-0.5 h-full bg-[#2fd8f2] rounded-full animate-[bounce_0.9s_infinite_ease-in-out]" />
+                    <span className="w-0.5 h-1/2 bg-[#2fd8f2] rounded-full animate-[bounce_0.7s_infinite_ease-in-out]" />
                   </span>
                   <span>{t.playing}</span>
                 </div>
               ) : isPaused ? (
-                <span className="text-amber-600 dark:text-amber-400 font-medium">
+                <span className="text-[#ffb02e] font-medium">
                   {t.paused}
                 </span>
               ) : (
@@ -439,7 +439,7 @@ export default function ArticleAudioPlayer({
               {voiceName && (
                 <>
                   <span>•</span>
-                  <span className="truncate max-w-[120px] text-gray-400">
+                  <span className="truncate max-w-[120px] text-[#a9bedd]">
                     {voiceName}
                   </span>
                 </>
@@ -449,13 +449,13 @@ export default function ArticleAudioPlayer({
         </div>
 
         {/* Right Side: Speed Selector, Stop Button, & Controls */}
-        <div className="flex items-center justify-between sm:justify-end gap-2.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-200/50 dark:border-gray-800/50">
+        <div className="flex items-center justify-between sm:justify-end gap-2.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#22345a]">
           {/* Stop / Reset Button */}
           {(isPlaying || isPaused) && (
             <button
               onClick={handleStop}
               title={t.stop}
-              className="p-2 rounded-xl text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              className="p-2 rounded-xl text-[#a9bedd] hover:text-red-400 hover:bg-red-500/10 transition-colors"
             >
               <FiSquare className="w-4 h-4" />
             </button>
@@ -465,14 +465,14 @@ export default function ArticleAudioPlayer({
           <button
             onClick={handleToggleSpeed}
             title="Adjust narration speed"
-            className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+            className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#122036] border border-[#22345a] text-[#c3d2ea] hover:border-[#0e7d99] transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
           >
-            <FiVolume2 className="w-3.5 h-3.5 text-indigo-500" />
+            <FiVolume2 className="w-3.5 h-3.5 text-[#2fd8f2]" />
             <span>{t.speed}</span>
           </button>
 
           {/* Progress Indicator */}
-          <div className="text-xs font-medium text-gray-500 dark:text-gray-400 min-w-[36px] text-right">
+          <div className="text-xs font-medium text-[#a9bedd] min-w-[36px] text-right">
             {progressPercent}%
           </div>
         </div>
@@ -480,9 +480,9 @@ export default function ArticleAudioPlayer({
 
       {/* Progress Bar */}
       {(isPlaying || isPaused || progressPercent > 0) && (
-        <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700/60 rounded-full h-1.5 overflow-hidden">
+        <div className="mt-3 w-full bg-[#22345a] rounded-full h-1.5 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-300"
+            className="bg-gradient-to-r from-[#2fd8f2] to-[#ffb02e] h-full rounded-full transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
           />
         </div>

@@ -1,10 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getPostBySlug, getAdjacentPosts, getRelatedPosts, extractFaqsFromMarkdown, generateFaqSchema } from "@/lib/blog";
+import { getPostBySlug, getAdjacentPosts, getRelatedPosts, getAllPostSlugs, extractFaqsFromMarkdown, generateFaqSchema } from "@/lib/blog";
 import ArticleContent from "@/components/blog/ArticleContent";
 import ArticleCTA from "@/components/blog/ArticleCTA";
-import ShareButtons from "@/components/blog/ShareButtons";
 import { FaRegClock, FaRegCalendarAlt, FaGithub, FaLinkedin, FaMedium, FaDev, FaCoffee } from "react-icons/fa";
 import ReadingProgressBar from "@/components/blog/ReadingProgressBar";
 import PostNavigation from "@/components/blog/PostNavigation";
@@ -18,6 +17,11 @@ import RelatedPosts from "@/components/blog/RelatedPosts";
 import { BlogReaderProvider } from "@/components/blog/BlogReaderContext";
 
 export const revalidate = 60; // ISR — 60 seconds
+
+export async function generateStaticParams() {
+  const slugs = await getAllPostSlugs();
+  return slugs.map((s) => ({ slug: s.slug }));
+}
 
 export async function generateMetadata({
   params,
@@ -266,11 +270,11 @@ export default async function BnBlogPostPage({
         </div>
 
         {/* Content Section with 3-Column Layout */}
-        <BlogReaderProvider>
+        <BlogReaderProvider slug={slug}>
           <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row gap-6 xl:gap-10 relative justify-center items-start">
             
             {/* Left Interactive Floating Bar */}
-            <ArticleFloatingBar slug={slug} title={post.title_bn} lang="bn" />
+            <ArticleFloatingBar title={post.title_bn} lang="bn" />
 
             {/* Main Article Content */}
             <article className="flex-1 max-w-4xl min-w-0 w-full bg-[#0e1729] rounded-[22px] border-[1.5px] border-[#1a2947] p-6 sm:p-8 md:p-12 -mt-20 sm:-mt-24 relative z-20">
@@ -294,7 +298,7 @@ export default async function BnBlogPostPage({
                   <span className="text-[#22345a]">/</span>
                   <span className="text-[#eef4ff] truncate max-w-[200px] sm:max-w-[300px]">{post.title_bn}</span>
                 </nav>
-                <BlogInteractions slug={slug} />
+                <BlogInteractions />
               </div>
 
               {/* Mobile Table of Contents */}
@@ -324,8 +328,26 @@ export default async function BnBlogPostPage({
                   <p className="font-bold text-[#eef4ff] text-sm">আর্টিকেলটি কি আপনার ভালো লেগেছে?</p>
                   <p className="text-xs text-[#a9bedd]">তন্ময়ের কাজকে সাপোর্ট করতে তালি (Clap) দিয়ে উৎসাহিত করুন!</p>
                 </div>
-                <BlogInteractions slug={slug} />
+                <BlogInteractions />
               </div>
+
+              {/* Tags */}
+              {post.post_tags && post.post_tags.length > 0 && (
+                <div className="mt-12 pt-8 border-t border-[#1a2947]">
+                  <h3 className="font-mono text-[12.5px] tracking-[0.09em] uppercase text-[#ffb02e] mb-4">ট্যাগ</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {post.post_tags.map(({ tags: tag }) => (
+                      <Link
+                        key={tag.id}
+                        href={`/bn/blog?tag=${encodeURIComponent(tag.slug)}`}
+                        className="px-4 py-2 rounded-full font-mono text-[12.5px] bg-[#0e1729] border-[1.5px] border-[#22345a] text-[#c3d2ea] hover:text-[#2fd8f2] hover:border-[#0e7d99] transition-colors"
+                      >
+                        #{tag.name_bn || tag.name_en}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Next / Previous Article Navigation */}
               <PostNavigation prev={adjacent.prev} next={adjacent.next} lang="bn" />

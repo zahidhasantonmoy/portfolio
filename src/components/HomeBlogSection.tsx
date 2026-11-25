@@ -1,19 +1,28 @@
 import Link from "next/link";
-import { getPublishedPosts, getCategories } from "@/lib/blog";
+import {
+  getPublishedPosts,
+  getPublishedPostCount,
+  getCategories,
+  getCategoryCounts,
+  getTagsForPostIds,
+} from "@/lib/blog";
 import LiveBlogList from "@/components/blog/LiveBlogList";
 
 /**
  * Redesign 4 home blog teaser — same live DB data and the same
- * LiveBlogList (search + category chips + rows) as /blog, embedded
+ * LiveBlogList (search + category chips + cards) as /blog, embedded
  * in the home page between Story and GitHub. Nothing is hardcoded:
- * the post count and categories come from the database.
+ * the post count and categories come from the database. Shows the
+ * 6 newest posts; search/category input navigates to the full blog.
  */
 export default async function HomeBlogSection() {
-  const [posts, categories] = await Promise.all([
-    getPublishedPosts({ limit: 100 }),
+  const [posts, totalPosts, categories, categoryCounts] = await Promise.all([
+    getPublishedPosts({ limit: 6 }),
+    getPublishedPostCount(),
     getCategories(),
+    getCategoryCounts(),
   ]);
-  const totalPosts = posts.length;
+  const postTags = await getTagsForPostIds(posts.map((p) => p.id));
 
   return (
     <section className="block wrap" id="blog">
@@ -29,7 +38,14 @@ export default async function HomeBlogSection() {
           <strong>search or filter</strong> to find a topic.
         </p>
       </div>
-      <LiveBlogList initialPosts={posts} categories={categories} />
+      <LiveBlogList
+        initialPosts={posts}
+        categories={categories}
+        categoryCounts={categoryCounts}
+        postTags={postTags}
+        totalCount={totalPosts}
+        basePath="/blog"
+      />
       <p style={{ marginTop: "16px" }}>
         <Link className="btn btn-ghost" href="/blog">
           Open the full blog ↗

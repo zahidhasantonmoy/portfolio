@@ -83,19 +83,19 @@ export default function TableOfContents({ content, lang = 'en' }: TableOfContent
       aria-label="Table of contents"
       className="p-5 rounded-2xl backdrop-blur-sm shadow-sm border"
       style={{
-        background: 'var(--bg-surface)',
-        borderColor: 'var(--border)',
+        background: 'var(--card)',
+        borderColor: 'var(--line-soft)',
       }}
     >
       <div
         className="flex items-center gap-2 pb-3 mb-3 border-b text-xs font-bold uppercase tracking-wider"
         style={{
-          borderColor: 'var(--border)',
-          color: 'var(--text-secondary)',
+          borderColor: 'var(--line-soft)',
+          color: 'var(--ink-mute)',
         }}
       >
-        <FaListUl className="text-blue-500" />
-        <span style={{ color: 'var(--text-primary)' }}>
+        <FaListUl className="text-[#2fd8f2]" />
+        <span style={{ color: 'var(--ink)' }}>
           {lang === 'bn' ? 'সূচিপত্র' : 'Table of Contents'}
         </span>
       </div>
@@ -125,8 +125,8 @@ export default function TableOfContents({ content, lang = 'en' }: TableOfContent
                     : 'hover:opacity-100 opacity-80 hover:bg-white/5'
                 }`}
                 style={{
-                  color: isActive ? 'var(--accent-primary)' : 'var(--text-primary)',
-                  borderLeft: isActive ? '2px solid var(--accent-primary)' : '2px solid transparent',
+                  color: isActive ? 'var(--cyan)' : 'var(--ink)',
+                  borderLeft: isActive ? '2px solid var(--cyan)' : '2px solid transparent',
                   background: isActive ? 'var(--glow-primary)' : 'transparent',
                 }}
               >

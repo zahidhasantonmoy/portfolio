@@ -13,6 +13,7 @@ export async function GET() {
       SELECT id, title_en, slug, excerpt_en, content_en, cover_image_url, published_at, post_type
       FROM posts
       WHERE (status = 'published' OR (status = 'scheduled' AND published_at <= NOW()))
+        AND post_type = 'blog'
         AND published_at <= NOW()
       ORDER BY published_at DESC
       LIMIT 50
@@ -29,7 +30,8 @@ export async function GET() {
 
   const itemsXml = posts
     .map((post) => {
-      const postUrl = `${SITE_URL}/${post.post_type === "journal" ? "journal" : "blog"}/${post.slug}`;
+      // Blog posts only (journal entries live at /journal/<date>, not /journal/<slug>).
+      const postUrl = `${SITE_URL}/blog/${post.slug}`;
       const pubDate = post.published_at ? new Date(post.published_at).toUTCString() : new Date().toUTCString();
       const title = post.title_en || "Untitled Post";
       const excerpt = post.excerpt_en || "";
